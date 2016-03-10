@@ -25,7 +25,7 @@ Authors: Anindya Bhadra, Jyotishka Datta, Nicholas G. Polson and Brandon T. Will
 >  traditional estimators, including the horseshoe and Dirichlet-Laplace
 >  estimators.  For local-global scale mixture priors, we develop a new
 >  technique for analysing marginal sparse prior distributions using the class
->  of Meijer-G functions.  Finally, we conclude with an illustration on a
+>  of Meijer G-functions.  Finally, we conclude with an illustration on a
 >  prostrate cancer data set and by pointing out some directions for future
 >  research.  
 >  [pdf](http://arxiv.org/abs/1502.00560)
@@ -73,7 +73,7 @@ Authors: Brandon Willard
 Authors: Brandon Willard
 
 > This paper gives details of computing the numerical values of the radial wave
-> function at the origin of heavy quark-antiquark system, $$|R\_nl(0)|\^2$$, and
+> function at the origin of heavy quark-antiquark system, $$|R_{nl}(0)|^2,$$ and
 > its derivatives in potential quark models. These quantities provide numerical
 > estimates of the non-perturbative parameters in Non-Relativistic QCD (NRQCD),
 > an effective field theory describing decay and production of heavy quarkonium
