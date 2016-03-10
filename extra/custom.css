@@ -1,0 +1,7 @@
+
+	#extras div[class='social'] a {
+		background-repeat: no-repeat;
+		background-position: 3px 6px;
+		padding-left: 25px;
+	}
+		.social a[href*='scholar.google.com'] {background-image: url('../images/icons/google-scholar.png');}
