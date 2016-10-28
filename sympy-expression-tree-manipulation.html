@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en"
+>
+<head>
+    <title>SymPy Expression Tree Manipulation - Brandon T. Willard</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="/sympy-expression-tree-manipulation.html">
+
+        <meta name="author" content="Brandon Willard" />
+        <meta name="description" content="I was working on a proof/algorithm for improved computations for the expectations in our recent Prediction risk for global-local shrinkage regression paper. These computations are already available in our Python package (and its R wrapper), but they’re not as efficient–or direct–as they could be, of course ..." />
+
+        <meta property="og:site_name" content="Brandon T. Willard" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="SymPy Expression Tree Manipulation"/>
+        <meta property="og:url" content="/sympy-expression-tree-manipulation.html"/>
+        <meta property="og:description" content="I was working on a proof/algorithm for improved computations for the expectations in our recent Prediction risk for global-local shrinkage regression paper. These computations are already available in our Python package (and its R wrapper), but they’re not as efficient–or direct–as they could be, of course ..."/>
+        <meta property="article:published_time" content="2016-10-27" />
+            <meta property="article:section" content="articles" />
+            <meta property="article:author" content="Brandon Willard" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+Brandon T. Willard            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="/pages/projects.html">
+                             Projects
+                          </a></li>
+                         <li><a href="/pages/publications.html">
+                             Publications
+                          </a></li>
+                        <li class="active">
+                            <a href="/category/articles.html">Articles</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="/sympy-expression-tree-manipulation.html"
+                       rel="bookmark"
+                       title="Permalink to SymPy Expression Tree Manipulation">
+                        SymPy Expression Tree Manipulation
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-10-27T00:00:00-05:00"> Thu 27 October 2016</time>
+    </span>
+
+
+
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>I was working on a proof/algorithm for improved computations for the expectations in our recent <a href="https://arxiv.org/abs/1605.04796">Prediction risk for global-local shrinkage regression</a> paper. These computations are already available in our <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg">Python package</a> (and its <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg">R wrapper</a>), but they’re not as efficient–or direct–as they could be, of course. The approach I’m taking involves some insight into the special functions involved and has resulted in a <a href="https://github.com/sympy/sympy">SymPy</a> implementation of a bivariate confluent hypergeometric function: the <a href="https://en.wikipedia.org/wiki/Humbert_series">Humbert</a> <span class="math">\(\Phi_1\)</span>.</p>
+<p>Our expectations appear as ratios of these <span class="math">\(\Phi_1\)</span>, so I was interested in a replacement routine that would identify them in SymPy [sub]expressions and make a symbolic replacement. Let’s call this function <code>as_expectations</code>; it would take a <code>sympy.Expr</code> and make the replacements.</p>
+<p>Specifically, the expectations are given by </p>
+<div class="math">$$\begin{equation}
+E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \gamma; x, y)}
+\;.
+\label{eq:expectation}
+\end{equation}$$</div>
+<p>Let’s set up a situation in which <code>as_expectations</code> would be used, and from there attempt to construct it. First, a test expression with terms that match our expectation’s general pattern:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sympy</span> <span class="kn">as</span> <span class="nn">sp</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">hsplus.horn_function</span> <span class="kn">import</span> <span class="n">HornPhi1</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;a, b, g, z_1, z_2&#39;</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_1</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">n</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Dummy</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">i</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Dummy</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nonnegative</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_2</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span> <span class="o">+</span> <span class="n">n</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_3</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span> <span class="o">+</span> <span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r_1</span> <span class="o">=</span> <span class="n">phi1_2</span><span class="o">/</span><span class="n">phi1_1</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r_2</span> <span class="o">=</span> <span class="n">phi1_3</span><span class="o">/</span><span class="n">phi1_1</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">expr</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">r_1</span> <span class="o">/</span> <span class="n">g</span> <span class="o">+</span> <span class="n">sp</span><span class="o">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">z_1</span><span class="o">/</span><span class="n">z_2</span> <span class="o">*</span> <span class="n">r_2</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">r_2</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span>
+<span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Our test expression <code>expr</code> looks like this</p>
+<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">latex</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;equation*&#39;</span><span class="p">,</span> <span class="n">itex</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="math">$$\begin{equation*}
+\frac{a \operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2}
+\right)}}{\operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2} \right)}}
++ \sum_{i=0}^{n} \left(\frac{z_{1} \operatorname{\Phi_1}{\left(a, b, -
+i + n + g; z_{1}, z_{2} \right)}}{z_{2} \operatorname{\Phi_1}{\left(a,
+b, g; z_{1}, z_{2} \right)}} - \frac{3 \operatorname{\Phi_1}{\left(a,
+b, - i + n + g; z_{1}, z_{2} \right)}}{\operatorname{\Phi_1}{\left(a,
+b, g; z_{1}, z_{2} \right)}}\right) - \frac{b
+\operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2} \right)}}{g
+\operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2} \right)}}
+\end{equation*}$$</div>
+<p>The ratios <code>r_1</code> and <code>r_2</code> should both be replaced by a symbol for <span class="math">\(E[X^m]\)</span>, for <span class="math">\(m = n\)</span> and <span class="math">\(m = n - i\)</span> when <span class="math">\(i &lt; n\)</span> respectively. We could allow <span class="math">\(E[X^0]\)</span>, I suppose, but–for a more interesting discussion–let’s not.</p>
+<p>We start by creating a SymPy pattern that expresses the mathematical form of <span class="math">\(E[X^m]\)</span> in \eqref{eq:expectation}.</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">pnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;z_1&#39;</span><span class="p">,</span> <span class="s1">&#39;z_2&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_wild_args_n</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">n_</span> <span class="o">+</span> <span class="s1">&#39;_w&#39;</span> <span class="k">for</span> <span class="n">n_</span> <span class="ow">in</span>
+<span class="n">pnames</span><span class="p">),</span>
+<span class="o">...</span>                               <span class="n">cls</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">n_w</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">(</span><span class="s1">&#39;n_w&#39;</span><span class="p">,</span>
+<span class="o">...</span>               <span class="n">properties</span><span class="o">=</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">is_integer</span> <span class="ow">and</span>
+<span class="n">x</span><span class="o">.</span><span class="n">is_positive</span><span class="p">,),</span>
+<span class="o">...</span>               <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">2</span><span class="p">],))</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_wild_d</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+<span class="o">...</span>                        <span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span>
+<span class="o">...</span>                        <span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_wild_n</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+<span class="o">...</span>                        <span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">n_w</span><span class="p">,),</span>
+<span class="o">...</span>                        <span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">C_w</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">(</span><span class="s1">&#39;C_w&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">S</span><span class="o">.</span><span class="n">Zero</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">E_pattern</span> <span class="o">=</span> <span class="n">phi1_wild_n</span> <span class="o">/</span> <span class="n">phi1_wild_d</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">E_fn</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+
+<p>If we focus on only one of the terms (one we know matches <code>E_pattern</code>), <code>r_1</code>, we should find that our pattern suffices:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">r_1</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">E_pattern</span><span class="p">)</span>
+<span class="p">{</span><span class="n">z_2_w_</span><span class="p">:</span> <span class="n">z_2</span><span class="p">,</span> <span class="n">z_1_w_</span><span class="p">:</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">a_w_</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">g_w_</span><span class="p">:</span> <span class="n">g</span><span class="p">,</span> <span class="n">n_w_</span><span class="p">:</span> <span class="n">_n</span><span class="p">,</span> <span class="n">b_w_</span><span class="p">:</span> <span class="n">b</span><span class="p">}</span>
+</pre></div>
+
+
+<p>However, building up to the complexity of <code>expr</code>, we see that a simple product doesn’t:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">E_pattern</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Basically, the product has introduced some problems that arise from associativity. Here are the details for the root expression tree:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">func</span>
+<span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">sympy</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">mul</span><span class="o">.</span><span class="n">Mul</span><span class="s1">&#39;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
+<span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">),</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">_n</span> <span class="o">+</span> <span class="n">g</span><span class="p">,),</span>
+<span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">))</span>
+</pre></div>
+
+
+<p>The root operation is multiplication and the operation’s arguments are all terms in the product/division.</p>
+<p>Any complete search for matches to <code>E_pattern</code> would have to consider all possible combinations of terms in <code>(a * r_1).args</code>, i.e. all possible groupings that arise due to associativity. The simple inclusion of another <code>Wild</code> term causes the match to succeed, since SymPy’s basic pattern matching does account for associativity in this case.</p>
+<p>Here are a few explicit ways to make the match work:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">)</span>
+<span class="p">{</span><span class="n">a_w_</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">g_w_</span><span class="p">:</span> <span class="n">g</span><span class="p">,</span> <span class="n">n_w_</span><span class="p">:</span> <span class="n">_n</span><span class="p">,</span> <span class="n">z_2_w_</span><span class="p">:</span> <span class="n">z_2</span><span class="p">,</span> <span class="n">C_w_</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">b_w_</span><span class="p">:</span> <span class="n">b</span><span class="p">,</span> <span class="n">z_1_w_</span><span class="p">:</span>
+<span class="n">z_1</span><span class="p">}</span>
+</pre></div>
+
+
+<p>or</p>
+<div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">,</span> <span class="n">C_w</span> <span class="o">*</span> <span class="n">E_fn</span><span class="p">(</span><span class="n">n_w</span><span class="p">,</span>
+<span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">latex</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;equation*&#39;</span><span class="p">,</span> <span class="n">itex</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="math">$$\begin{equation*}
+a E{\left (n,a,b,g,z_{1},z_{2} \right )}
+\end{equation*}$$</div>
+<p>and via <code>rewriterule</code>:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sympy.unify.rewrite</span> <span class="kn">import</span> <span class="n">rewriterule</span>
+<span class="n">rl</span> <span class="o">=</span> <span class="n">rewriterule</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">,</span>
+                 <span class="n">C_w</span> <span class="o">*</span> <span class="n">E_fn</span><span class="p">(</span><span class="n">n_w</span><span class="p">,</span> <span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">),</span>
+                 <span class="n">phi1_wild_args_n</span> <span class="o">+</span> <span class="p">(</span><span class="n">n_w</span><span class="p">,</span> <span class="n">C_w</span><span class="p">))</span>
+<span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rl</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">latex</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;equation*&#39;</span><span class="p">,</span> <span class="n">itex</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="math">$$\begin{equation*}
+\left [ a E{\left (n,a,b,g,z_{1},z_{2} \right )}\right ]
+\end{equation*}$$</div>
+<p>The advantage in using <code>rewriterule</code> is that multiple matches will be returned:</p>
+<div class="highlight"><pre><span></span><span class="n">phi1_4</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span> <span class="o">+</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
+
+<span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rl</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span> <span class="o">*</span> <span class="n">phi1_4</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">latex</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;equation*&#39;</span><span class="p">,</span> <span class="n">itex</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="math">$$\begin{equation*}
+\left [ a \operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2}
+\right)} E{\left (n + 1,a,b,g,z_{1},z_{2} \right )}, \quad a
+\operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2} \right)} E{\left
+(n + 1,a,b,g,z_{1},z_{2} \right )}, \quad a
+\operatorname{\Phi_1}{\left(a, b, n + g + 1; z_{1}, z_{2} \right)}
+E{\left (n,a,b,g,z_{1},z_{2} \right )}, \quad a
+\operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2} \right)} E{\left
+(n + 1,a,b,g,z_{1},z_{2} \right )}, \quad a
+\operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2} \right)} E{\left
+(n + 1,a,b,g,z_{1},z_{2} \right )}, \quad a
+\operatorname{\Phi_1}{\left(a, b, n + g + 1; z_{1}, z_{2} \right)}
+E{\left (n,a,b,g,z_{1},z_{2} \right )}\right ]
+\end{equation*}$$</div>
+<p>FYI: the associativity of terms inside the function arguments is causing the seemingly duplicate results.</p>
+<p>Naive use of <code>Expr.replace</code> doesn’t give all results; instead, it does something likely unexpected:</p>
+<div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span> <span class="o">*</span> <span class="n">phi1_4</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">,</span>
+                                 <span class="n">C_w</span> <span class="o">*</span> <span class="n">E_fn</span><span class="p">(</span><span class="n">n_w</span><span class="p">,</span> <span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">latex</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;equation*&#39;</span><span class="p">,</span> <span class="n">itex</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="math">$$\begin{equation*}
+a E{\left (n,a,b,g,z_{1},z_{2} \right )} E{\left (n +
+1,a,b,g,z_{1},z_{2} \right )} \operatorname{\Phi_1}{\left(a, b, g;
+z_{1}, z_{2} \right)}
+\end{equation*}$$</div>
+<p>Returning to our more complicated <code>expr</code>…Just because we can match products doesn’t mean we’re finished, since we still need a good way to traverse the entire expression tree and match the sub-trees. More importantly, adding the multiplicative <code>Wild</code> term <code>C_w</code> is more of a hack than a direct solution, since we don’t want the matched contents of <code>C_w</code>.</p>
+<p>Although <code>Expr.replace/xreplace</code> will match sub-expressions, we found above that it produces some odd results. Those results persist when applied to more complicated expressions:</p>
+<div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">,</span> <span class="n">C_w</span> <span class="o">*</span> <span class="n">E_fn</span><span class="p">(</span><span class="n">n_w</span><span class="p">,</span>
+<span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">latex</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;equation*&#39;</span><span class="p">,</span> <span class="n">itex</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="math">$$\begin{equation*}
+a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
+(n,a,b,g,z_{1},z_{2} \right )} + \sum_{i=0}^{n} \left(\frac{z_{1}
+E{\left (n,a,b,- i + g,z_{1},z_{2} \right )}}{z_{2}
+\operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2} \right)}}
+\operatorname{\Phi_1}{\left(a, b, - i + g; z_{1}, z_{2} \right)} -
+\frac{3 E{\left (n,a,b,- i + g,z_{1},z_{2} \right
+)}}{\operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2} \right)}}
+\operatorname{\Phi_1}{\left(a, b, - i + g; z_{1}, z_{2}
+\right)}\right)
+\end{equation*}$$</div>
+<p>Again, it looks like the matching was a little too liberal and introduced extra <code>E</code> and <code>HornPhi1</code> terms. This is to be expected from the <code>Wild</code> matching in SymPy; it needs us to specify what <em>not</em> to match, as well. Our “fix” that introduced <code>C_w</code> is the exact source of the problem, but we can tell it not to match <code>HornPhi1</code> terms and get better results:</p>
+<div class="highlight"><pre><span></span><span class="n">C_w</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">(</span><span class="s1">&#39;C_w&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">S</span><span class="o">.</span><span class="n">Zero</span><span class="p">,</span> <span class="n">HornPhi1</span><span class="p">])</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">,</span> <span class="n">C_w</span> <span class="o">*</span> <span class="n">E_fn</span><span class="p">(</span><span class="n">n_w</span><span class="p">,</span>
+<span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">latex</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;equation*&#39;</span><span class="p">,</span> <span class="n">itex</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="math">$$\begin{equation*}
+a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
+(n,a,b,g,z_{1},z_{2} \right )} + \sum_{i=0}^{n} \left(\frac{z_{1}
+\operatorname{\Phi_1}{\left(a, b, - i + n + g; z_{1}, z_{2}
+\right)}}{z_{2} \operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2}
+\right)}} - \frac{3 \operatorname{\Phi_1}{\left(a, b, - i + n + g;
+z_{1}, z_{2} \right)}}{\operatorname{\Phi_1}{\left(a, b, g; z_{1},
+z_{2} \right)}}\right)
+\end{equation*}$$</div>
+<p>We’ve stopped it from introducing those superfluous <code>E</code> terms, but we’re still not getting replacements for the <code>HornPhi1</code> ratios in the sums. Let’s single out those terms and see what’s going on:</p>
+<div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">r_2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">latex</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;equation*&#39;</span><span class="p">,</span> <span class="n">itex</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="math">$$\begin{equation*}
+\left\{\right\}
+\end{equation*}$$</div>
+<p>The constrained integer <code>Wild</code> term, <code>n_w</code>, probably isn’t matching. Given the form of our pattern, <code>n_w</code> should match <code>n - i</code>, but <code>n - i</code> isn’t strictly positive, as required:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">is_positive</span> <span class="o">==</span> <span class="bp">True</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sp</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">positive</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="bp">True</span>
+<span class="bp">False</span>
+</pre></div>
+
+
+<p>Since <span class="math">\(n &gt; 0\)</span> and <span class="math">\(i &gt;= 0\)</span>, the only missing piece is that <span class="math">\(n &gt; i\)</span>. The most relevant mechanism in SymPy to assess this information is the Assumptions interface. We could add and retrieve the assumption <code>sp.Q.is_true(n &gt; i)</code> via <code>sp.assume.global_assumptions</code>, or perform these operations inside of a Python <code>with</code> block, etc. This context managment (literally <code>sympy.assumptions.assume.AssumptionsContext</code>) would have to be performed manually, since I am not aware of any such mechanism offered by <code>Sum</code> and/or <code>Expr.replace</code>.</p>
+<p>Unfortunately, these ideas sound good, but aren’t implemented:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">sp</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">positive</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">sp</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">is_true</span><span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="bp">True</span>
+<span class="bp">False</span>
+</pre></div>
+
+
+<p>See the documentation for <code>sympy.assumptions.ask.ask</code>; it explicitely states that inequalities aren’t handled, yet.</p>
+<p>We could probably perform a manual reworking of <code>sp.Q.is_true(n &gt; i)</code> to <code>sp.Q.is_true(n - i &gt; 0)</code>, which is of course equivalent to <code>sp.Q.positive(n - i)</code>: the result we want.</p>
+<p>If one were to provide this functionality, there’s still the question of how the relevant <code>AssumptionsContext</code>s would be created and passed around/nested during the subexpression replacements. There is no apparent means of adding this sort of functionality through the <code>Expr.replace</code> interface, so this path looks less appealing. However, nesting <code>with</code> blocks from strategies in <code>sympy.strategies</code> does seem quite possible. For example, in <code>sympy.strategies.traverse.sall</code>, one could possibly wrap the <code>return</code> statement after the <code>map(rule, ...)</code> call in a <code>with sympy.assuming(...):</code> block that contains the assumptions for any variables arising as, say, the index of a <code>Sum</code>–like in our case. In this scenario, code in the subexpressions would be able to ask questions like <code>sp.Q.is_true(n &gt; i)</code> without altering the global assumptions context or the objects involved.</p>
+<p>Anyway, that’s all I wanted to cover here. Perhaps later I’ll post a hack for the assumptions approach, but–at the very least–I’ll try to follow up with a more direct solution that uses <code>sympy.strategies</code>.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "true";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js','AMSmath.js','AMSsymbols.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<div id="aboutme">
+        <p>
+            <img width="100%" class="img-thumbnail" src="/images/profile-pic.png"/>
+        </p>
+    <p>
+        <strong>About Brandon T. Willard</strong><br/>
+        applied math/stats person
+    </p>
+</div>
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="http://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+                <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="fa fa-google-scholar-square fa-lg"></i> google scholar</a></li>
+                <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
+                <li class="list-group-item"><a href="https://bitbucket.org/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
+                <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> gitHub</a></li>
+              </ul>
+            </li>
+
+
+
+            <li class="list-group-item"><a href="/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <ul class="list-group " id="tags">
+                </ul>
+            </li>
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Brandon T. Willard
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+
+</body>
+</html>
