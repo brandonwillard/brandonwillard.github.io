@@ -1,0 +1,365 @@
+\documentclass[12pt]{article}
+\usepackage{setspace}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{subcaption}
+\usepackage{suffix}
+\usepackage{color}
+
+% Sadly, can't use this because it breaks greek letters.
+%\usepackage[slantedGreek]{mathpazo}
+\usepackage{breqn}
+
+\usepackage{todonotes}
+\usepackage{draftwatermark}
+\SetWatermarkScale{1}
+\SetWatermarkLightness{0.90}
+
+% used by Pweave
+\usepackage{graphicx}
+
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usepackage[backgroundcolor=bg, topline=false, bottomline=false, leftline=false, rightline=false]{mdframed}
+
+<<pweave_code, echo=False, evaluate=False>>=
+# ignore/change this stuff (and set infile manually) if you don't use neovim
+import neovim, os
+
+nvim = neovim.attach('socket', path=os.getenv("NVIM_LISTEN_ADDRESS"))
+currbuf = nvim.current.buffer
+infile = os.path.basename(currbuf.name)
+
+# here's a Pweave weave script...
+from pweave_custom import PwebFramedMinted
+from pweave import rcParams
+
+outext = "tex"
+docmode = True
+
+#dirs_split = os.getcwd().split(os.sep)
+#project_dir = str.join(os.sep, dirs_split[:dirs_split.index("src")])
+#output_file = str.join(os.sep, [project_dir, "src", "tex",
+#                                infile.split(os.path.extsep)[0] +
+#                                os.path.extsep + outext])
+project_dir = os.getcwd()
+output_file = str.join(os.sep, [project_dir,
+                                infile.split(os.path.extsep)[0] +
+                                os.path.extsep + outext])
+
+rcParams['figdir'] = str.join(os.sep, [project_dir, "figures"])
+rcParams['storeresults'] = docmode
+#rcParams['chunk']['defaultoptions']['engine'] = 'ipython'
+
+PwebFM = PwebFramedMinted(file=infile,
+                          format=outext,
+                          shell="ipython_ext",
+                          output=output_file,
+                          docmode=docmode)
+# weave something
+PwebFM.weave(shell="ipython_ext")
+@
+
+\usepackage{minted}
+\setminted{
+  fontsize=\footnotesize
+  , breaklines=true
+  , breakanywhere=true
+  , breakautoindent=true
+}
+
+% this order is important
+%\PassOptionsToPackage{hyphens}{url}
+\RequirePackage[hyphens]{url}
+\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[authoryear]{natbib}
+
+\allowdisplaybreaks
+
+\include{math-commands}
+
+\newcommand{\GordyPhi}{{\Phi_{1}}^\star}
+\newcommand{\HornPhi}{\Phi_{2}}
+\newcommand{\err}{\ensuremath{\text{err}}}
+\newcommand{\Err}{\ensuremath{\text{Err}}}
+\newcommand{\hatmu}{\ensuremath{\hat{\mu}}}
+\newcommand{\bhatmu}{\ensuremath{\hat{\bmu}}}
+
+\graphicspath{{../../figures/}{../figures/}{./figures/}{./}}
+
+<<sympy_setup, echo=False, results='hidden'>>=
+
+#import numpy as np
+#import mpmath as mp
+import sympy as sp
+
+import hsplus
+
+#import matplotlib.pyplot as plt
+#plt.style.use('ggplot')
+#plt.rc('text', usetex=True)
+#plot_cmap = plt.cm.YlOrRd
+
+sp.init_printing(
+    use_latex='mathjax',
+    order='grlex',
+    latex_mode='equation',
+    #ip=get_ipython(),
+    pretty_print=True,
+    use_unicode=False,
+    num_columns=80,
+    wrap_line=True
+)
+#sp.init_printing(pretty_print=True, use_unicode=True,
+#                 wrap_line=True, num_columns=79)
+
+@
+
+\title{SymPy Expression Tree Manipulation}
+
+\author{Brandon Willard}
+
+\date{2016-10-27}
+
+
+\begin{document}
+
+\maketitle
+%\begin{abstract}
+%\end{abstract}
+
+I was working on a proof/algorithm for improved computations for the expectations in our
+recent \href{https://arxiv.org/abs/1605.04796}{Prediction risk for global-local shrinkage regression}
+paper.  These computations are already available in our
+\href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg}{Python package}
+(and its \href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg}{R wrapper}),
+but they're not as efficient--or direct--as they could be, of course.  The
+approach I'm taking involves some insight into the special functions involved
+and has resulted in a \href{https://github.com/sympy/sympy}{SymPy} implementation of a bivariate
+confluent hypergeometric function: the \href{https://en.wikipedia.org/wiki/Humbert_series}{Humbert}
+$\Phi_1$.
+
+Our expectations appear as ratios of these $\Phi_1$, so I was interested in a
+replacement routine that would identify them in SymPy [sub]expressions and make
+a symbolic replacement.  Let's call this function \texttt{as\_expectations}; it would
+take a \texttt{sympy.Expr} and make the replacements.
+
+Specifically, the expectations are given by
+\begin{equation}
+E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \gamma; x, y)}
+\;.
+\label{eq:expectation}
+\end{equation}
+
+Let's set up a situation in which \texttt{as\_expectations} would be used, and from
+there attempt to construct it.
+First, a test expression with terms that match our expectation's general
+pattern:
+
+<<term=True>>=
+import sympy as sp
+
+from hsplus.horn_function import HornPhi1
+
+a, b, g, z_1, z_2 = sp.symbols('a, b, g, z_1, z_2', real=True)
+phi1_1 = HornPhi1((a, b), (g,), z_1, z_2)
+
+n = sp.Dummy('n', integer=True, positive=True)
+i = sp.Dummy('i', integer=True, nonnegative=True)
+
+phi1_2 = HornPhi1((a, b), (g + n,), z_1, z_2)
+phi1_3 = HornPhi1((a, b), (g + n - i,), z_1, z_2)
+
+r_1 = phi1_2/phi1_1
+r_2 = phi1_3/phi1_1
+
+expr = a * r_1 - b * r_1 / g + sp.Sum(z_1/z_2 * r_2 - 3 * r_2, (i, 0, n))
+@
+
+Our test expression \texttt{expr} looks like this
+<<results='latex'>>=
+print(sp.latex(expr, mode='equation*', itex=True))
+@
+
+The ratios \texttt{r\_1} and \texttt{r\_2} should both be replaced by a symbol for $E[X^m]$,
+for $m = n$ and $m = n - i$ when $i < n$ respectively.  We could allow
+$E[X^0]$, I suppose, but--for a more interesting discussion--let's not.
+
+We start by creating a SymPy pattern that expresses the mathematical form of $E[X^m]$
+in \eqref{eq:expectation}.
+<<evaluate=True, term=True>>=
+pnames = ('a', 'b', 'g', 'z_1', 'z_2')
+phi1_wild_args_n = sp.symbols(','.join(n_ + '_w' for n_ in pnames),
+                              cls=sp.Wild, real=True)
+
+n_w = sp.Wild('n_w',
+              properties=(lambda x: x.is_integer and x.is_positive,),
+              exclude=(phi1_wild_args_n[2],))
+
+phi1_wild_d = HornPhi1(phi1_wild_args_n[0:2],
+                       phi1_wild_args_n[2:3],
+                       *phi1_wild_args_n[3:5])
+
+phi1_wild_n = HornPhi1(phi1_wild_args_n[0:2],
+                       (phi1_wild_args_n[2] + n_w,),
+                       *phi1_wild_args_n[3:5])
+
+C_w = sp.Wild('C_w', exclude=[sp.S.Zero])
+E_pattern = phi1_wild_n / phi1_wild_d
+
+E_fn = sp.Function("E", real=True)
+@
+
+
+If we focus on only one of the terms (one we know matches \texttt{E\_pattern}),
+\texttt{r\_1}, we should find that our pattern suffices:
+<<evaluate=True, term=True>>=
+r_1.match(E_pattern)
+@
+
+However, building up to the complexity of \texttt{expr}, we see that a
+simple product doesn't:
+<<evaluate=True, term=True>>=
+(a * r_1).match(E_pattern)
+@
+Basically, the product has introduced some problems that arise from associativity.
+Here are the details for the root expression tree:
+<<evaluate=True, term=True>>=
+(a * r_1).func
+(a * r_1).args
+@
+The root operation is multiplication and the operation's arguments are all terms
+in the product/division.
+
+Any complete search for matches to \texttt{E\_pattern} would have to consider all
+possible combinations of terms in
+\texttt{(a * r\_1).args}, i.e. all possible groupings that arise due to
+associativity.
+The simple inclusion of another \texttt{Wild} term causes the match to succeed, since
+SymPy's basic pattern matching does account for associativity in this case.
+
+Here are a few explicit ways to make the match work:
+<<evaluate=True, term=True>>=
+(a * r_1).match(C_w * E_pattern)
+@
+or
+<<evaluate=True, results='latex'>>=
+res = (a * r_1).replace(C_w * E_pattern, C_w * E_fn(n_w, *phi1_wild_args_n))
+print(sp.latex(res, mode='equation*', itex=True))
+@
+and via \texttt{rewriterule}:
+<<evaluate=True, results='latex'>>=
+from sympy.unify.rewrite import rewriterule
+rl = rewriterule(C_w * E_pattern,
+                 C_w * E_fn(n_w, *phi1_wild_args_n),
+                 phi1_wild_args_n + (n_w, C_w))
+res = list(rl(a * r_1))
+print(sp.latex(res, mode='equation*', itex=True))
+@
+
+The advantage in using \texttt{rewriterule} is that multiple matches will
+be returned:
+<<evaluate=True, results='latex'>>=
+phi1_4 = HornPhi1((a, b), (g + n + 1,), z_1, z_2)
+
+res = list(rl(a * r_1 * phi1_4))
+print(sp.latex(res, mode='equation*', itex=True))
+@
+FYI: the associativity of terms inside the function arguments is causing the
+seemingly duplicate results.
+
+Naive use of \texttt{Expr.replace} doesn't give all results; instead, it
+does something likely unexpected:
+<<evaluate=True, results='latex'>>=
+res = (a * r_1 * phi1_4).replace(C_w * E_pattern,
+                                 C_w * E_fn(n_w, *phi1_wild_args_n))
+print(sp.latex(res, mode='equation*', itex=True))
+@
+
+
+Returning to our more complicated \texttt{expr}\dots
+Just because we can match products doesn't mean we're finished, since we still need
+a good way to traverse the entire expression tree and match the sub-trees.
+More importantly, adding the multiplicative \texttt{Wild} term \texttt{C\_w} is
+more of a hack than a direct solution, since we don't want the matched contents of
+\texttt{C\_w}.
+
+Although \texttt{Expr.replace/xreplace} will match sub-expressions, we found
+above that it produces some odd results.  Those results persist when applied
+to more complicated expressions:
+<<evaluate=True, results='latex'>>=
+res = expr.replace(C_w * E_pattern, C_w * E_fn(n_w, *phi1_wild_args_n))
+print(sp.latex(res, mode='equation*', itex=True))
+@
+
+Again, it looks like the matching was a little too liberal and introduced extra
+\texttt{E} and \texttt{HornPhi1} terms.
+This is to be expected from the \texttt{Wild} matching in SymPy; it needs us to specify
+what \emph{not} to match, as well.
+Our ``fix'' that introduced \texttt{C\_w} is the exact source of the problem, but
+we can tell it not to match \texttt{HornPhi1} terms and get better results:
+<<evaluate=True, results='latex'>>=
+C_w = sp.Wild('C_w', exclude=[sp.S.Zero, HornPhi1])
+res = expr.replace(C_w * E_pattern, C_w * E_fn(n_w, *phi1_wild_args_n))
+print(sp.latex(res, mode='equation*', itex=True))
+@
+
+We've stopped it from introducing those superfluous \texttt{E} terms, but we're still not
+getting replacements for the \texttt{HornPhi1} ratios in the sums.  Let's single
+out those terms and see what's going on:
+<<evaluate=True, results='latex'>>=
+res = r_2.find(C_w * E_pattern)
+print(sp.latex(res, mode='equation*', itex=True))
+@
+
+The constrained integer \texttt{Wild} term, \texttt{n\_w}, probably isn't matching.  Given the form
+of our pattern, \texttt{n\_w} should match \texttt{n - i}, but \texttt{n - i} isn't strictly positive, as
+required:
+<<evaluate=True, term=True>>=
+(n - i).is_positive == True
+sp.ask(sp.Q.positive(n - i)) == True
+@
+
+Since $n > 0$ and $i >= 0$, the only missing piece is that $n > i$.
+The most relevant mechanism in SymPy to assess this information is the Assumptions
+interface.  We could add and retrieve the assumption \texttt{sp.Q.is\_true(n > i)} via
+\texttt{sp.assume.global\_assumptions}, or perform these operations inside of a Python \texttt{with} block,
+etc.  This context managment (literally \texttt{sympy.assumptions.assume.AssumptionsContext})
+would have to be performed manually, since I am not aware of any such mechanism offered
+by \texttt{Sum} and/or \texttt{Expr.replace}.
+
+Unfortunately, these ideas sound good, but aren't implemented:
+<<evaluate=True, term=True>>=
+sp.ask(sp.Q.positive(n - i), sp.Q.is_true(n > i)) == True
+@
+
+See the documentation for \texttt{sympy.assumptions.ask.ask}; it explicitely states
+that inequalities aren't handled, yet.
+
+We could probably perform a manual reworking of \texttt{sp.Q.is\_true(n > i)} to
+\texttt{sp.Q.is\_true(n - i > 0)}, which is of course equivalent to \texttt{sp.Q.positive(n - i)}:
+the result we want.
+
+If one were to provide this
+functionality, there's still the question of how the relevant \texttt{AssumptionsContext}s
+would be created and passed around/nested during the subexpression replacements.
+There is no apparent means of adding this sort of functionality through the
+\texttt{Expr.replace} interface, so this path looks less appealing.
+However, nesting \texttt{with} blocks from strategies in \texttt{sympy.strategies} does seem
+quite possible.
+For example, in \texttt{sympy.strategies.traverse.sall}, one could possibly wrap the
+\texttt{return} statement after the \texttt{map(rule, ...)} call in a
+\texttt{with sympy.assuming(...):} block
+that contains the assumptions for any variables arising as, say, the index of a
+\texttt{Sum}--like in our case.  In this scenario, code in the subexpressions would
+be able to ask questions like \texttt{sp.Q.is\_true(n > i)} without altering the global
+assumptions context or the objects involved.
+
+
+Anyway, that's all I wanted to cover here.  Perhaps later I'll post a hack for the
+assumptions approach, but--at the very least--I'll try to follow up with a more
+direct solution that uses \texttt{sympy.strategies}.
+
+\end{document}

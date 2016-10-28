@@ -12,11 +12,19 @@ SITENAME = u'Brandon T. Willard'
 SITEURL = ''
 
 PATH = 'content'
-STATIC_PATHS = ['images','extra/custom.css', 'extra/favicon.ico']
+STATIC_PATHS = [
+    'images',
+    'extra/custom.css',
+    'extra/favicon.ico',
+    'extra/academicons-1.7.0/css',
+    'extra/academicons-1.7.0/fonts',
+]
 EXTRA_PATH_METADATA = {
     'extra/favicon.ico': {'path': 'favicon.ico'}
 }
 
+PAGE_PATHS = ['pages']
+ARTICLE_PATHS = ['articles']
 
 TIMEZONE = 'America/Chicago'
 
@@ -36,7 +44,7 @@ AUTHOR_FEED_RSS = None
 
 ABOUT_ME = "applied math/stats person"
 AVATAR = '/images/profile-pic.png'
-#PROFILE_PICTURE = '/images/profile-pic.png' 
+#PROFILE_PICTURE = '/images/profile-pic.png'
 
 # Blogroll
 #LINKS = (('You can modify those links in your config file', '#'),)
@@ -44,7 +52,7 @@ AVATAR = '/images/profile-pic.png'
 GITHUB_URL = 'https://github.com/brandonwillard'
 # Social widget
 SOCIAL = (('linkedin', 'http://linkedin.com/pub/brandon-willard/10/bb4/468/'),
-          ('google scholar', 'https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=enhttps://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en'),
+          ('google scholar', 'https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en'),
           ('google+', 'https://plus.google.com/+brandonwillard'),
           ('bitbucket', 'https://bitbucket.org/brandonwillard'),
           ('gitHub', 'https://github.com/brandonwillard')
@@ -54,3 +62,7 @@ DEFAULT_PAGINATION = 10
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
+
+MATH_JAX = {'linebreak_automatic': True,
+            'tex_extensions': ['AMSmath.js', 'AMSsymbols.js']
+            }
