@@ -75,8 +75,18 @@ Brandon T. Willard            </a>
 
             <article>
                 <h2><a href="/sympy-expression-tree-manipulation.html">SymPy Expression Tree Manipulation</a></h2>
-                <div class="summary"><p>I was working on a proof/algorithm for improved computations for the expectations in our recent <a href="https://arxiv.org/abs/1605.04796">Prediction risk for global-local shrinkage regression</a> paper. These computations are already available in our <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg">Python package</a> (and its <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg">R wrapper</a>), but they’re not as efficient–or direct–as they could be, of course ...</p>
+                <div class="summary"><p>I’ve been working on some extensions to our special function computations in <a href="https://arxiv.org/abs/1605.04796">Prediction risk for global-local shrinkage regression</a> and decided to employ <a href="https://github.com/sympy/sympy">SymPy</a> as much as possible. Out of this came an <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg/src/master/hsplus/horn_function.py">implementation</a> of a bivariate confluent hypergeometric function: the <a href="https://en.wikipedia.org/wiki/Humbert_series">Humbert</a> <span class="math">\(\Phi_1\)</span>. This, and some numeric implementations, are available ...</p>
                     <a class="btn btn-default btn-xs" href="/sympy-expression-tree-manipulation.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="/sympy-matching-strategies.html">SymPy Matching Strategies</a></h2>
+                <div class="summary"><p>Following up on <a href="sympy-expression-tree-manipulation.html">sympy-expression-tree-manipulation.html</a><span>my earlier post</span> on SymPy expression trees, matching and whatnot…</p>
+<p>If we wanted to implement some crude functionality for inequalities (or at least the one we’re interested in), we might do something like the following:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sympy.assumptions</span> <span class="kn">import</span> <span class="n">register_handler</span><span class="p">,</span> <span class="n">ask</span><span class="p">,</span> <span class="n">Q</span>
+<span class="kn">from</span> <span class="nn">sympy ...</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="/sympy-matching-strategies.html">more ...</a>
                 </div>
             </article>
             <hr/>

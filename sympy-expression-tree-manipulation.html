@@ -13,13 +13,13 @@
 <link rel="canonical" href="/sympy-expression-tree-manipulation.html">
 
         <meta name="author" content="Brandon Willard" />
-        <meta name="description" content="I was working on a proof/algorithm for improved computations for the expectations in our recent Prediction risk for global-local shrinkage regression paper. These computations are already available in our Python package (and its R wrapper), but they’re not as efficient–or direct–as they could be, of course ..." />
+        <meta name="description" content="I’ve been working on some extensions to our special function computations in Prediction risk for global-local shrinkage regression and decided to employ SymPy as much as possible. Out of this came an implementation of a bivariate confluent hypergeometric function: the Humbert \(\Phi_1\). This, and some numeric implementations, are available ..." />
 
         <meta property="og:site_name" content="Brandon T. Willard" />
         <meta property="og:type" content="article"/>
         <meta property="og:title" content="SymPy Expression Tree Manipulation"/>
         <meta property="og:url" content="/sympy-expression-tree-manipulation.html"/>
-        <meta property="og:description" content="I was working on a proof/algorithm for improved computations for the expectations in our recent Prediction risk for global-local shrinkage regression paper. These computations are already available in our Python package (and its R wrapper), but they’re not as efficient–or direct–as they could be, of course ..."/>
+        <meta property="og:description" content="I’ve been working on some extensions to our special function computations in Prediction risk for global-local shrinkage regression and decided to employ SymPy as much as possible. Out of this came an implementation of a bivariate confluent hypergeometric function: the Humbert \(\Phi_1\). This, and some numeric implementations, are available ..."/>
         <meta property="article:published_time" content="2016-10-27" />
             <meta property="article:section" content="articles" />
             <meta property="article:author" content="Brandon Willard" />
@@ -101,15 +101,16 @@ Brandon T. Willard            </a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>I was working on a proof/algorithm for improved computations for the expectations in our recent <a href="https://arxiv.org/abs/1605.04796">Prediction risk for global-local shrinkage regression</a> paper. These computations are already available in our <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg">Python package</a> (and its <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg">R wrapper</a>), but they’re not as efficient–or direct–as they could be, of course. The approach I’m taking involves some insight into the special functions involved and has resulted in a <a href="https://github.com/sympy/sympy">SymPy</a> implementation of a bivariate confluent hypergeometric function: the <a href="https://en.wikipedia.org/wiki/Humbert_series">Humbert</a> <span class="math">\(\Phi_1\)</span>.</p>
-<p>Our expectations appear as ratios of these <span class="math">\(\Phi_1\)</span>, so I was interested in a replacement routine that would identify them in SymPy [sub]expressions and make a symbolic replacement. Let’s call this function <code>as_expectations</code>; it would take a <code>sympy.Expr</code> and make the replacements.</p>
-<p>Specifically, the expectations are given by </p>
+                <p>I’ve been working on some extensions to our special function computations in <a href="https://arxiv.org/abs/1605.04796">Prediction risk for global-local shrinkage regression</a> and decided to employ <a href="https://github.com/sympy/sympy">SymPy</a> as much as possible. Out of this came an <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg/src/master/hsplus/horn_function.py">implementation</a> of a bivariate confluent hypergeometric function: the <a href="https://en.wikipedia.org/wiki/Humbert_series">Humbert</a> <span class="math">\(\Phi_1\)</span>. This, and some numeric implementations, are available in a <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg">Python package</a> and an <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg">R package</a>.</p>
+<p>In the course of this work there are expectations that appear as ratios of <span class="math">\(\Phi_1\)</span> functions, so it’s helpful to have a symbolic replacement routine to identify them. <a href="http://docs.sympy.org/dev/modules/core.html#sympy.core.basic.Basic.match">Pattern matching</a>, <a href="http://docs.sympy.org/dev/modules/core.html#sympy.core.basic.Basic.find">finding</a>, substitution and <a href="http://docs.sympy.org/dev/modules/core.html#sympy.core.basic.Basic.replace">replacement</a> are fairly standard in SymPy, so nothing special there; however, when you want something specific, it can get rather tricky.</p>
+<p>Personally, I’ve found the approach offered by the <a href="https://github.com/sympy/sympy/tree/master/sympy/strategies"><code>sympy.strategies</code></a> and <a href="https://github.com/sympy/sympy/tree/master/sympy/unify"><code>sympy.unify</code></a> frameworks the most appealing. See the original discussion <a href="https://groups.google.com/d/msg/sympy/fspCavhbd9I/vrzUitvgiuYJ">here</a>. The reason for their appeal is mostly due to their organization of the processes behind expression tree traversal and manipulation. It’s much easier to see how a very specific and non-trivial simplification or replacement could be accomplished and iteratively improved. These points are made very well in the posts <a href="http://matthewrocklin.com/blog/tags.html#SymPy-ref">here</a>, so check them out.</p>
+<p>Let’s say we want to write a function <code>as_expectations</code> that takes a <code>sympy.Expr</code> and replaces ratios of <span class="math">\(\Phi_1\)</span> functions according to the following pattern: </p>
 <div class="math">$$\begin{equation}
 E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \gamma; x, y)}
 \;.
 \label{eq:expectation}
 \end{equation}$$</div>
-<p>Let’s set up a situation in which <code>as_expectations</code> would be used, and from there attempt to construct it. First, a test expression with terms that match our expectation’s general pattern:</p>
+<p>As an example, let’s set up a situation in which <code>as_expectations</code> would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match \eqref{eq:expectation}:</p>
 <div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sympy</span> <span class="kn">as</span> <span class="nn">sp</span>
 <span class="o">&gt;&gt;&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">hsplus.horn_function</span> <span class="kn">import</span> <span class="n">HornPhi1</span>
@@ -174,6 +175,7 @@ b, g; z_{1}, z_{2} \right)}}\right) - \frac{b
 </pre></div>
 
 
+<p>When we find an <span class="math">\(E[X^m]\)</span> we’ll replace it with the symbolic function <code>E_fn</code>.</p>
 <p>If we focus on only one of the terms (one we know matches <code>E_pattern</code>), <code>r_1</code>, we should find that our pattern suffices:</p>
 <div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">r_1</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">E_pattern</span><span class="p">)</span>
 <span class="p">{</span><span class="n">z_2_w_</span><span class="p">:</span> <span class="n">z_2</span><span class="p">,</span> <span class="n">z_1_w_</span><span class="p">:</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">a_w_</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">g_w_</span><span class="p">:</span> <span class="n">g</span><span class="p">,</span> <span class="n">n_w_</span><span class="p">:</span> <span class="n">_n</span><span class="p">,</span> <span class="n">b_w_</span><span class="p">:</span> <span class="n">b</span><span class="p">}</span>
@@ -203,7 +205,7 @@ b, g; z_{1}, z_{2} \right)}}\right) - \frac{b
 </pre></div>
 
 
-<p>or</p>
+<p>or as a replacement:</p>
 <div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">,</span> <span class="n">C_w</span> <span class="o">*</span> <span class="n">E_fn</span><span class="p">(</span><span class="n">n_w</span><span class="p">,</span>
 <span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">latex</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;equation*&#39;</span><span class="p">,</span> <span class="n">itex</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
@@ -226,7 +228,7 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )}
 <div class="math">$$\begin{equation*}
 \left [ a E{\left (n,a,b,g,z_{1},z_{2} \right )}\right ]
 \end{equation*}$$</div>
-<p>The advantage in using <code>rewriterule</code> is that multiple matches will be returned:</p>
+<p>The advantage in using <code>rewriterule</code> is that multiple matches will be returned. If we add another <span class="math">\(\Phi_1\)</span> in the numerator, so there are multiple possible <span class="math">\(E[X^m]\)</span>, we get</p>
 <div class="highlight"><pre><span></span><span class="n">phi1_4</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span> <span class="o">+</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
 
 <span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rl</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span> <span class="o">*</span> <span class="n">phi1_4</span><span class="p">))</span>
