@@ -36,7 +36,7 @@ PANDOC_MD_OPTS = -R -s --mathjax --old-dashes
 
 all: md 
 
-md: MD_FILES
+md: ${MD_FILES}
 
 %.md: %.pnw
 	Pweave -c -f pandoc -o $(DEST)/$@ $< 

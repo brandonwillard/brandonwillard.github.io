@@ -130,34 +130,50 @@ sp.init_printing(
 %\begin{abstract}
 %\end{abstract}
 
-I was working on a proof/algorithm for improved computations for the expectations in our
-recent \href{https://arxiv.org/abs/1605.04796}{Prediction risk for global-local shrinkage regression}
-paper.  These computations are already available in our
+I've been working on some extensions to our special function computations in
+\href{https://arxiv.org/abs/1605.04796}{Prediction risk for global-local shrinkage regression}
+and decided to employ \href{https://github.com/sympy/sympy}{SymPy} as much as possible.  Out of this came
+an
+\href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg/src/master/hsplus/horn_function.py}{implementation}
+of a bivariate confluent hypergeometric function: the \href{https://en.wikipedia.org/wiki/Humbert_series}{Humbert}
+$\Phi_1$.  This, and some numeric implementations, are available in a
 \href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg}{Python package}
-(and its \href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg}{R wrapper}),
-but they're not as efficient--or direct--as they could be, of course.  The
-approach I'm taking involves some insight into the special functions involved
-and has resulted in a \href{https://github.com/sympy/sympy}{SymPy} implementation of a bivariate
-confluent hypergeometric function: the \href{https://en.wikipedia.org/wiki/Humbert_series}{Humbert}
-$\Phi_1$.
+and an \href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg}{R package}.
 
-Our expectations appear as ratios of these $\Phi_1$, so I was interested in a
-replacement routine that would identify them in SymPy [sub]expressions and make
-a symbolic replacement.  Let's call this function \texttt{as\_expectations}; it would
-take a \texttt{sympy.Expr} and make the replacements.
+In the course of this work there are expectations that appear as ratios of $\Phi_1$
+functions, so it's helpful to have a symbolic replacement routine to identify them.
+\href{http://docs.sympy.org/dev/modules/core.html#sympy.core.basic.Basic.match}{Pattern matching},
+\href{http://docs.sympy.org/dev/modules/core.html#sympy.core.basic.Basic.find}{finding},
+substitution and
+\href{http://docs.sympy.org/dev/modules/core.html#sympy.core.basic.Basic.replace}{replacement}
+are fairly standard in SymPy, so nothing
+special there; however, when you want something specific, it can get rather tricky.
 
-Specifically, the expectations are given by
+Personally, I've found the approach offered by the
+\href{https://github.com/sympy/sympy/tree/master/sympy/strategies}{\texttt{sympy.strategies}}
+and \href{https://github.com/sympy/sympy/tree/master/sympy/unify}{\texttt{sympy.unify}} frameworks
+the most appealing.  See the original discussion
+\href{https://groups.google.com/d/msg/sympy/fspCavhbd9I/vrzUitvgiuYJ}{here}.
+The reason for their appeal is mostly due to their organization of the processes behind
+expression tree traversal and manipulation.  It's much easier to see how a very specific and
+non-trivial simplification or replacement could be accomplished and iteratively improved.
+These points are made very well in the posts \href{http://matthewrocklin.com/blog/tags.html#SymPy-ref}{here},
+so check them out.
+
+
+
+Let's say we want to write a function \texttt{as\_expectations} that takes
+a \texttt{sympy.Expr} and replaces ratios of $\Phi_1$ functions according to
+the following pattern:
 \begin{equation}
 E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \gamma; x, y)}
 \;.
 \label{eq:expectation}
 \end{equation}
 
-Let's set up a situation in which \texttt{as\_expectations} would be used, and from
-there attempt to construct it.
-First, a test expression with terms that match our expectation's general
-pattern:
-
+As an example, let's set up a situation in which \texttt{as\_expectations} would be used, and, from
+there, attempt to construct our function.  Naturally, this will involve a test expression with terms
+that we know match \eqref{eq:expectation}:
 <<term=True>>=
 import sympy as sp
 
@@ -211,7 +227,7 @@ E_pattern = phi1_wild_n / phi1_wild_d
 
 E_fn = sp.Function("E", real=True)
 @
-
+When we find an $E[X^m]$ we'll replace it with the symbolic function \texttt{E\_fn}.
 
 If we focus on only one of the terms (one we know matches \texttt{E\_pattern}),
 \texttt{r\_1}, we should find that our pattern suffices:
@@ -244,7 +260,7 @@ Here are a few explicit ways to make the match work:
 <<evaluate=True, term=True>>=
 (a * r_1).match(C_w * E_pattern)
 @
-or
+or as a replacement:
 <<evaluate=True, results='latex'>>=
 res = (a * r_1).replace(C_w * E_pattern, C_w * E_fn(n_w, *phi1_wild_args_n))
 print(sp.latex(res, mode='equation*', itex=True))
@@ -260,7 +276,8 @@ print(sp.latex(res, mode='equation*', itex=True))
 @
 
 The advantage in using \texttt{rewriterule} is that multiple matches will
-be returned:
+be returned.  If we add another $\Phi_1$ in the numerator, so there are
+multiple possible $E[X^m]$, we get
 <<evaluate=True, results='latex'>>=
 phi1_4 = HornPhi1((a, b), (g + n + 1,), z_1, z_2)
 
