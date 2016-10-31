@@ -340,12 +340,13 @@ sp.ask(sp.Q.positive(n - i)) == True
 @
 
 Since $n > 0$ and $i >= 0$, the only missing piece is that $n > i$.
-The most relevant mechanism in SymPy to assess this information is the Assumptions
-interface.  We could add and retrieve the assumption \texttt{sp.Q.is\_true(n > i)} via
-\texttt{sp.assume.global\_assumptions}, or perform these operations inside of a Python \texttt{with} block,
-etc.  This context managment (literally \texttt{sympy.assumptions.assume.AssumptionsContext})
+The most relevant mechanism in SymPy to assess this information is the
+\href{http://docs.sympy.org/dev/modules/assumptions/index.html}{\texttt{sympy.assumptions}}
+interface.  We could add and retrieve the assumption \texttt{sympy.Q.is\_true(n > i)} via
+\texttt{sympy.assume.global\_assumptions}, or perform these operations inside of a Python \texttt{with} block,
+etc.  This context management, via \texttt{sympy.assumptions.assume.AssumptionsContext},
 would have to be performed manually, since I am not aware of any such mechanism offered
-by \texttt{Sum} and/or \texttt{Expr.replace}.
+by \texttt{Sum} and/or \texttt{Basic.replace}.
 
 Unfortunately, these ideas sound good, but aren't implemented:
 <<evaluate=True, term=True>>=
@@ -355,15 +356,15 @@ sp.ask(sp.Q.positive(n - i), sp.Q.is_true(n > i)) == True
 See the documentation for \texttt{sympy.assumptions.ask.ask}; it explicitely states
 that inequalities aren't handled, yet.
 
-We could probably perform a manual reworking of \texttt{sp.Q.is\_true(n > i)} to
-\texttt{sp.Q.is\_true(n - i > 0)}, which is of course equivalent to \texttt{sp.Q.positive(n - i)}:
+We could probably perform a manual reworking of \texttt{sympy.Q.is\_true(n > i)} to
+\texttt{sympy.Q.is\_true(n - i > 0)}, which is of course equivalent to \texttt{sympy.Q.positive(n - i)}:
 the result we want.
 
 If one were to provide this
 functionality, there's still the question of how the relevant \texttt{AssumptionsContext}s
 would be created and passed around/nested during the subexpression replacements.
 There is no apparent means of adding this sort of functionality through the
-\texttt{Expr.replace} interface, so this path looks less appealing.
+\texttt{Basic.replace} interface, so this path looks less appealing.
 However, nesting \texttt{with} blocks from strategies in \texttt{sympy.strategies} does seem
 quite possible.
 For example, in \texttt{sympy.strategies.traverse.sall}, one could possibly wrap the
@@ -371,7 +372,7 @@ For example, in \texttt{sympy.strategies.traverse.sall}, one could possibly wrap
 \texttt{with sympy.assuming(...):} block
 that contains the assumptions for any variables arising as, say, the index of a
 \texttt{Sum}--like in our case.  In this scenario, code in the subexpressions would
-be able to ask questions like \texttt{sp.Q.is\_true(n > i)} without altering the global
+be able to ask questions like \texttt{sympy.Q.is\_true(n > i)} without altering the global
 assumptions context or the objects involved.
 
 

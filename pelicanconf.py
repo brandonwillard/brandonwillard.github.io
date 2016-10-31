@@ -33,7 +33,7 @@ DEFAULT_LANG = u'en'
 THEME = "/home/bwillar0/apps/pelican-themes/pelican-bootstrap3"
 
 #CUSTOM_CSS = 'static/custom.css'
-
+DISQUS_SITENAME = "brandonwillard-github-io"
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
@@ -50,18 +50,19 @@ AVATAR = '/images/profile-pic.png'
 #LINKS = (('You can modify those links in your config file', '#'),)
 
 GITHUB_URL = 'https://github.com/brandonwillard'
+
 # Social widget
 SOCIAL = (('linkedin', 'http://linkedin.com/pub/brandon-willard/10/bb4/468/'),
           ('google scholar', 'https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en'),
           ('google+', 'https://plus.google.com/+brandonwillard'),
           ('bitbucket', 'https://bitbucket.org/brandonwillard'),
-          ('gitHub', 'https://github.com/brandonwillard')
+          ('github', 'https://github.com/brandonwillard')
           ,)
 
 DEFAULT_PAGINATION = 10
 
 # Uncomment following line if you want document-relative URLs when developing
-#RELATIVE_URLS = True
+RELATIVE_URLS = False
 
 MATH_JAX = {'linebreak_automatic': True,
             'tex_extensions': ['AMSmath.js', 'AMSsymbols.js']
