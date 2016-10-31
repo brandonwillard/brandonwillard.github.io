@@ -9,7 +9,7 @@ PLUGINS = ["render_math", "liquid_tags"]
 
 AUTHOR = u'Brandon T. Willard'
 SITENAME = u'Brandon T. Willard'
-SITEURL = ''
+SITEURL = 'http://brandonwillard.github.io'
 
 PATH = 'content'
 STATIC_PATHS = [
