@@ -32,8 +32,19 @@ See [this](http://docs.getpelican.com/en/3.6.3/tips.html#publishing-to-github)
 for info on pushing to Github pages.
 Quickly,
 ```
-$ pelican content -o output -s pelicanconf.py
+$ pelican content -o output -s publishconf.py
 $ ghp-import output
 $ git push git@github.com:brandonwillard/brandonwillard.github.io.git gh-pages:master
 ```
 
+## FYI
+
+I've altered the default `pelican-bootstrap3` theme to include the Google Scholar icons
+provided by [Academicons](https://jpswalsh.github.io/academicons/).  The changes are in
+`pelican-bootstrap3/templates/includes/sidebar.html` within the `SOCIAL` for-loop:
+```
+{% elif name_sanitized in ['google-scholar'] %}
+    {% set iconattributes = '"ai ai-' ~ name_sanitized ~ ' ai-lg"' %}
+```
+Of course this also means the `fonts` and `css` folders must be accessible and the CSS
+stylesheet loaded.

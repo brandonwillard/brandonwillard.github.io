@@ -2,7 +2,7 @@
 title: About
 ---
 
-I do statistics and computer stuff!  
+I do math, statistics and computer stuff!
 
 Here are some things I've been involved in:
 

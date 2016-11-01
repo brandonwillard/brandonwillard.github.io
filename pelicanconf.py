@@ -1,23 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
-import sys
 
-PLUGIN_PATHS = ["/home/bwillar0/apps/pelican-plugins"]
+PLUGIN_PATHS = ["/home/bwillar0/apps/pelican-plugins",
+                ]
 
-PLUGINS = ["render_math", "liquid_tags"]
+PLUGINS = ["render_math", "liquid_tags",
+           "pelican-bibtex"]
+
+PUBLICATIONS_SRC = 'content/pages/publications.bib'
 
 AUTHOR = u'Brandon T. Willard'
 SITENAME = u'Brandon T. Willard'
-SITEURL = 'http://brandonwillard.github.io'
+SITEURL = ''
 
 PATH = 'content'
 STATIC_PATHS = [
     'images',
-    'extra/custom.css',
     'extra/favicon.ico',
-    'extra/academicons-1.7.0/css',
-    'extra/academicons-1.7.0/fonts',
+    #'extra/custom.css',
 ]
 EXTRA_PATH_METADATA = {
     'extra/favicon.ico': {'path': 'favicon.ico'}
@@ -32,7 +33,7 @@ DEFAULT_LANG = u'en'
 
 THEME = "/home/bwillar0/apps/pelican-themes/pelican-bootstrap3"
 
-#CUSTOM_CSS = 'static/custom.css'
+#CUSTOM_CSS = 'extra/custom.css'
 DISQUS_SITENAME = "brandonwillard-github-io"
 
 # Feed generation is usually not desired when developing
@@ -59,10 +60,11 @@ SOCIAL = (('linkedin', 'http://linkedin.com/pub/brandon-willard/10/bb4/468/'),
           ('github', 'https://github.com/brandonwillard')
           ,)
 
+DIRECT_TEMPLATES = ['index', 'archives', 'publications']
 DEFAULT_PAGINATION = 10
 
 # Uncomment following line if you want document-relative URLs when developing
-RELATIVE_URLS = False
+#RELATIVE_URLS = False
 
 MATH_JAX = {'linebreak_automatic': True,
             'tex_extensions': ['AMSmath.js', 'AMSsymbols.js']
