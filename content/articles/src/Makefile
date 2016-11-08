@@ -20,13 +20,13 @@ MD_FILES = $(addsuffix .md, $(basename $(PNW_FILES) $(TEXW_FILES)))
 SRCDIR = $(realpath $(dir $<))
 DEST = $(abspath ../)
 
-PANDOC_MD_OUT_EXTS = +raw_tex+mmd_title_block+tex_math_dollars+tex_math_double_backslash
+PANDOC_MD_OUT_EXTS = +raw_tex+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures
 
 # Add citations with: +citations
 
 # FYI: pandoc's -R option will stop the reader from discarding things like \eqref from
 # tex input.
-PANDOC_MD_OPTS = -R -s --mathjax --old-dashes
+PANDOC_MD_OPTS = -R -s --mathjax --old-dashes --self-contained
 
 
 # Add citations with extra options like these:
@@ -39,17 +39,19 @@ all: md
 md: ${MD_FILES}
 
 %.md: %.pnw
-	Pweave -c -f pandoc -o $(DEST)/$@ $< 
+	Pweave -c -F $(DEST)/figures -f pandoc -o $(DEST)/$@ $< 
 
 %.md: %.tex
 	# FYI: This approach doesn't require the filter to be executable and
 	# have a `#!/usr/bin/python` line.
 	pandoc $(PANDOC_MD_OPTS) -f latex -t json $< |\
 		python pandoc_eqref_filter.py |\
-		pandoc $(PANDOC_MD_OPTS) -f json -t markdown_github$(PANDOC_MD_OUT_EXTS) -o $(DEST)/$@  
+		pandoc $(PANDOC_MD_OPTS) -f json \
+		-t markdown_github$(PANDOC_MD_OUT_EXTS)+raw_html \
+		-o $(DEST)/$@  
 
 %.tex: %.texw
-	Pweave -c -d -f texminted -i noweb $<
+	python pweave_custom.py -c -d -F $(DEST)/figures $<
 
 clean: clean-md clean-pweave
 
@@ -59,3 +61,4 @@ clean-md:
 clean-pweave:
 	-$(RM) -rf cache
 	-$(RM) -rf figures
+	-$(RM) -rf $(DEST)/figures

@@ -48,6 +48,25 @@ environment (MathJax can use it via the AMS extensions):
     yo yo \eqref{eq1}
 
 
+Here is an example with a figure:
+
+    >>> test_file_fig = r'''
+    ... [image]: figures/posterior_graph_manipulation_mh_samples_1.pdf \"image title\"
+    ...
+    ... \\\begin{figure}
+    ...     \\\centering
+    ...     {\\\includegraphics[width=2.5in]{some_figure.png}}
+    ...     \\\caption{Comparing Dq from different p-model}
+    ... \\\end{figure}
+    ... '''
+    >>> !echo "$test_file_fig" >! test_fig.md
+
+    >>> !pandoc -R -f markdown -t json test_fig.md
+    | python pandoc_eqref_filter.py
+
+    >>> !pandoc -R -f latex -t json posterior_graph_manipulation.tex | python pandoc_eqref_filter.py
+    | pandoc -f json -t markdown
+
 If you want to debug the filter, add a line like this:
 
 .. code:
@@ -57,7 +76,9 @@ and connect with something like `nc` or `telnet`.
 
 """
 
-from pandocfilters import toJSONFilter, RawInline, Null, Math
+from pandocfilters import toJSONFilter, RawInline, Math
+
+preserved_tex = ['\\eqref', '\\ref', '\\includegraphics']
 
 
 def filter_eqref(key, value, oformat, meta):
@@ -65,16 +86,19 @@ def filter_eqref(key, value, oformat, meta):
     equation blocks with `equation[*]` environment depending on whether
     or not their body contains a `\label`.
     """
-    if key == 'RawInline' and value[0] == 'latex' and '\\eqref' in value[1]:
+    if key == 'RawInline' and value[0] == 'latex' and \
+            any(c_ in value[1] for c_ in preserved_tex):
         return [RawInline('latex', value[1])]
     elif key == "Math" and value[0]['t'] == "DisplayMath":
         star = '*'
         if '\\label' in value[1]:
             star = ''
-        wrapped_value = "\\begin{{equation{}}}\n{}\n\\end{{equation{}}}".format(star, value[1], star)
+        wrapped_value = ("\\begin{{equation{}}}\n"
+                         "{}\n\\end{{equation{}}}").format(
+                             star, value[1], star)
         return Math(value[0], wrapped_value)
     elif "Raw" in key:
-        return Null()
+        return []
 
 
 if __name__ == "__main__":

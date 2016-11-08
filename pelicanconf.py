@@ -19,6 +19,7 @@ STATIC_PATHS = [
     'images',
     'extra/favicon.ico',
     #'extra/custom.css',
+    'articles/figures',
 ]
 EXTRA_PATH_METADATA = {
     'extra/favicon.ico': {'path': 'favicon.ico'}
@@ -29,12 +30,13 @@ ARTICLE_PATHS = ['articles']
 
 TIMEZONE = 'America/Chicago'
 
+DEFAULT_DATE = 'fs'
 DEFAULT_LANG = u'en'
 
 THEME = "/home/bwillar0/apps/pelican-themes/pelican-bootstrap3"
 
 #CUSTOM_CSS = 'extra/custom.css'
-DISQUS_SITENAME = "brandonwillard-github-io"
+#DISQUS_SITENAME = "brandonwillard-github-io"
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
