@@ -114,24 +114,40 @@ E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \g
 \label{eq:expectation}
 \end{equation}$$</div>
 <p>As an example, let’s set up a situation in which <code>as_expectations</code> would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match \eqref{eq:expectation}:</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sympy</span> <span class="kn">as</span> <span class="nn">sp</span>
-<span class="o">&gt;&gt;&gt;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">hsplus.horn_function</span> <span class="kn">import</span> <span class="n">HornPhi1</span>
-<span class="o">&gt;&gt;&gt;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;a, b, g, z_1, z_2&#39;</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_1</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">n</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Dummy</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">i</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Dummy</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nonnegative</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_2</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span> <span class="o">+</span> <span class="n">n</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_3</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span> <span class="o">+</span> <span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">r_1</span> <span class="o">=</span> <span class="n">phi1_2</span><span class="o">/</span><span class="n">phi1_1</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">r_2</span> <span class="o">=</span> <span class="n">phi1_3</span><span class="o">/</span><span class="n">phi1_1</span>
-<span class="o">&gt;&gt;&gt;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">expr</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">r_1</span> <span class="o">/</span> <span class="n">g</span> <span class="o">+</span> <span class="n">sp</span><span class="o">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">z_1</span><span class="o">/</span><span class="n">z_2</span> <span class="o">*</span> <span class="n">r_2</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">r_2</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span>
-<span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">sympy</span> <span class="kn">as</span> <span class="nn">sp</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">hsplus.horn_function</span> <span class="kn">import</span> <span class="n">HornPhi1</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;a, b, g, z_1, z_2&#39;</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">phi1_1</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="n">n</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Dummy</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]:</span> <span class="n">i</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Dummy</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nonnegative</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">10</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">11</span><span class="p">]:</span> <span class="n">phi1_2</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span> <span class="o">+</span> <span class="n">n</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">12</span><span class="p">]:</span> <span class="n">phi1_3</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span> <span class="o">+</span> <span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">13</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">14</span><span class="p">]:</span> <span class="n">r_1</span> <span class="o">=</span> <span class="n">phi1_2</span><span class="o">/</span><span class="n">phi1_1</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="n">r_2</span> <span class="o">=</span> <span class="n">phi1_3</span><span class="o">/</span><span class="n">phi1_1</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">16</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">17</span><span class="p">]:</span> <span class="n">expr</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">r_1</span> <span class="o">/</span> <span class="n">g</span> <span class="o">+</span> <span class="n">sp</span><span class="o">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">z_1</span><span class="o">/</span><span class="n">z_2</span> <span class="o">*</span> <span class="n">r_2</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span>
+<span class="n">r_2</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
 </pre></div>
 
 
@@ -153,58 +169,84 @@ b, g; z_{1}, z_{2} \right)}}\right) - \frac{b
 \end{equation*}$$</div>
 <p>The ratios <code>r_1</code> and <code>r_2</code> should both be replaced by a symbol for <span class="math">\(E[X^m]\)</span>, for <span class="math">\(m = n\)</span> and <span class="math">\(m = n - i\)</span> when <span class="math">\(i &lt; n\)</span> respectively. We could allow <span class="math">\(E[X^0]\)</span>, I suppose, but–for a more interesting discussion–let’s not.</p>
 <p>We start by creating a SymPy pattern that expresses the mathematical form of <span class="math">\(E[X^m]\)</span> in \eqref{eq:expectation}.</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">pnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;z_1&#39;</span><span class="p">,</span> <span class="s1">&#39;z_2&#39;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_wild_args_n</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">n_</span> <span class="o">+</span> <span class="s1">&#39;_w&#39;</span> <span class="k">for</span> <span class="n">n_</span> <span class="ow">in</span>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">18</span><span class="p">]:</span> <span class="n">pnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;z_1&#39;</span><span class="p">,</span> <span class="s1">&#39;z_2&#39;</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="n">phi1_wild_args_n</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">n_</span> <span class="o">+</span> <span class="s1">&#39;_w&#39;</span> <span class="k">for</span> <span class="n">n_</span> <span class="ow">in</span>
 <span class="n">pnames</span><span class="p">),</span>
+
 <span class="o">...</span>                               <span class="n">cls</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="o">...</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">n_w</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">(</span><span class="s1">&#39;n_w&#39;</span><span class="p">,</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">20</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">21</span><span class="p">]:</span> <span class="n">n_w</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">(</span><span class="s1">&#39;n_w&#39;</span><span class="p">,</span>
+
 <span class="o">...</span>               <span class="n">properties</span><span class="o">=</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">is_integer</span> <span class="ow">and</span>
 <span class="n">x</span><span class="o">.</span><span class="n">is_positive</span><span class="p">,),</span>
+
 <span class="o">...</span>               <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">2</span><span class="p">],))</span>
 <span class="o">...</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_wild_d</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">22</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">23</span><span class="p">]:</span> <span class="n">phi1_wild_d</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+
 <span class="o">...</span>                        <span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span>
+
 <span class="o">...</span>                        <span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>
 <span class="o">...</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">phi1_wild_n</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">24</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">25</span><span class="p">]:</span> <span class="n">phi1_wild_n</span> <span class="o">=</span> <span class="n">HornPhi1</span><span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+
 <span class="o">...</span>                        <span class="p">(</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">n_w</span><span class="p">,),</span>
+
 <span class="o">...</span>                        <span class="o">*</span><span class="n">phi1_wild_args_n</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>
 <span class="o">...</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">C_w</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">(</span><span class="s1">&#39;C_w&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">S</span><span class="o">.</span><span class="n">Zero</span><span class="p">])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">E_pattern</span> <span class="o">=</span> <span class="n">phi1_wild_n</span> <span class="o">/</span> <span class="n">phi1_wild_d</span>
-<span class="o">&gt;&gt;&gt;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">E_fn</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">26</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">27</span><span class="p">]:</span> <span class="n">C_w</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">(</span><span class="s1">&#39;C_w&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">S</span><span class="o">.</span><span class="n">Zero</span><span class="p">])</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">28</span><span class="p">]:</span> <span class="n">E_pattern</span> <span class="o">=</span> <span class="n">phi1_wild_n</span> <span class="o">/</span> <span class="n">phi1_wild_d</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">29</span><span class="p">]:</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">30</span><span class="p">]:</span> <span class="n">E_fn</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
 
 <p>When we find an <span class="math">\(E[X^m]\)</span> we’ll replace it with the symbolic function <code>E_fn</code>.</p>
 <p>If we focus on only one of the terms (one we know matches <code>E_pattern</code>), <code>r_1</code>, we should find that our pattern suffices:</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">r_1</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">E_pattern</span><span class="p">)</span>
-<span class="p">{</span><span class="n">z_2_w_</span><span class="p">:</span> <span class="n">z_2</span><span class="p">,</span> <span class="n">z_1_w_</span><span class="p">:</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">a_w_</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">g_w_</span><span class="p">:</span> <span class="n">g</span><span class="p">,</span> <span class="n">n_w_</span><span class="p">:</span> <span class="n">_n</span><span class="p">,</span> <span class="n">b_w_</span><span class="p">:</span> <span class="n">b</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">31</span><span class="p">]:</span> <span class="n">r_1</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">E_pattern</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">31</span><span class="p">]:</span> <span class="p">{</span><span class="n">a_w</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">b_w</span><span class="p">:</span> <span class="n">b</span><span class="p">,</span> <span class="n">g_w</span><span class="p">:</span> <span class="n">g</span><span class="p">,</span> <span class="n">n_w</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span> <span class="n">z_1_w</span><span class="p">:</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2_w</span><span class="p">:</span> <span class="n">z_2</span><span class="p">}</span>
 </pre></div>
 
 
 <p>However, building up to the complexity of <code>expr</code>, we see that a simple product doesn’t:</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">E_pattern</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">32</span><span class="p">]:</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">E_pattern</span><span class="p">)</span>
 </pre></div>
 
 
 <p>Basically, the product has introduced some problems that arise from associativity. Here are the details for the root expression tree:</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">func</span>
-<span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">sympy</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">mul</span><span class="o">.</span><span class="n">Mul</span><span class="s1">&#39;&gt;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
-<span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">),</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">_n</span> <span class="o">+</span> <span class="n">g</span><span class="p">,),</span>
-<span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">33</span><span class="p">]:</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">func</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">33</span><span class="p">]:</span> <span class="n">sympy</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">mul</span><span class="o">.</span><span class="n">Mul</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">34</span><span class="p">]:</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">34</span><span class="p">]:</span>
+                   <span class="mi">1</span>
+<span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">--------------------------------</span><span class="p">,</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="n">g</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span>
+<span class="n">z_2</span><span class="p">))</span>
+    <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
 </pre></div>
 
 
 <p>The root operation is multiplication and the operation’s arguments are all terms in the product/division.</p>
 <p>Any complete search for matches to <code>E_pattern</code> would have to consider all possible combinations of terms in <code>(a * r_1).args</code>, i.e. all possible groupings that arise due to associativity. The simple inclusion of another <code>Wild</code> term causes the match to succeed, since SymPy’s basic pattern matching does account for associativity in this case.</p>
 <p>Here are a few explicit ways to make the match work:</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">)</span>
-<span class="p">{</span><span class="n">a_w_</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">g_w_</span><span class="p">:</span> <span class="n">g</span><span class="p">,</span> <span class="n">n_w_</span><span class="p">:</span> <span class="n">_n</span><span class="p">,</span> <span class="n">z_2_w_</span><span class="p">:</span> <span class="n">z_2</span><span class="p">,</span> <span class="n">C_w_</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">b_w_</span><span class="p">:</span> <span class="n">b</span><span class="p">,</span> <span class="n">z_1_w_</span><span class="p">:</span>
-<span class="n">z_1</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">35</span><span class="p">]:</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">35</span><span class="p">]:</span> <span class="p">{</span><span class="n">C_w</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">a_w</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="n">b_w</span><span class="p">:</span> <span class="n">b</span><span class="p">,</span> <span class="n">g_w</span><span class="p">:</span> <span class="n">g</span><span class="p">,</span> <span class="n">n_w</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span> <span class="n">z_1_w</span><span class="p">:</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2_w</span><span class="p">:</span>
+<span class="n">z_2</span><span class="p">}</span>
 </pre></div>
 
 
@@ -312,17 +354,17 @@ z_{2} \right)}}\right)
 \left\{\right\}
 \end{equation*}$$</div>
 <p>The constrained integer <code>Wild</code> term, <code>n_w</code>, probably isn’t matching. Given the form of our pattern, <code>n_w</code> should match <code>n - i</code>, but <code>n - i</code> isn’t strictly positive, as required:</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">is_positive</span> <span class="o">==</span> <span class="bp">True</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">sp</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">positive</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="bp">True</span>
-<span class="bp">False</span>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">36</span><span class="p">]:</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">is_positive</span> <span class="o">==</span> <span class="bp">True</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">36</span><span class="p">]:</span> <span class="bp">False</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">37</span><span class="p">]:</span> <span class="n">sp</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">positive</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="bp">True</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">37</span><span class="p">]:</span> <span class="bp">False</span>
 </pre></div>
 
 
 <p>Since <span class="math">\(n &gt; 0\)</span> and <span class="math">\(i &gt;= 0\)</span>, the only missing piece is that <span class="math">\(n &gt; i\)</span>. The most relevant mechanism in SymPy to assess this information is the <a href="http://docs.sympy.org/dev/modules/assumptions/index.html"><code>sympy.assumptions</code></a> interface. We could add and retrieve the assumption <code>sympy.Q.is_true(n &gt; i)</code> via <code>sympy.assume.global_assumptions</code>, or perform these operations inside of a Python <code>with</code> block, etc. This context management, via <code>sympy.assumptions.assume.AssumptionsContext</code>, would have to be performed manually, since I am not aware of any such mechanism offered by <code>Sum</code> and/or <code>Basic.replace</code>.</p>
 <p>Unfortunately, these ideas sound good, but aren’t implemented:</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">sp</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">positive</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">sp</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">is_true</span><span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="bp">True</span>
-<span class="bp">False</span>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="n">sp</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">positive</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">sp</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">is_true</span><span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="bp">True</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="bp">False</span>
 </pre></div>
 
 
