@@ -484,7 +484,7 @@ index with an hourly frequency.
 import pandas as pd
 
 start_datetime = pd.tslib.Timestamp(pd.datetime.now())
-index_sim = pd.date_range(start=start_datetime,
+index_sim = pd.date_range(start='2016-01-01 12:00:00',
                           periods=np.alen(y_obs), freq='H')
 
 y_obs_h = pd.Series(y_obs, index=index_sim)
@@ -517,13 +517,13 @@ y_obs_d = y_obs_h.resample('D').mean()
 
 <<daily_ppc_plot, plot=True, echo=True, include=True, fig_root='{attach}/articles/figures'>>=
 plt.clf()
-plt.fill_between(ppc_quantiles_d.index.values,
+y_obs_d.plot(label='$f(y)$', color='black')
+plt.fill_between(ppc_quantiles_d.index,
                  ppc_quantiles_d[0.05],
                  ppc_quantiles_d[0.95],
                  label=r'$(f(Y) \mid X, y)$ 95\% interval',
                  alpha=0.5)
-plt.plot(y_obs_d, label='$f(y)$', color='black')
-plt.plot(ppc_quantiles_d[0.5], label=r'$E[f(Y) \mid X, y]$', alpha=.7)
+ppc_quantiles_d[0.5].plot(label=r'$E[f(Y) \mid X, y]$', alpha=.7)
 plt.legend()
 plt.show()
 @
@@ -539,7 +539,7 @@ $(Y_t \mid x_t)$ for a missing or future $t$.  When the values in $X$ cannot be 
 certainty--e.g. future temperatures--it's not uncommon for practitioners to impute values in
 some way to obtain results.  
 I would like to point out how nearly every instance of such imputations gives rise to an implicit
-model.  Going back to our preference for the Bayesian paradigm, it behoves us to more formally
+model.  Going back to our preference for the Bayesian paradigm, it behooves us to more formally
 specify exactly what model/assumptions we're introducing, where and maybe even why.
 If we do so in well-defined Bayes way, then we're immediately provided the exact same approach
 we used above.
@@ -659,7 +659,6 @@ The posterior predictive is plotted below.
 ppc_samples = pm.sample_ppc(sample_traces, model=model)
 ppc_hpd = pm.hpd(ppc_samples['Y'], 0.05)
 
-plt.clf()
 y_obs_df.plot(label=r'$y$', color='black')
 plt.fill_between(y_obs_df.index,
                  ppc_hpd[:, 0],
