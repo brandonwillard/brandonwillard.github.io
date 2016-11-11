@@ -4,6 +4,7 @@
 PNW_FILES = $(wildcard *.pnw) $(wildcard *.Pnw)
 TEXW_FILES = $(wildcard *.texw)
 MD_FILES = $(addsuffix .md, $(basename $(PNW_FILES) $(TEXW_FILES)))
+TEX_FILES = $(addsuffix .tex, $(basename $(PNW_FILES) $(TEXW_FILES)))
 
  
 #HTML_DEPS = $(wildcard _output.yaml) 
@@ -17,8 +18,8 @@ MD_FILES = $(addsuffix .md, $(basename $(PNW_FILES) $(TEXW_FILES)))
 #HTML_DEPS += include/after_body.html
 #endif
 
-SRCDIR = $(realpath $(dir $<))
-DEST = $(abspath ../)
+SRC_DIR = $(realpath $(dir $<))
+DEST_DIR = $(abspath ../)
 
 PANDOC_MD_OUT_EXTS = +raw_tex+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures
 
@@ -39,7 +40,7 @@ all: md
 md: ${MD_FILES}
 
 %.md: %.pnw
-	Pweave -c -F $(DEST)/figures -f pandoc -o $(DEST)/$@ $< 
+	Pweave -c -F $(DEST_DIR)/figures -f pandoc -o $(DEST_DIR)/$@ $< 
 
 %.md: %.tex
 	# FYI: This approach doesn't require the filter to be executable and
@@ -48,17 +49,20 @@ md: ${MD_FILES}
 		python pandoc_eqref_filter.py |\
 		pandoc $(PANDOC_MD_OPTS) -f json \
 		-t markdown_github$(PANDOC_MD_OUT_EXTS)+raw_html \
-		-o $(DEST)/$@  
+		-o $(DEST_DIR)/$@  
 
 %.tex: %.texw
-	python pweave_custom.py -c -d -F $(DEST)/figures $<
+	python pweave_custom.py -c -d -F $(DEST_DIR)/figures $<
 
-clean: clean-md clean-pweave
+clean: clean-tex clean-md clean-pweave
+
+clean-tex:
+	-$(RM) $(addprefix $(DEST_DIR)/, ${TEX_FILES})
 
 clean-md:
-	-$(RM) $(addprefix $(DEST)/, ${MD_FILES})
+	-$(RM) $(addprefix $(DEST_DIR)/, ${MD_FILES})
 
 clean-pweave:
 	-$(RM) -rf cache
 	-$(RM) -rf figures
-	-$(RM) -rf $(DEST)/figures
+	-$(RM) -rf $(DEST_DIR)/figures

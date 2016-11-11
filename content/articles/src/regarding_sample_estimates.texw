@@ -1,0 +1,675 @@
+\documentclass[12pt]{article}
+\usepackage{setspace}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{subcaption}
+\usepackage{suffix}
+\usepackage{color}
+
+% Sadly, can't use this because it breaks greek letters.
+%\usepackage[slantedGreek]{mathpazo}
+\usepackage{breqn}
+
+\usepackage{todonotes}
+\usepackage{draftwatermark}
+\SetWatermarkScale{1}
+\SetWatermarkLightness{0.90}
+
+% used by Pweave
+\usepackage{graphicx}
+
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usepackage[backgroundcolor=bg, topline=false, bottomline=false, leftline=false, rightline=false]{mdframed}
+
+<<pweave_code, echo=False, evaluate=False>>=
+# ignore/change this stuff (and set infile manually) if you don't use neovim
+import neovim, os
+
+nvim = neovim.attach('socket', path=os.getenv("NVIM_LISTEN_ADDRESS"))
+currbuf = nvim.current.buffer
+infile = os.path.basename(currbuf.name)
+
+# here's a Pweave weave script...
+from pweave_custom import PwebMintedPandoc
+from pweave import rcParams, Pweb
+
+outext = "tex"
+docmode = True
+
+#dirs_split = os.getcwd().split(os.sep)
+#project_dir = str.join(os.sep, dirs_split[:dirs_split.index("src")])
+#output_file = str.join(os.sep, [project_dir, "src", "tex",
+#                                infile.split(os.path.extsep)[0] +
+#                                os.path.extsep + outext])
+project_dir = os.getcwd()
+output_file = str.join(os.sep, [project_dir,
+                                infile.split(os.path.extsep)[0] +
+                                os.path.extsep + outext])
+
+rcParams['figdir'] = str.join(os.sep, [os.path.join(project_dir, '..'), "figures"])
+rcParams['storeresults'] = docmode
+#rcParams['chunk']['defaultoptions']['engine'] = 'ipython'
+
+PwebFM = PwebMintedPandoc(file=infile,
+                          format=outext,
+                          shell="ipython_ext",
+                          figdir=rcParams['figdir'],
+                          output=output_file)
+PwebFM.updateformat({'width': '', 'figfmt': '.png', 'savedformats': ['.png']})
+
+# weave something
+PwebFM.weave(shell="ipython_ext")
+
+# Compile document to markdown
+assert os.system('make {}.md'.format(infile.split(os.path.extsep)[0])) == 0
+@
+
+\usepackage{minted}
+\setminted{
+  fontsize=\footnotesize
+  , breaklines=true
+  , breakanywhere=true
+  , breakautoindent=true
+}
+
+% this order is important
+%\PassOptionsToPackage{hyphens}{url}
+\RequirePackage[hyphens]{url}
+\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[authoryear]{natbib}
+
+\allowdisplaybreaks
+
+\include{math-commands}
+
+\graphicspath{{../../figures/}{../figures/}{./figures/}{./}}
+
+\title{Regarding Sample Estimates}
+
+\author{Brandon Willard}
+
+\date{2016-11-01}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+In this post I want to address some concepts regarding the use of the
+Bayesian paradigm, estimations that produce sample distributions and
+manipulations of model output and their resulting uncertainties.
+
+Before we get into the Bayes stuff, some preliminaries regarding notation: 
+
+The symbol $\sim$ is overloaded to mean a couple things.  First, a statement
+like $X \sim \operatorname{D}$ means ``$X$ is distributed according to
+$\operatorname{D}$'', when $X$ is understood to be a random variable (generally
+denoted by capital letter variables). Second, for a non-random variable $x$, 
+$x \sim \operatorname{D}$ and $x \sim X$ means ``$x$ is a sample from distribution
+$\operatorname{D}$''.  When $\operatorname{D}$ is not meant to signify a
+distribution, but instead a generic function--like a probability density
+function $p(X=x) \equiv p(x)$, then the distribution in question is [the] one
+arising from the function (interpreted as a probability density and/or
+measure)--when possible.  See
+\href{https://en.wikipedia.org/wiki/Notation_in_probability_and_statistics}{here}
+for a similar notation.  Also, whenever indices are dropped, the resulting
+symbol is assumed to be a stacked matrix containing each entry, e.g. 
+\[
+X^\top = \begin{pmatrix} X_1 & \dots & X_N \end{pmatrix} \;.
+\]
+When the indexed symbol is a vector, then it is customary to denote the row
+stacked matrix of each vector with the symbol's capital letter.  E.g., for
+[column] vectors $z_i$ over $i \in \{1, \dots, N\}$,
+\[
+Z = \begin{pmatrix} z_1 \\ \vdots \\ z_N \end{pmatrix} \;. 
+\]
+
+\section{A Simple Model}
+
+First, a simple normal-normal model
+\begin{equation}
+  Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
+    \theta \sim \operatorname{N}(\mu, I \tau^2)
+    \label{eq:normal-normal}
+\end{equation}
+for an identity matrix $I$, observed random variable $Y_t$ at time 
+$t \in \{1, \dots, T\}$, and known
+constant values (of matching dimensions) $x_t$, $\sigma$, $\mu$ and $\tau$.
+The $x_t$ play the role of predictors, or features, and we'll assume that the
+time dependencies arise primarily through them.
+
+In Bayes parlance, the model in \eqref{eq:normal-normal} gives $\theta$ a normal ``prior''
+distribution, and our quantity of interest is--implicitly--a ``posterior'' distribution represented
+by $p(\mu \mid y)$, where $y$ is some vector--or collection--of realized sample from
+$y^{(i)} \sim Y$ for $i \in \{1, \dots, N\}$.
+
+This simple example has the well known closed-form posterior solution
+for $\mu$,
+\begin{equation}
+  \left(\theta \mid y_t\right) \sim \operatorname{N}(m, C)
+    \;.
+    \label{eq:mu-posterior}
+\end{equation}
+for 
+\begin{gather*}
+  m = C \left(\mu \tau^{-2} + X^\top y\, \sigma^{-2}\right), \quad
+  C = \left(\tau^{-2} + \diag(X^\top X) \sigma^{-2}\right)^{-1}
+  \;.
+\end{gather*}
+
+<<evaluate=False, echo=False>>=
+"""
+Would be cool to derive the posterior symbolically...
+"""
+import sympy as sp
+import sympy.stats as sps 
+import sys, os
+sys.path.append(os.getcwd())
+import mvnrv
+
+T = sp.Symbol('T', integer=True, positive=True)
+
+X = sp.MatrixSymbol('X', T, 1)
+y = sp.MatrixSymbol('y', T, 1)
+
+mu = sp.MatrixSymbol('mu', 1, 1)
+tau = sp.MatrixSymbol('tau', 1, 1)
+theta = sp.MatrixSymbol('theta', 1, 1)
+
+# XXX: Doesn't work.
+theta_rv = sps.Normal('theta', mu, tau)
+
+
+sps.E(theta_rv)
+sps.density(theta_rv)
+
+sigma = sp.Symbol('sigma', real=True, positive=True)
+Y = sps.Normal('Y', theta, sigma)
+
+sps.density(sps.given(Y, sp.Eq(Y, y)))
+@
+
+Results like this are easily obtained for the classical pairings of ``conjugate''
+distributions, for which many detailed
+\href{https://en.wikipedia.org/wiki/Conjugate_prior#Table_of_conjugate_distributions}{tables}
+and 
+\href{https://goo.gl/UCL3pc}{tutorials}
+can be found online or in any standard text.
+
+\section{Estimation (via MCMC)}
+
+From here on let's assume we don't have \eqref{eq:mu-posterior} and estimate
+the posterior numerically with
+\href{https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo}{MCMC}.
+Again, MCMC is covered to varying degrees of detail all over the place
+(\href{https://goo.gl/JNwfuo}{here's} one),
+so we'll skip most of those details.  Suffice it to say, we already know that we
+need to estimate the $\mu$ posterior, $p(\mu \mid y)$, using
+\href{https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm}{Metropolis-Hastings}.
+
+For demonstration purposes, let's produce a simulation.
+<<create_simulation, echo=True, term=False, fig=False>>=
+import numpy as np
+import scipy.stats as scs
+
+# Unknown parameter
+mu_true = 1.5
+
+# [Assumed] known parameter
+sigma = 0.5
+
+# Prior parameters
+tau = 0.1
+mu = 2
+
+# Simulated observations
+X = np.sin(np.linspace(0, 2*np.pi, 100)) 
+y_obs = scs.norm.rvs(loc=X * mu_true, scale=sigma)
+@
+
+A Metropolis-Hastings sampler would perform a simple loop that
+accepts or rejects samples from a proposal distribution,
+$\theta_i \sim p(\theta_i \mid \theta_{i-1})$, according to the probability
+\[
+  \min\left\{1, 
+  \frac{p(Y = y \mid X, \theta_i)}{p(Y = y \mid X, \theta_{i-1})} 
+  \frac{p(\theta_i \mid \theta_{i-1})}{p(\theta_{i-1} \mid \theta_i)} 
+  \right\}
+  \;.
+\]
+Let's say our proposal is a normal distribution with a mean
+equal to the previous sample and a variance given by $\lambda^2$.  The
+resulting sampling scheme is a random walk Metropolis-Hastings sampler,
+and since the proposal is a symmetric distribution, 
+$\frac{p(\theta_i \mid \theta_{i-1})}{p(\theta_{i-1} \mid \theta_i)} = 1$.
+
+In code, this could look like
+<<manual_mh_sampler, echo=True>>=
+from functools import partial
+
+def model_logpdf(theta_):
+    res = np.sum(scs.norm.logpdf(y_obs, loc=X * theta_, scale=sigma))
+    res += scs.norm.logpdf(theta_, loc=mu, scale=tau)
+    return res
+
+N_samples = 5000
+theta_samples = []
+lam = 0.38742049
+current_sample = np.random.normal(loc=mu, scale=lam**2)
+proposal_logpdf = partial(scs.norm.logpdf, scale=lam**2)
+
+for i in xrange(N_samples):
+    proposal_sample = np.random.normal(loc=current_sample,
+                                       scale=lam**2, size=1)
+    l_ratio = np.sum(model_logpdf(proposal_sample))
+    l_ratio -= np.sum(model_logpdf(current_sample))
+
+    p_ratio = np.sum(proposal_logpdf(current_sample,
+                                     loc=proposal_sample))
+    p_ratio -= np.sum(proposal_logpdf(proposal_sample,
+                                      loc=current_sample))
+
+    if np.log(np.random.uniform()) <= min(0, l_ratio + p_ratio):
+        current_sample = proposal_sample
+
+    theta_samples += [current_sample]
+@
+
+The Metropolis-Hastings sampler does not rely on any prior information
+or Bayesian formulations.  Although the prior is implicitly involved, via the
+total probability, the concepts behind the sampler itself are still valid without it.  
+Basically, Metropolis-Hastings--like many other MCMC sampling routines--is not
+specifically Bayesian.  It's better to simply consider MCMC as just
+another estimation approach (or perhaps a type of stochastic optimization).
+
+\href{https://en.wikipedia.org/wiki/Gibbs_sampling}{Gibbs sampling} is arguably the other 
+most ubiquitous MCMC technique.  Since a model specified in a Bayesian way
+usually provides a clear joint distribution (or at least something proportional to it)
+and conditional probabilities, Gibbs sampling is well facilitated.  
+
+The context of Bayesian modeling is, however, a good source of direction
+and motivation for improvements to a sampling procedure (and estimation in
+general).  Under Bayesian assumptions, decompositions and reformulations for 
+broad classes of distributions are often immediately available.  Guiding
+theorems, like the \href{https://en.wikipedia.org/wiki/Rao%E2%80%93Blackwell_theorem}{Rao-Blackwell}
+theorem, are also applicable, and--more generally--the
+same principles, tools and results that guide the model creation and assessment process
+can also feed into the estimation process.  Making these two processes less
+disjoint can arguably be an advantage.    
+
+\subsection{The Situation on Implementation}
+
+MCMC sampling schemes like the above are fairly general and
+easily abstracted, giving rise to some generic frameworks that
+put more focus on model specification and attempt to automate
+the choice of estimation (or implement one robust technique).  
+Some of the more common frameworks are Bayesian in nature: 
+\href{http://www.openbugs.net/w/FrontPage}{OpenBUGS}, 
+\href{http://mcmc-jags.sourceforge.net/}{JAGS}, 
+\href{http://mc-stan.org/}{Stan}, 
+and \href{https://pymc-devs.github.io/pymc/}{PyMC2} /
+\href{https://pymc-devs.github.io/pymc3/}{PyMC3}.  These libraries
+provide a sort of meta-language that facilitates the specification
+of a Bayesian model and mirrors the mathematical language of probability. 
+They also implicitly implement the 
+\href{https://en.wikipedia.org/wiki/Algebra_of_random_variables}{algebra of random variables}
+and automatically handle the mechanics of variable transforms.
+
+Our model, estimated with a Metropolis-Hastings
+sampler, can be expressed in PyMC3 with the following code:
+<<pymc3_model, echo=True, term=False>>=
+import pymc3 as pm
+import theano
+theano.config.mode = 'FAST_COMPILE'
+
+with pm.Model() as model:
+    # Model definition
+    theta = pm.Normal('theta', mu=mu, sd=tau)
+    Y = pm.Normal('Y', mu=X * theta, sd=sigma, observed=y_obs)
+
+    # Posterior sampling
+    sample_steps = pm.Metropolis()
+    sample_traces = pm.sample(2000, sample_steps)
+@
+
+As per the basic examples in the 
+\href{https://goo.gl/WW3TO8}{PyMC3 notebooks}, 
+the posterior samples are plotted below using the following code:
+<<echo=True, fig=False>>=
+import matplotlib.pyplot as plt
+
+plt.style.use('ggplot')
+plt.rc('text', usetex=True)
+
+tp_axes = pm.traceplot(sample_traces)
+@
+
+We can also superimpose the true posterior density given by \eqref{eq:mu-posterior}
+with the following:
+<<theta_post_plot, echo=True, fig=True, include=True, fig_root='{attach}/articles/figures'>>=
+
+freq_axis = tp_axes[0][0]
+sample_axis = tp_axes[0][1]
+
+rhs = np.dot(tau**(-2), mu) + np.dot(X.T / sigma**2, y_obs)
+tau_post = tau**(-2) + np.dot(X.T / sigma**2, X)
+
+post_mean = rhs/tau_post #np.linalg.solve(tau_post, rhs)
+post_var_inv = tau_post # np.diag(tau_post)
+
+post_pdf = partial(scs.norm.pdf,
+                   loc=post_mean,
+                   scale=1./np.sqrt(post_var_inv))
+
+
+def add_function_plot(func, ax, num=1e2, label=None):
+    post_range = np.linspace(*ax.get_xlim(),
+                             num=num, endpoint=True)
+    post_data = map(post_pdf, post_range)
+
+    return ax.plot(post_range, post_data,
+                   label=label)
+
+# Add true posterior pdf to the plot
+add_function_plot(post_pdf, freq_axis,
+                  label=r'Exact $(\theta \mid y)$')
+
+# Add manually produced MH samples to the plot
+import seaborn as sns
+sns.distplot(theta_samples[:2000], ax=freq_axis, hist=False,
+                label=r'Manual MH $(\theta \mid y)$')
+
+sample_axis.plot(theta_samples[:2000],
+                 label=r'Manual MH $(\theta \mid y)$')
+
+
+freq_axis.legend()
+sample_axis.legend()
+plt.show()
+@
+
+\subsection{The Costs}
+
+MCMC, and specifically the Metropolis-Hastings approach used above, can look very simple 
+and universally applicable, but--of course--there's a trade-off occurring somewhere.  
+The trade-offs most often appear in relation to the complexity and cost of [intermediate] 
+sampling steps and convergence rates.  
+To over simplify, the standard $O(N^{-1/2})$
+error rate--from the \href{}{Central Limit Theorem}--is the MCMC baseline, which
+isn't all that competitive with some of the standard non-.
+
+When the sampling steps involve accept/reject
+conditions for sampled values--as above--and thus the rate of rejection(/acceptance)
+can be an indirect measure of the cost, as well.  That, on top of simpler things--like a draw from
+a proposal distribution--can be fairly costly in the long run.
+Even in our example, the proposal distribution (and its
+parameters) are not always easy to choose or cheap to tune.  
+Basically, the upfront computational costs can be quite high for
+the more generic approaches, but there are almost always paths toward more efficient
+samplers in the context of a specific problem/model.
+
+Often the apparent generality and relative simplicity of the Bayes
+approach (and MCMC) can be detrimentally misleading to newcomers/outsiders.
+After some immediate success with simpler and/or scaled down problems,
+one soon finds that the cost of computations and the effort and skills required
+for deriving efficient methods is not worth the potential parsimony and extra
+information provided by sample/simulation results and/or the Bayesian paradigm. 
+This simplicity and scaling applies to the mathematical formulation of problems, too.
+
+The result of this mild deception is often a rejection of Bayes and/or MCMC/simulation
+as impractical.  Such rejections preclude an awareness of the many
+customizations, accessible efficiency gains and even the connections to
+non-Bayes, non-MCMC approaches.  Unfortunately, I am unaware of any fundamental
+results implying that Bayesian/probabilistic formulations and/or MCMC is inherently
+more complicated than related efforts in deterministic optimization.  More likely is
+that most practitioners are simply more comfortable with the latter.
+Nonetheless, it would be quite worthwhile to illustrate some very strong non-trivial and
+non-basic connections between the two, and I will likely do so in a later writeup.
+
+\section{Posterior Predictive and Estimators/Predictors}
+
+The sampling situation offered by MCMC (and Bayes) leaves us in a nice
+situation to make extensive use of predictions \emph{and} obtain uncertainty
+measures (e.g. variances, credible intervals, etc.).
+
+In general, posterior predictive samples are fairly easy to obtain.
+Once you have posterior samples of $\theta$, say $\{\theta_i\}_{i=0}^M$,
+simply plug those into the sampling/observation distribution and
+sample $Y$ values.  Specifically, $\{y_i \sim p(Y \mid \theta_i)\}_{i=0}^M$
+is a posterior predictive sample from $p(Y \mid y)$.
+
+Using our previous simulation, and PyMC3, the posterior predictive samples are
+obtained with
+<<echo=True>>=
+ppc_samples = pm.sample_ppc(sample_traces, model=model)
+@
+and plotted
+<<hourly_ppc_plot, plot=True, echo=True, include=True, fig_root='{attach}/articles/figures'>>=
+plt.clf()
+ppc_hpd = pm.hpd(ppc_samples['Y'], 0.05)
+plt.fill_between(np.arange(np.alen(y_obs)),
+                 ppc_hpd[:, 0],
+                 ppc_hpd[:, 1],
+                 label=r'$(Y \mid X, y)$ 95\% interval', 
+                 alpha=0.5)
+plt.plot(y_obs, label='$y$', color='black')
+plt.plot(ppc_samples['Y'].mean(axis=0),
+         label=r'$E[Y \mid X, y]$', alpha=.7)
+plt.legend()
+plt.show()
+@
+
+The plot above isn't very interesting, given the simplicity of our toy
+problem, so we'll need to extend the problem to make a better illustration.
+
+Now, let's say we're interested in some function of our observations,
+$f(Y)$.  Perhaps that function is a summary statistic, daily, monthly, yearly
+averages for a $Y_t$ in a lower frequency--like minutes or
+hours.  Maybe we would like to consider functions of differences between the outputs
+of different models, $f(Y^{(j)} - Y^{(k)})$ for $j, k \in \{1, 2\}$,
+or more generally $f(Y^{(j)}, Y^{(k)})$.  With posterior predictive samples
+of $Y$, most of these quantities are simple manipulations of the arrays or
+data frames containing the samples.  Out of those manipulations automatically
+comes an entire sample distribution from which we can obtain measures of
+uncertainty or variance.
+
+Let's look at the previous posterior predictive values summarized at
+different intervals.  First, we give our simulation and previous results a time
+index with an hourly frequency. 
+<<echo=True>>=
+import pandas as pd
+
+start_datetime = pd.tslib.Timestamp(pd.datetime.now())
+index_sim = pd.date_range(start=start_datetime,
+                          periods=np.alen(y_obs), freq='H')
+
+y_obs_h = pd.Series(y_obs, index=index_sim)
+
+ppc_samples_h = pd.DataFrame(ppc_samples['Y'].T, index=index_sim)
+ppc_samples_h = ppc_samples_h.stack()
+ppc_samples_h = ppc_samples_h[:,0]
+@
+
+Recall that our posterior predictive MCMC results come in the form of
+\href{https://en.wikipedia.org/wiki/Empirical_measure}{empirical measures}, i.e.
+a sample from $p(Y \mid X, y)$ that we're using as the approximation $p_N(Y \mid X, y)$.   
+Since our intent is to down-sample to a daily frequency, we need to create the corresponding
+empirical measure for new random variable, $f(Y)$, generated by our down-sampling: $p_N(f(Y) \mid X, y)$. 
+
+%Our particular transform, for one element/time point in $Y$, is given by
+%\begin{equation*}
+%  f(Y_t) \equiv \frac{1}{24} \sum_{k=t}^{t + 23} Y_k 
+%  \;.
+%\end{equation*}
+
+<<echo=True>>=
+ppc_quantiles_d = ppc_samples_h.resample('D').apply(
+    lambda x: x.quantile(q=[0.05, 0.5, 0.95]))
+
+ppc_quantiles_d = ppc_quantiles_d.unstack()
+
+y_obs_d = y_obs_h.resample('D').mean()
+@
+
+<<daily_ppc_plot, plot=True, echo=True, include=True, fig_root='{attach}/articles/figures'>>=
+plt.clf()
+plt.fill_between(ppc_quantiles_d.index.values,
+                 ppc_quantiles_d[0.05],
+                 ppc_quantiles_d[0.95],
+                 label=r'$(f(Y) \mid X, y)$ 95\% interval',
+                 alpha=0.5)
+plt.plot(y_obs_d, label='$f(y)$', color='black')
+plt.plot(ppc_quantiles_d[0.5], label=r'$E[f(Y) \mid X, y]$', alpha=.7)
+plt.legend()
+plt.show()
+@
+
+From here on, one could simply substitute the calls to \texttt{mean} with another transform, $f$.
+
+\section{Hierarchical Extensions}
+
+Even though we only considered ``in-sample'' predictions in the previous section, out-of-sample and missing
+values are covered by exactly the same process (neatly simplified by PyMC3's \texttt{sample\_ppc}).
+In our example there was an exogenous variable $X$ that is needed to sample
+$(Y_t \mid x_t)$ for a missing or future $t$.  When the values in $X$ cannot be projected with
+certainty--e.g. future temperatures--it's not uncommon for practitioners to impute values in
+some way to obtain results.  
+I would like to point out how nearly every instance of such imputations gives rise to an implicit
+model.  Going back to our preference for the Bayesian paradigm, it behoves us to more formally
+specify exactly what model/assumptions we're introducing, where and maybe even why.
+If we do so in well-defined Bayes way, then we're immediately provided the exact same approach
+we used above.
+
+If the $X$ values in our sample now correspond to, say, temperature, and today
+is the last day in our time-indexed observations \texttt{y\_obs}, then
+predicting forward in time will require future temperature values that we don't
+have, as mentioned above.  In this particular case, we might immediately think
+to use summary statistics from previous temperature observations in the
+prediction period, e.g. the average temperature in November and December.  This
+isn't a bad idea, per se, but it is a poorly defined model (in a Bayes sense,
+let's say), so when the modeler's interest eventually turns to uncertainty
+quantification and prediction error, there will still be a lot of modeling work to do 
+and most likely some rather difficult reconciling between the current model and the 
+approximations used.  In this situation it can be very difficult to contextualize the
+big picture (e.g. the current model, its assumptions and estimation errors; the specifics of
+the out-of-sample approximation values and their peculiarities, etc.).  As a result,
+it can be very hard to obtain something more than naive asymptotic normal or first-order 
+approximations.  Sadly, if certain forms of reliability are important, these approximations 
+are insufficient for all but the simplest problems.
+
+In contrast, we can model the $x_t$ values directly and have a very clear cut path
+toward out-of-sample predictions and their distributional properties.
+If we feel like going with this idea that the previous average values are
+a reasonable imputation, then a number of simple models can account for
+that assumption.  For instance,
+\begin{equation}
+  x_t \sim X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
+  \label{eq:exogenous_model}
+\end{equation}
+where $d(t)$ is an indicator vector and $I$ is an identity matrix.  
+Keep in mind that we've stretched the notation a bit by letting $X_t$ 
+correspond to the random variable at time $t$, while $X$ is the stacked matrix of 
+$x_t$ values.
+
+Let's say that $\beta$ has terms for each day of the week; 
+that means the matrix of stacked values of $d(t)$, $D$, is some design matrix 
+with levels for each day.  
+Now, since we know that the $x_t$ were generated from a $\sin$ function
+(or even by visual inspection), a model using $\sin$ would probably be more 
+appropriate, but we're approaching this as though we know much less.
+
+A simple substitution of this model for our previously fixed $X$ values,
+results in a sort of hierarchical model, for which we can now coherently 
+marginalize $X$ and obtain the desired posterior predictive, $p(Y \mid y)$, 
+that is self-contained and applicable for all $t$.
+More important, the change in our complete model is actually quite minimal.
+The model above for $X$ simply equates to the observation model
+\begin{equation*}
+  \left(Y \mid \beta, \theta \right) \sim 
+  \operatorname{N}\left(D B \theta, I \left(\sigma_x^2 + \sigma^2\right)\right) 
+  \;.
+\end{equation*}
+after marginalizing $X_t$.  The variable $B$ is a matrix that embeds $\beta$
+and produces the expected $\left(d(t)^\top \beta\right)^\top \theta$ for each entry
+of the product $D B \theta$.
+
+We haven't given a prior to $\beta$, but in the absence of
+conflicting assumptions, we might first say that the product $B \theta$
+should be simplified to a single variables of its own, and not two
+independent ``entangled'' ones.  This idea could come from an understanding
+of the classical 
+\href{https://en.wikipedia.org/wiki/Parameter_identification_problem}{identification} 
+issues and their solutions.
+In this vein, we could attempt to relieve ourself of a redundant
+term, say, $\beta$; perhaps by saying saying $B \theta \to \theta$.  
+The result is then a simple factor model with the same
+form as \eqref{eq:normal-normal} but $X \to D$. 
+
+The aforementioned simplification is quite reasonable and more likely
+considered an entire re-definition of our initial observation model 
+\eqref{eq:normal-normal}.  However, this is not the way we want to look at it.  
+Instead, we intended to illustrate a basic connection between
+the iterative model development process of the more traditional approaches and the
+Bayesian one espoused here.  
+
+To make this connection more concrete, we might
+not do away with $\beta$ and instead give it a prior for which $B \theta$
+is normally distributed.  We could give the terms in $\beta$ independent 
+\href{https://en.wikipedia.org/wiki/Prior_probability#Improper_priors}{improper} 
+uniform distributions over $(-\inf, \inf)$.
+
+In our framing, the new model is a direct \emph{extension} of our initial model, and
+is possibly even equivalent under marginalization or conditional on certain
+random variables. 
+
+For our next simulation, we'll not make the simplification above.  Instead, we'll
+give $\beta$ a $\operatorname{N}(0, I \tau_b^2)$ prior and proceed as before.
+
+A design matrix, $D$, resulting from \eqref{eq:exogenous_model} is 
+easily produced using \href{https://patsy.readthedocs.io/en/latest/}{Patsy}:
+<<echo=True>>=
+import patsy
+import theano.tensor as T
+
+y_obs_df = y_obs_h.to_frame()
+y_obs_df.columns = ['y']
+
+y_df, X_df = patsy.dmatrices("y ~ 1 + C(y.index.dayofweek)",
+                             y_obs_df,
+                             return_type='dataframe')
+
+with pm.Model() as model:
+    theta = pm.Normal('theta', mu=mu, sd=tau)
+    beta = pm.Normal('beta', mu=0, sd=1e3,
+                     shape=(X_df.shape[-1],))
+    Y = pm.Normal('Y',
+                  mu=T.transpose(T.dot(X_df, beta)) * theta,
+                  sd=sigma, observed=y_obs)
+
+    sample_steps = pm.Metropolis()
+    sample_traces = pm.sample(2000, sample_steps)
+@
+
+The posterior predictive is plotted below.
+<<temp_ppc_plot, plot=True, echo=True, include=True, fig_root='{attach}/articles/figures'>>=
+ppc_samples = pm.sample_ppc(sample_traces, model=model)
+ppc_hpd = pm.hpd(ppc_samples['Y'], 0.05)
+
+plt.clf()
+y_obs_df.plot(label=r'$y$', color='black')
+plt.fill_between(y_obs_df.index,
+                 ppc_hpd[:, 0],
+                 ppc_hpd[:, 1],
+                 label=r'$(Y \mid y)$ 95\% interval',
+                 alpha=0.5)
+plt.plot(y_obs_df.index, ppc_samples['Y'].mean(axis=0),
+         label=r'$E[Y \mid y]$', alpha=.7)
+plt.legend()
+plt.show()
+@
+
+\end{document}

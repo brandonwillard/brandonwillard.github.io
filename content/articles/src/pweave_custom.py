@@ -4,25 +4,20 @@ from pweave import (Pweb, PwebTexFormatter, rcParams,
                     PwebIPythonProcessor, PwebFormats, PwebProcessors)
 
 
-class PwebFramedMintedPandocFormatter(PwebTexFormatter):
+class PwebMintedPandocFormatter(PwebTexFormatter):
     r"""
-    Custom output format that adds `mdframed` LaTeX environments,
-    so that formatted code can be page-broken.
+    Custom output format that handles figures for Pandoc and Pelican.
     """
     def initformat(self):
-        frame_pre = r'\begin{mdframed}'
-        frame_post = r'\end{mdframed}'
-
         self.formatdict = dict(
-            codestart=frame_pre + (r'\begin{minted}[mathescape, '
-                                   r'xleftmargin=0.5em]{%s}'),
-            codeend='\end{minted}\n' + frame_post,
-            outputstart=frame_pre + (r'\begin{minted}[xleftmargin=0.5em'
-                                     r', mathescape, frame = leftline]{text}'),
-            outputend='\end{minted}\n' + frame_post,
-            termstart=frame_pre + (r'\begin{minted}[xleftmargin=0.5em, '
-                                   r'mathescape]{%s}'),
-            termend='\end{minted}\n' + frame_post,
+            codestart=(r'\begin{minted}[mathescape, xleftmargin=0.5em]{%s}'),
+            codeend='\end{minted}\n',
+            outputstart=(r'\begin{minted}[xleftmargin=0.5em'
+                         r', mathescape, frame = leftline]{text}'),
+            outputend='\end{minted}\n',
+            termstart=(r'\begin{minted}[xleftmargin=0.5em, '
+                       r'mathescape]{%s}'),
+            termend='\end{minted}\n',
             figfmt='.png',
             extension='tex',
             width='',
@@ -101,7 +96,7 @@ PwebProcessors.formats.update({'ipython_ext':
                                 }})
 
 
-class PwebFramedMintedPandoc(Pweb):
+class PwebMintedPandoc(Pweb):
 
     def __init__(self, *args, **kwargs):
         #self.destination = kwargs.get('output', None)
@@ -109,18 +104,18 @@ class PwebFramedMintedPandoc(Pweb):
         #    self.destination = os.path.abspath(self.destination)
         docmode = kwargs.pop('docmode', None)
 
-        super(PwebFramedMintedPandoc, self).__init__(*args, **kwargs)
+        super(PwebMintedPandoc, self).__init__(*args, **kwargs)
 
-        self.formatter = PwebFramedMintedPandocFormatter()
+        self.formatter = PwebMintedPandocFormatter()
         #self.sink = os.path.join(self.output,
         #                         os.path.basename(self._basename()) + '.' +
         #                         self.formatter.getformatdict()['extension'])
         self.documentationmode = docmode
 
-PwebFormats.formats.update({'pweb_framed_minted_pandoc': {
-    'class': PwebFramedMintedPandocFormatter,
-    'description': ('Framed minted environs'
-                    ' with pandoc outputconsiderations')}})
+PwebFormats.formats.update({'pweb_minted_pandoc': {
+    'class': PwebMintedPandocFormatter,
+    'description': ('Minted environs with Pandoc and Pelican'
+                    ' figure output considerations')}})
 
 if __name__ == '__main__':
     r""" This provides a callable script that mimics the `Pweave` command but
@@ -168,11 +163,11 @@ if __name__ == '__main__':
     rcParams['storeresults'] = opts_dict.pop('cache', None)
     #rcParams['chunk']['defaultoptions']['engine'] = 'ipython'
     print(rcParams['figdir'])
-    PwebFM = PwebFramedMintedPandoc(infile, format="tex",
-                                    shell="ipython",
-                                    figdir=rcParams['figdir'],
-                                    output=opts_dict.pop('output', None),
-                                    docmode=opts_dict.pop('docmode', None))
+    PwebFM = PwebMintedPandoc(infile, format="tex",
+                              shell="ipython",
+                              figdir=rcParams['figdir'],
+                              output=opts_dict.pop('output', None),
+                              docmode=opts_dict.pop('docmode', None))
 
     # weave something
     PwebFM.weave()

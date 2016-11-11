@@ -33,8 +33,8 @@ currbuf = nvim.current.buffer
 infile = os.path.basename(currbuf.name)
 
 # here's a Pweave weave script...
-from pweave_custom import PwebFramedMinted
-from pweave import rcParams
+from pweave_custom import PwebMintedPandoc
+from pweave import rcParams, Pweb
 
 outext = "tex"
 docmode = True
@@ -49,17 +49,22 @@ output_file = str.join(os.sep, [project_dir,
                                 infile.split(os.path.extsep)[0] +
                                 os.path.extsep + outext])
 
-rcParams['figdir'] = str.join(os.sep, [project_dir, "figures"])
+rcParams['figdir'] = str.join(os.sep, [os.path.join(project_dir, '..'), "figures"])
 rcParams['storeresults'] = docmode
 #rcParams['chunk']['defaultoptions']['engine'] = 'ipython'
 
-PwebFM = PwebFramedMinted(file=infile,
+PwebFM = PwebMintedPandoc(file=infile,
                           format=outext,
                           shell="ipython_ext",
-                          output=output_file,
-                          docmode=docmode)
+                          figdir=rcParams['figdir'],
+                          output=output_file)
+PwebFM.updateformat({'width': '', 'figfmt': '.png', 'savedformats': ['.png']})
+
 # weave something
 PwebFM.weave(shell="ipython_ext")
+
+# Compile document to markdown
+assert os.system('make {}.md'.format(infile.split(os.path.extsep)[0])) == 0
 @
 
 \usepackage{minted}
