@@ -12,7 +12,7 @@ sys.path.append(os.curdir)
 
 from pelicanconf import *
 
-#SITEURL = 'https://brandonwillard.github.io'
+SITEURL = 'https://brandonwillard.github.io'
 #RELATIVE_URLS = False
 
 FEED_ALL_ATOM = 'feeds/all.atom.xml'

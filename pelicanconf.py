@@ -18,7 +18,7 @@ PATH = 'content'
 STATIC_PATHS = [
     'images',
     'extra/favicon.ico',
-    #'extra/custom.css',
+    'extra/custom.css',
     'articles/figures',
 ]
 EXTRA_PATH_METADATA = {
@@ -27,6 +27,7 @@ EXTRA_PATH_METADATA = {
 
 PAGE_PATHS = ['pages']
 ARTICLE_PATHS = ['articles']
+ARTICLE_EXCLUDES = ['articles/src']
 
 TIMEZONE = 'America/Chicago'
 
@@ -35,8 +36,9 @@ DEFAULT_LANG = u'en'
 
 THEME = "/home/bwillar0/apps/pelican-themes/pelican-bootstrap3"
 
-#CUSTOM_CSS = 'extra/custom.css'
-#DISQUS_SITENAME = "brandonwillard-github-io"
+CUSTOM_CSS = 'extra/custom.css'
+
+DISQUS_SITENAME = "brandonwillard-github-io"
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
@@ -66,7 +68,8 @@ DIRECT_TEMPLATES = ['index', 'archives', 'publications']
 DEFAULT_PAGINATION = 10
 
 # Uncomment following line if you want document-relative URLs when developing
-#RELATIVE_URLS = False
+#SITEURL = 'https://brandonwillard.github.io'
+#RELATIVE_URLS = True
 
 MATH_JAX = {'linebreak_automatic': True,
             'tex_extensions': ['AMSmath.js', 'AMSsymbols.js']

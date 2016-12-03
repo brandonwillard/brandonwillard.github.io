@@ -29,6 +29,7 @@ class PwebMintedPandocFormatter(PwebTexFormatter):
         width = chunk['width']
         result = ""
         figstring = ""
+
         fig_root = chunk.get('fig_root', None)
 
         if chunk["f_env"] is not None:
