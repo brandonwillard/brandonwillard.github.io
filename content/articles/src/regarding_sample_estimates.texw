@@ -652,7 +652,7 @@ that assumption.
   \href{https://en.wikipedia.org/wiki/Parameter_identification_problem}{identification}
   issue arising from the product of two unknowns.
   For example, assuming we want to relieve ourselves of a redundant
-  term, we might fix $B \theta \defeq \theta_b \sim N(\mu_b, \tau_b)$.
+  term, we might fix $B \theta \equiv \theta_b \sim N(\mu_b, \tau_b)$.
   This specification is then a simple regression with a factor design matrix and essentially the same
   form as our original model \eqref{eq:normal-normal} with $X \to D$ and $\theta \to \theta_b$.
 

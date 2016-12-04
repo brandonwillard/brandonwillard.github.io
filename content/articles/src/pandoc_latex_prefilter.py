@@ -2,8 +2,8 @@ r"""
 Pandoc filter that doesn't throw away `\eqref{...}` in latex.
 Other output formats are unaffected.
 
-Example
-=======
+Examples
+========
 
 Let's create a test latex file:
 
@@ -91,11 +91,14 @@ First, let's get an example of what we're aiming for:
 So we need to create a `Div` object like above.
 
     >>> test_file_exa = r'''
+    ... \textit{some text}
     ... \begin{Exa}
-    ... Blah, blah, blah
-    ... \label{ex:some_example}
+    ...     Blah, blah, blah
+    ...     \textit{some more text}
+    ...     \label{ex:some_example}
     ... \end{Exa}
     ...
+    ... Example~\ref{ex:some_example} is blah.
     ... '''
     >>> with open('test_exa.tex', 'w') as f:
     >>>     f.write(test_file_exa)
@@ -107,14 +110,23 @@ The latex environment comes in the form of a `RawBlock` with format "latex".
     \end{Exa}"]}]]
 
     >>> !pandoc -R -f latex -t json test_exa.tex | python pandoc_latex_prefilter.py
-    [{"unMeta": {}}, [{"c": [["", ["example"], [["style", "content:'None';"]]], [{"c": ["html", "\nBlah, blah
-    , blah\n\\label{ex:some_example}\n"], "t": "RawBlock"}]], "t": "Div"}]]
 
     >>> !pandoc -R -f latex -t json test_exa.tex | python pandoc_latex_prefilter.py\
         | pandoc -R -f json -t markdown
-    <div class="example" style="content:'None';">
+    <div id="ex:some_example" class="example">
     Blah, blah, blah
-    \label{ex:some_example}
+    </div>
+
+Don't forget to add the `+markdown_in_html_blocks` option when using other [markdown]
+output types:
+    >>> !pandoc -R -f latex -t json test_exa.tex | python pandoc_latex_prefilter.py\
+        | pandoc -R -f json -t markdown_github
+    Blah, blah, blah
+
+    >>> !pandoc -R -f latex -t json test_exa.tex | python pandoc_latex_prefilter.py\
+        | pandoc -R -f json -t markdown_github+markdown_in_html_blocks
+    <div id="ex:some_example" class="example">
+    Blah, blah, blah
     </div>
 
 If you want to debug the filter, add a line like this:
@@ -126,22 +138,27 @@ and connect with something like `nc` or `telnet`.
 
 """
 
+import sys
+import re
+from copy import copy
+
+import json
+import pypandoc
+
 from pandocfilters import (
     toJSONFilter,
-    RawInline,
     Math,
     Image,
     Div,
-    Para,
     Str,
+    Plain,
+    RawInline,
     RawBlock)
-import re
-from copy import copy
 
 graphics_pattern = re.compile(
     r"includegraphics(?:\[.+\])?\{(.*?(\w+)(\.\w*))\}")
 image_pattern = re.compile(r"(.*?(\w+)(\.\w*))$")
-label_pattern = re.compile(r'\\label\{(\w*?:?\w+)\}')
+label_pattern = re.compile(r'\s*\\label\{(\w*?:?\w+)\}')
 environment_pattern = re.compile(
     r'\\begin\{(\w+)\}(\[.+\])?(.*)\\end\{\1\}', re.S)
 
@@ -151,40 +168,30 @@ environment_conversions = {'Exa': 'example'}
 preserved_tex = ['\\eqref', '\\ref', '\\includegraphics']
 
 
-def latex_prefilter(key, value, oformat, meta):
-    r"""
-        * Keeps unmatched `\eqref`, drops the rest
-        * Wraps equation blocks with `equation[*]` environment depending on whether
-          or not their body contains a `\label`.
-        * Converts custom environments to div objects.
+def latex_prefilter(key, value, oformat, meta, *args, **kwargs):
+    r""" A prefilter that adds more latex capabilities to Pandoc's tex to
+    markdown features.
+
+    Currently implemented:
+        * Keeps unmatched `\eqref` (drops the rest)
+        * Wraps equation blocks with `equation[*]` environment depending on
+          whether or not their body contains a `\label`
+        * Converts custom environments to div objects
+
+    Set the variables `preserved_tex` and `environment_conversions` to
+    allow more raw latex commands and to convert latex environment names
+    to CSS class names, respectively.
+
     """
+    # sys.stderr.write("Filter args: {}, {}, {}, {}\n".format(
+    #     oformat, meta, args, kwargs))
+
     if key == 'RawInline' and value[0] == 'latex' and \
             any(c_ in value[1] for c_ in preserved_tex):
 
         new_value = graphics_pattern.sub(r'{attach}/articles/figures/\2.png',
                                          value[1])
         return RawInline('latex', new_value)
-
-    if key == 'RawBlock' and value[0] == 'latex':
-
-        env_info = environment_pattern.search(value[1])
-        if env_info is not None:
-            env_groups = env_info.groups()
-            env_name = env_groups[0]
-            env_name = environment_conversions.get(env_name, env_name)
-            env_title = env_groups[1]
-            env_body = env_groups[2]
-
-            # TODO: Use labels.
-            # env_body = label_pattern.sub(r'\1', env_body)
-
-            new_value = [
-                ["", [env_name], [["style", "content:'{}';".format(env_title)]]],
-                [RawBlock('html', env_body)]
-                # [Para([Str(env_body)])]
-            ]
-
-            return Div(*new_value)
 
     elif key == "Image":
 
@@ -203,6 +210,71 @@ def latex_prefilter(key, value, oformat, meta):
                          "{}\n\\end{{equation{}}}").format(
                              star, value[1], star)
         return Math(value[0], wrapped_value)
+
+    if key == 'RawBlock' and value[0] == 'latex':
+
+        env_info = environment_pattern.search(value[1])
+        if env_info is not None:
+            env_groups = env_info.groups()
+            env_name = env_groups[0]
+            env_name = environment_conversions.get(env_name, env_name)
+            env_title = env_groups[1]
+            env_body = env_groups[2]
+
+            label_info = label_pattern.search(env_body)
+            env_label = ""
+            label_div = None
+            if label_info is not None:
+                env_label = label_info.group(1)
+
+                hack_div_label = env_label+"_math"
+                # XXX: We're hijacking mathjax's numbering system.
+                ref_hack = (r'$$\begin{{equation}}'
+                            r'\tag{{{{}}}}'
+                            r'\label{{{}}}'
+                            r'\end{{equation}}$$'
+                            r'<script type="text/javascript">'
+                            r'var env_element = document.getElementById("{}", null);'
+                            r'var tag_val = document.defaultView.getComputedStyle(env_element).counterIncrement;'
+                            r'tag_val = tag_val.replace(env_element.className, "");'
+                            r'var env_math = document.getElementById("{}", null);'
+                            r'var new_text = env_math.innerHTML.replace("{{}}", tag_val);'
+                            r'env_math.innerHTML = new_text;'
+                            r'</script>'
+                            ).format(env_label, env_label, hack_div_label)
+
+                label_div = Div([hack_div_label, [],
+                                 [#['markdown', ''],
+                                  ["style",
+                                   "display:none;visibility:hidden"]]],
+                                [RawBlock('latex', ref_hack)])
+
+                # Now, remove the latex label string
+                env_body = label_pattern.sub(r'', env_body)
+
+            # type Attr = (String, [String], [(String, String)])
+            # Attributes: identifier, classes, key-value pairs
+            div_attr = [env_label, [env_name], [['markdown', '']]]
+
+            if env_title is not None:
+                div_attr[2] += [["style",
+                                 "--title-name:'{}';".format(env_title)]]
+
+            # TODO: Can/should we evaluate nested environments?
+            env_body = pypandoc.convert_text(env_body, 'json',
+                                             format='latex',
+                                             filters=None
+                                             # ['pandoc_latex_prefilter.py']
+                                             )
+
+            div_block = json.loads(env_body)[1]
+
+            if label_div is not None:
+                div_block = [label_div] + div_block
+
+            return Div(div_attr, div_block)
+        else:
+            return []
 
     elif "Raw" in key:
         return []

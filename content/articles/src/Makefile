@@ -24,7 +24,7 @@ SRC_DIR = $(realpath $(dir $<))
 MD_DEST_DIR = $(abspath ../)
 PDF_DEST_DIR = $(abspath ./output)
 
-PANDOC_MD_OUT_EXTS = +raw_tex+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures
+PANDOC_MD_OUT_EXTS = +markdown_in_html_blocks+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures
 
 # Add citations with: +citations
 
@@ -51,7 +51,7 @@ md: ${MD_FILES}
 	pandoc $(PANDOC_MD_OPTS) -f latex -t json $< |\
 		python pandoc_latex_prefilter.py |\
 		pandoc $(PANDOC_MD_OPTS) -f json \
-		-t markdown_github$(PANDOC_MD_OUT_EXTS)+raw_html \
+		-t markdown_github$(PANDOC_MD_OUT_EXTS)+raw_html+raw_tex \
 		-o $(MD_DEST_DIR)/$@  
 
 %.tex: %.texw
