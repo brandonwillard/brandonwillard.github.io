@@ -139,23 +139,20 @@ statistical models.
 More than a few non-Bayes statistically-based approaches and models can be
 given Bayesian interpretations.  Finding a Bayesian interpretation can even advance
 an understanding of the statistical assumptions and properties of a model.
-A simple example is when models defined exclusively by objective or loss functions
-are equivalent to the total log-likelihood of a Bayesian model.
-This is one avenue for relating point-wise estimates of arbitrarily derived models to
+Multiple examples arise from models defined by objective or loss functions
+with forms equivalent to total log-likelihoods of Bayesian models.
+This is one way that point-wise estimates can be related to
 maximum a posteriori (MAP) estimates in the Bayesian context.
 
 When the statistical assumptions underlying a Bayesian interpretation are
-acceptable, other quantities like errors, intervals, summaries, etc., are automatically
-determined.  They're not automatically \textit{estimated}, nor are they easy to
-estimate; however, the same acts of approximation that occurs in the non-Bayes
-world can now be applied to these--now statistically justified--complete
-specifications.  This can be the difference between approximating a known
-function and approximating an unknown function.  The former allows one to
-more easily assess approximation errors, derive efficient methods, etc., while the latter
-is basically a step before the former situation.
+acceptable, the functional forms of derived quantities--like errors, intervals,
+summaries, etc.--are automatically determined.  They're neither automatically
+estimated nor necessarily easy to estimate.  Nonetheless, this can be
+the difference between working with a known (specified, really) function and an
+unknown one.  If anything, the latter is really just a step before the former!
 
 Anyway, there's too much to consider here, so I'm going to continue with illustrations
-and some details for just a few topics and concerns.
+and some details for just a few of these considerations.
 
 \subsection{Notation}
 
