@@ -202,7 +202,7 @@ In Bayes parlance, the model in \eqref{eq:normal-normal} gives $\theta$ a normal
 distribution and the primary problem involves estimating the ``posterior'' distribution
 $p(\theta \mid y)$, for a vector of observations $y$ under the assumption $y \sim Y$.
 
-This simple example has the well known closed-form posterior solution for $\mu$,
+This simple example has the well known closed-form posterior solution for $\theta$,
 \begin{equation}
   \left(\theta \mid y_t\right) \sim \operatorname{N}(m, C)
     \;.
@@ -256,13 +256,13 @@ can be found online or in any standard text.
 
 \section{Estimation (via MCMC)}
 
-From here on let's assume we do not have the closed-form result in \eqref{eq:mu-posterior}.  Instead, we'll
+From here on let's assume we do not have the closed-form result in \eqref{eq:theta-posterior}.  Instead, we'll
 estimate the posterior numerically with
 \href{https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo}{MCMC}.
 Again, MCMC is covered to varying degrees of detail all over the place
-(\href{https://goo.gl/JNwfuo}{here's} one),
+(e.g. \href{https://goo.gl/JNwfuo}{here}),
 so we'll skip most of those details.  Suffice it to say, we already know that we
-need to estimate the $\mu$ posterior, $p(\mu \mid y)$, using
+need to estimate the $\theta$ posterior, $p(\theta \mid y)$, using
 \href{https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm}{Metropolis-Hastings}.
 
 For demonstration purposes, let's produce a simulation.
@@ -409,7 +409,7 @@ plt.rc('text', usetex=True)
 tp_axes = pm.traceplot(sample_traces)
 @
 
-We can also superimpose the true posterior density given by \eqref{eq:mu-posterior}
+We can also superimpose the true posterior density given by \eqref{eq:theta-posterior}
 with the following:
 <<theta_post_plot, echo=True, fig=True, width=r'\textwidth', include=True, results='hidden', caption="Posterior samples">>=
 
@@ -459,10 +459,10 @@ MCMC, and specifically the Metropolis-Hastings approach used above, can look ver
 and universally applicable, but--of course--there's a trade-off occurring somewhere.
 The trade-offs most often appear in relation to the complexity and cost of [intermediate]
 sampling steps and convergence rates.
-To over simplify, the standard $O(N^{-1/2})$
-error rate--from the \href{}{Central Limit Theorem}--is the MCMC baseline, which
-isn't all that competitive with some of the standard deterministic optimization
-methods.
+To over simplify, the standard $O(N^{-1/2})$ error rate--from the
+\href{https://en.wikipedia.org/wiki/Central_limit_theorem}{Central Limit Theorem}--is
+the MCMC baseline, which isn't all that competitive with some of the standard
+deterministic optimization methods.
 
 When the sampling steps involve accept/reject
 conditions for sampled values--as above--and thus the rate of rejection(/acceptance)
@@ -471,8 +471,8 @@ a proposal distribution--can be fairly costly in the long run.
 Even in our example, the proposal distribution (and its
 parameters) are not always easy to choose or cheap to tune.
 Basically, the upfront computational costs can be quite high for
-the more generic approaches, but there are almost always paths toward more efficient
-samplers in the context of a specific problem/model.
+the more generic approaches, but there are almost always paths toward efficient
+samplers--in the context of a specific problem, at least.
 
 Often the apparent generality and relative simplicity of the Bayes
 approach (and MCMC) can be detrimentally misleading to newcomers/outsiders.
@@ -482,19 +482,21 @@ for deriving efficient methods is not worth the potential parsimony and extra
 information provided by sample/simulation results and/or the Bayesian paradigm.
 This simplicity and scaling applies to the mathematical formulation of problems, too.
 
-The result of this mild deception is often a rejection of Bayes and/or MCMC/simulation
-as impractical.  Such rejections preclude an awareness of the many
-customizations, accessible efficiency gains and even the connections to
+The result of this mild deception is often a rejection of Bayes and/or
+MCMC/simulation as impractical.  Such rejections preclude an awareness of the
+many customizations, accessible efficiency gains and even the connections to
 non-Bayes, non-MCMC approaches.  Unfortunately, I am unaware of any fundamental
-results implying that Bayesian/probabilistic formulations and/or MCMC is inherently
-more complicated than related efforts in deterministic optimization.  More likely is
-that most practitioners are simply more comfortable with the latter.
-Nonetheless, it would be quite worthwhile to illustrate some very strong non-trivial and
-non-basic connections between the two, and I will likely do so in a later writeup.
+results implying that Bayesian assumptions and/or MCMC is inherently more
+complicated than related efforts in deterministic optimization.  Perhaps most
+practitioners are simply more comfortable with the latter.  Nonetheless, it
+would be quite worthwhile to illustrate some modern, non-trivial
+connections between the two, and I will attempt to do so in later
+expositions.
 
-\section{Posterior Predictive and Estimators/Predictors}
 
-The sampling situation offered by MCMC (and Bayes) leaves us in a nice
+\section{Predictions}
+
+The sampling situation offered by MCMC (and Bayes) puts one in a nice
 situation to make extensive use of predictions \emph{and} obtain uncertainty
 measures (e.g. variances, credible intervals, etc.).
 
@@ -599,26 +601,40 @@ specify exactly what model/assumptions we're introducing, where and maybe even w
 If we do so in well-defined Bayes way, then we're immediately provided the exact same approach
 we used above.
 
-If the $X$ values in our sample now correspond to, say, temperature, and today
-is the last day in our time-indexed observations \texttt{y\_obs}, then
-predicting forward in time will require future temperature values that we don't
-have, as mentioned above.  In this particular case, we might immediately think
-to use summary statistics from previous temperature observations in the
-prediction period, e.g. the average temperature in November and December.  This
-isn't a bad idea, per se, but it is a poorly defined model (in a Bayes sense,
-let's say), so when the modeler's interest eventually turns to uncertainty
-quantification and prediction error, there will still be a lot of modeling work to do
-and most likely some rather difficult reconciling between the current model and the
-approximations used.  In this situation it can be very difficult to contextualize the
-big picture (e.g. the current model, its assumptions and estimation errors; the specifics of
-the out-of-sample approximation values and their peculiarities, etc.).  As a result,
-it can be very hard to obtain something more than naive asymptotic normal or first-order
-approximations.  Sadly, if certain forms of reliability are important, these approximations
-are insufficient for all but the simplest problems.
+\begin{Exa}
+  \label{ex:X_temp}
+  If the $X$ values in our sample now correspond to, say, temperature, and today
+  is the last day in our time-indexed observations \texttt{y\_obs}, then
+  predicting forward in time will require temperatures for the future.
+\end{Exa}
+
+In many cases, even Example~\ref{ex:X_temp}, one might think to use summary
+statistics from previous $x_t$ observations in intervals representative of the
+prediction period.  For instance, in the context of Example~\ref{ex:X_temp},
+the average temperatures in previous years of the desired prediction interval.
+This isn't a bad idea, per se, but it is a needlessly indirect--and often
+insufficient--approach to defining a statistical model for $X$.
+Specifically, such an approach leaves out critical distributional details, the
+same details needed to determine how the models using our new $x_t$ estimates
+might be affected.  Normally these effects would be addressed through the basic
+model development cycle, as changes to the observation model, but too often
+it is much more direct and efficient to model $x_t$ directly.
+
+Basically, when the modeler's interest eventually turns to uncertainty quantification or
+prediction errors, the work necessary to produce these quantities will
+usually amount to a full model for $X$.  Avoiding an explicit model for $X$, after having
+effectively produced the necessary specifications for one, makes for a needlessly complicated
+situation at best.
+
+The kinds of complicated models arising in these situations are both
+conceptually and technically difficult to use, and--as a result--it can be very
+hard to produce anything other than naive asymptotic, or first-order,
+approximations for errors and intervals.  Sadly, these approximations are
+generally insufficient for all but the simplest scenarios.
 
 In contrast, we can model the $x_t$ values directly and have a very clear cut path
 toward out-of-sample predictions and their distributional properties.
-If we feel like going with this idea that the previous average values are
+Even if we hold to the belief that the previous average values are
 a reasonable imputation, then a number of simple models can account for
 that assumption.
 
@@ -638,7 +654,7 @@ that assumption.
   that means the matrix of stacked values of $d(t)$, $D$, is some design matrix
   with levels for each day.
   Now, since we know that the $x_t$ were generated from a $\sin$ function
-  (or even by visual inspection), a model using $\sin$ would probably be more
+  (or even by visual inspection), a model using $\sin$ would probably be most
   appropriate, but we're approaching this as though we know much less.
 
   A simple substitution of this model for our previously fixed $X$ values,
@@ -664,23 +680,35 @@ that assumption.
   \href{https://en.wikipedia.org/wiki/Parameter_identification_problem}{identification}
   issue arising from the product of two unknowns.
   For example, assuming we want to relieve ourselves of a redundant
-  term, we might fix $B \theta \equiv \theta_b \sim N(\mu_b, \tau_b)$.
+  term, we might fix $B \theta \equiv \theta_b \sim N(\mu_b, I \tau_b)$.
   This specification is then a simple regression with a factor design matrix and essentially the same
   form as our original model \eqref{eq:normal-normal} with $X \to D$ and $\theta \to \theta_b$.
 
 \end{Exa}
 
-The reduction in Example~\ref{ex:prior_extension} is quite reasonable and more likely
-considered an entire re-definition of our initial observation/likelihood model
-\eqref{eq:normal-normal}; a natural part of the classical model development iteration cycle.
-However, this is not the only way to look at it.  In the Bayesian setting we keep the
-observation/likelihood model fixed and iterate on the prior's specification.
-This can have the advantage of maintaining ($\theta$) conditional properties of our model
-which might come from established industry considerations or constraints.
+The reduction in Example~\ref{ex:prior_extension} is quite reasonable and could be
+considered an entire re-definition of our initial observation model in
+\eqref{eq:normal-normal}.  A change like this is a natural part of the standard model
+development cycle.  However, this is not the only way to look at it.  In the
+Bayesian setting we can keep the observation model fixed and iterate on the
+prior's specification.  The resulting marginal distribution could effectively be the same
+under both approaches, but the latter has the advantage of maintaining--conditionally--our
+earlier work.  Such work could've been done under established physical models or industry
+standards.  In the absence of hierarchical development, it can be very difficult to
+make direct connections with other models.
 
 \begin{Exa}
-  For the example above, in which the change $B \theta \to \theta$ is made, we might
-  be able to obtain the same result using a cleverly chosen prior for $\beta$.
+  For the example above, in which $B \theta \sim N(\mu_b, I \tau_b)$ is assumed, we might
+  obtain the same marginal result, $p(Y_t)$, using a cleverly chosen prior for $\beta$ or $\theta$.
+  % Essentially,
+  % \begin{equation*}
+  %   \begin{aligned}
+  %     p(Y_t) &= \int p(Y_t \mid X_t, \theta) p(X_t \mid D, \beta) p(\theta) p(\beta)
+  %     \\
+  %     &\sim N(a, R)
+  %   \end{aligned}
+  % \end{equation*}
+  % for $\theta \sim N(\mu, I \sigma^2)$. and $a=x_t^\top$
   % We could even consider independent
   % \href{https://en.wikipedia.org/wiki/Prior_probability#Improper_priors}{improper}
   % uniform priors on the $\beta$ terms.

@@ -25,6 +25,18 @@
     font-weight: bold;
     font-style: normal;
 }
+.corollary {
+    display: block;
+    margin: 12px 0;
+    font-style: italic;
+}
+.corollary:before {
+    env-number: "";
+    title-name: "";
+    content: "Corollary " attr(env-number) ". " attr(title-name);
+    font-weight: bold;
+    font-style: normal;
+}
 .proof {
     display: block;
     margin: 12px 0;
@@ -61,6 +73,30 @@
     env-number: "";
     title-name: "";
     content: "Example " attr(env-number) ". " attr(title-name);
+    font-weight: bold;
+    font-style: normal;
+}
+.proposition{
+    display: block;
+    margin: 12px 0;
+    font-style: italic;
+}
+.proposition:before {
+    env-number: "";
+    title-name: "";
+    content: "Proposition " attr(env-number) ". " attr(title-name);
+    font-weight: bold;
+    font-style: normal;
+}
+.remark{
+    display: block;
+    margin: 12px 0;
+    font-style: italic;
+}
+.remark:before {
+    env-number: "";
+    title-name: "";
+    content: "Remark " attr(env-number) ". " attr(title-name);
     font-weight: bold;
     font-style: normal;
 }
