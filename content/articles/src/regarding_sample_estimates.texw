@@ -87,7 +87,7 @@ assert os.system('make {}.md'.format(infile.split(os.path.extsep)[0])) == 0
 
 \graphicspath{{../../figures/}{../figures/}{./figures/}{./}}
 
-\title{Regarding Sample Estimates}
+\title{Regarding Statistical Model Specification and Sample Results}
 
 \author{Brandon Willard}
 
@@ -99,9 +99,10 @@ assert os.system('make {}.md'.format(infile.split(os.path.extsep)[0])) == 0
 
 \section{Introduction}
 
-In this post I want to address some concepts regarding the Bayesian paradigm,
-motivation for its use, and the use of empirical posterior distributions.  This
-write-up isn't intended to be thorough or self-contained, especially since
+In this post I want to address some concepts regarding the statistical model
+specification (in the Bayesian paradigm), motivation for its use, and the
+utility of sample results (e.g. empirical posterior distributions).
+This write-up isn't intended to be thorough or self-contained, especially since
 numerous quality introductions already exist for Bayesian modeling and MCMC
 (e.g. \href{http://www.stat.columbia.edu/~gelman/book/}{Bayesian Data Analysis}).
 Also, what's advocated here is in large part just \textit{statistical}
