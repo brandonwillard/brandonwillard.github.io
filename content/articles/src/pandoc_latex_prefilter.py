@@ -97,8 +97,14 @@ So we need to create a `Div` object like above.
     ...     \textit{some more text}
     ...     \label{ex:some_example}
     ... \end{Exa}
+    ... \begin{Exa}
+    ...     Blahhhhhhhhhhh
+    ...     \textit{blohhhhhhh}
+    ...     \label{ex:some_example_2}
+    ... \end{Exa}
     ...
     ... Example~\ref{ex:some_example} is blah.
+    ... Example~\ref{ex:some_example_2} is blah.
     ... '''
     >>> with open('test_exa.tex', 'w') as f:
     >>>     f.write(test_file_exa)
@@ -165,6 +171,8 @@ environment_pattern = re.compile(
 # TODO: Should get from `meta` parameter in the filter?
 environment_conversions = {'Exa': 'example'}
 
+environment_counters = {}
+
 preserved_tex = ['\\eqref', '\\ref', '\\includegraphics']
 
 
@@ -219,7 +227,15 @@ def latex_prefilter(key, value, oformat, meta, *args, **kwargs):
             env_name = env_groups[0]
             env_name = environment_conversions.get(env_name, env_name)
             env_title = env_groups[1]
+
+            if env_title is None:
+                env_title = ""
+
             env_body = env_groups[2]
+
+            env_num = environment_counters.get(env_name, 0)
+            env_num += 1
+            environment_counters[env_name] = env_num
 
             label_info = label_pattern.search(env_body)
             env_label = ""
@@ -228,20 +244,12 @@ def latex_prefilter(key, value, oformat, meta, *args, **kwargs):
                 env_label = label_info.group(1)
 
                 hack_div_label = env_label+"_math"
-                # XXX: We're hijacking mathjax's numbering system.
+                # XXX: We're hijacking MathJax's numbering system.
                 ref_hack = (r'$$\begin{{equation}}'
-                            r'\tag{{{{}}}}'
+                            r'\tag{{{}}}'
                             r'\label{{{}}}'
                             r'\end{{equation}}$$'
-                            r'<script type="text/javascript">'
-                            r'var env_element = document.getElementById("{}", null);'
-                            r'var tag_val = document.defaultView.getComputedStyle(env_element).counterIncrement;'
-                            r'tag_val = tag_val.replace(env_element.className, "");'
-                            r'var env_math = document.getElementById("{}", null);'
-                            r'var new_text = env_math.innerHTML.replace("{{}}", tag_val);'
-                            r'env_math.innerHTML = new_text;'
-                            r'</script>'
-                            ).format(env_label, env_label, hack_div_label)
+                            ).format(env_num, env_label)
 
                 label_div = Div([hack_div_label, [],
                                  [#['markdown', ''],
@@ -254,11 +262,10 @@ def latex_prefilter(key, value, oformat, meta, *args, **kwargs):
 
             # type Attr = (String, [String], [(String, String)])
             # Attributes: identifier, classes, key-value pairs
-            div_attr = [env_label, [env_name], [['markdown', '']]]
-
-            if env_title is not None:
-                div_attr[2] += [["style",
-                                 "--title-name:'{}';".format(env_title)]]
+            div_attr = [env_label, [env_name], [['markdown', ''],
+                                                ["env-number", str(env_num)],
+                                                ['title-name', env_title]
+                                                ]]
 
             # TODO: Can/should we evaluate nested environments?
             env_body = pypandoc.convert_text(env_body, 'json',

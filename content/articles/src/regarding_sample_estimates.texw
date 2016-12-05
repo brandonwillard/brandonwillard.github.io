@@ -100,16 +100,28 @@ assert os.system('make {}.md'.format(infile.split(os.path.extsep)[0])) == 0
 \section{Introduction}
 
 In this post I want to address some concepts regarding the Bayesian paradigm,
-motivation for its use, and the use of empirical posterior distributions.
-This write-up isn't intended to be thorough or self-contained, especially since
-numerous quality introductions already exist for Bayesian modeling and MCMC.
+motivation for its use, and the use of empirical posterior distributions.  This
+write-up isn't intended to be thorough or self-contained, especially since
+numerous quality introductions already exist for Bayesian modeling and MCMC
+(e.g. \href{http://www.stat.columbia.edu/~gelman/book/}{Bayesian Data Analysis}).
+Also, what's advocated here is in large part just \textit{statistical}
+modeling and not exclusively \textit{Bayesian}.
 
-Nonetheless, I've noticed that the generality and relative simplicity of the
-concepts used within Bayesian modeling are too often overlooked or dismissed.
-Quite a few people appear to conflate MCMC and its associated costs with anything ``Bayes'',
-and this can be a detriment to concise, flexible and coherent statistical modeling.
+Nonetheless, the generality and relative simplicity of the
+concepts used within Bayesian modeling are too often overlooked.
+Bayes is too often conflated with MCMC and its associated costs;
+this can really be a detriment to concise, flexible and coherent statistical modeling.
 
-As well, the reasons for doing anything more than point-wise estimation seem to
+When a model is [fully] specified in a statistical or Bayesian way,
+the modeler has at their disposal distributions for the
+unknown quantities of interest.
+This means that desired estimates, and ones derived from them,
+are found within the properties of those distributions, or the
+distributions resulting from their transformations
+like moments (e.g. mean, mode, etc.), errors (e.g. variance) and
+functions (e.g. rolling sums and averages) of estimated quantities--
+
+The reasons for doing anything more than point-wise estimation seem to
 have gone unnoticed in parts of the applied community.  If the reason
 is--again--the costs associated with things like MCMC, then perhaps we need more
 coverage of the wide array of improvements and approximations available to
