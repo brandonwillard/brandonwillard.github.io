@@ -158,15 +158,22 @@ E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \g
 
 
 <div class="math">$$\begin{equation*}
-\frac{a \operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2}
-\right)}}{\operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2} \right)}}
-+ \sum_{i=0}^{n} \left(\frac{z_{1} \operatorname{\Phi_1}{\left(a, b, -
-i + n + g; z_{1}, z_{2} \right)}}{z_{2} \operatorname{\Phi_1}{\left(a,
-b, g; z_{1}, z_{2} \right)}} - \frac{3 \operatorname{\Phi_1}{\left(a,
-b, - i + n + g; z_{1}, z_{2} \right)}}{\operatorname{\Phi_1}{\left(a,
-b, g; z_{1}, z_{2} \right)}}\right) - \frac{b
-\operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2} \right)}}{g
-\operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2} \right)}}
+\frac{a \operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n + g,
+\quad z_{1}, \quad z_{2}\right
+)\right)}}{\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad g,
+\quad z_{1}, \quad z_{2}\right )\right)}} + \sum_{i=0}^{n}
+\left(\frac{z_{1} \operatorname{\Phi_1}{\left(\left ( a, \quad b,
+\quad - i + n + g, \quad z_{1}, \quad z_{2}\right )\right)}}{z_{2}
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad g, \quad z_{1},
+\quad z_{2}\right )\right)}} - \frac{3
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad - i + n + g,
+\quad z_{1}, \quad z_{2}\right
+)\right)}}{\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad g,
+\quad z_{1}, \quad z_{2}\right )\right)}}\right) - \frac{b
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n + g, \quad
+z_{1}, \quad z_{2}\right )\right)}}{g
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad g, \quad z_{1},
+\quad z_{2}\right )\right)}}
 \end{equation*}$$</div>
 <p>The ratios <code>r_1</code> and <code>r_2</code> should both be replaced by a symbol for <span class="math">\(E[X^m]\)</span>, for <span class="math">\(m = n\)</span> and <span class="math">\(m = n - i\)</span> when <span class="math">\(i &lt; n\)</span> respectively. We could allow <span class="math">\(E[X^0]\)</span>, I suppose, but–for a more interesting discussion–let’s not.</p>
 <p>We start by creating a SymPy pattern that expresses the mathematical form of <span class="math">\(E[X^m]\)</span> in \eqref{eq:expectation}.</p>
@@ -235,10 +242,9 @@ b, g; z_{1}, z_{2} \right)}}\right) - \frac{b
 <span class="n">Out</span><span class="p">[</span><span class="mi">33</span><span class="p">]:</span> <span class="n">sympy</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">mul</span><span class="o">.</span><span class="n">Mul</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">34</span><span class="p">]:</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">r_1</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">34</span><span class="p">]:</span>
-                   <span class="mi">1</span>
-<span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">--------------------------------</span><span class="p">,</span> <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="n">g</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span>
-<span class="n">z_2</span><span class="p">))</span>
-    <span class="n">HornPhi1</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">g</span><span class="p">,),</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
+                 <span class="mi">1</span>
+<span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">---------------------------</span><span class="p">,</span> <span class="n">HornPhi1</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="n">g</span><span class="p">,</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">))</span>
+    <span class="n">HornPhi1</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">z_1</span><span class="p">,</span> <span class="n">z_2</span><span class="p">)</span>
 </pre></div>
 
 
@@ -283,18 +289,22 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )}
 
 
 <div class="math">$$\begin{equation*}
-\left [ a \operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2}
-\right)} E{\left (n + 1,a,b,g,z_{1},z_{2} \right )}, \quad a
-\operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2} \right)} E{\left
-(n + 1,a,b,g,z_{1},z_{2} \right )}, \quad a
-\operatorname{\Phi_1}{\left(a, b, n + g + 1; z_{1}, z_{2} \right)}
-E{\left (n,a,b,g,z_{1},z_{2} \right )}, \quad a
-\operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2} \right)} E{\left
-(n + 1,a,b,g,z_{1},z_{2} \right )}, \quad a
-\operatorname{\Phi_1}{\left(a, b, n + g; z_{1}, z_{2} \right)} E{\left
-(n + 1,a,b,g,z_{1},z_{2} \right )}, \quad a
-\operatorname{\Phi_1}{\left(a, b, n + g + 1; z_{1}, z_{2} \right)}
-E{\left (n,a,b,g,z_{1},z_{2} \right )}\right ]
+\left [ a \operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n +
+g, \quad z_{1}, \quad z_{2}\right )\right)} E{\left (n +
+1,a,b,g,z_{1},z_{2} \right )}, \quad a
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n + g, \quad
+z_{1}, \quad z_{2}\right )\right)} E{\left (n + 1,a,b,g,z_{1},z_{2}
+\right )}, \quad a \operatorname{\Phi_1}{\left(\left ( a, \quad b,
+\quad n + g + 1, \quad z_{1}, \quad z_{2}\right )\right)} E{\left
+(n,a,b,g,z_{1},z_{2} \right )}, \quad a
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n + g, \quad
+z_{1}, \quad z_{2}\right )\right)} E{\left (n + 1,a,b,g,z_{1},z_{2}
+\right )}, \quad a \operatorname{\Phi_1}{\left(\left ( a, \quad b,
+\quad n + g, \quad z_{1}, \quad z_{2}\right )\right)} E{\left (n +
+1,a,b,g,z_{1},z_{2} \right )}, \quad a
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n + g + 1, \quad
+z_{1}, \quad z_{2}\right )\right)} E{\left (n,a,b,g,z_{1},z_{2} \right
+)}\right ]
 \end{equation*}$$</div>
 <p>FYI: the associativity of terms inside the function arguments is causing the seemingly duplicate results.</p>
 <p>Naive use of <code>Expr.replace</code> doesn’t give all results; instead, it does something likely unexpected:</p>
@@ -306,8 +316,8 @@ E{\left (n,a,b,g,z_{1},z_{2} \right )}\right ]
 
 <div class="math">$$\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )} E{\left (n +
-1,a,b,g,z_{1},z_{2} \right )} \operatorname{\Phi_1}{\left(a, b, g;
-z_{1}, z_{2} \right)}
+1,a,b,g,z_{1},z_{2} \right )} \operatorname{\Phi_1}{\left(\left ( a,
+\quad b, \quad g, \quad z_{1}, \quad z_{2}\right )\right)}
 \end{equation*}$$</div>
 <p>Returning to our more complicated <code>expr</code>…Just because we can match products doesn’t mean we’re finished, since we still need a good way to traverse the entire expression tree and match the sub-trees. More importantly, adding the multiplicative <code>Wild</code> term <code>C_w</code> is more of a hack than a direct solution, since we don’t want the matched contents of <code>C_w</code>.</p>
 <p>Although <code>Expr.replace/xreplace</code> will match sub-expressions, we found above that it produces some odd results. Those results persist when applied to more complicated expressions:</p>
@@ -320,13 +330,15 @@ z_{1}, z_{2} \right)}
 <div class="math">$$\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 (n,a,b,g,z_{1},z_{2} \right )} + \sum_{i=0}^{n} \left(\frac{z_{1}
-E{\left (n,a,b,- i + g,z_{1},z_{2} \right )}}{z_{2}
-\operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2} \right)}}
-\operatorname{\Phi_1}{\left(a, b, - i + g; z_{1}, z_{2} \right)} -
-\frac{3 E{\left (n,a,b,- i + g,z_{1},z_{2} \right
-)}}{\operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2} \right)}}
-\operatorname{\Phi_1}{\left(a, b, - i + g; z_{1}, z_{2}
-\right)}\right)
+E{\left (n,a,b,- i + g,z_{1},z_{2} \right )}
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad - i + g, \quad
+z_{1}, \quad z_{2}\right )\right)}}{z_{2}
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad g, \quad z_{1},
+\quad z_{2}\right )\right)}} - \frac{3 E{\left (n,a,b,- i +
+g,z_{1},z_{2} \right )} \operatorname{\Phi_1}{\left(\left ( a, \quad
+b, \quad - i + g, \quad z_{1}, \quad z_{2}\right
+)\right)}}{\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad g,
+\quad z_{1}, \quad z_{2}\right )\right)}}\right)
 \end{equation*}$$</div>
 <p>Again, it looks like the matching was a little too liberal and introduced extra <code>E</code> and <code>HornPhi1</code> terms. This is to be expected from the <code>Wild</code> matching in SymPy; it needs us to specify what <em>not</em> to match, as well. Our “fix” that introduced <code>C_w</code> is the exact source of the problem, but we can tell it not to match <code>HornPhi1</code> terms and get better results:</p>
 <div class="highlight"><pre><span></span><span class="n">C_w</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Wild</span><span class="p">(</span><span class="s1">&#39;C_w&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">S</span><span class="o">.</span><span class="n">Zero</span><span class="p">,</span> <span class="n">HornPhi1</span><span class="p">])</span>
@@ -339,11 +351,14 @@ E{\left (n,a,b,- i + g,z_{1},z_{2} \right )}}{z_{2}
 <div class="math">$$\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 (n,a,b,g,z_{1},z_{2} \right )} + \sum_{i=0}^{n} \left(\frac{z_{1}
-\operatorname{\Phi_1}{\left(a, b, - i + n + g; z_{1}, z_{2}
-\right)}}{z_{2} \operatorname{\Phi_1}{\left(a, b, g; z_{1}, z_{2}
-\right)}} - \frac{3 \operatorname{\Phi_1}{\left(a, b, - i + n + g;
-z_{1}, z_{2} \right)}}{\operatorname{\Phi_1}{\left(a, b, g; z_{1},
-z_{2} \right)}}\right)
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad - i + n + g,
+\quad z_{1}, \quad z_{2}\right )\right)}}{z_{2}
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad g, \quad z_{1},
+\quad z_{2}\right )\right)}} - \frac{3
+\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad - i + n + g,
+\quad z_{1}, \quad z_{2}\right
+)\right)}}{\operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad g,
+\quad z_{1}, \quad z_{2}\right )\right)}}\right)
 \end{equation*}$$</div>
 <p>We’ve stopped it from introducing those superfluous <code>E</code> terms, but we’re still not getting replacements for the <code>HornPhi1</code> ratios in the sums. Let’s single out those terms and see what’s going on:</p>
 <div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">r_2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">C_w</span> <span class="o">*</span> <span class="n">E_pattern</span><span class="p">)</span>
