@@ -240,24 +240,23 @@ sps.density(sps.given(Y, sp.Eq(Y, y)))
 @
 
 Results like this are easily obtained for the classical pairings of ``conjugate''
-distributions, for which many detailed
+distributions.  Detailed
 \href{https://en.wikipedia.org/wiki/Conjugate_prior#Table_of_conjugate_distributions}{tables}
-and \href{https://goo.gl/UCL3pc}{tutorials} can be found online or in any standard text.
-
-Next,
+and \href{https://goo.gl/UCL3pc}{tutorials} for conjugate distributions can be found online
+or in any standard text.
 
 \section{Estimation (via MCMC)}
 
-From here on let's assume we do not have the closed-form result in \eqref{eq:theta-posterior}.  Instead, we'll
-estimate the posterior numerically with
-\href{https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo}{MCMC}.
+From here on let's assume we do not have the closed-form result in
+\eqref{eq:theta-posterior}.  Instead, we'll estimate the posterior numerically
+with \href{https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo}{MCMC}.
 Again, MCMC is covered to varying degrees of detail all over the place
-(e.g. \href{https://goo.gl/JNwfuo}{here}),
-so we'll skip most of those details.  Suffice it to say, we already know that we
-need to estimate the $\theta$ posterior, $p(\theta \mid y)$, using
+(e.g. \href{https://goo.gl/JNwfuo}{here}), so we'll skip most of those details.
+Let's say we've decided to use
 \href{https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm}{Metropolis-Hastings}.
 
-For demonstration purposes, let's produce a simulation.
+For demonstration purposes, we produce a simulation of some data we might observe and
+for which we would consider applying the model in \eqref{eq:normal-normal}.
 <<create_simulation, echo=True, term=False>>=
 import numpy as np
 import scipy.stats as scs
