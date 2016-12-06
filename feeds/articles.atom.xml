@@ -201,22 +201,22 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;p&gt;The sampling situation offered by MCMC (and Bayes) puts one in a nice situation to make extensive use of predictions &lt;em&gt;and&lt;/em&gt; obtain uncertainty measures (e.g. variances, credible intervals, etc.).&lt;/p&gt;
 &lt;p&gt;In general, posterior predictive samples are fairly easy to obtain. Once you have posterior samples of &lt;span class="math"&gt;\(\theta\)&lt;/span&gt;, say &lt;span class="math"&gt;\(\{\theta_i\}_{i=0}^M\)&lt;/span&gt;, simply plug those into the sampling/observation distribution and sample &lt;span class="math"&gt;\(Y\)&lt;/span&gt; values. Specifically, &lt;/p&gt;
 &lt;div class="math"&gt;$$\begin{equation}
-\{y_i \sim p(Y \mid \theta_i) : \theta_i \sim p(\theta_i \mid y)\}_{i=0}^M
+\{y_i \sim p(Y \mid X, \theta_i) : \theta_i \sim p(\theta_i \mid y)\}_{i=0}^M
   \label{eq:post_predict_samples}
 \end{equation}$$&lt;/div&gt;
-&lt;p&gt; is a posterior predictive sample from &lt;span class="math"&gt;\(p(Y \mid y)\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt; is a posterior predictive sample from &lt;span class="math"&gt;\(p(Y \mid X, y)\)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;The procedural interpretation of \eqref{eq:post_predict_samples} is:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;Sample &lt;span class="math"&gt;\(\theta_i \sim p(\theta_i \mid y)\)&lt;/span&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Sample &lt;span class="math"&gt;\(y_i \sim p(Y \mid \theta_i)\)&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Sample &lt;span class="math"&gt;\(y_i \sim p(Y \mid X, \theta_i)\)&lt;/span&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;Assuming we’ve already produced a posterior sample, this is as simple as plugging those &lt;span class="math"&gt;\(\theta_i\)&lt;/span&gt; into the observation distribution \eqref{eq:normal-normal} and sampling. The cumulative effect of this process is equivalent to producing an estimate of the marginal &lt;/p&gt;
 &lt;div class="math"&gt;$$\begin{equation*}
-\int p(Y_t \mid x_t, \theta) p(\theta \mid y) d\theta = p(Y_t \mid y)
+\int p(Y_t \mid x_t, \theta) p(\theta \mid y) d\theta = p(Y_t \mid x_t, y)
   \;.
 \end{equation*}$$&lt;/div&gt;
 &lt;p&gt;The posterior predictive sample in \eqref{eq:post_predict_samples} contains much of the information a modeler desires. Take the variance of this sample and one has a common measure of prediction error; produce quantiles of the sample and one has &lt;a href="https://en.wikipedia.org/wiki/Credible_interval"&gt;“credible”&lt;/a&gt; prediction intervals. The sample produced by mapping an arbitrary function to each posterior predictive sample is itself amenable to the aforementioned summaries, allowing one to easily produce errors for complicated uses of predicted quantities. We illustrate these use cases below.&lt;/p&gt;
@@ -276,7 +276,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 
 &lt;p&gt;&lt;img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_daily_ppc_plot_1.png" alt="Daily posterior predictive results from the hourly posterior." /&gt;&lt;/p&gt;
 &lt;h1&gt;Hierarchical Extensions&lt;/h1&gt;
-&lt;p&gt;Even though we only considered “in-sample” predictions in the previous section, out-of-sample and missing values are covered by exactly the same process (neatly simplified by PyMC3’s &lt;code&gt;sample_ppc&lt;/code&gt;). In our example we needed an exogenous variable &lt;span class="math"&gt;\(x_t\)&lt;/span&gt; in order to sample a point from the observation model &lt;span class="math"&gt;\((Y_t \mid x_t)\)&lt;/span&gt;. When the values in &lt;span class="math"&gt;\(X\)&lt;/span&gt; cannot obtained or given with certainty–e.g. future temperatures–it’s not uncommon for practitioners to impute values in some way to obtain results.&lt;/p&gt;
+&lt;p&gt;Even though we only considered “in-sample” predictions in the previous section, out-of-sample and missing values are covered by exactly the same process (neatly simplified by PyMC3’s &lt;code&gt;sample_ppc&lt;/code&gt;). In our example we needed an exogenous variable &lt;span class="math"&gt;\(x_t\)&lt;/span&gt; in order to sample a point from the observation model &lt;span class="math"&gt;\((Y_t \mid x_t)\)&lt;/span&gt;. When the values in &lt;span class="math"&gt;\(X\)&lt;/span&gt; cannot be obtained–e.g. future values of a non-deterministic quantity–clever, context specific imputations are usually proposed.&lt;/p&gt;
 &lt;p&gt;Nearly every instance of such imputations gives rise to an implicit model. Going back to our preference for transparent statistical specification, it behooves us to formally specify the model. If we do so in a well-defined Bayes way, then we’re immediately provided the exact same conveniences as above.&lt;/p&gt;
 &lt;div class="example" env-number="2" id="ex:X_temp" title-name=""&gt;
 &lt;div id="ex:X_temp_math" style="display:none;visibility:hidden"&gt;

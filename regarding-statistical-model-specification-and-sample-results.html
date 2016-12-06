@@ -307,22 +307,22 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 <p>The sampling situation offered by MCMC (and Bayes) puts one in a nice situation to make extensive use of predictions <em>and</em> obtain uncertainty measures (e.g. variances, credible intervals, etc.).</p>
 <p>In general, posterior predictive samples are fairly easy to obtain. Once you have posterior samples of <span class="math">\(\theta\)</span>, say <span class="math">\(\{\theta_i\}_{i=0}^M\)</span>, simply plug those into the sampling/observation distribution and sample <span class="math">\(Y\)</span> values. Specifically, </p>
 <div class="math">$$\begin{equation}
-\{y_i \sim p(Y \mid \theta_i) : \theta_i \sim p(\theta_i \mid y)\}_{i=0}^M
+\{y_i \sim p(Y \mid X, \theta_i) : \theta_i \sim p(\theta_i \mid y)\}_{i=0}^M
   \label{eq:post_predict_samples}
 \end{equation}$$</div>
-<p> is a posterior predictive sample from <span class="math">\(p(Y \mid y)\)</span>.</p>
+<p> is a posterior predictive sample from <span class="math">\(p(Y \mid X, y)\)</span>.</p>
 <p>The procedural interpretation of \eqref{eq:post_predict_samples} is:</p>
 <ol>
 <li>
 <p>Sample <span class="math">\(\theta_i \sim p(\theta_i \mid y)\)</span></p>
 </li>
 <li>
-<p>Sample <span class="math">\(y_i \sim p(Y \mid \theta_i)\)</span></p>
+<p>Sample <span class="math">\(y_i \sim p(Y \mid X, \theta_i)\)</span></p>
 </li>
 </ol>
 <p>Assuming we’ve already produced a posterior sample, this is as simple as plugging those <span class="math">\(\theta_i\)</span> into the observation distribution \eqref{eq:normal-normal} and sampling. The cumulative effect of this process is equivalent to producing an estimate of the marginal </p>
 <div class="math">$$\begin{equation*}
-\int p(Y_t \mid x_t, \theta) p(\theta \mid y) d\theta = p(Y_t \mid y)
+\int p(Y_t \mid x_t, \theta) p(\theta \mid y) d\theta = p(Y_t \mid x_t, y)
   \;.
 \end{equation*}$$</div>
 <p>The posterior predictive sample in \eqref{eq:post_predict_samples} contains much of the information a modeler desires. Take the variance of this sample and one has a common measure of prediction error; produce quantiles of the sample and one has <a href="https://en.wikipedia.org/wiki/Credible_interval">“credible”</a> prediction intervals. The sample produced by mapping an arbitrary function to each posterior predictive sample is itself amenable to the aforementioned summaries, allowing one to easily produce errors for complicated uses of predicted quantities. We illustrate these use cases below.</p>
@@ -382,7 +382,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 
 <p><img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_daily_ppc_plot_1.png" alt="Daily posterior predictive results from the hourly posterior." /></p>
 <h1>Hierarchical Extensions</h1>
-<p>Even though we only considered “in-sample” predictions in the previous section, out-of-sample and missing values are covered by exactly the same process (neatly simplified by PyMC3’s <code>sample_ppc</code>). In our example we needed an exogenous variable <span class="math">\(x_t\)</span> in order to sample a point from the observation model <span class="math">\((Y_t \mid x_t)\)</span>. When the values in <span class="math">\(X\)</span> cannot obtained or given with certainty–e.g. future temperatures–it’s not uncommon for practitioners to impute values in some way to obtain results.</p>
+<p>Even though we only considered “in-sample” predictions in the previous section, out-of-sample and missing values are covered by exactly the same process (neatly simplified by PyMC3’s <code>sample_ppc</code>). In our example we needed an exogenous variable <span class="math">\(x_t\)</span> in order to sample a point from the observation model <span class="math">\((Y_t \mid x_t)\)</span>. When the values in <span class="math">\(X\)</span> cannot be obtained–e.g. future values of a non-deterministic quantity–clever, context specific imputations are usually proposed.</p>
 <p>Nearly every instance of such imputations gives rise to an implicit model. Going back to our preference for transparent statistical specification, it behooves us to formally specify the model. If we do so in a well-defined Bayes way, then we’re immediately provided the exact same conveniences as above.</p>
 <div class="example" env-number="2" id="ex:X_temp" title-name="">
 <div id="ex:X_temp_math" style="display:none;visibility:hidden">
