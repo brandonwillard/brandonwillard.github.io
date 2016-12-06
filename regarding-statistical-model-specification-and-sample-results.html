@@ -145,11 +145,10 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
   C = \left(\tau^{-2} + \operatorname{diag}(X^\top X) \sigma^{-2}\right)^{-1}
   \;.\end{gathered}
 \end{equation*}$$</div>
-<p>Results like this are easily obtained for the classical pairings of “conjugate” distributions, for which many detailed <a href="https://en.wikipedia.org/wiki/Conjugate_prior#Table_of_conjugate_distributions">tables</a> and <a href="https://goo.gl/UCL3pc">tutorials</a> can be found online or in any standard text.</p>
-<p>Next,</p>
+<p>Results like this are easily obtained for the classical pairings of “conjugate” distributions. Detailed <a href="https://en.wikipedia.org/wiki/Conjugate_prior#Table_of_conjugate_distributions">tables</a> and <a href="https://goo.gl/UCL3pc">tutorials</a> for conjugate distributions can be found online or in any standard text.</p>
 <h1>Estimation (via MCMC)</h1>
-<p>From here on let’s assume we do not have the closed-form result in \eqref{eq:theta-posterior}. Instead, we’ll estimate the posterior numerically with <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">MCMC</a>. Again, MCMC is covered to varying degrees of detail all over the place (e.g. <a href="https://goo.gl/JNwfuo">here</a>), so we’ll skip most of those details. Suffice it to say, we already know that we need to estimate the <span class="math">\(\theta\)</span> posterior, <span class="math">\(p(\theta \mid y)\)</span>, using <a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm">Metropolis-Hastings</a>.</p>
-<p>For demonstration purposes, let’s produce a simulation.</p>
+<p>From here on let’s assume we do not have the closed-form result in \eqref{eq:theta-posterior}. Instead, we’ll estimate the posterior numerically with <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">MCMC</a>. Again, MCMC is covered to varying degrees of detail all over the place (e.g. <a href="https://goo.gl/JNwfuo">here</a>), so we’ll skip most of those details. Let’s say we’ve decided to use <a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm">Metropolis-Hastings</a>.</p>
+<p>For demonstration purposes, we produce a simulation of some data we might observe and for which we would consider applying the model in \eqref{eq:normal-normal}.</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="kn">as</span> <span class="nn">scs</span>
 

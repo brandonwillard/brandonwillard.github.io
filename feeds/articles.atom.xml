@@ -39,11 +39,10 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
   C = \left(\tau^{-2} + \operatorname{diag}(X^\top X) \sigma^{-2}\right)^{-1}
   \;.\end{gathered}
 \end{equation*}$$&lt;/div&gt;
-&lt;p&gt;Results like this are easily obtained for the classical pairings of “conjugate” distributions, for which many detailed &lt;a href="https://en.wikipedia.org/wiki/Conjugate_prior#Table_of_conjugate_distributions"&gt;tables&lt;/a&gt; and &lt;a href="https://goo.gl/UCL3pc"&gt;tutorials&lt;/a&gt; can be found online or in any standard text.&lt;/p&gt;
-&lt;p&gt;Next,&lt;/p&gt;
+&lt;p&gt;Results like this are easily obtained for the classical pairings of “conjugate” distributions. Detailed &lt;a href="https://en.wikipedia.org/wiki/Conjugate_prior#Table_of_conjugate_distributions"&gt;tables&lt;/a&gt; and &lt;a href="https://goo.gl/UCL3pc"&gt;tutorials&lt;/a&gt; for conjugate distributions can be found online or in any standard text.&lt;/p&gt;
 &lt;h1&gt;Estimation (via MCMC)&lt;/h1&gt;
-&lt;p&gt;From here on let’s assume we do not have the closed-form result in \eqref{eq:theta-posterior}. Instead, we’ll estimate the posterior numerically with &lt;a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo"&gt;MCMC&lt;/a&gt;. Again, MCMC is covered to varying degrees of detail all over the place (e.g. &lt;a href="https://goo.gl/JNwfuo"&gt;here&lt;/a&gt;), so we’ll skip most of those details. Suffice it to say, we already know that we need to estimate the &lt;span class="math"&gt;\(\theta\)&lt;/span&gt; posterior, &lt;span class="math"&gt;\(p(\theta \mid y)\)&lt;/span&gt;, using &lt;a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm"&gt;Metropolis-Hastings&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;For demonstration purposes, let’s produce a simulation.&lt;/p&gt;
+&lt;p&gt;From here on let’s assume we do not have the closed-form result in \eqref{eq:theta-posterior}. Instead, we’ll estimate the posterior numerically with &lt;a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo"&gt;MCMC&lt;/a&gt;. Again, MCMC is covered to varying degrees of detail all over the place (e.g. &lt;a href="https://goo.gl/JNwfuo"&gt;here&lt;/a&gt;), so we’ll skip most of those details. Let’s say we’ve decided to use &lt;a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm"&gt;Metropolis-Hastings&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For demonstration purposes, we produce a simulation of some data we might observe and for which we would consider applying the model in \eqref{eq:normal-normal}.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;scipy.stats&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;scs&lt;/span&gt;
 
