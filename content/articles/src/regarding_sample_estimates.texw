@@ -130,23 +130,24 @@ Even so, modeling and estimation often proceeds without much statistical
 consideration or context, making these distributions--and the results they can
 provide--more and more inaccessible.  In a situation where modeling started
 with common machine learning/statistical software and resulted in
-non-statistical extensions thereto, the efforts involved in things like
-uncertainty quantification could equate to finding a statistical context or
-Bayesian interpretation.  Actually, ``retro-fitting'' is probably a better
-description in many cases.  Anyway, this might be reason enough to--at least
-minimally--maintain non-trivial, well developed statistical specifications.
+non-statistical extensions thereto, the details needed for things like
+uncertainty quantification broadly equate to specifying the missing statistical context.
+Actually, ``retro-fitting'' is a better description in many cases.  Considerations
+like this might be reason enough to--at least minimally--maintain clear
+statistical assumptions.  The Bayesian approach fulfills this requirement and
+much more.
 
-As a starting point, one can find more than a few non-Bayes statistically-based
-approaches and models that have Bayesian interpretations.  Finding a Bayesian
-interpretation can even advance an understanding of the statistical assumptions
-and properties of an existing non-Bayes model.
-Multiple examples arise from models defined by objective or loss functions
-with forms equivalent to total log-likelihoods of Bayesian models.
-This is one way that point-wise estimates can be related to
+As a starting point, one can find quite a few non-Bayes models with Bayesian
+interpretations.  Otherwise, finding a Bayesian interpretation itself can
+advance an understanding of the statistical assumptions and properties of an
+existing non-Bayes model.
+Multiple examples arise from models defined by objective or loss functions with
+forms equivalent to the total log-likelihoods of Bayesian models.  This, for
+instance, is one way that general point-wise estimates can be related to
 maximum a posteriori (MAP) estimates in the Bayesian context.
 
 Anyway, there's too much to consider here, so I'm going to continue with
-illustrations and some details for just a few of these considerations.
+some illustrations and details for just a few of these considerations.
 
 \subsubsection{Notation}
 
