@@ -491,22 +491,22 @@ Once you have posterior samples of $\theta$, say $\{\theta_i\}_{i=0}^M$,
 simply plug those into the sampling/observation distribution and
 sample $Y$ values.  Specifically,
 \begin{equation}
-  \{y_i \sim p(Y \mid \theta_i) : \theta_i \sim p(\theta_i \mid y)\}_{i=0}^M
+  \{y_i \sim p(Y \mid X, \theta_i) : \theta_i \sim p(\theta_i \mid y)\}_{i=0}^M
   \label{eq:post_predict_samples}
 \end{equation}
-is a posterior predictive sample from $p(Y \mid y)$.
+is a posterior predictive sample from $p(Y \mid X, y)$.
 
 The procedural interpretation of \eqref{eq:post_predict_samples} is:
 \begin{enumerate}
   \item Sample $\theta_i \sim p(\theta_i \mid y)$
-  \item Sample $y_i \sim p(Y \mid \theta_i)$
+  \item Sample $y_i \sim p(Y \mid X, \theta_i)$
 \end{enumerate}
 Assuming we've already produced a posterior sample, this is as simple as
 plugging those $\theta_i$ into the observation distribution \eqref{eq:normal-normal}
 and sampling.  The cumulative effect of this process is equivalent to
 producing an estimate of the marginal
 \[
-  \int p(Y_t \mid x_t, \theta) p(\theta \mid y) d\theta = p(Y_t \mid y)
+  \int p(Y_t \mid x_t, \theta) p(\theta \mid y) d\theta = p(Y_t \mid x_t, y)
   \;.
 \]
 
@@ -583,15 +583,13 @@ Even though we only considered ``in-sample'' predictions in the previous
 section, out-of-sample and missing values are covered by exactly the same
 process (neatly simplified by PyMC3's \texttt{sample\_ppc}).  In our example
 we needed an exogenous variable $x_t$ in order to sample a point from the observation
-model $(Y_t \mid x_t)$.  When the values in $X$ cannot obtained or given with
-certainty--e.g. future temperatures--it's not uncommon for practitioners to
-impute values in some way to obtain results.
+model $(Y_t \mid x_t)$.  When the values in $X$ cannot be obtained--e.g. future values of
+a non-deterministic quantity--clever, context specific imputations are usually proposed.
 
 Nearly every instance of such imputations gives rise to an implicit model.
-Going back to our preference for transparent statistical specification,
-it behooves us to formally specify the model.
-If we do so in a well-defined Bayes way, then we're immediately
-provided the exact same conveniences as above.
+Going back to our preference for transparent statistical specification, it
+behooves us to formally specify the model.  If we do so in a well-defined Bayes
+way, then we're immediately provided the exact same conveniences as above.
 
 \begin{Exa}
   \label{ex:X_temp}
