@@ -6,8 +6,7 @@ I build things with math and computers!
 
 I like to use the language and logic of probability to quantify uncertainty and
 frame problems.  You could call me a *statistician*, or a *Bayesian*
-[statistician], but, since I don't really deal in the myriad of canned
-solutions and acronyms, the title can be problematic.
+[statistician].
 
 My interests (personal and professional) tend to revolve around the means
 and methods of mathematical modeling and their automation.  I'm a big 
@@ -36,8 +35,6 @@ Here are some situations in which I can be of service:
   can be assessed broadly.
 
 Here's a [live copy of my CV](http://goo.gl/AFV0ij).
-
-# Some Things I've Done
 
 Here are some things I've been involved in:
 

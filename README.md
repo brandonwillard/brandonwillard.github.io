@@ -36,6 +36,7 @@ $ pelican content -o output -s publishconf.py
 $ ghp-import output
 $ git push git@github.com:brandonwillard/brandonwillard.github.io.git gh-pages:master
 ```
+or simply `$ make github`.
 
 ## FYI
 
