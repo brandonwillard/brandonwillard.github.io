@@ -24,7 +24,7 @@ SRC_DIR = $(realpath $(dir $<))
 MD_DEST_DIR = $(abspath ../)
 PDF_DEST_DIR = $(abspath ./output)
 
-PANDOC_MD_OUT_EXTS = +markdown_in_html_blocks+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures
+PANDOC_MD_OUT_EXTS = +markdown_in_html_blocks+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures+citations
 
 # Add citations with: +citations
 
@@ -48,7 +48,7 @@ md: ${MD_FILES}
 %.md: %.tex
 	# FYI: This approach doesn't require the filter to be executable and
 	# have a `#!/usr/bin/python` line.
-	pandoc $(PANDOC_MD_OPTS) -f latex -t json $< |\
+	pandoc $(PANDOC_MD_OPTS) -f latex -t json --filter pandoc-citeproc $<|\
 		python pandoc_latex_prefilter.py |\
 		pandoc $(PANDOC_MD_OPTS) -f json \
 		-t markdown_github$(PANDOC_MD_OUT_EXTS)+raw_html+raw_tex \

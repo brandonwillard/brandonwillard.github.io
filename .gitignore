@@ -1,6 +1,9 @@
 Gemfile.lock
 _site/
 blog/
+cache/
 output/
 *.pid
 *.pyc
+*.tex
+*.out

@@ -13,6 +13,10 @@
 %\usepackage[slantedGreek]{mathpazo}
 \usepackage{breqn}
 
+\RequirePackage[hyphens]{url}
+\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[authoryear]{natbib}
+
 \usepackage{todonotes}
 \usepackage{draftwatermark}
 \SetWatermarkScale{1}
@@ -280,7 +284,7 @@ sim_index = pd.date_range(start='2016-01-01 12:00:00',
 
 # Simulated observations
 X = np.sin(np.linspace(0, 2*np.pi, np.alen(sim_index)))
-y_obs = scs.norm.rvs(loc=X * mu_true, scale=sigma2)
+y_obs = scs.norm.rvs(loc=X * mu_true, scale=np.sqrt(sigma2))
 @
 
 A Metropolis-Hastings sampler would perform a simple loop that
@@ -318,7 +322,7 @@ proposal_logpdf = partial(scs.norm.logpdf, scale=lam)
 
 for i in xrange(N_samples):
     proposal_sample = np.random.normal(loc=current_sample,
-                                       scale=lam**2, size=1)
+                                       scale=lam, size=1)
     l_ratio = np.sum(model_logpdf(proposal_sample))
     l_ratio -= np.sum(model_logpdf(current_sample))
 
@@ -792,5 +796,8 @@ ppc_mean_df.plot(ax=plt.axes(), alpha=0.7)
 plt.legend()
 plt.show()
 @
+
+\bibliographystyle{plainnat}
+\bibliography{bayes}
 
 \end{document}

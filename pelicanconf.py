@@ -2,11 +2,9 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
-PLUGIN_PATHS = ["/home/bwillar0/apps/pelican-plugins",
-                ]
+PLUGIN_PATHS = ["./plugins"]
 
-PLUGINS = ["render_math", "liquid_tags",
-           "pelican-bibtex"]
+PLUGINS = ["liquid_tags", "pelican-bibtex", "pandoc_reader"]
 
 PUBLICATIONS_SRC = 'content/pages/publications.bib'
 
@@ -34,7 +32,7 @@ TIMEZONE = 'America/Chicago'
 DEFAULT_DATE = 'fs'
 DEFAULT_LANG = u'en'
 
-THEME = "/home/bwillar0/apps/pelican-themes/pelican-bootstrap3"
+THEME = "theme/pelican-bootstrap3"
 
 CUSTOM_CSS = 'extra/custom.css'
 
@@ -67,10 +65,18 @@ SOCIAL = (('linkedin', 'http://linkedin.com/pub/brandon-willard/10/bb4/468/'),
 DIRECT_TEMPLATES = ['index', 'archives', 'publications']
 DEFAULT_PAGINATION = 10
 
-# Uncomment following line if you want document-relative URLs when developing
 #SITEURL = 'https://brandonwillard.github.io'
+# Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
 
-MATH_JAX = {'linebreak_automatic': True,
-            'tex_extensions': ['AMSmath.js', 'AMSsymbols.js']
-            }
+PANDOC_BIBHEADER = 'References'
+PANDOC_BIBDIR = './content/articles/src'
+PANDOC_ARGS = ['-s', '--mathjax', '--old-dashes',
+               '--highlight-style=tango',
+               '--include-after-body=./content/articles/src/after_body.html',
+               '--template=pelican_template.html'
+               ]
+PANDOC_EXTENSIONS = ['+yaml_metadata_block', '+raw_tex']
+PANDOC_FILTERS = ['pandoc-citeproc']
+
+DELETE_OUTPUT_DIRECTORY = True
