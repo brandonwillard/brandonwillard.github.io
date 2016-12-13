@@ -60,7 +60,8 @@ code &gt; span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* 
 &lt;!--  --&gt;
 &lt;!-- &lt;/div&gt; --&gt;
 &lt;!--  --&gt;
-&lt;h1 id="introduction"&gt;Introduction&lt;/h1&gt;
+&lt;section id="introduction" class="level1"&gt;
+&lt;h1&gt;Introduction&lt;/h1&gt;
 &lt;p&gt;In this post I want to address some concepts regarding statistical model specification within the Bayesian paradigm, motivation for its use, and the utility of sample results (e.g. empirical posterior distributions). This write-up isn’t intended to be thorough or self-contained, especially since numerous quality introductions already exist for Bayesian modeling and MCMC (e.g. &lt;a href="http://www.stat.columbia.edu/~gelman/book/"&gt;Bayesian Data Analysis&lt;/a&gt;). Also, what’s advocated here is in large part just &lt;em&gt;statistical&lt;/em&gt; modeling and not exclusively &lt;em&gt;Bayesian&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;The generality, applicability and relative simplicity of the core concepts within Bayesian modeling are sadly overlooked in practice. Bayes is too often conflated with MCMC and its associated computational costs, or be seen as needlessly “mathy” and technical. I argue that there is an oft unacknowledged trade-off in the efforts of mathematical modeling, and that Bayesian modeling helps navigate that complexity. In doing so, one can save on expended efforts in the long run.&lt;/p&gt;
 &lt;p&gt;When a model is [fully] specified in a statistical or Bayesian way, the modeler has at their disposal distributions for the unknown quantities of interest; these distributions are often the primary interest. The desired estimates–and ones derived from them–are found “within” those distributions. For instance, as a distribution’s moments (e.g. mean, mode, etc.), which can correspond to estimation errors for parameters or functions thereof (e.g. rolling sums and averages).&lt;/p&gt;
@@ -68,14 +69,18 @@ code &gt; span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* 
 &lt;p&gt;Even so, modeling and estimation often proceeds without much statistical consideration or context, making these distributions–and the results they can provide–more and more inaccessible. In a situation where modeling started with common machine learning/statistical software and resulted in non-statistical extensions thereto, the details needed for things like uncertainty quantification broadly equate to specifying the missing statistical context. Actually, “retro-fitting” is a better description in many cases. Considerations like this might be reason enough to–at least minimally–maintain clear statistical assumptions. The Bayesian approach fulfills this requirement and much more.&lt;/p&gt;
 &lt;p&gt;As a starting point, one can find quite a few non-Bayes models with Bayesian interpretations. Otherwise, finding a Bayesian interpretation itself can advance an understanding of the statistical assumptions and properties of an existing non-Bayes model. Multiple examples arise from models defined by objective or loss functions with forms equivalent to the total log-likelihoods of Bayesian models. This, for instance, is one way that general point-wise estimates can be related to maximum a posteriori (MAP) estimates in the Bayesian context.&lt;/p&gt;
 &lt;p&gt;Anyway, there’s too much to consider here, so I’m going to continue with some illustrations and details for just a few of these considerations.&lt;/p&gt;
-&lt;h3 id="notation"&gt;Notation&lt;/h3&gt;
+&lt;section id="notation" class="level3"&gt;
+&lt;h3&gt;Notation&lt;/h3&gt;
 &lt;p&gt;Before getting into the details, let’s cover some preliminaries regarding notation.&lt;/p&gt;
 &lt;p&gt;The symbol &lt;span class="math inline"&gt;\(\sim\)&lt;/span&gt; is overloaded to mean a couple things. First, a statement like &lt;span class="math inline"&gt;\(X \sim \operatorname{P}\)&lt;/span&gt; means “&lt;span class="math inline"&gt;\(X\)&lt;/span&gt; is distributed according to &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt;”, when &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; is understood to be a random variable (generally denoted by capital letter variables). Second, for a non-random variable &lt;span class="math inline"&gt;\(x\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(x \sim \operatorname{P}\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(x \sim X\)&lt;/span&gt; means “&lt;span class="math inline"&gt;\(x\)&lt;/span&gt; is a sample from distribution &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt;”. When &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt; is not meant to signify a distribution, but instead a generic function–like a probability density function &lt;span class="math inline"&gt;\(p(X=x) \equiv p(x)\)&lt;/span&gt;, then the distribution in question is [the] one arising from the function (interpreted as a probability density and/or measure)–when possible. See &lt;a href="https://en.wikipedia.org/wiki/Notation_in_probability_and_statistics"&gt;here&lt;/a&gt; for a similar notation. Also, whenever indices are dropped, the resulting symbol is assumed to be a stacked matrix containing each entry, e.g. &lt;span class="math display"&gt;\[\begin{equation*}
 X^\top = \begin{pmatrix} X_1 &amp;amp; \dots &amp;amp; X_N \end{pmatrix} \;.
 \end{equation*}\]&lt;/span&gt; When the indexed symbol is a vector, then it is customary to denote the row stacked matrix of each vector with the symbol’s capital letter. E.g., for [column] vectors &lt;span class="math inline"&gt;\(z_i\)&lt;/span&gt; over &lt;span class="math inline"&gt;\(i \in \{1, \dots, N\}\)&lt;/span&gt;, &lt;span class="math display"&gt;\[\begin{equation*}
 Z = \begin{pmatrix} z_1 \\ \vdots \\ z_N \end{pmatrix} \;.
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
-&lt;h1 id="a-simple-model"&gt;A Simple Model&lt;/h1&gt;
+&lt;/section&gt;
+&lt;/section&gt;
+&lt;section id="a-simple-model" class="level1"&gt;
+&lt;h1&gt;A Simple Model&lt;/h1&gt;
 &lt;p&gt;First, a simple normal-normal model &lt;span class="math display"&gt;\[\begin{equation}
 Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
     \theta \sim \operatorname{N}(\mu, I \tau^2)
@@ -93,7 +98,9 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
   \;.\end{gathered}
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Results like this are easily obtained for the classical pairings of “conjugate” distributions. Detailed &lt;a href="https://en.wikipedia.org/wiki/Conjugate_prior#Table_of_conjugate_distributions"&gt;tables&lt;/a&gt; and &lt;a href="https://goo.gl/UCL3pc"&gt;tutorials&lt;/a&gt; for conjugate distributions can be found online or in any standard text.&lt;/p&gt;
-&lt;h1 id="estimation-via-mcmc"&gt;Estimation (via MCMC)&lt;/h1&gt;
+&lt;/section&gt;
+&lt;section id="estimation-via-mcmc" class="level1"&gt;
+&lt;h1&gt;Estimation (via MCMC)&lt;/h1&gt;
 &lt;p&gt;From here on let’s assume we do not have the closed-form result in &lt;span class="math inline"&gt;\(\eqref{eq:theta-posterior}\)&lt;/span&gt;. Instead, we’ll estimate the posterior numerically with &lt;a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo"&gt;MCMC&lt;/a&gt;. Again, MCMC is covered to varying degrees of detail all over the place (e.g. &lt;a href="https://goo.gl/JNwfuo"&gt;here&lt;/a&gt;), so we’ll skip most of those details. Let’s say we’ve decided to use &lt;a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm"&gt;Metropolis-Hastings&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;For demonstration purposes, we produce a simulation of some data we might observe and for which we would consider applying the model in &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt;.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;import&lt;/span&gt; numpy &lt;span class="im"&gt;as&lt;/span&gt; np
@@ -160,7 +167,8 @@ proposal_logpdf &lt;span class="op"&gt;=&lt;/span&gt; partial(scs.norm.logpdf, s
 &lt;p&gt;The Metropolis-Hastings sampler does not rely on any prior information or Bayesian formulations. Although the prior is implicitly involved, via the total probability, the concepts behind the sampler itself are still valid without it. Basically, Metropolis-Hastings–like many other MCMC sampling routines–is not specifically Bayesian. It’s better to simply consider MCMC as just another estimation approach (or perhaps a type of stochastic optimization).&lt;/p&gt;
 &lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Gibbs_sampling"&gt;Gibbs sampling&lt;/a&gt; is arguably the other most ubiquitous MCMC technique. Since a model specified in a Bayesian way usually provides a clear joint distribution (or at least something proportional to it) and conditional probabilities, Gibbs sampling is well facilitated.&lt;/p&gt;
 &lt;p&gt;The context of Bayesian modeling is, however, a good source of direction and motivation for improvements to a sampling procedure (and estimation in general). Under Bayesian assumptions, decompositions and reformulations for broad classes of distributions are often immediately available. Guiding theorems, like the &lt;a href="https://en.wikipedia.org/wiki/Rao%E2%80%93Blackwell_theorem"&gt;Rao-Blackwell&lt;/a&gt; theorem, are also applicable, and–more generally–the same principles, tools and results that guide the model creation and assessment process can also feed into the estimation process. Making these two processes less disjoint can arguably be an advantage.&lt;/p&gt;
-&lt;h2 id="the-situation-on-implementation"&gt;The Situation on Implementation&lt;/h2&gt;
+&lt;section id="the-situation-on-implementation" class="level2"&gt;
+&lt;h2&gt;The Situation on Implementation&lt;/h2&gt;
 &lt;p&gt;MCMC sampling schemes like the above are fairly general and easily abstracted, giving rise to some generic frameworks that put more focus on model specification and attempt to automate the choice of estimation (or implement one robust technique). Some of the more common frameworks are Bayesian in nature: &lt;a href="http://www.openbugs.net/w/FrontPage"&gt;OpenBUGS&lt;/a&gt;, &lt;a href="http://mcmc-jags.sourceforge.net/"&gt;JAGS&lt;/a&gt;, &lt;a href="http://mc-stan.org/"&gt;Stan&lt;/a&gt;, and &lt;a href="https://pymc-devs.github.io/pymc/"&gt;PyMC2&lt;/a&gt; / &lt;a href="https://pymc-devs.github.io/pymc3/"&gt;PyMC3&lt;/a&gt;. These libraries provide a sort of meta-language that facilitates the specification of a Bayesian model and mirrors the mathematical language of probability. They also implicitly implement the &lt;a href="https://en.wikipedia.org/wiki/Algebra_of_random_variables"&gt;algebra of random variables&lt;/a&gt; and automatically handle the mechanics of variable transforms.&lt;/p&gt;
 &lt;p&gt;Our model, estimated with a Metropolis-Hastings sampler, can be expressed in PyMC3 with the following code:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;import&lt;/span&gt; pymc3 &lt;span class="im"&gt;as&lt;/span&gt; pm
@@ -228,12 +236,17 @@ freq_axis.legend()
 sample_axis.legend()
 plt.show()&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_theta_post_plot_1.png" alt="Posterior samples" /&gt;&lt;/p&gt;
-&lt;h2 id="the-costs"&gt;The Costs&lt;/h2&gt;
+&lt;/section&gt;
+&lt;section id="the-costs" class="level2"&gt;
+&lt;h2&gt;The Costs&lt;/h2&gt;
 &lt;p&gt;MCMC, and specifically the Metropolis-Hastings approach used above, can look very simple and universally applicable, but–of course–there’s a trade-off occurring somewhere. The trade-offs most often appear in relation to the complexity and cost of [intermediate] sampling steps and convergence rates. To over simplify, the standard &lt;span class="math inline"&gt;\(O(N^{-1/2})\)&lt;/span&gt; error rate–from the &lt;a href="https://en.wikipedia.org/wiki/Central_limit_theorem"&gt;Central Limit Theorem&lt;/a&gt;–is the MCMC baseline, which isn’t all that competitive with some of the standard deterministic optimization methods.&lt;/p&gt;
 &lt;p&gt;Even for conceptually simple models, the proposal distribution (and its parameters) are not always easy to choose or cheap to tune. The upfront computational costs can be quite high for the more generic MCMC approaches, but there are almost always paths toward efficient samplers–in the context of a specific problem, at least.&lt;/p&gt;
 &lt;p&gt;In practice, the generality and relative simplicity of the Bayes approach, combined with MCMC, can be somewhat misleading to newcomers. After some immediate success with simpler and/or scaled down problems, one is soon lead to believe that the cost of direct computations and the effort and skill required to derive efficient methods is not worth the potential parsimony and extra information provided by sample results.&lt;/p&gt;
 &lt;p&gt;The unfortunate outcome of this situation is sometimes an effective rejection of Bayes and MCMC altogether. Although the point hasn’t been illustrated here, MCMC isn’t the only option. Bayesian models are just as amenable to deterministic estimation as non-Bayesian ones, and a wide array of efficient deterministic estimation techniques are available–albeit not so common in standard practice (e.g. &lt;a href="http://projecteuclid.org/euclid.ss/1449670858"&gt;proximal algorithms&lt;/a&gt;).&lt;/p&gt;
-&lt;h1 id="predictions"&gt;Predictions&lt;/h1&gt;
+&lt;/section&gt;
+&lt;/section&gt;
+&lt;section id="predictions" class="level1"&gt;
+&lt;h1&gt;Predictions&lt;/h1&gt;
 &lt;p&gt;The sampling situation offered by MCMC (and Bayes) puts one in a nice situation to make extensive use of predictions &lt;em&gt;and&lt;/em&gt; obtain uncertainty measures (e.g. variances, credible intervals, etc.).&lt;/p&gt;
 &lt;p&gt;In general, posterior predictive samples are fairly easy to obtain. Once you have posterior samples of &lt;span class="math inline"&gt;\(\theta\)&lt;/span&gt;, say &lt;span class="math inline"&gt;\(\{\theta_i\}_{i=0}^M\)&lt;/span&gt;, simply plug those into the sampling/observation distribution and sample &lt;span class="math inline"&gt;\(Y\)&lt;/span&gt; values. Specifically, &lt;span class="math display"&gt;\[\begin{equation}
 \{y_i \sim p(Y \mid X, \theta_i) : \theta_i \sim p(\theta_i \mid y)\}_{i=0}^M
@@ -292,7 +305,9 @@ ppc_quantiles_d[&lt;span class="fl"&gt;0.5&lt;/span&gt;].plot(label&lt;span clas
 plt.legend()
 plt.show()&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_daily_ppc_plot_1.png" alt="Daily posterior predictive results from the hourly posterior." /&gt;&lt;/p&gt;
-&lt;h1 id="hierarchical-extensions"&gt;Hierarchical Extensions&lt;/h1&gt;
+&lt;/section&gt;
+&lt;section id="hierarchical-extensions" class="level1"&gt;
+&lt;h1&gt;Hierarchical Extensions&lt;/h1&gt;
 &lt;p&gt;Even though we only considered “in-sample” predictions in the previous section, out-of-sample and missing values are covered by exactly the same process (neatly simplified by PyMC3’s &lt;code&gt;sample_ppc&lt;/code&gt;). In our example we needed an exogenous variable &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; in order to sample a point from the observation model &lt;span class="math inline"&gt;\((Y_t \mid x_t)\)&lt;/span&gt;. When the values in &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; cannot be obtained–e.g. future values of a non-deterministic quantity–clever, context specific imputations are usually proposed.&lt;/p&gt;
 &lt;p&gt;Nearly every instance of such imputations gives rise to an implicit model. Going back to our preference for transparent statistical specification, it behooves us to formally specify the model. If we do so in a well-defined Bayes way, then we’re immediately provided the exact same conveniences as above.&lt;/p&gt;
 &lt;div id="ex:X_temp" class="example" markdown="" env-number="2" title-name=""&gt;
@@ -401,10 +416,13 @@ ppc_mean_df.plot(ax&lt;span class="op"&gt;=&lt;/span&gt;plt.axes(), alpha&lt;spa
 plt.legend()
 plt.show()&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_temp_ppc_plot_1.png" alt="Posterior predictive results for the stochastic X model" /&gt;&lt;/p&gt;
-&lt;h1 id="bibliography" class="unnumbered"&gt;References&lt;/h1&gt;
+&lt;/section&gt;
+&lt;section id="bibliography" class="level1 unnumbered"&gt;
+&lt;h1&gt;References&lt;/h1&gt;
 &lt;div id="refs" class="references"&gt;
 
 &lt;/div&gt;
+&lt;/section&gt;
 &lt;script type="text/x-mathjax-config"&gt;
 MathJax.Hub.Config({
   TeX: { equationNumbers: { autoNumber: "AMS" } }
