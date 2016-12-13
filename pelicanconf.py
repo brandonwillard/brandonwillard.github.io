@@ -71,12 +71,12 @@ DEFAULT_PAGINATION = 10
 
 PANDOC_BIBHEADER = 'References'
 PANDOC_BIBDIR = './content/articles/src'
-PANDOC_ARGS = ['-s', '--mathjax', '--old-dashes',
+PANDOC_ARGS = ['-s', '--mathjax', '--old-dashes', '--section-divs',
                '--highlight-style=tango',
                '--include-after-body=./content/articles/src/after_body.html',
                '--template=pelican_template.html'
                ]
-PANDOC_EXTENSIONS = ['+yaml_metadata_block', '+raw_tex']
+PANDOC_EXTENSIONS = ['+yaml_metadata_block', '+raw_tex', '+auto_identifiers']
 PANDOC_FILTERS = ['pandoc-citeproc']
 
 DELETE_OUTPUT_DIRECTORY = True
