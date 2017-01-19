@@ -1,0 +1,681 @@
+\documentclass[12pt]{article}
+\usepackage{setspace}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{subcaption}
+\usepackage{suffix}
+\usepackage{color}
+
+% Sadly, can't use this because it breaks greek letters.
+%\usepackage[slantedGreek]{mathpazo}
+\usepackage{breqn}
+
+\usepackage{todonotes}
+\usepackage{draftwatermark}
+\SetWatermarkScale{1}
+\SetWatermarkLightness{0.90}
+
+% used by Pweave
+\usepackage{graphicx}
+
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usepackage[backgroundcolor=bg, topline=false, bottomline=false, leftline=false, rightline=false]{mdframed}
+
+<<pweave_code, echo=False, evaluate=False>>=
+# ignore/change this stuff (and set infile manually) if you don't use neovim
+import neovim, os
+
+nvim = neovim.attach('socket', path=os.getenv("NVIM_LISTEN_ADDRESS"))
+currbuf = nvim.current.buffer
+infile = os.path.basename(currbuf.name)
+
+# here's a Pweave weave script...
+from pweave_custom import PwebMintedPandoc
+from pweave import rcParams, Pweb
+
+outext = "tex"
+docmode = True
+
+#dirs_split = os.getcwd().split(os.sep)
+#project_dir = str.join(os.sep, dirs_split[:dirs_split.index("src")])
+#output_file = str.join(os.sep, [project_dir, "src", "tex",
+#                                infile.split(os.path.extsep)[0] +
+#                                os.path.extsep + outext])
+project_dir = os.getcwd()
+output_file = str.join(os.sep, [project_dir,
+                                infile.split(os.path.extsep)[0] +
+                                os.path.extsep + outext])
+
+rcParams['figdir'] = str.join(os.sep, [os.path.join(project_dir, '..'), "figures"])
+rcParams['storeresults'] = docmode
+#rcParams['chunk']['defaultoptions']['engine'] = 'ipython'
+
+PwebFM = PwebMintedPandoc(file=infile,
+                          format=outext,
+                          shell="ipython_ext",
+                          figdir=rcParams['figdir'],
+                          output=output_file)
+PwebFM.updateformat({'width': '', 'figfmt': '.png', 'savedformats': ['.png']})
+
+# weave something
+PwebFM.weave(shell="ipython_ext")
+
+# Compile document to markdown
+assert os.system('make {}.md'.format(infile.split(os.path.extsep)[0])) == 0
+@
+
+\usepackage{minted}
+\setminted{
+  fontsize=\footnotesize
+  , breaklines=true
+  , breakanywhere=true
+  , breakautoindent=true
+}
+
+% this order is important
+%\PassOptionsToPackage{hyphens}{url}
+\RequirePackage[hyphens]{url}
+\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[authoryear]{natbib}
+
+\allowdisplaybreaks
+
+\include{math-commands}
+
+\graphicspath{{../../figures/}{../figures/}{./figures/}{./}}
+
+<<sympy_setup, evaluate=False, echo=False, results='hidden'>>=
+#import sympy as sp
+#
+#import matplotlib.pyplot as plt
+#plt.style.use('ggplot')
+#plt.rc('text', usetex=True)
+#plot_cmap = plt.cm.YlOrRd
+#
+#sp.init_printing(
+#    use_latex='mathjax',
+#    order='grlex',
+#    latex_mode='equation',
+#    #ip=get_ipython(),
+#    pretty_print=True,
+#    use_unicode=False,
+#    num_columns=80,
+#    wrap_line=True
+#)
+@
+
+\title{A Role for Symbolic Computation for the General Estimation
+of Statistical Models}
+
+\author{Brandon Willard}
+
+\date{2016-11-01}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+In this document, we demonstrate how symbolic computation can be used to provide
+generalizable statistical estimation through a combination of existing, open source
+frameworks.
+
+We specifically consider the optimization problem resulting from a simple model with a
+non-smooth objective function.  These problems arise in the context of
+regularization and shrinkage, and here we'll address their estimation within
+the \emph{proximal framework} \citep{polson_proximal_2015}.  In \cite{polson_proximal_2015}
+we outlined a set of seemingly disparate optimization techniques within the fields
+of statistics, computer vision, machine learning, that are unified by their forms
+of envelopes, convex analysis and the language of operator theory.  These methods, and the concepts
+behind them, have found much success in modern methods and admit quite a few
+interesting paths for research.
+
+We'll consider exactly how proximal algorithms may be amenable to some forms of automation.
+In more than just a few trivial cases, the work involved in the production of a proximal
+algorithm can easily overlap with more than a few highly functional areas in computer algebra
+systems.  For instance, a proximal operator might be found using symbolic algebraic solvers.
+As a matter of fact, solutions to a few classes of proximal operators are only a matter of
+conditioning on variable ranges (e.g. the [implicit] conditions in the soft-thresholding and
+$\max$/absolute value operators) and solutions to polynomials.  We refer the reader to the table in
+\cite{polson_proximal_2015} for details.
+
+More importantly, the simple kind of automation proposed here begins to answer a problem
+that arises somewhat naturally in these areas: how does one provide access to methods that
+produce--or apply to--numerous distinct problems and solutions.  Instead of the more
+standard attempts to implement each one more-or-less separately, and then combining them under a
+loosely organized API or function interface, this symbolic approach brings us closer to
+including the higher and lower level considerations made by professional at all levels of
+statistical modeling.  Although an ideal, some steps toward this goal are within reach.
+
+That said, in general, statistical modeling and estimation as a whole should
+seriously consider some of the approaches taken by computer algebra systems.
+Relative to the subject matter here, symbolic integration provides an excellent
+example.  In computer algebra systems, mappings between basic functional forms
+and their generalized hypergeometric equivalents are used to exploit convenient
+convolution identities.  In the same vein, it might be possible to use the same
+approach to produce analogous automatically generated tables to provide
+efficient, distributable proximal solutions to a wide variety of models.
+
+\subsection{A Context}
+
+% Could also mention the nice compartmentalization provided by independent logic programming.
+% These provide many features foundational to symbolic algebra, without the extra baggage--so to say.
+%
+%Matrix algebra using LogPy and SymPy
+%\href{https://github.com/mrocklin/sympy/blob/matrix-cookbook-logpy/sympy/matrices/expressions/simplifydata.py}{here}
+%and
+%\href{https://github.com/mrocklin/sympy/blob/matrix-cookbook-logpy/sympy/matrices/expressions/simplify.py}{here}.
+%Tests/examples are
+%\href{https://github.com/mrocklin/sympy/blob/matrix-cookbook-logpy/sympy/matrices/expressions/tests/test_simplify.py}{here}.
+
+Much recent work in statistical modeling and estimation has revolved around the
+desire for sparsity, regularization and efficient [automatic] model selection.
+This is, in some sense, an objective shared with the more specialized areas of
+Deep Learning and Compressed Sensing.  In the latter case, we can point to
+Dropout \citep{srivastava_dropout_2014} and, in the former, $\ell_p$
+regularization \citep{donoho_compressed_2006}.
+
+Without delving into those topics here, we'll simply assume that a practitioner
+intends to produce a sparse estimate for a model that results in LASSO.
+First, some setup:
+<<evaluate=True, echo=True>>=
+import numpy as np
+import scipy as sc
+import pandas as pd
+
+import pymc3 as pm
+import theano
+import theano.tensor as tt
+
+import matplotlib.pyplot as plt
+import seaborn as sb
+
+# plt.style.use('ggplot')
+plt.rc('text', usetex=True)
+
+theano.config.mode = 'FAST_COMPILE'
+@
+
+Using PyMC3, the Bayes version of the LASSO \citep{park_bayesian_2008} model is
+easily specified.
+<<evaluate=True, echo=True>>=
+from theano import shared as tt_shared
+
+mu_true = np.zeros(100)
+mu_true[:20] = np.exp(-np.arange(20)) * 100
+
+X = np.random.randn(int(np.alen(mu_true) * 0.7), np.alen(mu_true))
+y = sc.stats.norm.rvs(loc=X.dot(mu_true), scale=10)
+
+X_tt = tt_shared(X, name='X', borrow=True)
+y_tt = tt_shared(y, name='y', borrow=True)
+
+with pm.Model() as lasso_model:
+    # Would be nice if we could pass the symbolic y_tt.shape, so
+    # that our model would automatically conform to changes in
+    # the shared variables X_tt.
+    # See https://github.com/pymc-devs/pymc3/pull/1125
+    beta_rv = pm.Laplace('beta', mu=0, b=1e-3, shape=X.shape[1])
+    y_rv = pm.Normal('y', mu=X_tt.dot(beta_rv), sd=1, shape=y.shape[0], observed=y_tt)
+@
+
+The negative total log likelihood in our example problem has a non-smooth
+$\ell_1$ term.  The standard means of estimating a [MAP] solution to this problem
+usually involves the soft-thresholding operator, which is a type of proximal
+operator.  This operator is cheap to compute, so that--among other things--makes
+the proximal approaches that use it quite appealing.
+
+% Let's illustrate exactly how a symbolic context, like the one
+% provided by PyMC3 and Theano, provides a means of adding an otherwise inaccessible
+% automatic ``awareness'' to a function like \texttt{find\_MAP}.
+
+Moving on, let's say we wanted to produce a MAP estimate in this PyMC3 context.
+A function is already provided for this generic task: \texttt{find\_MAP}.
+<<echo=True, evaluate=False>>=
+with lasso_model:
+    params_0 = pm.find_MAP(vars=[beta_rv])
+@
+In our run of the above, an exception is thrown due to the \texttt{nan} values
+that arise within the gradient evaluation.
+
+More directly, we can inspect the gradient at $\beta = 0, 1$ to demonstrate the
+same.
+<<find_MAP_gradient, echo=True, evaluate=True>>=
+start = pm.Point({'beta': np.zeros(X.shape[1])}, model=lasso_model)
+bij = pm.DictToArrayBijection(pm.ArrayOrdering(lasso_model.vars), start)
+logp = bij.mapf(lasso_model.fastlogp)
+dlogp = bij.mapf(lasso_model.fastdlogp(lasso_model.vars))
+
+# Could also inspect the log likelihood of the prior:
+# beta_rv.dlogp().f(np.zeros_like(start['beta']))
+# beta_rv.dlogp().f(np.zeros_like(start['beta']))
+
+grad_at_0 = dlogp(np.zeros_like(start['beta']))
+grad_at_1 = dlogp(np.ones_like(start['beta']))
+
+print(np.sum(np.isnan(grad_at_0)))
+print(np.sum(np.isnan(grad_at_1)))
+@
+
+% \begin{remark}
+% Let's start with a simpler example that uses Theano only, since that's what
+% drives the PyMC3 results.  We choose to focus on $\max(x, 0)$, which can be
+% used to represent $\abs*{x}$.
+% <<echo=True, evaluate=True>>=
+% test_vec = tt.fvector(name='test_vec')
+% test_vec.tag.test_value = np.array([-1, 0, 1], dtype=test_vec.dtype)
+% test_abs = tt.maximum(test_vec, np.array(0., dtype=test_vec.dtype))
+%
+% print(test_abs.tag.test_value)
+% @
+%
+% Next, we produce the gradient for a sum of these functions.
+% <<echo=True, evaluate=True>>=
+% test_abs_grad = tt.grad(tt.sum(test_abs), test_vec)
+%
+% print(test_abs_grad.eval({test_vec: np.array([0], dtype=test_vec.dtype)}))
+% @
+%
+% We see that the Theano-produced gradient/derivative has chosen the value $1$
+% from the multivalued $(-1, 1)$ image of $\frac{d \abs*{x}}{dx}$ at $x = 0$.
+%
+% This result is implementation dependent, since the following related formulation
+% yields $0$ instead:
+% <<echo=True, evaluate=True>>=
+% test_abs_grad_2 = tt.grad(tt.sum(tt.abs_(test_vec)), test_vec)
+%
+% print(test_abs_grad_2.eval({test_vec: np.array([0], dtype=test_vec.dtype)}))
+% @
+% Had we used Theano's \texttt{tt.abs\_} function in our log likelihood for the Laplace prior,
+% we would've gotten this somewhat misleading result within \texttt{find\_MAP}.
+% % This value isn't necessarily the sparsity inducing choice from $(-1, 1)$...
+% \end{remark}
+
+\section{The Proximal Context}
+
+The general form of what we're calling a \emph{proximal problem} mirrors a
+penalized likelihood, i.e.
+\begin{equation}
+  \beta^* = \argmin_\beta \left\{ l(\beta) + \gamma \phi(\beta) \right\}
+  \;,
+  \label{eq:prox_problem}
+\end{equation}
+where the functions $l$ and $\phi$ are commonly associated with the negative
+log likelihood and penalty, respectively.  For coverage by the proximal framework,
+$l$ and $\phi$ are usually lower semi-continuous, although quite a few properties and
+results can still hold for non-convex functions.
+Note that we could've just as well started with the equivalent optimization problem, and
+have made no mention of Bayes.
+
+The \emph{proximal operator} is a sub-form of \Cref{eq:prox_problem} that has
+$l(\beta) = \frac{1}{2} (\beta - z)^2$ and it comprises the intermediate steps
+of most proximal algorithms that estimate \Cref{eq:prox_problem}.  Exact solutions
+to proximal operators exist for many $\phi$.  These are the elements that could
+exist in an automatically generated table, in analogy to symbolic integration.
+
+The relevant proximal operator, the soft-threshold operator, is implement in
+Theano with the following:
+<<soft_thresholding, echo=True, evaluate=True>>=
+beta_tt = tt.fvector('beta')
+beta_tt.tag.test_value = np.r_[-10, -1, -0.2, 0, 0.2, 1, 10].astype("float32")
+
+lambda_tt = tt.fscalar('lambda')
+lambda_tt.tag.test_value = np.array(0.5).astype("float32")
+
+def soft_threshold(beta_, lambda_):
+    return tt.sgn(beta_) * tt.maximum(tt.abs_(beta_) - lambda_, 0)
+
+print(soft_threshold(beta_tt, lambda_tt).tag.test_value)
+@
+
+The steps for a proximal gradient algorithm are very straightforward and rely
+primarily on the gradient of $l(\beta)$.  When considering this quantity, a
+tangible benefit of symbolic computation becomes apparent; complicated
+gradients can be computed automatically and efficiently.
+
+With this step we can easily produce a proximal gradient estimation.
+<<prox_gradient_setup, echo=True, evaluate=True>>=
+from theano import function as tt_function
+
+def prox_grad_step(logl, beta_tt, lambda_1_tt, gamma_prox_tt,
+                   prox_func=soft_threshold):
+    # Negative log-likelihood without non-smooth (\ell_1) term:
+    logl_grad = tt.grad(logl, wrt=beta_tt)
+    logl_grad.name = "logl_grad"
+
+    beta_quad_step = beta_tt - gamma_prox_tt * lambda_1_tt * logl_grad
+    beta_quad_step.name = "beta_quad_step"
+
+    beta_prox = prox_func(beta_quad_step, lambda_1_tt)
+    beta_prox.name = "beta_prox"
+
+    r_tt = y_tt - X_tt.dot(beta_tt)
+
+    from theano.compile.nanguardmode import NanGuardMode
+
+    prox_step = tt_function([lambda_1_tt],
+                            [beta_tt, logl, logl_grad, tt.mean(r_tt**2)],
+                            updates=[(beta_tt, beta_prox)],
+                            mode=NanGuardMode(nan_is_error=True,
+                                            inf_is_error=False,
+                                            big_is_error=False))
+
+    return prox_step
+@
+
+<<evaluate=False, echo=False>>=
+from theano import clone as tt_clone
+
+logl = tt_clone(lasso_model.observed_RVs[0].logpt,
+                {beta_rv: beta_tt})
+logl.name = "logl"
+
+beta_tt = tt_shared(np.zeros(X.shape[1]).astype(np.float),
+                    name='beta')
+
+lambda_1_tt = tt.scalar(name='lambda_1', dtype=logl.dtype)
+lambda_1_tt.tag.test_value = 1.
+
+gamma_tt = tt_shared(1., name='gamma_prox')
+
+prox_step = prox_grad_step(logl, beta_tt, lambda_1_tt, gamma_tt)
+@
+
+
+\section{The Symbolic Operations}
+
+In order to employ a lookup table, or even to identify a proximal problem and
+check that its conditions are satisfied, we need to obtain the exact forms of
+each component: $l$, $\phi$ and $\gamma$.  For simplicity, we'll assume the
+convexity of each term and only consider the proximal operator
+and algorithm implemented earlier.
+
+In some cases, we're able to tease apart our $l(\beta)$ and $\phi(\beta)$ using
+the organizational designations of an \emph{observed} PyMC3 and unobserved
+random variables.
+<<evaluate=False, echo=True>>=
+from theano import clone as tt_clone
+
+logl = tt_clone(lasso_model.observed_RVs[0].logpt,
+                {beta_rv: beta_tt})
+logl.name = "logl"
+@
+At this point, it is extremely worthwhile to browse the
+\href{http://deeplearning.net/software/theano/extending/graphstructures.html}{Theano documentation}
+regarding graphs and their constituent objects.
+
+However, let's assume we're extending \texttt{find\_MAP} with some generality,
+so that distinguishing $l$ and $\phi$ in \Cref{eq:prox_problem} using these
+designations isn't reliable.  This is necessary for cases in which a user
+specifies custom distributions or a potential function.  In either case, to
+achieve our desired functionality we need to operate at a lower Theano level.
+
+The total negative log likelihood is a good place to start.  Let's
+look at symbolic graphs produced by our log likelihood.
+<<evaluate=True, echo=True>>=
+from theano import pp as tt_pp
+
+print(tt_pp(lasso_model.logpt))
+@
+The \href{http://deeplearning.net/software/theano/tutorial/printing_drawing.html#pretty-printing}{pretty printed}
+Theano graph tells us, among other things, that we have the anticipated sum of
+$\ell_2$ and $\ell_1$ terms.
+
+As with most graphs produced by symbolic algebra systems, we need to consider
+exactly how its operations are arranged, so that that we can develop a means of
+matching general structures.
+The \href{http://deeplearning.net/software/theano/tutorial/printing_drawing.html#debug-print}{debug printout}
+is better for this.
+<<evaluate=True, echo=True>>=
+print(tt.printing.debugprint(lasso_model.logpt))
+@
+We see that the top-most operator is an \texttt{Elemwise} that applies
+the scalar \texttt{add} operation.  This is the $+$ in $l(\beta) + \phi(\beta)$.
+If we were to consider the inputs to this operator as our candidates for
+$l$ and $\phi$, then we might find the pair with the following:
+<<evaluate=True, echo=True>>=
+print(lasso_model.logpt.owner.inputs)
+@
+Using these two terms, we might simply search for an absolute value operator.
+<<evaluate=True, echo=True>>=
+def has_abs(input_node):
+    # Get all the operations in the sub-tree between our input and the
+    # negative log likelihood output node.
+    term_ops = list(tt.gof.graph.ops([input_node], [lasso_model.logpt]))
+
+    # Is there an absolute value in there?
+    return filter(lambda x: x.op is tt.abs_, term_ops)
+
+abs_res = [(idx, has_abs(in_))
+           for idx, in_ in enumerate(lasso_model.logpt.owner.inputs)]
+
+for r_ in abs_res:
+    if len(r_[1]) > 0:
+        phi_part = r_[1]
+        print("phi_part:")
+        print(tt.printing.debugprint(phi_part))
+
+        phi = lasso_model.logpt.owner.inputs[r_[0]]
+        print("phi:")
+        print(tt.printing.debugprint(phi))
+    else:
+        logp = lasso_model.logpt.owner.inputs[r_[0]]
+        print("logp:")
+        print(tt.printing.debugprint(logp))
+@
+From these terms it's also possible to determine $\gamma$.
+
+The above approach is too limiting; we need something more robust.  Cases in
+which the graph is constructed differently, or when our use of
+\texttt{theano.gof.graph.ops} is compromised by intermediate non-affine operations,
+are only a couple of the many weaknesses of this simplistic approach.
+
+What we need to identify the more general patterns suitable for our
+goal is mostly covered within the areas of graph unification and logic programming.
+These capabilities are built, to some extent, into most symbolic algebra libraries.
+Theano has some fundamental unification capabilities as well.
+
+Nonetheless, standalone libraries, like
+\href{https://github.com/logpy/logpy/}{LogPy}, exist for these purposes, too.
+Algebraic concepts can be added to the unification, such as commutativity and
+distributivity, and one will more commonly find robust implementations of these
+in symbolic algebra libraries.  For our purposes, \href{sympy.org}{SymPy} could provide
+many of these more specialized capabilities.  In these examples, we'll restrict ourselves
+to Theano's unification capabilities.
+
+% Nice use cases:
+% \href{https://github.com/mrocklin/Theano/blob/logpy-unify/theano/gof/match.py}{match.py},
+% \href{https://github.com/mrocklin/Theano/blob/logpy-unify/theano/gof/tests/test_match.py}{test\_match.py}.
+
+As an example of unification in Theano, we'll jump to the creation of a graph
+optimization: a context in which some of these symbolic operations might
+be better suited.  This is especially true if we are required to alter the graph
+(or a copy thereof) in our process.  Consider the result produced earlier,
+\texttt{phi\_part}.  Notice from the printout that a subtraction (with $0$)
+is taking place within the absolute value.  Clearly this part--and the entire
+graph--hasn't been simplified, and it may help us to do such a thing.
+These simplifications come in the form of
+\href{http://deeplearning.net/software/theano/optimizations.html}{graph optimizations}.
+
+Within the graph optimization framework there is a \texttt{PatternSub}
+implementation that provides basic unification and expression replacement.
+Let's try it out on few affine expression graphs.  We'll make a replacement
+pattern for multiplicative distribution across two forms of addition:
+\texttt{sum} and \texttt{add}.
+<<evaluate=True, echo=True>>=
+test_a_tt = tt.as_tensor_variable(5, name='a')
+test_b_tt = tt.as_tensor_variable(2, name='b')
+test_c_tt = tt.as_tensor_variable(np.r_[1, 2], name='c')
+
+test_exprs_tt = (test_a_tt * test_b_tt,)
+test_exprs_tt += (test_a_tt * (test_b_tt + test_a_tt),)
+test_exprs_tt += (test_a_tt * (test_c_tt + test_a_tt),)
+test_exprs_tt += (test_a_tt * (test_c_tt + test_c_tt),)
+
+mul_dist_pat_tt = (tt.gof.opt.PatternSub(
+    (tt.mul, 'x', (tt.sum, 'y', 'z')),
+    (tt.sum, (tt.mul, 'x', 'y'), (tt.mul, 'x', 'z'))
+),)
+mul_dist_pat_tt += (tt.gof.opt.PatternSub(
+    (tt.mul, 'x', (tt.add, 'y', 'z')),
+    (tt.add, (tt.mul, 'x', 'y'), (tt.mul, 'x', 'z'))
+),)
+@
+
+The next step involves the repeated application of these operations, so that a
+non-trivial graph can be completely transformed/reduced in some way.
+We achieve this with the \texttt{EquilibriumOptimizer} class.
+<<evaluate=True, echo=True>>=
+test_sub_eqz_opt_tt = tt.gof.opt.EquilibriumOptimizer(mul_dist_pat_tt,
+                                                      max_use_ratio=10)
+
+test_fgraph_tt = tt.gof.fg.FunctionGraph(
+    tt.gof.graph.inputs(test_exprs_tt), test_exprs_tt)
+
+test_fgraph_opt = test_sub_eqz_opt_tt.optimize(test_fgraph_tt)
+
+print(test_fgraph_opt)
+@
+Within the somewhat complicated output we can see that the replacements
+have been made to each appropriate example.
+
+\todo[inline]{
+  More detail, wrapup.
+}
+
+<<evaluate=False, echo=False>>=
+tt_pp(test_const_merge_tt[0])
+tt_pp(test_expr_tt.shape)
+
+# Just for fun, we can get the -logLik for just the priors/unobserved terms:
+tt_pp(lasso_model.varlogpt)
+
+tt_pp(lasso_model.observed_RVs[0].logp.f.maker.fgraph.outputs[0])
+
+tt_pp(lasso_model.vars[0].logp.f.maker.fgraph.outputs[0])
+@
+
+\subsection{Estimation}
+
+Finally, we'll tie together our estimation problem with the promised proximal
+gradient step.  But first, let us address a highly relevant situation that will
+result in a slightly better example.
+
+In many practical cases, the regression subproblem is so poorly conditioned
+that the step size given by matrix norm of $X$ is too small; we need
+something else to help us decide the size of our steps.
+
+As an example, we implement a simple backtracking line search.
+
+%
+% TODO: Would be interesting to perform the linesearch with `scan`.
+%
+%<<line_search, echo=True, evaluate=True>>=
+%gamma_ls_upper_tt = tt.nlinalg.norm(X_ridge_tt.T.dot(y_tt), 'inf')
+%
+%step_rate = tt_shared(0.6, 'step_rate')
+%
+%def backtrack_one_step(beta_prev, beta_cur,
+%                       logl_prev, logl_cur,
+%                       logl_grad_prev, logl_grad_cur,
+%                       gamma_prox_prev, gamma_prox_cur,
+%                       step_rate_):
+%    step_vec = beta_cur - beta_prev
+%    logl_quad_expans = logl_prev + logl_grad_prev.T.dot(step_vec)
+%    logl_quad_expans += 0.5 / gamma_prox_cur * step_vec.T.dot(step_vec)
+%
+%    armijo_cond = logl_cur <= logl_quad_expans
+%    res = (beta_cur, logl_cur, logl_grad_cur, gamma_prox_cur * step_rate_)
+%
+%    return res + (theano.scan_module.until(armijo_cond),)
+%
+%
+%bt_ls_vals, bt_ls_ups = theano.scan(backtrack_one_step,
+%                                    outputs_info = [dict(initial=beta_prox, taps=[-1, -0]),
+%                                                    dict(initial=logl, taps=[-1, -0]),
+%                                                    dict(initial=logl_grad, taps=[-1, -0]),
+%                                                    dict(initial=gamma_prox, taps=[-1, -0])
+%                                                    ],
+%                                    non_sequences = [step_rate],
+%                                    n_steps = 1000)
+%
+%backtrack_search = tt_function([step_rate], bt_ls_vals, updates=bt_ls_ups)
+%@
+% See `sk.linear_model.ElasticNet.path`, `cd_fast.sparse_enet_coordinate_descent`
+% in sklearn/linear_model/coordinate_descent.py for a proper comparison
+
+<<prox_gradient_run, echo=True, evaluate=True>>=
+# Reset shared values
+beta_tt.set_value(np.zeros(X.shape[1]).astype(np.float))
+lambda_1_tt.set_value(0.01)
+lambda_2_tt.set_value(1.1)
+
+gamma_1_max = np.linalg.norm(X.T.dot(y), np.inf)
+gamma_prox.set_value(gamma_1_max)
+
+# Line search (multiplicative) decrease rate
+bt_rate = 0.5
+
+logl_val_prev = np.inf
+beta_val, logl_val, logl_grad_val, mse_val = prox_step()
+# beta_val_prev, logl_val_prev, logl_grad_val_prev, mse_val_prev = prox_step()
+
+for k in range(100000):
+
+    logl_diff = np.abs(logl_val - logl_val_prev)
+
+    if logl_diff < 1e-7:
+        break
+
+    beta_val_prev, logl_val_prev, logl_grad_val_prev =\
+                             beta_val, logl_val, logl_grad_val
+
+    for l in range(1000):
+        beta_val, logl_val, logl_grad_val, mse_val = prox_step()
+
+        gamma_prox_val = gamma_prox.get_value()
+
+        step_vec = beta_val - beta_val_prev
+
+        logl_quad_expans = logl_val_prev + logl_grad_val_prev.T.dot(step_vec)
+        logl_quad_expans += 0.5 / gamma_prox_val * step_vec.T.dot(step_vec)
+
+        if logl_val <= logl_quad_expans:
+            break
+
+        gamma_prox.set_value(gamma_prox_val * bt_rate)
+
+print((k, logl_diff, mse_val, beta_val))
+
+more_nonzero = np.alen(beta_val.nonzero()[0]) - np.alen(lars_map.nonzero()[0])
+
+# beta_val - baseline_model.params['coefficients']
+print("MSE prox: {}, sklearn: {}".format(
+    mse_val, baseline_model.model_obj.mse_path_.min()))
+@
+
+\section{Discussion}
+
+We've sketched out the concepts and mechanism with which one can develop robust
+extensible estimation platforms transparently and mechanically guided by the more abstract
+mathematics frameworks from which new, efficient methods are produced.
+There are many more avenues to explore involving the automated production of new,
+exact solutions to proximal operators, and applications involving very large and complicated
+models/graphs--such as the ones arising in Deep Learning and Meteorology.
+
+Although we acknowledge the general shortcomings of symbolic algebra and, even the libraries
+used in our examples, we strongly believe that the general path described here provides
+far too many potential benefits to ignore.  Additionally,
+
+
+
+\bibliographystyle{plainnat}
+\bibliography{post_graph}
+
+
+\end{document}
