@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en"
+>
+<head>
+    <title>A Role for Symbolic Computation in the General Estimation of Statistical Models - Brandon T. Willard</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html">
+
+        <meta name="author" content="Brandon T. Willard" />
+        <meta name="description" content="A Role for Symbolic Computation in the General Estimation of Statistical Models code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; background-color: #f8f8f8; } td.lineNumbers { text-align: right; padding-right: 4px; padding-left ..." />
+
+        <meta property="og:site_name" content="Brandon T. Willard" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="A Role for Symbolic Computation in the General Estimation of Statistical Models"/>
+        <meta property="og:url" content="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html"/>
+        <meta property="og:description" content="A Role for Symbolic Computation in the General Estimation of Statistical Models code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; background-color: #f8f8f8; } td.lineNumbers { text-align: right; padding-right: 4px; padding-left ..."/>
+        <meta property="article:published_time" content="2017-01-18" />
+            <meta property="article:section" content="articles" />
+            <meta property="article:author" content="Brandon T. Willard" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://brandonwillard.github.io/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://brandonwillard.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://brandonwillard.github.io/theme/css/academicons.min.css" rel="stylesheet">
+
+    <link href="https://brandonwillard.github.io/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://brandonwillard.github.io/theme/css/style.css" type="text/css"/>
+        <link href="https://brandonwillard.github.io/extra/custom.css" rel="stylesheet">
+
+        <link href="https://brandonwillard.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Brandon T. Willard ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://brandonwillard.github.io/" class="navbar-brand">
+Brandon T. Willard            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://brandonwillard.github.io/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://brandonwillard.github.io/pages/projects.html">
+                             Projects
+                          </a></li>
+                         <li><a href="https://brandonwillard.github.io/pages/publications.html">
+                             Publications
+                          </a></li>
+                        <li class="active">
+                            <a href="https://brandonwillard.github.io/category/articles.html">Articles</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="https://brandonwillard.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html"
+                       rel="bookmark"
+                       title="Permalink to A Role for Symbolic Computation in the General Estimation of Statistical Models">
+                        A Role for Symbolic Computation in the General Estimation of Statistical Models
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2017-01-18T00:00:00-06:00"> Wed 18 January 2017</time>
+    </span>
+
+
+
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Brandon T. Willard" />
+  <title>A Role for Symbolic Computation in the General Estimation of Statistical Models</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; background-color: #f8f8f8; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+pre, code { background-color: #f8f8f8; }
+code > span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code > span.dt { color: #204a87; } /* DataType */
+code > span.dv { color: #0000cf; } /* DecVal */
+code > span.bn { color: #0000cf; } /* BaseN */
+code > span.fl { color: #0000cf; } /* Float */
+code > span.ch { color: #4e9a06; } /* Char */
+code > span.st { color: #4e9a06; } /* String */
+code > span.co { color: #8f5902; font-style: italic; } /* Comment */
+code > span.ot { color: #8f5902; } /* Other */
+code > span.al { color: #ef2929; } /* Alert */
+code > span.fu { color: #000000; } /* Function */
+code > span.er { color: #a40000; font-weight: bold; } /* Error */
+code > span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #000000; } /* Constant */
+code > span.sc { color: #000000; } /* SpecialChar */
+code > span.vs { color: #4e9a06; } /* VerbatimString */
+code > span.ss { color: #4e9a06; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #000000; } /* Variable */
+code > span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code > span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code > span.ex { } /* Extension */
+code > span.at { color: #c4a000; } /* Attribute */
+code > span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code > span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+</head>
+<body>
+<!--  -->
+<!-- <div id="header"> -->
+<!-- <h1 class="title">A Role for Symbolic Computation in the General Estimation of Statistical Models</h1> -->
+<!--  -->
+<!--  -->
+<!-- <h2 class="author">Brandon T. Willard</h2> -->
+<!--  -->
+<!--  -->
+<!-- <h3 class="date">2017–01–18</h3> -->
+<!--  -->
+<!-- </div> -->
+<!--  -->
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>In this document, we demonstrate how symbolic computation can be used to provide generalizable statistical estimation through a combination of existing, open source frameworks.</p>
+<p>We specifically consider the optimization problem resulting from a simple model with a non-smooth objective function. These problems arise in the context of regularization and shrinkage, and here we’ll address their estimation within the <em>proximal framework</em> <span class="citation" data-cites="polson_proximal_2015">(Polson, Scott, and Willard 2015)</span>. In <span class="citation" data-cites="polson_proximal_2015">(Polson, Scott, and Willard 2015)</span> we outlined a set of seemingly disparate optimization techniques within the fields of statistics, computer vision, machine learning, that are unified by their forms of envelopes, convex analysis and the language of operator theory. These methods, and the concepts behind them, have found much success in modern methods and admit quite a few interesting paths for research.</p>
+<p>We’ll consider exactly how proximal algorithms may be amenable to some forms of automation. In more than just a few trivial cases, the work involved in the production of a proximal algorithm can easily overlap with more than a few highly functional areas in computer algebra systems. For instance, a proximal operator might be found using symbolic algebraic solvers. As a matter of fact, solutions to a few classes of proximal operators are only a matter of conditioning on variable ranges (e.g. the [implicit] conditions in the soft-thresholding and <span class="math inline">\(\max\)</span>/absolute value operators) and solutions to polynomials. We refer the reader to the table in <span class="citation" data-cites="polson_proximal_2015">(Polson, Scott, and Willard 2015)</span> for details.</p>
+<p>More importantly, the simple kind of automation proposed here begins to answer a problem that arises somewhat naturally in these areas: how does one provide access to methods that produce–or apply to–numerous distinct problems and solutions. Instead of the more standard attempts to implement each one more-or-less separately, and then combining them under a loosely organized API or function interface, this symbolic approach brings us closer to including the higher and lower level considerations made by professional at all levels of statistical modeling. Although an ideal, some steps toward this goal are within reach.</p>
+<p>That said, in general, statistical modeling and estimation as a whole should seriously consider some of the approaches taken by computer algebra systems. Relative to the subject matter here, symbolic integration provides an excellent example. In computer algebra systems, mappings between basic functional forms and their generalized hypergeometric equivalents are used to exploit convenient convolution identities. In the same vein, it might be possible to use the same approach to produce analogous automatically generated tables to provide efficient, distributable proximal solutions to a wide variety of models.</p>
+<section id="a-context" class="level2">
+<h2>A Context</h2>
+<p>Much recent work in statistical modeling and estimation has revolved around the desire for sparsity, regularization and efficient [automatic] model selection. This is, in some sense, an objective shared with the more specialized areas of Deep Learning and Compressed Sensing. In the latter case, we can point to Dropout <span class="citation" data-cites="srivastava_dropout_2014">(Srivastava et al. 2014)</span> and, in the former, <span class="math inline">\(\ell_p\)</span> regularization <span class="citation" data-cites="donoho_compressed_2006">(Donoho 2006)</span>.</p>
+<p>Without delving into those topics here, we’ll simply assume that a practitioner intends to produce a sparse estimate for a model that results in LASSO. First, some setup:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> numpy <span class="im">as</span> np
+<span class="im">import</span> scipy <span class="im">as</span> sc
+<span class="im">import</span> pandas <span class="im">as</span> pd
+
+<span class="im">import</span> pymc3 <span class="im">as</span> pm
+<span class="im">import</span> theano
+<span class="im">import</span> theano.tensor <span class="im">as</span> tt
+
+<span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt
+<span class="im">import</span> seaborn <span class="im">as</span> sb
+
+<span class="co"># plt.style.use(&#39;ggplot&#39;)</span>
+plt.rc(<span class="st">&#39;text&#39;</span>, usetex<span class="op">=</span><span class="va">True</span>)
+
+theano.config.mode <span class="op">=</span> <span class="st">&#39;FAST_COMPILE&#39;</span></code></pre></div>
+<p>Using PyMC3, the Bayes version of the LASSO <span class="citation" data-cites="park_bayesian_2008">(Park and Casella 2008)</span> model is easily specified.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> theano <span class="im">import</span> shared <span class="im">as</span> tt_shared
+
+mu_true <span class="op">=</span> np.zeros(<span class="dv">100</span>)
+mu_true[:<span class="dv">20</span>] <span class="op">=</span> np.exp(<span class="op">-</span>np.arange(<span class="dv">20</span>)) <span class="op">*</span> <span class="dv">100</span>
+
+X <span class="op">=</span> np.random.randn(<span class="bu">int</span>(np.alen(mu_true) <span class="op">*</span> <span class="fl">0.7</span>), np.alen(mu_true))
+y <span class="op">=</span> sc.stats.norm.rvs(loc<span class="op">=</span>X.dot(mu_true), scale<span class="op">=</span><span class="dv">10</span>)
+
+X_tt <span class="op">=</span> tt_shared(X, name<span class="op">=</span><span class="st">&#39;X&#39;</span>, borrow<span class="op">=</span><span class="va">True</span>)
+y_tt <span class="op">=</span> tt_shared(y, name<span class="op">=</span><span class="st">&#39;y&#39;</span>, borrow<span class="op">=</span><span class="va">True</span>)
+
+<span class="cf">with</span> pm.Model() <span class="im">as</span> lasso_model:
+    <span class="co"># Would be nice if we could pass the symbolic y_tt.shape, so</span>
+    <span class="co"># that our model would automatically conform to changes in</span>
+    <span class="co"># the shared variables X_tt.</span>
+    <span class="co"># See https://github.com/pymc-devs/pymc3/pull/1125</span>
+    beta_rv <span class="op">=</span> pm.Laplace(<span class="st">&#39;beta&#39;</span>, mu<span class="op">=</span><span class="dv">0</span>, b<span class="op">=</span><span class="dv">1</span>, shape<span class="op">=</span>X.shape[<span class="dv">1</span>])
+    y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;y&#39;</span>, mu<span class="op">=</span>X_tt.dot(beta_rv), sd<span class="op">=</span><span class="dv">1</span>,
+shape<span class="op">=</span>y.shape[<span class="dv">0</span>], observed<span class="op">=</span>y_tt)</code></pre></div>
+<p>The negative total log likelihood in our example problem has a non-smooth <span class="math inline">\(\ell_1\)</span> term. The standard means of estimating a [MAP] solution to this problem usually involves the soft-thresholding operator, which is a type of proximal operator. This operator is cheap to compute, so that–among other things–makes the proximal approaches that use it quite appealing.</p>
+<p>Moving on, let’s say we wanted to produce a MAP estimate in this PyMC3 context. A function is already provided for this generic task: <code>find_MAP</code>.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">with</span> lasso_model:
+    params_0 <span class="op">=</span> pm.find_MAP(<span class="bu">vars</span><span class="op">=</span>[beta_rv])</code></pre></div>
+<p>In our run of the above, an exception is thrown due to the <code>nan</code> values that arise within the gradient evaluation.</p>
+<p>More directly, we can inspect the gradient at <span class="math inline">\(\beta = 0, 1\)</span> to demonstrate the same.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">start <span class="op">=</span> pm.Point({<span class="st">&#39;beta&#39;</span>: np.zeros(X.shape[<span class="dv">1</span>])}, model<span class="op">=</span>lasso_model)
+bij <span class="op">=</span> pm.DictToArrayBijection(pm.ArrayOrdering(lasso_model.<span class="bu">vars</span>),
+start)
+logp <span class="op">=</span> bij.mapf(lasso_model.fastlogp)
+dlogp <span class="op">=</span> bij.mapf(lasso_model.fastdlogp(lasso_model.<span class="bu">vars</span>))
+
+<span class="co"># Could also inspect the log likelihood of the prior:</span>
+<span class="co"># beta_rv.dlogp().f(np.zeros_like(start[&#39;beta&#39;]))</span>
+<span class="co"># beta_rv.dlogp().f(np.zeros_like(start[&#39;beta&#39;]))</span>
+
+grad_at_0 <span class="op">=</span> dlogp(np.zeros_like(start[<span class="st">&#39;beta&#39;</span>]))
+grad_at_1 <span class="op">=</span> dlogp(np.ones_like(start[<span class="st">&#39;beta&#39;</span>]))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">1</span>]: <span class="bu">print</span>(np.<span class="bu">sum</span>(np.isnan(grad_at_0)))
+Out[<span class="dv">1</span>]: <span class="dv">100</span>
+In [<span class="dv">2</span>]: <span class="bu">print</span>(np.<span class="bu">sum</span>(np.isnan(grad_at_1)))
+Out[<span class="dv">2</span>]: <span class="dv">0</span></code></pre></div>
+</section>
+</section>
+<section id="the-proximal-context" class="level1">
+<h1>The Proximal Context</h1>
+<p>The general form of what we’re calling a <em>proximal problem</em> mirrors a penalized likelihood, i.e. <span class="math display">\[\begin{equation}
+\beta^* = \operatorname*{argmin}_\beta \left\{ l(\beta) + \gamma \phi(\beta) \right\}
+  \;,
+  \label{eq:prox_problem}
+\end{equation}\]</span> where the functions <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> are commonly associated with the negative log likelihood and penalty, respectively. For coverage by the proximal framework, <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> are usually lower semi-continuous, although quite a few properties and results can still hold for non-convex functions. Note that we could’ve just as well started with the equivalent optimization problem, and have made no mention of Bayes.</p>
+<p>The <em>proximal operator</em> is a sub-form of that has <span class="math inline">\(l(\beta) = \frac{1}{2} (\beta - z)^2\)</span> and it comprises the intermediate steps of most proximal algorithms that estimate . Exact solutions to proximal operators exist for many <span class="math inline">\(\phi\)</span>. These are the elements that could exist in an automatically generated table, in analogy to symbolic integration.</p>
+<p>The relevant proximal operator, the soft-threshold operator, is implement in Theano with the following:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">beta_tt <span class="op">=</span> tt.vector(<span class="st">&#39;beta&#39;</span>, dtype<span class="op">=</span>tt.config.floatX)
+beta_tt.tag.test_value <span class="op">=</span> np.r_[<span class="op">-</span><span class="dv">10</span>, <span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="dv">0</span>, <span class="fl">0.2</span>, <span class="dv">1</span>,
+<span class="dv">10</span>].astype(tt.config.floatX)
+
+lambda_tt <span class="op">=</span> tt.scalar(<span class="st">&#39;lambda&#39;</span>, dtype<span class="op">=</span>tt.config.floatX)
+lambda_tt.tag.test_value <span class="op">=</span> np.array(<span class="fl">0.5</span>).astype(tt.config.floatX)
+
+<span class="kw">def</span> soft_threshold(beta_, lambda_):
+    <span class="cf">return</span> tt.sgn(beta_) <span class="op">*</span> tt.maximum(tt.abs_(beta_) <span class="op">-</span> lambda_, <span class="dv">0</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">3</span>]: <span class="bu">print</span>(soft_threshold(beta_tt, lambda_tt).tag.test_value)
+Out[<span class="dv">3</span>]: [<span class="op">-</span><span class="fl">9.5</span> <span class="op">-</span><span class="fl">0.5</span> <span class="op">-</span><span class="dv">0</span>.   <span class="dv">0</span>.   <span class="dv">0</span>.   <span class="fl">0.5</span>  <span class="fl">9.5</span>]</code></pre></div>
+<p>The steps for a proximal gradient algorithm are very straightforward and rely primarily on the gradient of <span class="math inline">\(l(\beta)\)</span>. When considering this quantity, a tangible benefit of symbolic computation becomes apparent; complicated gradients can be computed automatically and efficiently.</p>
+<p>With this step we can easily produce a proximal gradient estimation.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> theano <span class="im">import</span> function <span class="im">as</span> tt_function
+
+<span class="kw">def</span> prox_grad_step(logl, beta_tt, lambda_1_tt, gamma_prox_tt,
+                   prox_func<span class="op">=</span>soft_threshold):
+    <span class="co"># Negative log-likelihood without non-smooth (\ell_1) term:</span>
+    logl_grad <span class="op">=</span> tt.grad(logl, wrt<span class="op">=</span>beta_tt)
+    logl_grad.name <span class="op">=</span> <span class="st">&quot;logl_grad&quot;</span>
+
+    <span class="im">from</span> theano.<span class="bu">compile</span>.nanguardmode <span class="im">import</span> NanGuardMode
+    tt_func_mode <span class="op">=</span> NanGuardMode(nan_is_error<span class="op">=</span><span class="va">True</span>,
+                                inf_is_error<span class="op">=</span><span class="va">False</span>,
+                                big_is_error<span class="op">=</span><span class="va">False</span>)
+
+    beta_var_tt <span class="op">=</span> tt.vector(name<span class="op">=</span><span class="st">&#39;beta&#39;</span>, dtype<span class="op">=</span>beta_tt.dtype)
+    beta_var_tt.tag.test_value <span class="op">=</span> beta_tt.get_value()
+    grad_step <span class="op">=</span> tt_function([beta_var_tt], logl_grad,
+                            mode<span class="op">=</span>tt_func_mode,
+                            givens<span class="op">=</span>{beta_tt: beta_var_tt})
+
+    beta_quad_step <span class="op">=</span> beta_tt <span class="op">-</span> lambda_1_tt <span class="op">*</span> logl_grad
+    beta_quad_step.name <span class="op">=</span> <span class="st">&quot;beta_quad_step&quot;</span>
+
+    beta_prox <span class="op">=</span> prox_func(beta_quad_step, gamma_prox_tt <span class="op">*</span> lambda_1_tt)
+    beta_prox.name <span class="op">=</span> <span class="st">&quot;beta_prox&quot;</span>
+
+    r_tt <span class="op">=</span> y_tt <span class="op">-</span> X_tt.dot(beta_tt)
+
+    prox_step <span class="op">=</span> tt_function([],
+                            [beta_prox, logl, logl_grad,
+tt.mean(r_tt<span class="op">**</span><span class="dv">2</span>)],
+                            updates<span class="op">=</span>[(beta_tt, beta_prox)],
+                            mode<span class="op">=</span>tt_func_mode)
+
+    <span class="cf">return</span> (prox_step, grad_step)</code></pre></div>
+</section>
+<section id="the-symbolic-operations" class="level1">
+<h1>The Symbolic Operations</h1>
+<p>In order to employ a lookup table, or even to identify a proximal problem and check that its conditions are satisfied, we need to obtain the exact forms of each component: <span class="math inline">\(l\)</span>, <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\gamma\)</span>. For simplicity, we’ll assume the convexity of each term and only consider the proximal operator and algorithm implemented earlier.</p>
+<p>In some cases, we’re able to tease apart our <span class="math inline">\(l(\beta)\)</span> and <span class="math inline">\(\phi(\beta)\)</span> using the organizational designations of an <em>observed</em> PyMC3 and unobserved random variables.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> theano <span class="im">import</span> clone <span class="im">as</span> tt_clone
+
+logl <span class="op">=</span> tt_clone(lasso_model.observed_RVs[<span class="dv">0</span>].logpt,
+                {beta_rv: beta_tt})
+logl.name <span class="op">=</span> <span class="st">&quot;logl&quot;</span></code></pre></div>
+<p>At this point, it is extremely worthwhile to browse the <a href="http://deeplearning.net/software/theano/extending/graphstructures.html">Theano documentation</a> regarding graphs and their constituent objects.</p>
+<p>However, let’s assume we’re extending <code>find_MAP</code> with some generality, so that distinguishing <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> in using these designations isn’t reliable. This is necessary for cases in which a user specifies custom distributions or a potential function. In either case, to achieve our desired functionality we need to operate at a lower Theano level.</p>
+<p>The total negative log likelihood is a good place to start. Let’s look at symbolic graphs produced by our log likelihood.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> theano <span class="im">import</span> pp <span class="im">as</span> tt_pp</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">4</span>]: <span class="bu">print</span>(tt_pp(lasso_model.logpt))
+Out[<span class="dv">4</span>]:
+(Sum{acc_dtype<span class="op">=</span>float64}(Sum{acc_dtype<span class="op">=</span>float64}(((<span class="op">-</span>log(TensorConstant{<span class="dv">2</span>}))
+<span class="op">-</span> (<span class="op">|</span>(<span class="op">\</span>beta <span class="op">-</span> TensorConstant{<span class="dv">0</span>})<span class="op">|</span> <span class="op">/</span> TensorConstant{<span class="dv">1</span>})))) <span class="op">+</span>
+Sum{acc_dtype<span class="op">=</span>float64}(Sum{acc_dtype<span class="op">=</span>float64}(switch(TensorConstant{<span class="dv">1</span>},
+(((TensorConstant{<span class="op">-</span><span class="fl">1.0</span>} <span class="op">*</span> ((y <span class="op">-</span> (X <span class="op">\</span>dot <span class="op">\</span>beta)) <span class="op">**</span> TensorConstant{<span class="dv">2</span>}))
+<span class="op">+</span> log(TensorConstant{<span class="fl">0.159154943092</span>})) <span class="op">/</span> TensorConstant{<span class="fl">2.0</span>}),
+TensorConstant{<span class="op">-</span>inf}))))</code></pre></div>
+<p>The <a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#pretty-printing">pretty printed</a> Theano graph tells us, among other things, that we have the anticipated sum of <span class="math inline">\(\ell_2\)</span> and <span class="math inline">\(\ell_1\)</span> terms.</p>
+<p>As with most graphs produced by symbolic algebra systems, we need to consider exactly how its operations are arranged, so that that we can develop a means of matching general structures. The <a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#debug-print">debug printout</a> is better for this.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">5</span>]: tt.printing.debugprint(lasso_model.logpt)
+Out[<span class="dv">5</span>]: Elemwise{add,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> B] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span> <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> C] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>     <span class="op">|</span> <span class="op">|</span>Elemwise{neg,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>     <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>     <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> H]
+ <span class="op">|</span>     <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>       <span class="op">|</span>Elemwise{abs_,no_inplace} [<span class="bu">id</span> J] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>       <span class="op">|</span> <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>       <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> L]
+ <span class="op">|</span>       <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> M] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>       <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">0</span>} [<span class="bu">id</span> N]
+ <span class="op">|</span>       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> O] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>         <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> P]
+ <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> Q] <span class="st">&#39;&#39;</span>
+   <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> R] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span>Elemwise{switch,no_inplace} [<span class="bu">id</span> S] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> T] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> P]
+       <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> U] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> V] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> W] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> X] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="op">-</span><span class="fl">1.0</span>} [<span class="bu">id</span> Y]
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{<span class="bu">pow</span>,no_inplace} [<span class="bu">id</span> Z] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> BA] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>y [<span class="bu">id</span> BB]
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>dot [<span class="bu">id</span> BC] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>X [<span class="bu">id</span> BD]
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> L]
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BE] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> H]
+       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BF] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> BG] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="fl">0.159154943092</span>} [<span class="bu">id</span> BH]
+       <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BI] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span>   <span class="op">|</span>TensorConstant{<span class="fl">2.0</span>} [<span class="bu">id</span> BJ]
+       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BK] <span class="st">&#39;&#39;</span>
+         <span class="op">|</span>TensorConstant{<span class="op">-</span>inf} [<span class="bu">id</span> BL]</code></pre></div>
+<p>We see that the top-most operator is an <code>Elemwise</code> that applies the scalar <code>add</code> operation. This is the <span class="math inline">\(+\)</span> in <span class="math inline">\(l(\beta) + \phi(\beta)\)</span>. If we were to consider the inputs to this operator as our candidates for <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span>, then we might find the pair with the following:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">6</span>]: <span class="bu">print</span>(lasso_model.logpt.owner.inputs)
+Out[<span class="dv">6</span>]: [Sum{acc_dtype<span class="op">=</span>float64}.<span class="dv">0</span>, Sum{acc_dtype<span class="op">=</span>float64}.<span class="dv">0</span>]</code></pre></div>
+<p>Using these two terms, we might simply search for an absolute value operator.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_abs_between(input_node):
+    <span class="co"># Get all the operations in the sub-tree between our input and the</span>
+    <span class="co"># log likelihood output node.</span>
+    term_ops <span class="op">=</span> <span class="bu">list</span>(tt.gof.graph.ops([input_node],
+[lasso_model.logpt]))
+
+    <span class="co"># Is there an absolute value in there?</span>
+    <span class="cf">return</span> <span class="bu">filter</span>(<span class="kw">lambda</span> x: x.op <span class="op">is</span> tt.abs_, term_ops)
+
+abs_res <span class="op">=</span> [(get_abs_between(in_), in_)
+           <span class="cf">for</span> in_ <span class="op">in</span> lasso_model.logpt.owner.inputs]
+
+<span class="cf">for</span> r_ <span class="op">in</span> abs_res:
+    <span class="cf">if</span> <span class="bu">len</span>(r_[<span class="dv">0</span>]) <span class="op">==</span> <span class="dv">0</span>:
+        phi <span class="op">=</span> r_[<span class="dv">1</span>]
+    <span class="cf">else</span>:
+        logp <span class="op">=</span> r_[<span class="dv">1</span>]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">7</span>]: tt.printing.debugprint(logp)
+Out[<span class="dv">7</span>]: Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> B] <span class="st">&#39;&#39;</span>
+   <span class="op">|</span>Elemwise{switch,no_inplace} [<span class="bu">id</span> C] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> E]
+     <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="op">-</span><span class="fl">1.0</span>} [<span class="bu">id</span> J]
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{<span class="bu">pow</span>,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>y [<span class="bu">id</span> M]
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>dot [<span class="bu">id</span> N] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>X [<span class="bu">id</span> O]
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> P]
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> Q] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> R]
+     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> S] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> T] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="fl">0.159154943092</span>} [<span class="bu">id</span> U]
+     <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> V] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span>   <span class="op">|</span>TensorConstant{<span class="fl">2.0</span>} [<span class="bu">id</span> W]
+     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> X] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span>TensorConstant{<span class="op">-</span>inf} [<span class="bu">id</span> Y]
+In [<span class="dv">8</span>]: tt.printing.debugprint(phi)
+Out[<span class="dv">8</span>]: Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>
+ <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> B] <span class="st">&#39;&#39;</span>
+   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> C] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span> <span class="op">|</span>Elemwise{neg,no_inplace} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>
+     <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> G]
+     <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span>Elemwise{abs_,no_inplace} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span> <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> J] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> K]
+       <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span>
+       <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">0</span>} [<span class="bu">id</span> M]
+       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> N] <span class="st">&#39;&#39;</span>
+         <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> O]</code></pre></div>
+<p>From these terms it’s also possible to determine <span class="math inline">\(\gamma\)</span>.</p>
+<p>The above approach is too limiting; we need something more robust. Cases in which the graph is constructed differently or when our naive use of <code>theano.gof.graph.ops</code> is compromised by intermediate non-affine operations, are only a couple of the many weaknesses of this simplistic approach.</p>
+<p>What we need to identify the more general patterns suitable for our goal is mostly covered within the areas of graph unification and logic programming. Theano has some fundamental unification capabilities as well.</p>
+<p>As an example, we’ll jump to the creation of a graph optimization: a context in which some of these symbolic operations might be better suited. This is especially true if we are required to alter the graph (or a copy thereof) during our search for terms. Consider the result produced earlier, <code>phi_part</code>. Notice from the earlier printouts that a subtraction (with <span class="math inline">\(0\)</span>) is taking place within the absolute value. Clearly this part–and the entire graph–hasn’t been simplified. Standard simplifications already exist for these sorts of things, and most are performed in combination, changing a graph one after the other. These simplifications come in the form of <a href="http://deeplearning.net/software/theano/optimizations.html">graph optimizations</a>.</p>
+<p>Within the graph optimization framework we have the <code>PatternSub</code> local optimization, which provides basic unification and expression replacement. To demonstrate the kind of operations that could be used to more robustly find <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span>, we’ll make replacement patterns for multiplicative distribution across two forms of addition: <code>sum</code> and <code>add</code>. These sorts of replacments can be applied to an objective function until it is in a very specific form, then a direct search for <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> can be performed.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">test_a_tt <span class="op">=</span> tt.as_tensor_variable(<span class="dv">5</span>, name<span class="op">=</span><span class="st">&#39;a&#39;</span>)
+test_b_tt <span class="op">=</span> tt.as_tensor_variable(<span class="dv">2</span>, name<span class="op">=</span><span class="st">&#39;b&#39;</span>)
+test_c_tt <span class="op">=</span> tt.as_tensor_variable(np.r_[<span class="dv">1</span>, <span class="dv">2</span>], name<span class="op">=</span><span class="st">&#39;c&#39;</span>)
+
+test_exprs_tt <span class="op">=</span> (test_a_tt <span class="op">*</span> test_b_tt,)
+test_exprs_tt <span class="op">+=</span> (test_a_tt <span class="op">*</span> (test_b_tt <span class="op">+</span> test_a_tt),)
+test_exprs_tt <span class="op">+=</span> (test_a_tt <span class="op">*</span> (test_c_tt <span class="op">+</span> test_a_tt),)
+test_exprs_tt <span class="op">+=</span> (test_a_tt <span class="op">*</span> (test_c_tt <span class="op">+</span> test_c_tt),)
+
+mul_dist_pat_tt <span class="op">=</span> (tt.gof.opt.PatternSub(
+    (tt.mul, <span class="st">&#39;x&#39;</span>, (tt.<span class="bu">sum</span>, <span class="st">&#39;y&#39;</span>, <span class="st">&#39;z&#39;</span>)),
+    (tt.<span class="bu">sum</span>, (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>), (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;z&#39;</span>))
+),)
+mul_dist_pat_tt <span class="op">+=</span> (tt.gof.opt.PatternSub(
+    (tt.mul, <span class="st">&#39;x&#39;</span>, (tt.add, <span class="st">&#39;y&#39;</span>, <span class="st">&#39;z&#39;</span>)),
+    (tt.add, (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>), (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;z&#39;</span>))
+),)</code></pre></div>
+<p>The next step involves the repeated application of these operations, so that a non-trivial graph can be completely transformed/reduced in some way. We achieve this with the <code>EquilibriumOptimizer</code> class.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">test_sub_eqz_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(mul_dist_pat_tt,
+max_use_ratio<span class="op">=</span><span class="dv">10</span>)
+
+test_fgraph_tt <span class="op">=</span> tt.gof.fg.FunctionGraph(
+    tt.gof.graph.inputs(test_exprs_tt), test_exprs_tt)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">9</span>]: <span class="bu">print</span>(test_fgraph_tt)
+Out[<span class="dv">9</span>]: [Elemwise{mul,no_inplace}(TensorConstant{<span class="dv">5</span>},
+TensorConstant{<span class="dv">2</span>}), Elemwise{mul,no_inplace}(TensorConstant{<span class="dv">5</span>},
+Elemwise{add,no_inplace}(TensorConstant{<span class="dv">2</span>}, TensorConstant{<span class="dv">5</span>})),
+Elemwise{mul,no_inplace}(DimShuffle{x}(TensorConstant{<span class="dv">5</span>}),
+Elemwise{add,no_inplace}(TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]},
+DimShuffle{x}(TensorConstant{<span class="dv">5</span>}))),
+Elemwise{mul,no_inplace}(DimShuffle{x}(TensorConstant{<span class="dv">5</span>}),
+Elemwise{add,no_inplace}(TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}, TensorConstant{[<span class="dv">1</span>
+<span class="dv">2</span>]}))]</code></pre></div>
+<p>Now, when we apply the optimization, the <code>FunctionGraph</code> should have applied the replacements:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">test_fgraph_opt <span class="op">=</span> test_sub_eqz_opt_tt.optimize(test_fgraph_tt)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">10</span>]: <span class="bu">print</span>(test_fgraph_tt)
+Out[<span class="dv">10</span>]: [Elemwise{mul,no_inplace}(TensorConstant{<span class="dv">5</span>},
+TensorConstant{<span class="dv">2</span>}),
+Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(TensorConstant{<span class="dv">5</span>},
+TensorConstant{<span class="dv">2</span>}), Elemwise{mul,no_inplace}(TensorConstant{<span class="dv">5</span>},
+TensorConstant{<span class="dv">5</span>})),
+Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">1</span> <span class="op">-&gt;</span>
+DimShuffle{x}(TensorConstant{<span class="dv">5</span>}), TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}),
+Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">1</span>, DimShuffle{x}(TensorConstant{<span class="dv">5</span>}))),
+Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">2</span> <span class="op">-&gt;</span>
+DimShuffle{x}(TensorConstant{<span class="dv">5</span>}), TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}),
+Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">2</span>, TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}))]</code></pre></div>
+<p>There is much more to consider in the examples aboves. Nonetheless, standalone libraries, like <a href="https://github.com/logpy/logpy/">LogPy</a>, can be adapted to Theano graphs and provide more built-in capabilities and sophisticated functionality. The necessary algebraic concepts, e.g. commutativity and distributivity, are readily found in symbolic algebra libraries. Regarding Theano and its graphs, <a href="sympy.org">SymPy</a> is an adaptable symbolic algebra library providing most of these capabilities.</p>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+<p>We’ve sketched out the concepts and mechanism with which one can develop a robust estimation platform that can be transparently guided by the more abstract mathematics frameworks from which new, efficient methods are produced. There are many more avenues to explore involving the automated production of new, exact solutions to proximal operators, and applications involving very large and complicated models/graphs–such as the ones arising in Deep Learning.</p>
+<p>Very related–and at least as interesting–is the possibility of encoding more symbolic knowledge into symbolic probabilistic platforms like PyMC3. Using the same optimization mechanisms as the examples here, simple distributional relationships can be encoded. For instance, the convolution of normally distributed random variables is demonstrated in the following:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)
+mu_X.tag.test_value <span class="op">=</span> np.array([<span class="dv">1</span>.], dtype<span class="op">=</span>tt.config.floatX)
+sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)
+sd_X.tag.test_value <span class="op">=</span> np.array([<span class="dv">2</span>.], dtype<span class="op">=</span>tt.config.floatX)
+
+mu_Y <span class="op">=</span> tt.vector(<span class="st">&#39;mu_Y&#39;</span>)
+mu_Y.tag.test_value <span class="op">=</span> np.array([<span class="dv">1</span>.], dtype<span class="op">=</span>tt.config.floatX)
+sd_Y <span class="op">=</span> tt.vector(<span class="st">&#39;sd_Y&#39;</span>)
+sd_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.5</span>], dtype<span class="op">=</span>tt.config.floatX)
+
+<span class="cf">with</span> pm.Model() <span class="im">as</span> conv_model:
+    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))
+    Y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;Y&#39;</span>, mu_Y, sd<span class="op">=</span>sd_Y, shape<span class="op">=</span>(<span class="dv">1</span>,))
+    Z_rv <span class="op">=</span> X_rv <span class="op">+</span> Y_rv</code></pre></div>
+<p>We have to create a Theano <code>Op</code> to handle the convolution.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> NormConvOp(tt.Op):
+    __props__ <span class="op">=</span> ()
+
+    <span class="kw">def</span> make_node(<span class="va">self</span>, <span class="op">*</span>inputs):
+        name_new <span class="op">=</span> <span class="bu">str</span>.join(<span class="st">&#39;+&#39;</span>, [<span class="bu">getattr</span>(in_, <span class="st">&#39;name&#39;</span>, <span class="st">&#39;&#39;</span>) <span class="cf">for</span> in_ <span class="op">in</span>
+inputs])
+        mu_new <span class="op">=</span> tt.add(<span class="op">*</span>[in_.distribution.mu <span class="cf">for</span> in_ <span class="op">in</span> inputs])
+        sd_new <span class="op">=</span> tt.sqrt(tt.add(<span class="op">*</span>[in_.distribution.sd<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> in_ <span class="op">in</span>
+inputs]))
+        conv_rv <span class="op">=</span> pm.Normal(name_new, mu<span class="op">=</span>mu_new, sd<span class="op">=</span>sd_new,
+                            <span class="co"># Is this another place where</span>
+automatically<span class="op">/</span>Theano managed
+                            <span class="co"># shapes are really needed.  For now, we</span>
+hack it.
+                            shape<span class="op">=</span>(<span class="dv">1</span>,))
+
+        <span class="cf">return</span> tt.Apply(<span class="va">self</span>, inputs, [conv_rv])
+
+    <span class="kw">def</span> perform(<span class="va">self</span>, node, inputs, output_storage):
+        z <span class="op">=</span> output_storage[<span class="dv">0</span>]
+        z[<span class="dv">0</span>] <span class="op">=</span> np.add(<span class="op">*</span>inputs)</code></pre></div>
+<p>Now, all that’s needed is a <code>PatternSub</code> like before.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> is_normal_dist(x):
+    <span class="cf">return</span> <span class="bu">hasattr</span>(x, <span class="st">&#39;distribution&#39;</span>) <span class="op">and</span> <span class="bu">isinstance</span>(x.distribution,
+pm.Normal)
+
+norm_conv_pat_tt <span class="op">=</span> (tt.gof.opt.PatternSub(
+    (tt.add,
+     {<span class="st">&#39;pattern&#39;</span>: <span class="st">&#39;x&#39;</span>,
+      <span class="st">&#39;constraint&#39;</span>: <span class="kw">lambda</span> x: is_normal_dist(x)},
+     {<span class="st">&#39;pattern&#39;</span>: <span class="st">&#39;y&#39;</span>,
+      <span class="co">&#39;constraint&#39;</span>: <span class="kw">lambda</span> x: is_normal_dist(x)}
+     ),
+    (NormConvOp(), <span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>)),)
+
+norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(norm_conv_pat_tt,
+                                                   max_use_ratio<span class="op">=</span><span class="dv">10</span>)
+
+Z_fgraph_tt <span class="op">=</span> tt.gof.fg.FunctionGraph([X_rv, Y_rv], [Z_rv])
+
+<span class="co"># We lose the `FreeRV.distribution` attribute when cloning the graph</span>
+<span class="co"># with `theano.gof.graph.clone_get_equiv` in `FunctionGraph`, so we</span>
+<span class="co"># hackishly reattach that information:</span>
+_ <span class="op">=</span> [<span class="bu">setattr</span>(g_in, <span class="st">&#39;distribution&#39;</span>, s_in.distribution)
+     <span class="cf">for</span> s_in, g_in <span class="op">in</span> <span class="bu">zip</span>([X_rv, Y_rv], Z_fgraph_tt.inputs)]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">with</span> conv_model:
+    _ <span class="op">=</span> norm_conv_opt_tt.optimize(Z_fgraph_tt)
+
+norm_conv_var_dist <span class="op">=</span> Z_fgraph_tt.outputs[<span class="dv">0</span>].distribution</code></pre></div>
+<p>The resulting graph:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">11</span>]: tt.printing.debugprint(Z_fgraph_tt)
+Out[<span class="dv">11</span>]: NormConvOp [<span class="bu">id</span> A] <span class="st">&#39;X+Y&#39;</span>   <span class="dv">0</span>
+ <span class="op">|</span>X [<span class="bu">id</span> B]
+ <span class="op">|</span>Y [<span class="bu">id</span> C]</code></pre></div>
+<p>and the convolution’s parameters (for the test values):</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
+In [<span class="dv">12</span>]: <span class="bu">print</span>(norm_conv_var_dist.mu.tag.test_value)
+Out[<span class="dv">12</span>]: [ <span class="dv">2</span>.]
+In [<span class="dv">13</span>]: <span class="bu">print</span>(norm_conv_var_dist.sd.tag.test_value)
+Out[<span class="dv">13</span>]: [ <span class="fl">2.06155281</span>]</code></pre></div>
+<p>More sophisticated routines–like the example above–could implement parameter expansions, efficient reparameterizations and scale mixtures in an effort to optimize a graph. Objectives for these optimizations could be straightforward computational objectives (e.g. reducing the number of operations in computations of the log likelihood and other quantities) or more statistically focused (e.g. highly efficient sampling, improve mixing).</p>
+</section>
+<section id="bibliography" class="level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-donoho_compressed_2006">
+<p>Donoho, David L. 2006. “Compressed Sensing.” <em>IEEE Transactions on Information Theory</em> 52 (4): 1289–1306. <a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1614066" class="uri">http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1614066</a>.</p>
+</div>
+<div id="ref-park_bayesian_2008">
+<p>Park, Trevor, and George Casella. 2008. “The Bayesian Lasso.” <em>Journal of the American Statistical Association</em> 103 (482): 681–86. <a href="http://amstat.tandfonline.com/doi/abs/10.1198/016214508000000337" class="uri">http://amstat.tandfonline.com/doi/abs/10.1198/016214508000000337</a>.</p>
+</div>
+<div id="ref-polson_proximal_2015">
+<p>Polson, Nicholas G., James G. Scott, and Brandon T. Willard. 2015. “Proximal Algorithms in Statistics and Machine Learning.” <em>Statistical Science</em> 30 (4): 559–81. doi:<a href="https://doi.org/10.1214/15-STS530">10.1214/15-STS530</a>.</p>
+</div>
+<div id="ref-srivastava_dropout_2014">
+<p>Srivastava, Nitish, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan Salakhutdinov. 2014. “Dropout: A Simple Way to Prevent Neural Networks from Overfitting.” <em>The Journal of Machine Learning Research</em> 15 (1): 1929–58. <a href="http://dl.acm.org/citation.cfm?id=2670313" class="uri">http://dl.acm.org/citation.cfm?id=2670313</a>.</p>
+</div>
+</div>
+</section>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  CommonHTML: { linebreaks: { automatic: true } },
+  "HTML-CSS": { linebreaks: { automatic: true } },
+  SVG: { linebreaks: { automatic: true } },
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+</body>
+</html>
+
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'brandonwillard-github-io'; // required: replace example with your forum shortname
+
+                    var disqus_identifier = 'a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models';
+                var disqus_url = 'https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html';
+
+            var disqus_config = function () {
+                this.language = "en";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<div id="aboutme">
+        <p>
+            <img width="100%" class="img-thumbnail" src="/images/profile-pic.png"/>
+        </p>
+    <p>
+        <strong>About Brandon T. Willard</strong><br/>
+        applied math/stats person
+    </p>
+</div>
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="http://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+                <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar-square ai-lg"></i> google scholar</a></li>
+                <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
+                <li class="list-group-item"><a href="https://bitbucket.org/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
+                <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+              </ul>
+            </li>
+
+
+
+            <li class="list-group-item"><a href="https://brandonwillard.github.io/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <ul class="list-group " id="tags">
+                </ul>
+            </li>
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2017 Brandon T. Willard
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://brandonwillard.github.io/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://brandonwillard.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://brandonwillard.github.io/theme/js/respond.min.js"></script>
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'brandonwillard-github-io'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+
+</body>
+</html>
