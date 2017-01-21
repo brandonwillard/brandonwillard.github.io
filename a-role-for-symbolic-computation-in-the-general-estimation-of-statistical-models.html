@@ -244,7 +244,7 @@ Out[<span class="dv">2</span>]: <span class="dv">0</span></code></pre></div>
   \;,
   \label{eq:prox_problem}
 \end{equation}\]</span> where the functions <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> are commonly associated with the negative log likelihood and penalty, respectively. For coverage by the proximal framework, <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> are usually lower semi-continuous, although quite a few properties and results can still hold for non-convex functions. Note that we could’ve just as well started with the equivalent optimization problem, and have made no mention of Bayes.</p>
-<p>The <em>proximal operator</em> is a sub-form of that has <span class="math inline">\(l(\beta) = \frac{1}{2} (\beta - z)^2\)</span> and it comprises the intermediate steps of most proximal algorithms that estimate . Exact solutions to proximal operators exist for many <span class="math inline">\(\phi\)</span>. These are the elements that could exist in an automatically generated table, in analogy to symbolic integration.</p>
+<p>The <em>proximal operator</em> is a sub-form of <span class="math inline">\(\ref{eq:prox_problem}\)</span> that has <span class="math inline">\(l(\beta) = \frac{1}{2} (\beta - z)^2\)</span> and it comprises the intermediate steps of most proximal algorithms that estimate <span class="math inline">\(\ref{eq:prox_problem}\)</span>. Exact solutions to proximal operators exist for many <span class="math inline">\(\phi\)</span>. These are the elements that could exist in an automatically generated table, in analogy to symbolic integration.</p>
 <p>The relevant proximal operator, the soft-threshold operator, is implement in Theano with the following:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">beta_tt <span class="op">=</span> tt.vector(<span class="st">&#39;beta&#39;</span>, dtype<span class="op">=</span>tt.config.floatX)
 beta_tt.tag.test_value <span class="op">=</span> np.r_[<span class="op">-</span><span class="dv">10</span>, <span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="dv">0</span>, <span class="fl">0.2</span>, <span class="dv">1</span>,
@@ -305,7 +305,7 @@ logl <span class="op">=</span> tt_clone(lasso_model.observed_RVs[<span class="dv
                 {beta_rv: beta_tt})
 logl.name <span class="op">=</span> <span class="st">&quot;logl&quot;</span></code></pre></div>
 <p>At this point, it is extremely worthwhile to browse the <a href="http://deeplearning.net/software/theano/extending/graphstructures.html">Theano documentation</a> regarding graphs and their constituent objects.</p>
-<p>However, let’s assume we’re extending <code>find_MAP</code> with some generality, so that distinguishing <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> in using these designations isn’t reliable. This is necessary for cases in which a user specifies custom distributions or a potential function. In either case, to achieve our desired functionality we need to operate at a lower Theano level.</p>
+<p>However, let’s assume we’re extending <code>find_MAP</code> with some generality, so that distinguishing <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> in <span class="math inline">\(\ref{eq:prox_problem}\)</span> using these designations isn’t reliable. This is necessary for cases in which a user specifies custom distributions or a potential function. In either case, to achieve our desired functionality we need to operate at a lower Theano level.</p>
 <p>The total negative log likelihood is a good place to start. Let’s look at symbolic graphs produced by our log likelihood.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> theano <span class="im">import</span> pp <span class="im">as</span> tt_pp</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
@@ -475,12 +475,12 @@ TensorConstant{<span class="dv">2</span>}),
 Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(TensorConstant{<span class="dv">5</span>},
 TensorConstant{<span class="dv">2</span>}), Elemwise{mul,no_inplace}(TensorConstant{<span class="dv">5</span>},
 TensorConstant{<span class="dv">5</span>})),
-Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">1</span> <span class="op">-&gt;</span>
-DimShuffle{x}(TensorConstant{<span class="dv">5</span>}), TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}),
-Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">1</span>, DimShuffle{x}(TensorConstant{<span class="dv">5</span>}))),
 Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">2</span> <span class="op">-&gt;</span>
 DimShuffle{x}(TensorConstant{<span class="dv">5</span>}), TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}),
-Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">2</span>, TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}))]</code></pre></div>
+Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">2</span>, DimShuffle{x}(TensorConstant{<span class="dv">5</span>}))),
+Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">1</span> <span class="op">-&gt;</span>
+DimShuffle{x}(TensorConstant{<span class="dv">5</span>}), TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}),
+Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">1</span>, TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}))]</code></pre></div>
 <p>There is much more to consider in the examples aboves. Nonetheless, standalone libraries, like <a href="https://github.com/logpy/logpy/">LogPy</a>, can be adapted to Theano graphs and provide more built-in capabilities and sophisticated functionality. The necessary algebraic concepts, e.g. commutativity and distributivity, are readily found in symbolic algebra libraries. Regarding Theano and its graphs, <a href="sympy.org">SymPy</a> is an adaptable symbolic algebra library providing most of these capabilities.</p>
 </section>
 <section id="discussion" class="level1">
