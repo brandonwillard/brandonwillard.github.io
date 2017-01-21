@@ -351,37 +351,66 @@ max_use_ratio&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;10&lt;/
 test_fgraph_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.gof.fg.FunctionGraph(
     tt.gof.graph.inputs(test_exprs_tt), test_exprs_tt)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;9&lt;/span&gt;]: &lt;span class="bu"&gt;print&lt;/span&gt;(test_fgraph_tt)
-Out[&lt;span class="dv"&gt;9&lt;/span&gt;]: [Elemwise{mul,no_inplace}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;},
-TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;}), Elemwise{mul,no_inplace}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;},
-Elemwise{add,no_inplace}(TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;}, TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;})),
-Elemwise{mul,no_inplace}(DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}),
-Elemwise{add,no_inplace}(TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]},
-DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}))),
-Elemwise{mul,no_inplace}(DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}),
-Elemwise{add,no_inplace}(TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]}, TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt;
-&lt;span class="dv"&gt;2&lt;/span&gt;]}))]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+In [&lt;span class="dv"&gt;9&lt;/span&gt;]: tt.printing.debugprint(test_fgraph_tt)
+Out[&lt;span class="dv"&gt;9&lt;/span&gt;]: Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; A] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;5&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+ &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; C]
+Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; D] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;8&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+ &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; E] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;4&lt;/span&gt;
+   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; C]
+   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; F] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;9&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; G] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;3&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+ &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; H] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;7&lt;/span&gt;
+   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]} [&lt;span class="bu"&gt;id&lt;/span&gt; I]
+   &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; J] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;2&lt;/span&gt;
+     &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; K] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;6&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; L] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;1&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+ &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; M] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;0&lt;/span&gt;
+   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]} [&lt;span class="bu"&gt;id&lt;/span&gt; I]
+   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]} [&lt;span class="bu"&gt;id&lt;/span&gt; I]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now, when we apply the optimization, the &lt;code&gt;FunctionGraph&lt;/code&gt; should have applied the replacements:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;test_fgraph_opt &lt;span class="op"&gt;=&lt;/span&gt; test_sub_eqz_opt_tt.optimize(test_fgraph_tt)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;10&lt;/span&gt;]: &lt;span class="bu"&gt;print&lt;/span&gt;(test_fgraph_tt)
-Out[&lt;span class="dv"&gt;10&lt;/span&gt;]: [Elemwise{mul,no_inplace}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;},
-TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;}),
-Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;},
-TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;}), Elemwise{mul,no_inplace}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;},
-TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;})),
-Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="op"&gt;-&amp;gt;&lt;/span&gt;
-DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}), TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]}),
-Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;, DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}))),
-Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt; &lt;span class="op"&gt;-&amp;gt;&lt;/span&gt;
-DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}), TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]}),
-Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt;, TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]}))]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;There is much more to consider in the examples aboves. Nonetheless, standalone libraries, like &lt;a href="https://github.com/logpy/logpy/"&gt;LogPy&lt;/a&gt;, can be adapted to Theano graphs and provide more built-in capabilities and sophisticated functionality. The necessary algebraic concepts, e.g. commutativity and distributivity, are readily found in symbolic algebra libraries. Regarding Theano and its graphs, &lt;a href="sympy.org"&gt;SymPy&lt;/a&gt; is an adaptable symbolic algebra library providing most of these capabilities.&lt;/p&gt;
+In [&lt;span class="dv"&gt;10&lt;/span&gt;]: tt.printing.debugprint(test_fgraph_tt)
+Out[&lt;span class="dv"&gt;10&lt;/span&gt;]: Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; A] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;5&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+ &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; C]
+Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; D] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;10&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; E] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;4&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; C]
+ &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; F] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;3&lt;/span&gt;
+   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; G] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;12&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; H] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;9&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; I] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;2&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]} [&lt;span class="bu"&gt;id&lt;/span&gt; J]
+ &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; K] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;8&lt;/span&gt;
+   &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; I] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;2&lt;/span&gt;
+   &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; L] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;1&lt;/span&gt;
+     &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; M] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;11&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; N] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;7&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; O] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;0&lt;/span&gt;
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; B]
+ &lt;span class="op"&gt;|&lt;/span&gt; &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]} [&lt;span class="bu"&gt;id&lt;/span&gt; J]
+ &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; P] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;6&lt;/span&gt;
+   &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; O] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;0&lt;/span&gt;
+   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]} [&lt;span class="bu"&gt;id&lt;/span&gt; J]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;There is much more to consider in the examples above. Nonetheless, standalone libraries, like &lt;a href="https://github.com/logpy/logpy/"&gt;LogPy&lt;/a&gt; and &lt;a href="sympy.org"&gt;SymPy&lt;/a&gt;, can be adapted to Theano graphs to provide the functionality necessary to cover most of these considerations.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="discussion" class="level1"&gt;
 &lt;h1&gt;Discussion&lt;/h1&gt;
 &lt;p&gt;We’ve sketched out the concepts and mechanism with which one can develop a robust estimation platform that can be transparently guided by the more abstract mathematics frameworks from which new, efficient methods are produced.&lt;/p&gt;
-&lt;p&gt;Some key steps in the process will most likely require the integration of a symbolic algebra system such as SymPy, so that a much wider array of algebraic machinery can be leveraged to assess convexity of the terms, for instance, or to solve the proximal operators themselves. Connections between these two systems have already been explored in &lt;span class="citation" data-cites="rocklin_mathematically_2013"&gt;(Rocklin 2013)&lt;/span&gt;, as well as many other important aspects of the topics discussed here. Additionally, more advanced proximal algorithms exist to improve upon the convergence and stability of the most basic proximal gradient given here. These algorithms often involve operator splitting, which requires careful consideration regarding the exact type of splitting and on which terms it is performed. Within this area are the familiar convex-conjugate approaches; these too could be approached by symbolic solvers, or simply addressed by [partially] generated tables.&lt;/p&gt;
+&lt;p&gt;Some key steps in the process will most likely require the integration of a symbolic algebra system, so that a much wider array of algebraic machinery can be leveraged to assess–say–convexity of the terms or to solve the proximal operators themselves. Connections between Theano, SymPy and LogPy have already been explored in &lt;span class="citation" data-cites="rocklin_mathematically_2013"&gt;(Rocklin 2013)&lt;/span&gt;, as well as many other important aspects of the topics discussed here.&lt;/p&gt;
+&lt;p&gt;Additionally, more advanced proximal algorithms exist to improve upon the convergence and stability of the most basic proximal gradient given here. These algorithms often involve operator splitting, which requires careful consideration regarding the exact type of splitting and on which terms it is performed. Within this area are the familiar convex-conjugate approaches; these too could be approached by symbolic solvers, or simply addressed by [partially] generated tables.&lt;/p&gt;
 &lt;p&gt;Overall, there appear to be many avenues to explore just within the space of proximal algorithms and modern symbolic systems. Not all of this work necessitates the inclusion of fully featured symbolic algebra systems; much can be done with symbolic tools of Theano alone. Furthermore, there are specialized, lightweight logic programming systems–like LogPy–that can serve as a step before full symbolic algebra integration.&lt;/p&gt;
 &lt;p&gt;Besides the automation of proximal algorithms themselves, there are areas of application involving very large and complicated models or graphs–such as the ones arising in Deep Learning. How might we consider the operator splitting of ADMM within deeply layered or hierarchical models &lt;span class="citation" data-cites="polson_statistical_2015"&gt;(Polson, Willard, and Heidari 2015)&lt;/span&gt;? At which levels and on which terms should the splitting be performed? Beyond simply trying to solve the potentially intractable mathematics arising from related questions, with the symbolic capabilities described here, we can at least begin to experiment with these questions.&lt;/p&gt;
 &lt;p&gt;Before closing, a very related–and at least as interesting–set of ideas is worth mentioning: the possibility of encoding more symbolic knowledge into probabilistic programming platforms like PyMC3. Using the same optimization mechanisms as the examples here, simple distributional relationships can be encoded. For instance, the convolution of normally distributed random variables:&lt;/p&gt;
