@@ -318,7 +318,7 @@ Sum{acc_dtype<span class="op">=</span>float64}(Sum{acc_dtype<span class="op">=</
 <span class="op">+</span> log(TensorConstant{<span class="fl">0.159154943092</span>})) <span class="op">/</span> TensorConstant{<span class="fl">2.0</span>}),
 TensorConstant{<span class="op">-</span>inf}))))</code></pre></div>
 <p>The <a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#pretty-printing">pretty printed</a> Theano graph tells us, among other things, that we have the anticipated sum of <span class="math inline">\(\ell_2\)</span> and <span class="math inline">\(\ell_1\)</span> terms.</p>
-<p>As with most graphs produced by symbolic algebra systems, we need to consider exactly how its operations are arranged, so that that we can develop a means of matching general structures. The <a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#debug-print">debug printout</a> is better for this.</p>
+<p>As with most graphs produced by symbolic algebra systems, we need to consider exactly how its operations are arranged, so that we can develop a means of matching general structures. The <a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#debug-print">debug printout</a> is better for this.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
 In [<span class="dv">5</span>]: tt.printing.debugprint(lasso_model.logpt)
 Out[<span class="dv">5</span>]: Elemwise{add,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>
