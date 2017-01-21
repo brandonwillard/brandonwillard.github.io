@@ -476,12 +476,12 @@ TensorConstant{<span class="dv">2</span>}),
 Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(TensorConstant{<span class="dv">5</span>},
 TensorConstant{<span class="dv">2</span>}), Elemwise{mul,no_inplace}(TensorConstant{<span class="dv">5</span>},
 TensorConstant{<span class="dv">5</span>})),
-Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">2</span> <span class="op">-&gt;</span>
-DimShuffle{x}(TensorConstant{<span class="dv">5</span>}), TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}),
-Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">2</span>, DimShuffle{x}(TensorConstant{<span class="dv">5</span>}))),
 Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">1</span> <span class="op">-&gt;</span>
 DimShuffle{x}(TensorConstant{<span class="dv">5</span>}), TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}),
-Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">1</span>, TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}))]</code></pre></div>
+Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">1</span>, DimShuffle{x}(TensorConstant{<span class="dv">5</span>}))),
+Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">2</span> <span class="op">-&gt;</span>
+DimShuffle{x}(TensorConstant{<span class="dv">5</span>}), TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}),
+Elemwise{mul,no_inplace}(<span class="op">*</span><span class="dv">2</span>, TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]}))]</code></pre></div>
 <p>There is much more to consider in the examples aboves. Nonetheless, standalone libraries, like <a href="https://github.com/logpy/logpy/">LogPy</a>, can be adapted to Theano graphs and provide more built-in capabilities and sophisticated functionality. The necessary algebraic concepts, e.g. commutativity and distributivity, are readily found in symbolic algebra libraries. Regarding Theano and its graphs, <a href="sympy.org">SymPy</a> is an adaptable symbolic algebra library providing most of these capabilities.</p>
 </section>
 <section id="discussion" class="level1">
@@ -547,8 +547,8 @@ norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(norm_
 Z_fgraph_tt <span class="op">=</span> tt.gof.fg.FunctionGraph([X_rv, Y_rv], [Z_rv])
 
 <span class="co"># We lose the `FreeRV.distribution` attribute when cloning the graph</span>
-<span class="co"># with `theano.gof.graph.clone_get_equiv` in `FunctionGraph`, so we</span>
-<span class="co"># hackishly reattach that information:</span>
+<span class="co"># with `theano.gof.graph.clone_get_equiv` in `FunctionGraph`, so this</span>
+<span class="co"># hackishly reattaches that information:</span>
 _ <span class="op">=</span> [<span class="bu">setattr</span>(g_in, <span class="st">&#39;distribution&#39;</span>, s_in.distribution)
      <span class="cf">for</span> s_in, g_in <span class="op">in</span> <span class="bu">zip</span>([X_rv, Y_rv], Z_fgraph_tt.inputs)]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">with</span> conv_model:

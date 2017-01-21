@@ -370,12 +370,12 @@ TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;}),
 Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;},
 TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;}), Elemwise{mul,no_inplace}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;},
 TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;})),
-Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt; &lt;span class="op"&gt;-&amp;gt;&lt;/span&gt;
-DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}), TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]}),
-Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt;, DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}))),
 Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="op"&gt;-&amp;gt;&lt;/span&gt;
 DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}), TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]}),
-Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;, TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]}))]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;, DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}))),
+Elemwise{add,no_inplace}(Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt; &lt;span class="op"&gt;-&amp;gt;&lt;/span&gt;
+DimShuffle{x}(TensorConstant{&lt;span class="dv"&gt;5&lt;/span&gt;}), TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]}),
+Elemwise{mul,no_inplace}(&lt;span class="op"&gt;*&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt;, TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]}))]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;There is much more to consider in the examples aboves. Nonetheless, standalone libraries, like &lt;a href="https://github.com/logpy/logpy/"&gt;LogPy&lt;/a&gt;, can be adapted to Theano graphs and provide more built-in capabilities and sophisticated functionality. The necessary algebraic concepts, e.g. commutativity and distributivity, are readily found in symbolic algebra libraries. Regarding Theano and its graphs, &lt;a href="sympy.org"&gt;SymPy&lt;/a&gt; is an adaptable symbolic algebra library providing most of these capabilities.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="discussion" class="level1"&gt;
@@ -441,8 +441,8 @@ norm_conv_opt_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.gof.opt.EquilibriumOpt
 Z_fgraph_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.gof.fg.FunctionGraph([X_rv, Y_rv], [Z_rv])
 
 &lt;span class="co"&gt;# We lose the `FreeRV.distribution` attribute when cloning the graph&lt;/span&gt;
-&lt;span class="co"&gt;# with `theano.gof.graph.clone_get_equiv` in `FunctionGraph`, so we&lt;/span&gt;
-&lt;span class="co"&gt;# hackishly reattach that information:&lt;/span&gt;
+&lt;span class="co"&gt;# with `theano.gof.graph.clone_get_equiv` in `FunctionGraph`, so this&lt;/span&gt;
+&lt;span class="co"&gt;# hackishly reattaches that information:&lt;/span&gt;
 _ &lt;span class="op"&gt;=&lt;/span&gt; [&lt;span class="bu"&gt;setattr&lt;/span&gt;(g_in, &lt;span class="st"&gt;&amp;#39;distribution&amp;#39;&lt;/span&gt;, s_in.distribution)
      &lt;span class="cf"&gt;for&lt;/span&gt; s_in, g_in &lt;span class="op"&gt;in&lt;/span&gt; &lt;span class="bu"&gt;zip&lt;/span&gt;([X_rv, Y_rv], Z_fgraph_tt.inputs)]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; conv_model:
