@@ -100,20 +100,19 @@ assert os.system('make {}.md'.format(infile.split(os.path.extsep)[0])) == 0
 \section{Introduction}
 
 In this document, we demonstrate how symbolic computation can be used to provide
-generalizable statistical estimation through a combination of existing, open source
+generalizable statistical estimation through a combination of existing open source
 frameworks.
 
-We specifically consider the optimization problem resulting from a simple model with a
-non-smooth objective function.  These problems arise in the context of
-regularization and shrinkage, and here we'll address their estimation within
+Specifically, we consider the optimization problems resulting from models with
+non-smooth objective functions.  These problems arise in the context of
+regularization and shrinkage, and here we'll address their automated application within
 the \emph{proximal framework} \citep{polson_proximal_2015}.  In \cite{polson_proximal_2015}
 we outlined a set of seemingly disparate optimization techniques within the fields
-of statistics, computer vision, machine learning, that are unified by their forms
-of envelopes, convex analysis and the language of operator theory.  These methods, and the concepts
+of statistics, computer vision, machine learning, that are unified by the forms
+of envelopes used, convex analysis and the language of operator theory.  These methods, and the concepts
 behind them, have found much success in modern methods and admit quite a few
 interesting paths for research.
 
-We'll consider exactly how proximal algorithms may be amenable to some forms of automation.
 In more than just a few trivial cases, the work involved in the production of a proximal
 algorithm can easily overlap with more than a few highly functional areas in computer algebra
 systems.  For instance, a proximal operator might be found using symbolic algebraic solvers.
@@ -240,21 +239,22 @@ penalized likelihood, i.e.
   \;,
   \label{eq:prox_problem}
 \end{equation}
-where the functions $l$ and $\phi$ are commonly associated with the negative
-log likelihood and penalty, respectively.  For coverage by the proximal framework,
-$l$ and $\phi$ are usually lower semi-continuous, although quite a few properties and
-results can still hold for non-convex functions.
-Note that we could've just as well started with the equivalent optimization problem, and
-have made no mention of Bayes.
+where the entire sum is commonly associated with the negative log likelihood
+and the functions $l$ and $\phi$ with observation and prior terms, or loss and
+penalty terms, respectively.
+Within the proximal framework, $l$ and $\phi$ are usually lower
+semi-continuous--although quite a few properties and results can still hold for
+non-convex functions.
 
-The \emph{proximal operator} is a sub-form of \Cref{eq:prox_problem} that has
-$l(\beta) = \frac{1}{2} (\beta - z)^2$ and it comprises the intermediate steps
-of most proximal algorithms that estimate \Cref{eq:prox_problem}.  Exact solutions
+The \emph{proximal operator} is an explicit form of \Cref{eq:prox_problem} where
+$l(\beta) = \frac{1}{2} (\beta - z)^2$.  It is a defining part of the intermediate steps
+within most proximal algorithms.  Exact solutions
 to proximal operators exist for many $\phi$.  These are the elements that could
-exist in an automatically generated table, in analogy to symbolic integration.
+exist in a table, many entries of which could be generated automatically, in
+analogy to symbolic integration.
 
-The relevant proximal operator, the soft-threshold operator, is implement in
-Theano with the following:
+The proximal operator relevant to our example, the soft-threshold operator, is implement in
+Theano with something like the following:
 <<soft_thresholding, echo=True, evaluate=True>>=
 beta_tt = tt.vector('beta', dtype=tt.config.floatX)
 beta_tt.tag.test_value = np.r_[-10, -1, -0.2, 0, 0.2, 1, 10].astype(tt.config.floatX)
@@ -268,13 +268,18 @@ def soft_threshold(beta_, lambda_):
 <<term=True>>=
 print(soft_threshold(beta_tt, lambda_tt).tag.test_value)
 @
+Operators like these can be composed with a gradient step to produce a
+\emph{proximal gradient} algorithm.
 
-The steps for a proximal gradient algorithm are very straightforward and rely
-primarily on the gradient of $l(\beta)$.  When considering this quantity, a
-tangible benefit of symbolic computation becomes apparent; complicated
-gradients can be computed automatically and efficiently.
+Besides the proximal operator for $\phi$, the steps in a proximal gradient
+algorithm are very straightforward and rely primarily on the gradient of
+$l(\beta)$.  When considering this quantity, a tangible benefit of symbolic
+computation becomes apparent; complicated gradients can be computed
+automatically and efficiently.  With [backtracking] line search to handle
+unknown step sizes, the proximal gradient alone provides a surprisingly general
+means of sparse estimation.
 
-With this step we can easily produce a proximal gradient estimation.
+Here is an implementation of a proximal gradient step:
 <<prox_gradient_setup, echo=True, evaluate=True>>=
 from theano import function as tt_function
 
@@ -313,14 +318,14 @@ def prox_grad_step(logl, beta_tt, lambda_1_tt, gamma_prox_tt,
 
 \section{The Symbolic Operations}
 
-In order to employ a lookup table, or even to identify a proximal problem and
-check that its conditions are satisfied, we need to obtain the exact forms of
-each component: $l$, $\phi$ and $\gamma$.  For simplicity, we'll assume the
-convexity of each term and only consider the proximal operator
-and algorithm implemented earlier.
+In order to employ a lookup table, or to even identify a proximal problem and
+check that its conditions (e.g. convexity) are satisfied, we need to obtain the
+exact forms of each component: $l$, $\phi$ and $\gamma$.  For simplicity, we'll
+assume the convexity of each term and only consider the proximal operator and
+algorithm implemented earlier.
 
 In some cases, we're able to tease apart our $l(\beta)$ and $\phi(\beta)$ using
-the organizational designations of an \emph{observed} PyMC3 and unobserved
+the organizational designations of \emph{observed} and unobserved PyMC3
 random variables.
 <<evaluate=False, echo=True>>=
 from theano import clone as tt_clone
@@ -329,17 +334,17 @@ logl = tt_clone(lasso_model.observed_RVs[0].logpt,
                 {beta_rv: beta_tt})
 logl.name = "logl"
 @
-At this point, it is extremely worthwhile to browse the
-\href{http://deeplearning.net/software/theano/extending/graphstructures.html}{Theano documentation}
-regarding graphs and their constituent objects.
-
-However, let's assume we're extending \texttt{find\_MAP} with some generality,
+Instead, let's assume we're extending \texttt{find\_MAP} with some generality,
 so that distinguishing $l$ and $\phi$ in \Cref{eq:prox_problem} using these
 designations isn't reliable.  This is necessary for cases in which a user
 specifies custom distributions or a potential function.  In either case, to
 achieve our desired functionality we need to operate at a lower Theano level.
 
-The total negative log likelihood is a good place to start.  Let's
+At this point, it is extremely worthwhile to browse the
+\href{http://deeplearning.net/software/theano/extending/graphstructures.html}{Theano documentation}
+regarding graphs and their constituent objects.
+
+The total log likelihood is a good place to start.  Let's
 look at symbolic graphs produced by our log likelihood.
 <<evaluate=True, echo=True>>=
 from theano import pp as tt_pp
@@ -491,15 +496,43 @@ of these capabilities.
 We've sketched out the concepts and mechanism with which one can develop a robust
 estimation platform that can be transparently guided by the more abstract
 mathematics frameworks from which new, efficient methods are produced.
-There are many more avenues to explore involving the automated production of new,
-exact solutions to proximal operators, and applications involving very large and complicated
-models/graphs--such as the ones arising in Deep Learning.
 
-Very related--and at least as interesting--is the possibility of encoding more
-symbolic knowledge into symbolic probabilistic platforms like PyMC3.  Using the
-same optimization mechanisms as the examples here, simple distributional
-relationships can be encoded.  For instance, the convolution of normally
-distributed random variables is demonstrated in the following:
+
+Some key steps in the process will most likely require the integration of
+a symbolic algebra system such as SymPy, so that a much wider array of algebraic machinery
+can be leveraged to assess convexity of the terms, for instance, or to solve the
+proximal operators themselves.  Connections between these two systems have already
+been explored in \cite{rocklin_mathematically_2013}, as well as many other important aspects
+of the topics discussed here.
+Additionally, more advanced proximal algorithms exist to improve upon the convergence and
+stability of the most basic proximal gradient given here.  These algorithms often involve
+operator splitting, which requires careful consideration regarding the exact type of splitting
+and on which terms it is performed.  Within this area are the familiar convex-conjugate approaches;
+these too could be approached by symbolic solvers, or simply addressed by [partially] generated
+tables.
+
+Overall, there appear to be many avenues to explore just within the space of proximal
+algorithms and modern symbolic systems.  Not all of this work necessitates the inclusion of
+fully featured symbolic algebra systems; much can be done with symbolic tools of Theano alone.
+Furthermore, there are specialized, lightweight logic programming systems--like
+LogPy--that can serve as a step before full symbolic algebra integration.
+
+Besides the automation of proximal algorithms themselves, there are areas of application involving
+very large and complicated models or graphs--such as the ones arising in Deep Learning.
+How might we consider the operator splitting of ADMM within deeply layered or hierarchical
+models \citep{polson_statistical_2015}?  At which levels and on which terms
+should the splitting be performed?  Beyond simply trying to solve the
+potentially intractable mathematics arising from related questions, with the
+symbolic capabilities described here, we can at least begin to experiment with
+these questions.
+
+
+Before closing, a very related--and at least as interesting--set of ideas is
+worth mentioning: the possibility of encoding more symbolic knowledge into
+probabilistic programming platforms like PyMC3.  Using the same optimization
+mechanisms as the examples here, simple distributional
+relationships can be encoded.
+For instance, the convolution of normally distributed random variables:
 <<norm_conv_setup>>=
 mu_X = tt.vector('mu_X')
 mu_X.tag.test_value = np.array([1.], dtype=tt.config.floatX)
@@ -516,7 +549,7 @@ with pm.Model() as conv_model:
     Y_rv = pm.Normal('Y', mu_Y, sd=sd_Y, shape=(1,))
     Z_rv = X_rv + Y_rv
 @
-We have to create a Theano \texttt{Op} to handle the convolution.
+We create a Theano \texttt{Op} to handle the convolution.
 <<norm_conv_op_setup>>=
 class NormConvOp(tt.Op):
     __props__ = ()
@@ -578,11 +611,27 @@ print(norm_conv_var_dist.sd.tag.test_value)
 @
 
 More sophisticated routines--like the example above--could implement
-parameter expansions, efficient reparameterizations and scale mixtures in an
-effort to optimize a graph.  Objectives for these optimizations could
-be straightforward computational objectives (e.g. reducing the number of
+parameter expansions, efficient re-parameterizations and equivalent scale mixture
+forms in an effort to optimize a graph for sampling or point evaluation.
+Objectives for these optimizations could
+be straightforward and computationally based (e.g. reducing the number of
 operations in computations of the log likelihood and other quantities) or
 more statistically focused (e.g. highly efficient sampling, improve mixing).
+These ideas are most definitely not new--one example is given by \cite{mohasel_afshar_probabilistic_2016}
+for symbolic Gibbs sampling, but we hope the examples given here make the point that
+the tools are readily available and quite accessible.
+
+We'll end on a much more spacey consideration.  Namely, that this is a context
+in which we can start experimenting rapidly with objectives over the space of
+estimation routines.  This space is generated by--but not limited to--the variety of
+symbolic representations, re-parameterizations, etc., mentioned above.  It does
+not necessarily require the complete estimation of a model at each step, nor even
+the numeric value of quantities like the gradient or Hessian.  It may involve them,
+but not their evaluation; perhaps, instead, symbolic comparisons of competing gradients
+and Hessians arising from different representations.
+What we're describing lies somewhere between the completely numeric assessments
+common today, and the entirely symbolic work found within the theorems and
+manipulations of the mathematics we use to derive methods.
 
 \bibliographystyle{plainnat}
 \bibliography{symbolic}
