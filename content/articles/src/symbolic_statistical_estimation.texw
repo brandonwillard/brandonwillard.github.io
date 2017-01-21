@@ -460,7 +460,7 @@ test_fgraph_tt = tt.gof.fg.FunctionGraph(
     tt.gof.graph.inputs(test_exprs_tt), test_exprs_tt)
 @
 <<term=True>>=
-print(test_fgraph_tt)
+tt.printing.debugprint(test_fgraph_tt)
 @
 
 Now, when we apply the optimization, the \texttt{FunctionGraph} should
@@ -469,17 +469,13 @@ have applied the replacements:
 test_fgraph_opt = test_sub_eqz_opt_tt.optimize(test_fgraph_tt)
 @
 <<term=True>>=
-print(test_fgraph_tt)
+tt.printing.debugprint(test_fgraph_tt)
 @
 
-There is much more to consider in the examples aboves.  Nonetheless, standalone
-libraries, like
-\href{https://github.com/logpy/logpy/}{LogPy}, can be adapted to Theano graphs
-and provide more built-in capabilities and sophisticated functionality.  The
-necessary algebraic concepts, e.g. commutativity and distributivity, are
-readily found in symbolic algebra libraries.  Regarding Theano and its graphs,
-\href{sympy.org}{SymPy} is an adaptable symbolic algebra library providing most
-of these capabilities.
+There is much more to consider in the examples above.  Nonetheless, standalone
+libraries, like \href{https://github.com/logpy/logpy/}{LogPy} and
+\href{sympy.org}{SymPy}, can be adapted to Theano graphs to provide the
+functionality necessary to cover most of these considerations.
 
 % Could also mention the nice compartmentalization provided by independent
 % logic programming.  These provide many features foundational to symbolic
@@ -496,20 +492,19 @@ of these capabilities.
 % \href{https://github.com/mrocklin/Theano/blob/logpy-unify/theano/gof/match.py}{match.py},
 % \href{https://github.com/mrocklin/Theano/blob/logpy-unify/theano/gof/tests/test_match.py}{test\_match.py}.
 
-
 \section{Discussion}
 
 We've sketched out the concepts and mechanism with which one can develop a robust
 estimation platform that can be transparently guided by the more abstract
 mathematics frameworks from which new, efficient methods are produced.
 
+Some key steps in the process will most likely require the integration of a
+symbolic algebra system, so that a much wider array of algebraic machinery can
+be leveraged to assess--say--convexity of the terms or to solve the proximal
+operators themselves.  Connections between Theano, SymPy and LogPy have already
+been explored in \cite{rocklin_mathematically_2013}, as well as many other
+important aspects of the topics discussed here.
 
-Some key steps in the process will most likely require the integration of
-a symbolic algebra system such as SymPy, so that a much wider array of algebraic machinery
-can be leveraged to assess convexity of the terms, for instance, or to solve the
-proximal operators themselves.  Connections between these two systems have already
-been explored in \cite{rocklin_mathematically_2013}, as well as many other important aspects
-of the topics discussed here.
 Additionally, more advanced proximal algorithms exist to improve upon the convergence and
 stability of the most basic proximal gradient given here.  These algorithms often involve
 operator splitting, which requires careful consideration regarding the exact type of splitting
@@ -595,8 +590,8 @@ norm_conv_opt_tt = tt.gof.opt.EquilibriumOptimizer(norm_conv_pat_tt,
 Z_fgraph_tt = tt.gof.fg.FunctionGraph([X_rv, Y_rv], [Z_rv])
 
 # We lose the `FreeRV.distribution` attribute when cloning the graph
-# with `theano.gof.graph.clone_get_equiv` in `FunctionGraph`, so we
-# hackishly reattach that information:
+# with `theano.gof.graph.clone_get_equiv` in `FunctionGraph`, so this
+# hackishly reattaches that information:
 _ = [setattr(g_in, 'distribution', s_in.distribution)
      for s_in, g_in in zip([X_rv, Y_rv], Z_fgraph_tt.inputs)]
 @
