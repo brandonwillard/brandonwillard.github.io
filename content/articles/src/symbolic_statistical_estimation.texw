@@ -109,34 +109,40 @@ regularization and shrinkage, and here we'll address their automated application
 the \emph{proximal framework} \citep{polson_proximal_2015}.  In \cite{polson_proximal_2015}
 we outlined a set of seemingly disparate optimization techniques within the fields
 of statistics, computer vision, machine learning, that are unified by the forms
-of envelopes used, convex analysis and the language of operator theory.  These methods, and the concepts
-behind them, have found much success in modern methods and admit quite a few
-interesting paths for research.
+of envelopes used, convex analysis and the language of operator theory.  These
+methods--and the concepts behind them--have found much success in recent times
+and admit quite a few interesting paths for research.
 
-In more than just a few trivial cases, the work involved in the production of a proximal
-algorithm can easily overlap with more than a few highly functional areas in computer algebra
-systems.  For instance, a proximal operator might be found using symbolic algebraic solvers.
-As a matter of fact, solutions to a few classes of proximal operators are only a matter of
-conditioning on variable ranges (e.g. the [implicit] conditions in the soft-thresholding and
-$\max$/absolute value operators) and solutions to polynomials.  We refer the reader to the table in
-\cite{polson_proximal_2015} for details.
+In at least a few cases, the work required to produce a proximal algorithm
+overlaps with some highly functional areas in computer algebra and [applied]
+symbolic mathematics.  For instance, some proximal operators--the main ingredient
+within proximal algorithms--can be solved with
+algebraic solvers.  As a matter of fact, solutions to a few \emph{classes} of
+proximal operators are with only careful consideration of variable ranges (e.g.
+the [implicit] conditions in the soft-thresholding and $\max$/absolute value
+operators) and solutions to polynomials.  We refer the reader to the table in
+\cite{polson_proximal_2015} for some examples.
 
-More importantly, the simple kind of automation proposed here begins to answer a problem
+More importantly, the simple kind of automation proposed here only begins to answer a problem
 that arises somewhat naturally in these areas: how does one provide access to methods that
 produce--or apply to--numerous distinct problems and solutions.  Instead of the more
-standard attempts to implement each one more-or-less separately, and then combining them under a
-loosely organized API or function interface, this symbolic approach brings us closer to
-including the higher and lower level considerations made by professional at all levels of
-statistical modeling.  Although an ideal, some steps toward this goal are within reach.
+standard attempts to implement each one more-or-less separately, and then combine them under a
+loosely organized API or function interface, the symbolic approach brings us closer to
+wider applicability/coverage and concise implementations with more principled designs.
+Also, it is one of the few practical means of including the higher and lower level
+considerations made by professionals at all stages of statistical modeling: mathematical,
+numerical, computational (e.g. distributed environments, concurrency, etc.)
+Some steps toward these broader goals are within reach and worth taking now.
 
 That said, in general, statistical modeling and estimation as a whole should
-seriously consider some of the approaches taken by computer algebra systems.
-Relative to the subject matter here, symbolic integration provides an excellent
-example.  In computer algebra systems, mappings between basic functional forms
-and their generalized hypergeometric equivalents are used to exploit convenient
-convolution identities.  In the same vein, it might be possible to use the same
-approach to produce analogous automatically generated tables to provide
-efficient, distributable proximal solutions to a wide variety of models.
+seriously consider aligning more with the current tools and offerings of
+symbolic mathematics.  Relative to the subject matter here, symbolic
+integration provides an excellent example.  In computer algebra systems,
+mappings between basic functional forms and their generalized hypergeometric
+equivalents are used to exploit convenient convolution identities.  In the same
+vein, it might be possible to use the analogous tables for solutions to a wide
+variety of non-smooth models.  We outline how this might be done in the
+following sections.
 
 \subsection{A Context}
 
@@ -610,28 +616,28 @@ print(norm_conv_var_dist.mu.tag.test_value)
 print(norm_conv_var_dist.sd.tag.test_value)
 @
 
-More sophisticated routines--like the example above--could implement
-parameter expansions, efficient re-parameterizations and equivalent scale mixture
-forms in an effort to optimize a graph for sampling or point evaluation.
-Objectives for these optimizations could
-be straightforward and computationally based (e.g. reducing the number of
-operations in computations of the log likelihood and other quantities) or
-more statistically focused (e.g. highly efficient sampling, improve mixing).
-These ideas are most definitely not new--one example is given by \cite{mohasel_afshar_probabilistic_2016}
-for symbolic Gibbs sampling, but we hope the examples given here make the point that
-the tools are readily available and quite accessible.
+More sophisticated routines--like the example above--could implement parameter
+expansions, efficient re-parameterizations and equivalent scale mixture forms
+in an effort to optimize a graph for sampling or point evaluation.  Objectives
+for these optimizations could be straightforward and computationally based
+(e.g. reducing the number of operations in computations of the log likelihood
+and other quantities) or more statistically focused (e.g. highly efficient
+sampling, improve mixing).  These ideas are most definitely not new--one
+example is given by \cite{mohasel_afshar_probabilistic_2016} for symbolic Gibbs
+sampling, but we hope the examples given here make the point that the tools are
+readily available and quite accessible.
 
 We'll end on a much more spacey consideration.  Namely, that this is a context
 in which we can start experimenting rapidly with objectives over the space of
-estimation routines.  This space is generated by--but not limited to--the variety of
-symbolic representations, re-parameterizations, etc., mentioned above.  It does
-not necessarily require the complete estimation of a model at each step, nor even
-the numeric value of quantities like the gradient or Hessian.  It may involve them,
-but not their evaluation; perhaps, instead, symbolic comparisons of competing gradients
-and Hessians arising from different representations.
-What we're describing lies somewhere between the completely numeric assessments
-common today, and the entirely symbolic work found within the theorems and
-manipulations of the mathematics we use to derive methods.
+estimation routines.  This space is generated by--but not limited to--the
+variety of symbolic representations, re-parameterizations, etc., mentioned
+above.  It does not necessarily require the complete estimation of a model at
+each step, nor even the numeric value of quantities like the gradient or
+Hessian.  It may involve them, but not their evaluation; perhaps, instead,
+symbolic comparisons of competing gradients and Hessians arising from different
+representations.  What we're describing lies somewhere between the completely
+numeric assessments common today, and the entirely symbolic work found within
+the theorems and manipulations of the mathematics we use to derive methods.
 
 \bibliographystyle{plainnat}
 \bibliography{symbolic}
