@@ -352,7 +352,7 @@ Theano graph tells us, among other things, that we have the anticipated sum of
 $\ell_2$ and $\ell_1$ terms.
 
 As with most graphs produced by symbolic algebra systems, we need to consider
-exactly how its operations are arranged, so that that we can develop a means of
+exactly how its operations are arranged, so that we can develop a means of
 matching general structures.
 The \href{http://deeplearning.net/software/theano/tutorial/printing_drawing.html#debug-print}{debug printout}
 is better for this.
