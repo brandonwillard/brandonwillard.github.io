@@ -24,13 +24,13 @@ SRC_DIR = $(realpath $(dir $<))
 MD_DEST_DIR = $(abspath ../)
 PDF_DEST_DIR = $(abspath ./output)
 
-PANDOC_MD_OUT_EXTS = +markdown_in_html_blocks+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures+citations
+PANDOC_MD_OUT_EXTS = +markdown_in_html_blocks+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures+citations+yaml_metadata_block
 
 # Add citations with: +citations
 
 # FYI: pandoc's -R option will stop the reader from discarding things like \eqref from
 # tex input.
-PANDOC_MD_OPTS = -R -s --mathjax --old-dashes --self-contained
+PANDOC_MD_OPTS = -s -R --mathjax --old-dashes
 
 
 # Add citations with extra options like these:
