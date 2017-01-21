@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import re
+import os
 from copy import copy
 
 import json
@@ -19,19 +20,32 @@ from pandocfilters import (
     RawInline,
     RawBlock)
 
+# TODO: Parse graphicspath
+# E.g., `\graphicspath{{../../figures/}{../figures/}{./figures/}{./}}`
+
 graphics_pattern = re.compile(
     r"includegraphics(?:\[.+\])?\{(.*?(\w+)(\.\w*))\}")
+
+# TODO: Should get from `meta` parameter in the filter.
+graphics_path = r'{attach}/articles/figures/'
+
 image_pattern = re.compile(r"(.*?(\w+)(\.\w*))$")
+
 env_pattern = re.compile(
     r'\\begin\{(\w+)\}(\[.+\])?(.*)\\end\{\1\}', re.S)
-env_label_pattern = re.compile(r'(\s*?\\label\{(\w*?:?\w+)\})')
+
+label_pattern = re.compile(r'(\s*?\\label\{(\w*?:?\w+)\})')
 
 # TODO: Should get from `meta` parameter in the filter?
 environment_conversions = {'Exa': 'example'}
 
 environment_counters = {}
 
-preserved_tex = ['\\eqref', '\\ref', '\\includegraphics']
+preserved_tex = ['\\eqref', '\\ref', '\\Cref', '\\cref', '\\includegraphics']
+
+# TODO: Automatically track and replace \[Cc]ref with \[eq]ref.
+preserved_conversions = {'\\cref': '\\ref',
+                         '\\Cref': '\\ref'}
 
 
 def latex_prefilter(key, value, oformat, meta, *args, **kwargs):
@@ -55,15 +69,19 @@ def latex_prefilter(key, value, oformat, meta, *args, **kwargs):
     if key == 'RawInline' and value[0] == 'latex' and \
             any(c_ in value[1] for c_ in preserved_tex):
 
-        new_value = graphics_pattern.sub(r'{attach}/articles/figures/\2.png',
-                                         value[1])
+        new_value = graphics_pattern.sub(os.path.join(graphics_path,
+                                                      r'\2.png'), value[1])
+        for from_, to_ in preserved_conversions.items():
+            new_value = new_value.replace(from_, to_)
+
         return Math({'t': 'InlineMath', 'c': []}, new_value)
 
     elif key == "Image":
 
         # TODO: Find and use labels.
         new_value = copy(value[2])
-        new_value[0] = image_pattern.sub(r'{attach}/articles/figures/\2.png',
+        new_value[0] = image_pattern.sub(os.path.join(graphics_path,
+                                                      r'\2.png'),
                                          new_value[0])
         return Image(value[0], value[1], new_value)
 
@@ -96,7 +114,7 @@ def latex_prefilter(key, value, oformat, meta, *args, **kwargs):
             env_num += 1
             environment_counters[env_name] = env_num
 
-            label_info = env_label_pattern.search(env_body)
+            label_info = label_pattern.search(env_body)
             env_label = ""
             label_div = None
             if label_info is not None:
