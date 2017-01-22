@@ -298,16 +298,16 @@ tt.mean(r_tt<span class="op">**</span><span class="dv">2</span>)],
 </section>
 <section id="the-symbolic-operations" class="level1">
 <h1>The Symbolic Operations</h1>
-<p>In order to employ a lookup table, or to even identify a proximal problem and check that its conditions (e.g. convexity) are satisfied, we need to obtain the exact forms of each component: <span class="math inline">\(l\)</span>, <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\gamma\)</span>. For simplicity, we’ll assume the convexity of each term and only consider the proximal operator and algorithm implemented earlier.</p>
-<p>In some cases, we’re able to tease apart our <span class="math inline">\(l(\beta)\)</span> and <span class="math inline">\(\phi(\beta)\)</span> using the organizational designations of <em>observed</em> and unobserved PyMC3 random variables.</p>
+<p>In order to employ a lookup table, or to even identify a proximal problem and check that its conditions (e.g. convexity) are satisfied, we need to obtain the exact forms of each component: <span class="math inline">\(l\)</span>, <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\gamma\)</span>. We start with the determination of <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span>.</p>
+<p>In some cases, we’re able to tease apart our <span class="math inline">\(l(\beta)\)</span> and <span class="math inline">\(\phi(\beta)\)</span> using the symbolic log likelihoods for the organizational designations of <em>observed</em> and unobserved PyMC3 random variables.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> theano <span class="im">import</span> clone <span class="im">as</span> tt_clone
 
 logl <span class="op">=</span> tt_clone(lasso_model.observed_RVs[<span class="dv">0</span>].logpt,
                 {beta_rv: beta_tt})
 logl.name <span class="op">=</span> <span class="st">&quot;logl&quot;</span></code></pre></div>
-<p>Instead, let’s assume we’re extending <code>find_MAP</code> with some generality, so that distinguishing <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> in <span class="math inline">\(\ref{eq:prox_problem}\)</span> using these designations isn’t reliable. This is necessary for cases in which a user specifies custom distributions or a potential function. In either case, to achieve our desired functionality we need to operate at a lower Theano level.</p>
+<p>Instead, let’s assume we’re extending <code>find_MAP</code> with some generality, so that distinguishing <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> in <span class="math inline">\(\ref{eq:prox_problem}\)</span> using these designations isn’t reliable. This is necessary for cases in which a user specifies custom distributions or a potential function. In either case, to achieve our desired functionality we need to operate at a more symbolic level.</p>
 <p>At this point, it is extremely worthwhile to browse the <a href="http://deeplearning.net/software/theano/extending/graphstructures.html">Theano documentation</a> regarding graphs and their constituent objects.</p>
-<p>The total log likelihood is a good place to start. Let’s look at symbolic graphs produced by our log likelihood.</p>
+<p>The total log likelihood is a good place to start. Let’s look at symbolic graphs produced by ours.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> theano <span class="im">import</span> pp <span class="im">as</span> tt_pp
 <span class="im">from</span> theano <span class="im">import</span> pprint <span class="im">as</span> tt_pprint</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
@@ -512,7 +512,12 @@ Elemwise{add,no_inplace} [<span class="bu">id</span> M] <span class="st">&#39;&#
  <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> P] <span class="st">&#39;&#39;</span>   <span class="dv">6</span>
    <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> O] <span class="st">&#39;&#39;</span>   <span class="dv">0</span>
    <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> J]</code></pre></div>
-<p>There is much more to consider in the examples above. Nonetheless, standalone libraries, like <a href="https://github.com/logpy/logpy/">LogPy</a> and <a href="sympy.org">SymPy</a>, can be adapted to Theano graphs to provide the functionality necessary to cover most of these considerations.</p>
+<p>There is much more to consider in the examples above. Nonetheless, standalone libraries, like <a href="https://github.com/logpy/logpy/">LogPy</a> and SymPy, can be adapted to Theano graphs to provide the functionality necessary to cover most of these considerations.</p>
+<p>Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the <code>hessian</code> function, and within <code>theano.sandbox.linalg</code> are <code>Optimizer</code> hints for matrix positivity and other properties relevant to determining convexity using this simple idea.</p>
+<div class="remark" markdown="" env-number="1" title-name="">
+<p>Other great examples of linear algebra themed optimizations are in <code>theano.sandbox.linalg</code>: for example, <code>no_transpose_symmetrix</code>. Some of these demonstrate exactly how straight-forward it can be to add algebraic considerations.</p>
+</div>
+<p>Although our convexity testing idea is far too simple for many <span class="math inline">\(l\)</span>, the point we want to make is that the basic code necessary for simple tests like this may already be in place. However, with the logic programming mentioned earlier in this section, comes the possibility of implementing aspects of the convex function calculus, by which one can determine convexity for many more classes of functions.</p>
 </section>
 <section id="discussion" class="level1">
 <h1>Discussion</h1>
