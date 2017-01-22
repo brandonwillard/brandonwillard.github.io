@@ -37,7 +37,7 @@ from pweave_custom import PwebMintedPandoc
 from pweave import rcParams, Pweb
 
 outext = "tex"
-docmode = True
+docmode = False
 
 #dirs_split = os.getcwd().split(os.sep)
 #project_dir = str.join(os.sep, dirs_split[:dirs_split.index("src")])
@@ -248,7 +248,7 @@ penalized likelihood, i.e.
 where the entire sum is commonly associated with the negative log likelihood
 and the functions $l$ and $\phi$ with observation and prior terms, or loss and
 penalty terms, respectively.
-Within the proximal framework, $l$ and $\phi$ are usually lower
+Within the proximal framework, $l$ and $\phi$ are usually convex and lower
 semi-continuous--although quite a few properties and results can still hold for
 non-convex functions.
 
@@ -326,13 +326,12 @@ def prox_grad_step(logl, beta_tt, lambda_1_tt, gamma_prox_tt,
 
 In order to employ a lookup table, or to even identify a proximal problem and
 check that its conditions (e.g. convexity) are satisfied, we need to obtain the
-exact forms of each component: $l$, $\phi$ and $\gamma$.  For simplicity, we'll
-assume the convexity of each term and only consider the proximal operator and
-algorithm implemented earlier.
+exact forms of each component: $l$, $\phi$ and $\gamma$.
+We start with the determination of $l$ and $\phi$.
 
 In some cases, we're able to tease apart our $l(\beta)$ and $\phi(\beta)$ using
-the organizational designations of \emph{observed} and unobserved PyMC3
-random variables.
+the symbolic log likelihoods for the organizational designations of
+\emph{observed} and unobserved PyMC3 random variables.
 <<evaluate=False, echo=True>>=
 from theano import clone as tt_clone
 
@@ -344,16 +343,17 @@ Instead, let's assume we're extending \texttt{find\_MAP} with some generality,
 so that distinguishing $l$ and $\phi$ in \Cref{eq:prox_problem} using these
 designations isn't reliable.  This is necessary for cases in which a user
 specifies custom distributions or a potential function.  In either case, to
-achieve our desired functionality we need to operate at a lower Theano level.
+achieve our desired functionality we need to operate at a more symbolic level.
 
 At this point, it is extremely worthwhile to browse the
 \href{http://deeplearning.net/software/theano/extending/graphstructures.html}{Theano documentation}
 regarding graphs and their constituent objects.
 
 The total log likelihood is a good place to start.  Let's
-look at symbolic graphs produced by our log likelihood.
+look at symbolic graphs produced by ours.
 <<evaluate=True, echo=True>>=
 from theano import pp as tt_pp
+from theano import pprint as tt_pprint
 @
 <<term=True>>=
 print(tt_pp(lasso_model.logpt))
@@ -400,35 +400,44 @@ for r_ in abs_res:
 tt.printing.debugprint(logp)
 tt.printing.debugprint(phi)
 @
-From these terms it's also possible to determine $\gamma$.
+From these terms one can similarly attempt to determine multiplicative constants, or
+parts thereof (e.g. $\gamma$).
 
-The above approach is too limiting; we need something more robust.  Cases in
-which the graph is constructed differently or when our naive use of
-\texttt{theano.gof.graph.ops} is compromised by intermediate non-affine operations,
-are only a couple of the many weaknesses of this simplistic approach.
+The above approach is too limiting; we need something more robust.  The above
+logic will fail on
+graphs that are constructed differently (e.g. producing equivalent, but different,
+representations via associativity) or when our naive use of \texttt{theano.gof.graph.ops} is
+compromised by certain types of intermediate operations (e.g. non-distributed,
+non-affine).  These are only a few of the many weaknesses inherent to the naive
+approach above.  Furthermore, sufficient coverage of all the necessary conditions--using
+the same approach--is likely to result in complicated, less approachable code.
 
 What we need to identify the more general patterns suitable for our
 goal is mostly covered within the areas of graph unification and logic programming.
-Theano has some fundamental unification capabilities as well.
+Luckily, Theano has some basic unification capabilities that we're able to deploy
+immediately.
 
-As an example, we'll jump to the creation of a graph optimization: a context in
-which some of these symbolic operations might be better suited.  This is
-especially true if we are required to alter the graph (or a copy thereof)
-during our search for terms.  Consider the result produced earlier,
-\texttt{phi\_part}.  Notice from the earlier printouts that a subtraction (with
-$0$) is taking place within the absolute value.  Clearly this part--and the
-entire graph--hasn't been simplified.  Standard simplifications already exist
-for these sorts of things, and most are performed in combination, changing a
-graph one after the other.  These simplifications come in the form of
-\href{http://deeplearning.net/software/theano/optimizations.html}{graph optimizations}.
+As an example, we'll jump right to the creation of a
+\href{http://deeplearning.net/software/theano/optimizations.html}{graph optimization}.
+This is the context in
+which much of these symbolic operations are better suited;
+especially if we are required to alter the graph (or a copy thereof)
+during our search for terms.  Consider the \texttt{phi} variable;
+ the printouts show an unnecessary subtraction (with
+$0$).  Clearly this part--and the entire graph--hasn't been simplified.
+Standard simplifications already exist for these sorts of things, and most are
+performed in tandem.
 
 Within the graph optimization framework we have the \texttt{PatternSub}
-local optimization, which provides basic unification and expression replacement.
-To demonstrate the kind of operations that could be used to more robustly find $l$ and $\phi$,
+local optimization.  It provides basic unification.
+To demonstrate the kind of operations that could be used to pre-condition a graph
+and robustly determine a set of supported $l$ and $\phi$,
 we'll make replacement patterns for multiplicative distribution across two forms of addition:
-\texttt{sum} and \texttt{add}.  These sorts of replacments can be applied to an objective
-function until it is in a very specific form, then a direct search for
-$l$ and $\phi$ can be performed.
+\texttt{sum} and \texttt{add}.  These searches and replacements can be applied to an objective
+function until it is in a sufficiently reduced form.
+
+In the following, we'll simply demonstrate the steps involved in programming
+the necessary logic.
 <<evaluate=True, echo=True>>=
 test_a_tt = tt.as_tensor_variable(5, name='a')
 test_b_tt = tt.as_tensor_variable(2, name='b')
@@ -474,7 +483,7 @@ tt.printing.debugprint(test_fgraph_tt)
 
 There is much more to consider in the examples above.  Nonetheless, standalone
 libraries, like \href{https://github.com/logpy/logpy/}{LogPy} and
-\href{sympy.org}{SymPy}, can be adapted to Theano graphs to provide the
+SymPy, can be adapted to Theano graphs to provide the
 functionality necessary to cover most of these considerations.
 
 % Could also mention the nice compartmentalization provided by independent
@@ -491,6 +500,26 @@ functionality necessary to cover most of these considerations.
 % Nice use cases:
 % \href{https://github.com/mrocklin/Theano/blob/logpy-unify/theano/gof/match.py}{match.py},
 % \href{https://github.com/mrocklin/Theano/blob/logpy-unify/theano/gof/tests/test_match.py}{test\_match.py}.
+
+Finally, let's briefly imagine how convexity could be determined
+symbolically.  For differentiable terms, we could start with a simple
+second derivative test.  Within Theano, a ``second derivative'' can be
+obtained using the \texttt{hessian} function, and within \texttt{theano.sandbox.linalg}
+are \texttt{Optimizer} hints for matrix positivity and other properties relevant
+to determining convexity using this simple idea.
+
+\begin{remark}
+  Other great examples of linear algebra themed optimizations are in
+  \texttt{theano.sandbox.linalg}: for example, \texttt{no\_transpose\_symmetrix}.
+  Some of these demonstrate exactly how straight-forward it can be to
+  add algebraic considerations.
+\end{remark}
+
+Although our convexity testing idea is far too simple for many $l$, the point we want to
+make is that the basic code necessary for simple tests like this may already be in place.
+However, with the logic programming mentioned earlier in this section,
+comes the possibility of implementing aspects of the convex function calculus, by
+which one can determine convexity for many more classes of functions.
 
 \section{Discussion}
 
@@ -514,7 +543,7 @@ tables.
 
 Overall, there appear to be many avenues to explore just within the space of proximal
 algorithms and modern symbolic systems.  Not all of this work necessitates the inclusion of
-fully featured symbolic algebra systems; much can be done with symbolic tools of Theano alone.
+fully featured symbolic algebra systems; much can be done with the symbolic tools of Theano alone.
 Furthermore, there are specialized, lightweight logic programming systems--like
 LogPy--that can serve as a step before full symbolic algebra integration.
 
@@ -525,7 +554,7 @@ models \citep{polson_statistical_2015}?  At which levels and on which terms
 should the splitting be performed?  Beyond simply trying to solve the
 potentially intractable mathematics arising from related questions, with the
 symbolic capabilities described here, we can at least begin to experiment with
-these questions.
+the questions.
 
 
 Before closing, a very related--and at least as interesting--set of ideas is
