@@ -99,7 +99,7 @@ assert os.system('make {}.md'.format(infile.split(os.path.extsep)[0])) == 0
 
 \section{Introduction}
 
-In this document, we demonstrate how symbolic computation can be used to provide
+In this document we describe how symbolic computation can be used to provide
 generalizable statistical estimation through a combination of existing open source
 frameworks.
 
@@ -108,39 +108,41 @@ non-smooth objective functions.  These problems arise in the context of
 regularization and shrinkage, and here we'll address their automated application within
 the \emph{proximal framework} \citep{polson_proximal_2015}.  In \cite{polson_proximal_2015}
 we outlined a set of seemingly disparate optimization techniques within the fields
-of statistics, computer vision, machine learning, that are unified by the forms
-of envelopes used, convex analysis and the language of operator theory.  These
-methods--and the concepts behind them--have found much success in recent times
-and admit quite a few interesting paths for research.
+of statistics, computer vision, and machine learning, that are unified by the types
+of functional bounds employed, the tools of convex analysis and the language of
+operator theory.  These methods--and the concepts behind them--have found much
+success in recent times and admit quite a few interesting paths for research.
 
 In at least a few cases, the work required to produce a proximal algorithm
-overlaps with some highly functional areas in computer algebra and [applied]
+overlaps with some highly functional areas in computer algebra and
 symbolic mathematics.  For instance, some proximal operators--the main ingredient
-within proximal algorithms--can be solved with
-algebraic solvers.  As a matter of fact, solutions to a few \emph{classes} of
-proximal operators are with only careful consideration of variable ranges (e.g.
-the [implicit] conditions in the soft-thresholding and $\max$/absolute value
-operators) and solutions to polynomials.  We refer the reader to the table in
-\cite{polson_proximal_2015} for some examples.
+within proximal algorithms--can be solved exactly with symbolic differentiation and
+algebraic equation solvers.  With perhaps only the addition of sophisticated
+variable assumptions and an ability to manipulate inequalities, even larger
+\emph{classes} of proximal operators could be solved.
+We refer the reader to the table in \cite{polson_proximal_2015} for examples
+of operators that are currently solved--by hand--using roughly the same
+means.
 
-More importantly, the simple kind of automation proposed here only begins to answer a problem
+The kind of automation proposed here only begins to answer a problem
 that arises somewhat naturally in these areas: how does one provide access to methods that
-produce--or apply to--numerous distinct problems and solutions.  Instead of the more
-standard attempts to implement each one more-or-less separately, and then combine them under a
-loosely organized API or function interface, the symbolic approach brings us closer to
-wider applicability/coverage and concise implementations with more principled designs.
+produce--or apply to--numerous distinct problems and solutions.  Instead of the common
+attempt to implement each model or method separately, and then combine them under a
+loosely organized API or function interface, the symbolic approach offers
+wider applicability and concise implementations in terms of code that
+maps directly to the mathematics.
 Also, it is one of the few practical means of including the higher and lower level
 considerations made by professionals at all stages of statistical modeling: mathematical,
 numerical, computational (e.g. distributed environments, concurrency, etc.)
 Some steps toward these broader goals are within reach and worth taking now.
 
-That said, in general, statistical modeling and estimation as a whole should
+That said, statistical modeling and estimation as a whole should
 seriously consider aligning more with the current tools and offerings of
 symbolic mathematics.  Relative to the subject matter here, symbolic
 integration provides an excellent example.  In computer algebra systems,
 mappings between basic functional forms and their generalized hypergeometric
 equivalents are used to exploit convenient convolution identities.  In the same
-vein, it might be possible to use the analogous tables for solutions to a wide
+vein, it might be possible to use analogous tables for solutions to a wide
 variety of non-smooth models.  We outline how this might be done in the
 following sections.
 
@@ -252,10 +254,10 @@ Within the proximal framework, $l$ and $\phi$ are usually convex and lower
 semi-continuous--although quite a few properties and results can still hold for
 non-convex functions.
 
-The \emph{proximal operator} is an explicit form of \Cref{eq:prox_problem} where
-$l(\beta) = \frac{1}{2} (\beta - z)^2$.  It is a defining part of the intermediate steps
-within most proximal algorithms.  Exact solutions
-to proximal operators exist for many $\phi$.  These are the elements that could
+The \emph{proximal operator} is an explicit form of \Cref{eq:prox_problem} that has
+$l(\beta) = \frac{1}{2} (\beta - z)^2$.  It is a defining part of the
+intermediate steps within most proximal algorithms.  Exact solutions to
+proximal operators exist for many $\phi$.  These are the elements that could
 exist in a table, many entries of which could be generated automatically, in
 analogy to symbolic integration.
 
@@ -345,9 +347,11 @@ designations isn't reliable.  This is necessary for cases in which a user
 specifies custom distributions or a potential function.  In either case, to
 achieve our desired functionality we need to operate at a more symbolic level.
 
-At this point, it is extremely worthwhile to browse the
-\href{http://deeplearning.net/software/theano/extending/graphstructures.html}{Theano documentation}
-regarding graphs and their constituent objects.
+\begin{remark}
+  At this point, it is extremely worthwhile to browse the
+  \href{http://deeplearning.net/software/theano/extending/graphstructures.html}{Theano documentation}
+  regarding graphs and their constituent objects.
+\end{remark}
 
 The total log likelihood is a good place to start.  Let's
 look at symbolic graphs produced by ours.
@@ -510,7 +514,7 @@ to determining convexity using this simple idea.
 
 \begin{remark}
   Other great examples of linear algebra themed optimizations are in
-  \texttt{theano.sandbox.linalg}: for example, \texttt{no\_transpose\_symmetrix}.
+  \texttt{theano.sandbox.linalg}: for example, \texttt{no\_transpose\_symmetric}.
   Some of these demonstrate exactly how straight-forward it can be to
   add algebraic considerations.
 \end{remark}
