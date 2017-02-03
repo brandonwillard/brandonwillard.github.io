@@ -30,7 +30,8 @@ frequencies. The models and custom MCMC estimation methods are written in
 </ul>
 
 Bus Time is the open source Java suite that provides real-time bus tracking to
-NYC.  I designed and developed the statistical inference capabilities and
+NYC.  I designed and developed the 
+[statistical inference capabilities](https://github.com/camsys/onebusaway-nyc/wiki/Inference-Engine) and
 helped build the production service components.  The model handles free and
 constrained location tracking along street networks, inference for unobserved
 operational states (e.g. in layover, at a stop, in progress) and path-based
