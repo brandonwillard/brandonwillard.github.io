@@ -12,39 +12,37 @@
 div.sourceCode { overflow-x: auto; }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; background-color: #303030; color: #cccccc; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #dddddd; }
 td.sourceCode { padding-left: 5px; }
-pre, code { color: #cccccc; background-color: #303030; }
-code &gt; span.kw { color: #f0dfaf; } /* Keyword */
-code &gt; span.dt { color: #dfdfbf; } /* DataType */
-code &gt; span.dv { color: #dcdccc; } /* DecVal */
-code &gt; span.bn { color: #dca3a3; } /* BaseN */
-code &gt; span.fl { color: #c0bed1; } /* Float */
-code &gt; span.ch { color: #dca3a3; } /* Char */
-code &gt; span.st { color: #cc9393; } /* String */
-code &gt; span.co { color: #7f9f7f; } /* Comment */
-code &gt; span.ot { color: #efef8f; } /* Other */
-code &gt; span.al { color: #ffcfaf; } /* Alert */
-code &gt; span.fu { color: #efef8f; } /* Function */
-code &gt; span.er { color: #c3bf9f; } /* Error */
-code &gt; span.wa { color: #7f9f7f; font-weight: bold; } /* Warning */
-code &gt; span.cn { color: #dca3a3; font-weight: bold; } /* Constant */
-code &gt; span.sc { color: #dca3a3; } /* SpecialChar */
-code &gt; span.vs { color: #cc9393; } /* VerbatimString */
-code &gt; span.ss { color: #cc9393; } /* SpecialString */
+code &gt; span.kw { font-weight: bold; } /* Keyword */
+code &gt; span.dt { color: #800000; } /* DataType */
+code &gt; span.dv { color: #0000ff; } /* DecVal */
+code &gt; span.bn { color: #0000ff; } /* BaseN */
+code &gt; span.fl { color: #800080; } /* Float */
+code &gt; span.ch { color: #ff00ff; } /* Char */
+code &gt; span.st { color: #dd0000; } /* String */
+code &gt; span.co { color: #808080; font-style: italic; } /* Comment */
+code &gt; span.al { color: #00ff00; font-weight: bold; } /* Alert */
+code &gt; span.fu { color: #000080; } /* Function */
+code &gt; span.er { color: #ff0000; font-weight: bold; } /* Error */
+code &gt; span.wa { color: #ff0000; font-weight: bold; } /* Warning */
+code &gt; span.cn { color: #000000; } /* Constant */
+code &gt; span.sc { color: #ff00ff; } /* SpecialChar */
+code &gt; span.vs { color: #dd0000; } /* VerbatimString */
+code &gt; span.ss { color: #dd0000; } /* SpecialString */
 code &gt; span.im { } /* Import */
 code &gt; span.va { } /* Variable */
-code &gt; span.cf { color: #f0dfaf; } /* ControlFlow */
-code &gt; span.op { color: #f0efd0; } /* Operator */
+code &gt; span.cf { } /* ControlFlow */
+code &gt; span.op { } /* Operator */
 code &gt; span.bu { } /* BuiltIn */
 code &gt; span.ex { } /* Extension */
-code &gt; span.pp { color: #ffcfaf; font-weight: bold; } /* Preprocessor */
+code &gt; span.pp { font-weight: bold; } /* Preprocessor */
 code &gt; span.at { } /* Attribute */
-code &gt; span.do { color: #7f9f7f; } /* Documentation */
-code &gt; span.an { color: #7f9f7f; font-weight: bold; } /* Annotation */
-code &gt; span.cv { color: #7f9f7f; font-weight: bold; } /* CommentVar */
-code &gt; span.in { color: #7f9f7f; font-weight: bold; } /* Information */
+code &gt; span.do { color: #808080; font-style: italic; } /* Documentation */
+code &gt; span.an { color: #808080; font-weight: bold; font-style: italic; } /* Annotation */
+code &gt; span.cv { color: #808080; font-weight: bold; font-style: italic; } /* CommentVar */
+code &gt; span.in { color: #808080; font-weight: bold; font-style: italic; } /* Information */
   &lt;/style&gt;
   &lt;script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"&gt;&lt;/script&gt;
 &lt;/head&gt;
@@ -552,39 +550,37 @@ MathJax.Hub.Config({
 div.sourceCode { overflow-x: auto; }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; background-color: #303030; color: #cccccc; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #dddddd; }
 td.sourceCode { padding-left: 5px; }
-pre, code { color: #cccccc; background-color: #303030; }
-code &gt; span.kw { color: #f0dfaf; } /* Keyword */
-code &gt; span.dt { color: #dfdfbf; } /* DataType */
-code &gt; span.dv { color: #dcdccc; } /* DecVal */
-code &gt; span.bn { color: #dca3a3; } /* BaseN */
-code &gt; span.fl { color: #c0bed1; } /* Float */
-code &gt; span.ch { color: #dca3a3; } /* Char */
-code &gt; span.st { color: #cc9393; } /* String */
-code &gt; span.co { color: #7f9f7f; } /* Comment */
-code &gt; span.ot { color: #efef8f; } /* Other */
-code &gt; span.al { color: #ffcfaf; } /* Alert */
-code &gt; span.fu { color: #efef8f; } /* Function */
-code &gt; span.er { color: #c3bf9f; } /* Error */
-code &gt; span.wa { color: #7f9f7f; font-weight: bold; } /* Warning */
-code &gt; span.cn { color: #dca3a3; font-weight: bold; } /* Constant */
-code &gt; span.sc { color: #dca3a3; } /* SpecialChar */
-code &gt; span.vs { color: #cc9393; } /* VerbatimString */
-code &gt; span.ss { color: #cc9393; } /* SpecialString */
+code &gt; span.kw { font-weight: bold; } /* Keyword */
+code &gt; span.dt { color: #800000; } /* DataType */
+code &gt; span.dv { color: #0000ff; } /* DecVal */
+code &gt; span.bn { color: #0000ff; } /* BaseN */
+code &gt; span.fl { color: #800080; } /* Float */
+code &gt; span.ch { color: #ff00ff; } /* Char */
+code &gt; span.st { color: #dd0000; } /* String */
+code &gt; span.co { color: #808080; font-style: italic; } /* Comment */
+code &gt; span.al { color: #00ff00; font-weight: bold; } /* Alert */
+code &gt; span.fu { color: #000080; } /* Function */
+code &gt; span.er { color: #ff0000; font-weight: bold; } /* Error */
+code &gt; span.wa { color: #ff0000; font-weight: bold; } /* Warning */
+code &gt; span.cn { color: #000000; } /* Constant */
+code &gt; span.sc { color: #ff00ff; } /* SpecialChar */
+code &gt; span.vs { color: #dd0000; } /* VerbatimString */
+code &gt; span.ss { color: #dd0000; } /* SpecialString */
 code &gt; span.im { } /* Import */
 code &gt; span.va { } /* Variable */
-code &gt; span.cf { color: #f0dfaf; } /* ControlFlow */
-code &gt; span.op { color: #f0efd0; } /* Operator */
+code &gt; span.cf { } /* ControlFlow */
+code &gt; span.op { } /* Operator */
 code &gt; span.bu { } /* BuiltIn */
 code &gt; span.ex { } /* Extension */
-code &gt; span.pp { color: #ffcfaf; font-weight: bold; } /* Preprocessor */
+code &gt; span.pp { font-weight: bold; } /* Preprocessor */
 code &gt; span.at { } /* Attribute */
-code &gt; span.do { color: #7f9f7f; } /* Documentation */
-code &gt; span.an { color: #7f9f7f; font-weight: bold; } /* Annotation */
-code &gt; span.cv { color: #7f9f7f; font-weight: bold; } /* CommentVar */
-code &gt; span.in { color: #7f9f7f; font-weight: bold; } /* Information */
+code &gt; span.do { color: #808080; font-style: italic; } /* Documentation */
+code &gt; span.an { color: #808080; font-weight: bold; font-style: italic; } /* Annotation */
+code &gt; span.cv { color: #808080; font-weight: bold; font-style: italic; } /* CommentVar */
+code &gt; span.in { color: #808080; font-weight: bold; font-style: italic; } /* Information */
   &lt;/style&gt;
   &lt;script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"&gt;&lt;/script&gt;
 &lt;/head&gt;
@@ -987,39 +983,37 @@ MathJax.Hub.Config({
 div.sourceCode { overflow-x: auto; }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; background-color: #303030; color: #cccccc; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #dddddd; }
 td.sourceCode { padding-left: 5px; }
-pre, code { color: #cccccc; background-color: #303030; }
-code &gt; span.kw { color: #f0dfaf; } /* Keyword */
-code &gt; span.dt { color: #dfdfbf; } /* DataType */
-code &gt; span.dv { color: #dcdccc; } /* DecVal */
-code &gt; span.bn { color: #dca3a3; } /* BaseN */
-code &gt; span.fl { color: #c0bed1; } /* Float */
-code &gt; span.ch { color: #dca3a3; } /* Char */
-code &gt; span.st { color: #cc9393; } /* String */
-code &gt; span.co { color: #7f9f7f; } /* Comment */
-code &gt; span.ot { color: #efef8f; } /* Other */
-code &gt; span.al { color: #ffcfaf; } /* Alert */
-code &gt; span.fu { color: #efef8f; } /* Function */
-code &gt; span.er { color: #c3bf9f; } /* Error */
-code &gt; span.wa { color: #7f9f7f; font-weight: bold; } /* Warning */
-code &gt; span.cn { color: #dca3a3; font-weight: bold; } /* Constant */
-code &gt; span.sc { color: #dca3a3; } /* SpecialChar */
-code &gt; span.vs { color: #cc9393; } /* VerbatimString */
-code &gt; span.ss { color: #cc9393; } /* SpecialString */
+code &gt; span.kw { font-weight: bold; } /* Keyword */
+code &gt; span.dt { color: #800000; } /* DataType */
+code &gt; span.dv { color: #0000ff; } /* DecVal */
+code &gt; span.bn { color: #0000ff; } /* BaseN */
+code &gt; span.fl { color: #800080; } /* Float */
+code &gt; span.ch { color: #ff00ff; } /* Char */
+code &gt; span.st { color: #dd0000; } /* String */
+code &gt; span.co { color: #808080; font-style: italic; } /* Comment */
+code &gt; span.al { color: #00ff00; font-weight: bold; } /* Alert */
+code &gt; span.fu { color: #000080; } /* Function */
+code &gt; span.er { color: #ff0000; font-weight: bold; } /* Error */
+code &gt; span.wa { color: #ff0000; font-weight: bold; } /* Warning */
+code &gt; span.cn { color: #000000; } /* Constant */
+code &gt; span.sc { color: #ff00ff; } /* SpecialChar */
+code &gt; span.vs { color: #dd0000; } /* VerbatimString */
+code &gt; span.ss { color: #dd0000; } /* SpecialString */
 code &gt; span.im { } /* Import */
 code &gt; span.va { } /* Variable */
-code &gt; span.cf { color: #f0dfaf; } /* ControlFlow */
-code &gt; span.op { color: #f0efd0; } /* Operator */
+code &gt; span.cf { } /* ControlFlow */
+code &gt; span.op { } /* Operator */
 code &gt; span.bu { } /* BuiltIn */
 code &gt; span.ex { } /* Extension */
-code &gt; span.pp { color: #ffcfaf; font-weight: bold; } /* Preprocessor */
+code &gt; span.pp { font-weight: bold; } /* Preprocessor */
 code &gt; span.at { } /* Attribute */
-code &gt; span.do { color: #7f9f7f; } /* Documentation */
-code &gt; span.an { color: #7f9f7f; font-weight: bold; } /* Annotation */
-code &gt; span.cv { color: #7f9f7f; font-weight: bold; } /* CommentVar */
-code &gt; span.in { color: #7f9f7f; font-weight: bold; } /* Information */
+code &gt; span.do { color: #808080; font-style: italic; } /* Documentation */
+code &gt; span.an { color: #808080; font-weight: bold; font-style: italic; } /* Annotation */
+code &gt; span.cv { color: #808080; font-weight: bold; font-style: italic; } /* CommentVar */
+code &gt; span.in { color: #808080; font-weight: bold; font-style: italic; } /* Information */
   &lt;/style&gt;
   &lt;script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"&gt;&lt;/script&gt;
 &lt;/head&gt;
@@ -1036,7 +1030,7 @@ code &gt; span.in { color: #7f9f7f; font-weight: bold; } /* Information */
 &lt;!--  --&gt;
 &lt;!-- &lt;/div&gt; --&gt;
 &lt;!--  --&gt;
-&lt;p&gt;I’ve been working on some extensions to our special function computations in &lt;a href="https://arxiv.org/abs/1605.04796"&gt;Prediction risk for global-local shrinkage regression&lt;/a&gt; and decided to employ &lt;a href="https://github.com/sympy/sympy"&gt;SymPy&lt;/a&gt; as much as possible. Out of this came an &lt;a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg/src/master/hsplus/horn_function.py"&gt;implementation&lt;/a&gt; of a bivariate confluent hypergeometric function: the &lt;a href="https://en.wikipedia.org/wiki/Humbert_series"&gt;Humbert&lt;/a&gt; &lt;span class="math inline"&gt;\(\Phi_1\)&lt;/span&gt;. This, and some numeric implementations, are available in a &lt;a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg"&gt;Python package&lt;/a&gt; and an &lt;a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg"&gt;R package&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I’ve been working on some extensions to our special function computations in &lt;a href="https://arxiv.org/abs/1605.04796"&gt;Prediction risk for global-local shrinkage regression&lt;/a&gt; and decided to employ &lt;a href="https://github.com/sympy/sympy"&gt;SymPy&lt;/a&gt; as much as possible. Out of this came an &lt;a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg/src/master/hsplus/horn_symbolic.py"&gt;implementation&lt;/a&gt; of a bivariate confluent hypergeometric function: the &lt;a href="https://en.wikipedia.org/wiki/Humbert_series"&gt;Humbert&lt;/a&gt; &lt;span class="math inline"&gt;\(\Phi_1\)&lt;/span&gt;. This, and some numeric implementations, are available in a &lt;a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg"&gt;Python package&lt;/a&gt; and an &lt;a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg"&gt;R package&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;In the course of this work there are expectations that appear as ratios of &lt;span class="math inline"&gt;\(\Phi_1\)&lt;/span&gt; functions, so it’s helpful to have a symbolic replacement routine to identify them. &lt;a href="http://docs.sympy.org/dev/modules/core.html#sympy.core.basic.Basic.match"&gt;Pattern matching&lt;/a&gt;, &lt;a href="http://docs.sympy.org/dev/modules/core.html#sympy.core.basic.Basic.find"&gt;finding&lt;/a&gt;, substitution and &lt;a href="http://docs.sympy.org/dev/modules/core.html#sympy.core.basic.Basic.replace"&gt;replacement&lt;/a&gt; are fairly standard in SymPy, so nothing special there; however, when you want something specific, it can get rather tricky.&lt;/p&gt;
 &lt;p&gt;Personally, I’ve found the approach offered by the &lt;a href="https://github.com/sympy/sympy/tree/master/sympy/strategies"&gt;&lt;code&gt;sympy.strategies&lt;/code&gt;&lt;/a&gt; and &lt;a href="https://github.com/sympy/sympy/tree/master/sympy/unify"&gt;&lt;code&gt;sympy.unify&lt;/code&gt;&lt;/a&gt; frameworks the most appealing. See the original discussion &lt;a href="https://groups.google.com/d/msg/sympy/fspCavhbd9I/vrzUitvgiuYJ"&gt;here&lt;/a&gt;. The reason for their appeal is mostly due to their organization of the processes behind expression tree traversal and manipulation. It’s much easier to see how a very specific and non-trivial simplification or replacement could be accomplished and iteratively improved. These points are made very well in the posts &lt;a href="http://matthewrocklin.com/blog/tags.html#SymPy-ref"&gt;here&lt;/a&gt;, so check them out.&lt;/p&gt;
 &lt;p&gt;Let’s say we want to write a function &lt;code&gt;as_expectations&lt;/code&gt; that takes a &lt;code&gt;sympy.Expr&lt;/code&gt; and replaces ratios of &lt;span class="math inline"&gt;\(\Phi_1\)&lt;/span&gt; functions according to the following pattern: &lt;span class="math display"&gt;\[\begin{equation}
@@ -1044,42 +1038,25 @@ E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \g
 \;.
 \label{eq:expectation}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;As an example, let’s set up a situation in which &lt;code&gt;as_expectations&lt;/code&gt; would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match :&lt;/p&gt;
-&lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;1&lt;/span&gt;]: &lt;span class="im"&gt;import&lt;/span&gt; sympy &lt;span class="im"&gt;as&lt;/span&gt; sp
+&lt;p&gt;As an example, let’s set up a situation in which &lt;code&gt;as_expectations&lt;/code&gt; would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match &lt;span class="math inline"&gt;\(\eqref{eq:expectation}\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;import&lt;/span&gt; sympy &lt;span class="im"&gt;as&lt;/span&gt; sp
 
-In [&lt;span class="dv"&gt;2&lt;/span&gt;]:
+&lt;span class="im"&gt;from&lt;/span&gt; hsplus.horn_symbolic &lt;span class="im"&gt;import&lt;/span&gt; HornPhi1
 
-In [&lt;span class="dv"&gt;3&lt;/span&gt;]: &lt;span class="im"&gt;from&lt;/span&gt; hsplus.horn_function &lt;span class="im"&gt;import&lt;/span&gt; HornPhi1
+a, b, g, z_1, z_2 &lt;span class="op"&gt;=&lt;/span&gt; sp.symbols(&lt;span class="st"&gt;&amp;#39;a, b, g, z_1, z_2&amp;#39;&lt;/span&gt;, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)
+phi1_1 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g,), z_1, z_2)
 
-In [&lt;span class="dv"&gt;4&lt;/span&gt;]:
+n &lt;span class="op"&gt;=&lt;/span&gt; sp.Dummy(&lt;span class="st"&gt;&amp;#39;n&amp;#39;&lt;/span&gt;, integer&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;, positive&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)
+i &lt;span class="op"&gt;=&lt;/span&gt; sp.Dummy(&lt;span class="st"&gt;&amp;#39;i&amp;#39;&lt;/span&gt;, integer&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;, nonnegative&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)
 
-In [&lt;span class="dv"&gt;5&lt;/span&gt;]: a, b, g, z_1, z_2 &lt;span class="op"&gt;=&lt;/span&gt; sp.symbols(&lt;span class="st"&gt;&amp;#39;a, b, g, z_1, z_2&amp;#39;&lt;/span&gt;, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)
+phi1_2 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n,), z_1, z_2)
+phi1_3 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n &lt;span class="op"&gt;-&lt;/span&gt; i,), z_1, z_2)
 
-In [&lt;span class="dv"&gt;6&lt;/span&gt;]: phi1_1 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g,), z_1, z_2)
+r_1 &lt;span class="op"&gt;=&lt;/span&gt; phi1_2&lt;span class="op"&gt;/&lt;/span&gt;phi1_1
+r_2 &lt;span class="op"&gt;=&lt;/span&gt; phi1_3&lt;span class="op"&gt;/&lt;/span&gt;phi1_1
 
-In [&lt;span class="dv"&gt;7&lt;/span&gt;]:
-
-In [&lt;span class="dv"&gt;8&lt;/span&gt;]: n &lt;span class="op"&gt;=&lt;/span&gt; sp.Dummy(&lt;span class="st"&gt;&amp;#39;n&amp;#39;&lt;/span&gt;, integer&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;, positive&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)
-
-In [&lt;span class="dv"&gt;9&lt;/span&gt;]: i &lt;span class="op"&gt;=&lt;/span&gt; sp.Dummy(&lt;span class="st"&gt;&amp;#39;i&amp;#39;&lt;/span&gt;, integer&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;, nonnegative&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)
-
-In [&lt;span class="dv"&gt;10&lt;/span&gt;]:
-
-In [&lt;span class="dv"&gt;11&lt;/span&gt;]: phi1_2 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n,), z_1, z_2)
-
-In [&lt;span class="dv"&gt;12&lt;/span&gt;]: phi1_3 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n &lt;span class="op"&gt;-&lt;/span&gt; i,), z_1, z_2)
-
-In [&lt;span class="dv"&gt;13&lt;/span&gt;]:
-
-In [&lt;span class="dv"&gt;14&lt;/span&gt;]: r_1 &lt;span class="op"&gt;=&lt;/span&gt; phi1_2&lt;span class="op"&gt;/&lt;/span&gt;phi1_1
-
-In [&lt;span class="dv"&gt;15&lt;/span&gt;]: r_2 &lt;span class="op"&gt;=&lt;/span&gt; phi1_3&lt;span class="op"&gt;/&lt;/span&gt;phi1_1
-
-In [&lt;span class="dv"&gt;16&lt;/span&gt;]:
-
-In [&lt;span class="dv"&gt;17&lt;/span&gt;]: expr &lt;span class="op"&gt;=&lt;/span&gt; a &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;-&lt;/span&gt; b &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;/&lt;/span&gt; g &lt;span class="op"&gt;+&lt;/span&gt; sp.Sum(z_1&lt;span class="op"&gt;/&lt;/span&gt;z_2 &lt;span class="op"&gt;*&lt;/span&gt; r_2 &lt;span class="op"&gt;-&lt;/span&gt; &lt;span class="dv"&gt;3&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt;
-r_2, (i, &lt;span class="dv"&gt;0&lt;/span&gt;, n))&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+expr &lt;span class="op"&gt;=&lt;/span&gt; a &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;-&lt;/span&gt; b &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;/&lt;/span&gt; g &lt;span class="op"&gt;+&lt;/span&gt; sp.Sum(z_1&lt;span class="op"&gt;/&lt;/span&gt;z_2 &lt;span class="op"&gt;*&lt;/span&gt; r_2 &lt;span class="op"&gt;-&lt;/span&gt; &lt;span class="dv"&gt;3&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; r_2, (i, &lt;span class="dv"&gt;0&lt;/span&gt;,
+n))&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Our test expression &lt;code&gt;expr&lt;/code&gt; looks like this&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(expr, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
@@ -1101,67 +1078,41 @@ z_{1}, \quad z_{2}\right )\right)}}{g
 \quad z_{2}\right )\right)}}
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The ratios &lt;code&gt;r_1&lt;/code&gt; and &lt;code&gt;r_2&lt;/code&gt; should both be replaced by a symbol for &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt;, for &lt;span class="math inline"&gt;\(m = n\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(m = n - i\)&lt;/span&gt; when &lt;span class="math inline"&gt;\(i &amp;lt; n\)&lt;/span&gt; respectively. We could allow &lt;span class="math inline"&gt;\(E[X^0]\)&lt;/span&gt;, I suppose, but–for a more interesting discussion–let’s not.&lt;/p&gt;
-&lt;p&gt;We start by creating a SymPy pattern that expresses the mathematical form of &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt; in .&lt;/p&gt;
-&lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;18&lt;/span&gt;]: pnames &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;g&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_1&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_2&amp;#39;&lt;/span&gt;)
+&lt;p&gt;We start by creating a SymPy pattern that expresses the mathematical form of &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt; in &lt;span class="math inline"&gt;\(\eqref{eq:expectation}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;pnames &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;g&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_1&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_2&amp;#39;&lt;/span&gt;)
+phi1_wild_args_n &lt;span class="op"&gt;=&lt;/span&gt; sp.symbols(&lt;span class="st"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;.join(n_ &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;_w&amp;#39;&lt;/span&gt; &lt;span class="cf"&gt;for&lt;/span&gt; n_ &lt;span class="op"&gt;in&lt;/span&gt; pnames),
+                              cls&lt;span class="op"&gt;=&lt;/span&gt;sp.Wild, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)
 
-In [&lt;span class="dv"&gt;19&lt;/span&gt;]: phi1_wild_args_n &lt;span class="op"&gt;=&lt;/span&gt; sp.symbols(&lt;span class="st"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;.join(n_ &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;_w&amp;#39;&lt;/span&gt; &lt;span class="cf"&gt;for&lt;/span&gt; n_ &lt;span class="op"&gt;in&lt;/span&gt;
-pnames),
+n_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;n_w&amp;#39;&lt;/span&gt;,
+              properties&lt;span class="op"&gt;=&lt;/span&gt;(&lt;span class="kw"&gt;lambda&lt;/span&gt; x: x.is_integer &lt;span class="op"&gt;and&lt;/span&gt; x.is_positive,),
+              exclude&lt;span class="op"&gt;=&lt;/span&gt;(phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;],))
 
-...                               cls&lt;span class="op"&gt;=&lt;/span&gt;sp.Wild, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)
-...
+phi1_wild_d &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1(phi1_wild_args_n[&lt;span class="dv"&gt;0&lt;/span&gt;:&lt;span class="dv"&gt;2&lt;/span&gt;],
+                       phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;:&lt;span class="dv"&gt;3&lt;/span&gt;],
+                       &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n[&lt;span class="dv"&gt;3&lt;/span&gt;:&lt;span class="dv"&gt;5&lt;/span&gt;])
 
-In [&lt;span class="dv"&gt;20&lt;/span&gt;]:
+phi1_wild_n &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1(phi1_wild_args_n[&lt;span class="dv"&gt;0&lt;/span&gt;:&lt;span class="dv"&gt;2&lt;/span&gt;],
+                       (phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;] &lt;span class="op"&gt;+&lt;/span&gt; n_w,),
+                       &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n[&lt;span class="dv"&gt;3&lt;/span&gt;:&lt;span class="dv"&gt;5&lt;/span&gt;])
 
-In [&lt;span class="dv"&gt;21&lt;/span&gt;]: n_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;n_w&amp;#39;&lt;/span&gt;,
+C_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;C_w&amp;#39;&lt;/span&gt;, exclude&lt;span class="op"&gt;=&lt;/span&gt;[sp.S.Zero])
+E_pattern &lt;span class="op"&gt;=&lt;/span&gt; phi1_wild_n &lt;span class="op"&gt;/&lt;/span&gt; phi1_wild_d
 
-...               properties&lt;span class="op"&gt;=&lt;/span&gt;(&lt;span class="kw"&gt;lambda&lt;/span&gt; x: x.is_integer &lt;span class="op"&gt;and&lt;/span&gt;
-x.is_positive,),
-
-...               exclude&lt;span class="op"&gt;=&lt;/span&gt;(phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;],))
-...
-
-In [&lt;span class="dv"&gt;22&lt;/span&gt;]:
-
-In [&lt;span class="dv"&gt;23&lt;/span&gt;]: phi1_wild_d &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1(phi1_wild_args_n[&lt;span class="dv"&gt;0&lt;/span&gt;:&lt;span class="dv"&gt;2&lt;/span&gt;],
-
-...                        phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;:&lt;span class="dv"&gt;3&lt;/span&gt;],
-
-...                        &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n[&lt;span class="dv"&gt;3&lt;/span&gt;:&lt;span class="dv"&gt;5&lt;/span&gt;])
-...
-
-In [&lt;span class="dv"&gt;24&lt;/span&gt;]:
-
-In [&lt;span class="dv"&gt;25&lt;/span&gt;]: phi1_wild_n &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1(phi1_wild_args_n[&lt;span class="dv"&gt;0&lt;/span&gt;:&lt;span class="dv"&gt;2&lt;/span&gt;],
-
-...                        (phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;] &lt;span class="op"&gt;+&lt;/span&gt; n_w,),
-
-...                        &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n[&lt;span class="dv"&gt;3&lt;/span&gt;:&lt;span class="dv"&gt;5&lt;/span&gt;])
-...
-
-In [&lt;span class="dv"&gt;26&lt;/span&gt;]:
-
-In [&lt;span class="dv"&gt;27&lt;/span&gt;]: C_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;C_w&amp;#39;&lt;/span&gt;, exclude&lt;span class="op"&gt;=&lt;/span&gt;[sp.S.Zero])
-
-In [&lt;span class="dv"&gt;28&lt;/span&gt;]: E_pattern &lt;span class="op"&gt;=&lt;/span&gt; phi1_wild_n &lt;span class="op"&gt;/&lt;/span&gt; phi1_wild_d
-
-In [&lt;span class="dv"&gt;29&lt;/span&gt;]:
-
-In [&lt;span class="dv"&gt;30&lt;/span&gt;]: E_fn &lt;span class="op"&gt;=&lt;/span&gt; sp.Function(&lt;span class="st"&gt;&amp;quot;E&amp;quot;&lt;/span&gt;, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+E_fn &lt;span class="op"&gt;=&lt;/span&gt; sp.Function(&lt;span class="st"&gt;&amp;quot;E&amp;quot;&lt;/span&gt;, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;When we find an &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt; we’ll replace it with the symbolic function &lt;code&gt;E_fn&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;If we focus on only one of the terms (one we know matches &lt;code&gt;E_pattern&lt;/code&gt;), &lt;code&gt;r_1&lt;/code&gt;, we should find that our pattern suffices:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;31&lt;/span&gt;]: r_1.match(E_pattern)
-Out[&lt;span class="dv"&gt;31&lt;/span&gt;]: {a_w: a, b_w: b, g_w: g, n_w: n, z_1_w: z_1, z_2_w: z_2}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+In [&lt;span class="dv"&gt;1&lt;/span&gt;]: r_1.match(E_pattern)
+Out[&lt;span class="dv"&gt;1&lt;/span&gt;]: {a_w: a, b_w: b, g_w: g, n_w: n, z_1_w: z_1, z_2_w: z_2}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;However, building up to the complexity of &lt;code&gt;expr&lt;/code&gt;, we see that a simple product doesn’t:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;32&lt;/span&gt;]: (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).match(E_pattern)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+In [&lt;span class="dv"&gt;2&lt;/span&gt;]: (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).match(E_pattern)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Basically, the product has introduced some problems that arise from associativity. Here are the details for the root expression tree:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;33&lt;/span&gt;]: (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).func
-Out[&lt;span class="dv"&gt;33&lt;/span&gt;]: sympy.core.mul.Mul
-In [&lt;span class="dv"&gt;34&lt;/span&gt;]: (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).args
-Out[&lt;span class="dv"&gt;34&lt;/span&gt;]:
+In [&lt;span class="dv"&gt;3&lt;/span&gt;]: (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).func
+Out[&lt;span class="dv"&gt;3&lt;/span&gt;]: sympy.core.mul.Mul
+In [&lt;span class="dv"&gt;4&lt;/span&gt;]: (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).args
+Out[&lt;span class="dv"&gt;4&lt;/span&gt;]:
                  &lt;span class="dv"&gt;1&lt;/span&gt;
 (a, &lt;span class="op"&gt;---------------------------&lt;/span&gt;, HornPhi1(a, b, n &lt;span class="op"&gt;+&lt;/span&gt; g, z_1, z_2))
     HornPhi1(a, b, g, z_1, z_2)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
@@ -1169,8 +1120,8 @@ Out[&lt;span class="dv"&gt;34&lt;/span&gt;]:
 &lt;p&gt;Any complete search for matches to &lt;code&gt;E_pattern&lt;/code&gt; would have to consider all possible combinations of terms in &lt;code&gt;(a * r_1).args&lt;/code&gt;, i.e. all possible groupings that arise due to associativity. The simple inclusion of another &lt;code&gt;Wild&lt;/code&gt; term causes the match to succeed, since SymPy’s basic pattern matching does account for associativity in this case.&lt;/p&gt;
 &lt;p&gt;Here are a few explicit ways to make the match work:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;35&lt;/span&gt;]: (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).match(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern)
-Out[&lt;span class="dv"&gt;35&lt;/span&gt;]: {C_w: a, a_w: a, b_w: b, g_w: g, n_w: n, z_1_w: z_1, z_2_w:
+In [&lt;span class="dv"&gt;5&lt;/span&gt;]: (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).match(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern)
+Out[&lt;span class="dv"&gt;5&lt;/span&gt;]: {C_w: a, a_w: a, b_w: b, g_w: g, n_w: n, z_1_w: z_1, z_2_w:
 z_2}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;or as a replacement:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).replace(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern, C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w,
@@ -1265,15 +1216,15 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The constrained integer &lt;code&gt;Wild&lt;/code&gt; term, &lt;code&gt;n_w&lt;/code&gt;, probably isn’t matching. Given the form of our pattern, &lt;code&gt;n_w&lt;/code&gt; should match &lt;code&gt;n - i&lt;/code&gt;, but &lt;code&gt;n - i&lt;/code&gt; isn’t strictly positive, as required:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;36&lt;/span&gt;]: (n &lt;span class="op"&gt;-&lt;/span&gt; i).is_positive &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;
-Out[&lt;span class="dv"&gt;36&lt;/span&gt;]: &lt;span class="va"&gt;False&lt;/span&gt;
-In [&lt;span class="dv"&gt;37&lt;/span&gt;]: sp.ask(sp.Q.positive(n &lt;span class="op"&gt;-&lt;/span&gt; i)) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;
-Out[&lt;span class="dv"&gt;37&lt;/span&gt;]: &lt;span class="va"&gt;False&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+In [&lt;span class="dv"&gt;6&lt;/span&gt;]: (n &lt;span class="op"&gt;-&lt;/span&gt; i).is_positive &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;
+Out[&lt;span class="dv"&gt;6&lt;/span&gt;]: &lt;span class="va"&gt;False&lt;/span&gt;
+In [&lt;span class="dv"&gt;7&lt;/span&gt;]: sp.ask(sp.Q.positive(n &lt;span class="op"&gt;-&lt;/span&gt; i)) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;
+Out[&lt;span class="dv"&gt;7&lt;/span&gt;]: &lt;span class="va"&gt;False&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Since &lt;span class="math inline"&gt;\(n &amp;gt; 0\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(i &amp;gt;= 0\)&lt;/span&gt;, the only missing piece is that &lt;span class="math inline"&gt;\(n &amp;gt; i\)&lt;/span&gt;. The most relevant mechanism in SymPy to assess this information is the &lt;a href="http://docs.sympy.org/dev/modules/assumptions/index.html"&gt;&lt;code&gt;sympy.assumptions&lt;/code&gt;&lt;/a&gt; interface. We could add and retrieve the assumption &lt;code&gt;sympy.Q.is_true(n &amp;gt; i)&lt;/code&gt; via &lt;code&gt;sympy.assume.global_assumptions&lt;/code&gt;, or perform these operations inside of a Python &lt;code&gt;with&lt;/code&gt; block, etc. This context management, via &lt;code&gt;sympy.assumptions.assume.AssumptionsContext&lt;/code&gt;, would have to be performed manually, since I am not aware of any such mechanism offered by &lt;code&gt;Sum&lt;/code&gt; and/or &lt;code&gt;Basic.replace&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;Unfortunately, these ideas sound good, but aren’t implemented:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
-In [&lt;span class="dv"&gt;38&lt;/span&gt;]: sp.ask(sp.Q.positive(n &lt;span class="op"&gt;-&lt;/span&gt; i), sp.Q.is_true(n &lt;span class="op"&gt;&amp;gt;&lt;/span&gt; i)) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;
-Out[&lt;span class="dv"&gt;38&lt;/span&gt;]: &lt;span class="va"&gt;False&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+In [&lt;span class="dv"&gt;8&lt;/span&gt;]: sp.ask(sp.Q.positive(n &lt;span class="op"&gt;-&lt;/span&gt; i), sp.Q.is_true(n &lt;span class="op"&gt;&amp;gt;&lt;/span&gt; i)) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;
+Out[&lt;span class="dv"&gt;8&lt;/span&gt;]: &lt;span class="va"&gt;False&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;See the documentation for &lt;code&gt;sympy.assumptions.ask.ask&lt;/code&gt;; it explicitely states that inequalities aren’t handled, yet.&lt;/p&gt;
 &lt;p&gt;We could probably perform a manual reworking of &lt;code&gt;sympy.Q.is_true(n &amp;gt; i)&lt;/code&gt; to &lt;code&gt;sympy.Q.is_true(n - i &amp;gt; 0)&lt;/code&gt;, which is of course equivalent to &lt;code&gt;sympy.Q.positive(n - i)&lt;/code&gt;: the result we want.&lt;/p&gt;
 &lt;p&gt;If one were to provide this functionality, there’s still the question of how the relevant &lt;code&gt;AssumptionsContext&lt;/code&gt;s would be created and passed around/nested during the subexpression replacements. There is no apparent means of adding this sort of functionality through the &lt;code&gt;Basic.replace&lt;/code&gt; interface, so this path looks less appealing. However, nesting &lt;code&gt;with&lt;/code&gt; blocks from strategies in &lt;code&gt;sympy.strategies&lt;/code&gt; does seem quite possible. For example, in &lt;code&gt;sympy.strategies.traverse.sall&lt;/code&gt;, one could possibly wrap the &lt;code&gt;return&lt;/code&gt; statement after the &lt;code&gt;map(rule, ...)&lt;/code&gt; call in a &lt;code&gt;with sympy.assuming(...):&lt;/code&gt; block that contains the assumptions for any variables arising as, say, the index of a &lt;code&gt;Sum&lt;/code&gt;–like in our case. In this scenario, code in the subexpressions would be able to ask questions like &lt;code&gt;sympy.Q.is_true(n &amp;gt; i)&lt;/code&gt; without altering the global assumptions context or the objects involved.&lt;/p&gt;
