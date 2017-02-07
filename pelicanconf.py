@@ -74,7 +74,7 @@ DEFAULT_PAGINATION = 10
 PANDOC_BIBHEADER = 'References'
 PANDOC_BIBDIR = './content/articles/src'
 PANDOC_ARGS = ['-s', '--mathjax', '--old-dashes', '--section-divs',
-               '--highlight-style=zenburn',
+               '--highlight-style=kate',
                '--include-after-body=./content/articles/src/after_body.html',
                '--template=pelican_template.html'
                ]

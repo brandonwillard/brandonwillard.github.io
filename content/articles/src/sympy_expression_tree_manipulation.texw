@@ -139,7 +139,7 @@ I've been working on some extensions to our special function computations in
 \href{https://arxiv.org/abs/1605.04796}{Prediction risk for global-local shrinkage regression}
 and decided to employ \href{https://github.com/sympy/sympy}{SymPy} as much as possible.  Out of this came
 an
-\href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg/src/master/hsplus/horn_function.py}{implementation}
+\href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg/src/master/hsplus/horn_symbolic.py}{implementation}
 of a bivariate confluent hypergeometric function: the \href{https://en.wikipedia.org/wiki/Humbert_series}{Humbert}
 $\Phi_1$.  This, and some numeric implementations, are available in a
 \href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg}{Python package}
@@ -179,10 +179,10 @@ E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \g
 As an example, let's set up a situation in which \texttt{as\_expectations} would be used, and, from
 there, attempt to construct our function.  Naturally, this will involve a test expression with terms
 that we know match \eqref{eq:expectation}:
-<<term=True>>=
+<<echo=True>>=
 import sympy as sp
 
-from hsplus.horn_function import HornPhi1
+from hsplus.horn_symbolic import HornPhi1
 
 a, b, g, z_1, z_2 = sp.symbols('a, b, g, z_1, z_2', real=True)
 phi1_1 = HornPhi1((a, b), (g,), z_1, z_2)
@@ -210,7 +210,7 @@ $E[X^0]$, I suppose, but--for a more interesting discussion--let's not.
 
 We start by creating a SymPy pattern that expresses the mathematical form of $E[X^m]$
 in \eqref{eq:expectation}.
-<<evaluate=True, term=True>>=
+<<evaluate=True, echo=True>>=
 pnames = ('a', 'b', 'g', 'z_1', 'z_2')
 phi1_wild_args_n = sp.symbols(','.join(n_ + '_w' for n_ in pnames),
                               cls=sp.Wild, real=True)
