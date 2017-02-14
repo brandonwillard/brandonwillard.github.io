@@ -118,6 +118,78 @@ PwebFormats.formats.update({'pweb_minted_pandoc': {
     'description': ('Minted environs with Pandoc and Pelican'
                     ' figure output considerations')}})
 
+
+def pweave_nvim_weave(outext="tex", docmode=True,
+                      rel_figdir="../../figures",
+                      rel_outdir="../../output"):
+    r''' Weave a file using the current nvim session.
+
+    Parameters
+    ==========
+    rel_figdir: string
+        Figure output directory relative to the cwd.
+    '''
+    import neovim
+    import os
+
+    nvim = neovim.attach('socket',
+                         path=os.getenv("NVIM_LISTEN_ADDRESS"))
+    currbuf = nvim.current.buffer
+
+    # here's a Pweave weave script...
+    from pweave import rcParams
+
+    project_dir, input_file = os.path.split(currbuf.name)
+    input_file_base, input_file_ext = os.path.splitext(input_file)
+    output_filename = input_file_base + os.path.extsep + outext
+
+    output_file = os.path.join(rel_outdir, output_filename)
+
+    # TODO: Search for parent 'figures' (and 'output') dir by default.
+    rcParams['figdir'] = os.path.abspath(os.path.join(
+        project_dir, rel_figdir))
+
+    rcParams['storeresults'] = docmode
+    # rcParams['chunk']['defaultoptions']['engine'] = 'ipython'
+
+    pweb_shell = "ipython_ext"
+
+    pweb_formatter = PwebMintedPandoc(file=input_file,
+                                      format=outext,
+                                      shell=pweb_shell,
+                                      figdir=rcParams['figdir'],
+                                      output=output_file,
+                                      docmode=docmode)
+    # Add png figure output:
+    pweb_formatter.updateformat({'width': '',
+                                 'figfmt': '.png',
+                                 'savedformats': ['.png', '.pdf']})
+
+    # Catch cache issues and start fresh when they're found.
+    weave_retry_cache(pweb_formatter)
+
+    return input_file_base
+
+
+def weave_retry_cache(pweb_formatter):
+    r''' Catch cache issues and start fresh when they're found.
+    '''
+
+    try:
+        pweb_formatter.weave()
+    except IndexError:
+        import os
+        import glob
+        input_file = pweb_formatter.source
+
+        cache_dir = os.path.abspath(pweb_formatter.cachedir)
+        input_file_base, input_file_ext = os.path.splitext(input_file)
+        cache_glob = input_file_base + '*'
+        cache_pattern = os.path.join(cache_dir, cache_glob)
+        _ = map(os.unlink, glob.glob(cache_pattern))
+        pweb_formatter.weave()
+
+
 if __name__ == '__main__':
     r""" This provides a callable script that mimics the `Pweave` command but
     uses the above formatter, streamlines the options (i.e. only the relevant
@@ -150,6 +222,11 @@ if __name__ == '__main__':
                       default=None,
                       help="Path and filename for output file")
 
+    parser.add_option("-s", "--shell",
+                      dest="shell",
+                      default="ipython",
+                      help="Shell in which to process python")
+
     (options, args) = parser.parse_args()
 
     try:
@@ -162,13 +239,14 @@ if __name__ == '__main__':
     # set some global options
     rcParams['figdir'] = opts_dict.pop('figdir', None)
     rcParams['storeresults'] = opts_dict.pop('cache', None)
-    #rcParams['chunk']['defaultoptions']['engine'] = 'ipython'
-    print(rcParams['figdir'])
-    PwebFM = PwebMintedPandoc(infile, format="tex",
-                              shell="ipython",
-                              figdir=rcParams['figdir'],
-                              output=opts_dict.pop('output', None),
-                              docmode=opts_dict.pop('docmode', None))
+    # rcParams['chunk']['defaultoptions']['engine'] = 'ipython'
+    shell_opt = opts_dict.pop('shell')
 
-    # weave something
-    PwebFM.weave()
+    pweb_formatter = PwebMintedPandoc(infile,
+                                      format="tex",
+                                      shell=shell_opt,
+                                      figdir=rcParams['figdir'],
+                                      output=opts_dict.pop('output', None),
+                                      docmode=opts_dict.pop('docmode', None))
+
+    weave_retry_cache(pweb_formatter)

@@ -6,6 +6,20 @@ Check [Github](https://github.com/brandonwillard) and
 [Bitbucket](https://bitbucket.org/brandonwillard) to see what I've been up to.  Otherwise, here's
 a quick roundup...
 
+<div class='project' name="hsplus" markdown>
+<ul class='project-links'>
+  <li><a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg">python-code</a></li>
+  <li><a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg">R-code</a></li>
+</ul>
+
+`hsplus` is a Python library (with R bindings) that provides estimations for
+quantities involving the Horseshoe and Horseshoe+ sparsity priors.  
+It also contains general numeric estimation procedures for the bivariate confluent
+hypergeometric functions involved and symbolic SymPy implementations of these
+functions.
+
+</div>
+
 <div class='project' name="amimodels" markdown>
 <ul class='project-links'>
   <li><a href="https://github.com/openeemeter/amimodels">code</a></li>
@@ -42,6 +56,17 @@ In production the model handles real-time updates at ~30 second intervals for
 hundreds of routes and thousands of buses simultaneously.  Its statistical
 specification is Bayesian and its estimation is performed by a custom particle
 filter.
+</div>
+
+<div class='project' name="prox-methods" markdown>
+<ul class='project-links'>
+  <li><a href="https://bitbucket.org/prox-methods-in-stats/prox-methods-rpkg">code</a></li>
+</ul>
+
+`prox-methods` is a very experimental R package with C++ implementations (via Rcpp) for some of the
+proximal optimization methods from the paper 
+["Proximal Algorithms in Statistics and Machine Learning"](https://projecteuclid.org/euclid.ss/1449670858).
+
 </div>
 
 <div class='project' name="open-tracking-tools" markdown>

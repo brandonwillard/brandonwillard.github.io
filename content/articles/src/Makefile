@@ -1,4 +1,4 @@
-.PHONY: all md clean clean-pweave clean-md
+.PHONY: all md clean clean-pweave clean-md clean-pdf clean-tex
 #.PRECIOUS: %.tex
 
 PNW_FILES = $(wildcard *.pnw) $(wildcard *.Pnw)
