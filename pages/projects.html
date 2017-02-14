@@ -13,13 +13,13 @@
 <link rel="canonical" href="https://brandonwillard.github.io/pages/projects.html">
 
         <meta name="author" content="Brandon T. Willard" />
-        <meta name="description" content="Projects code{white-space: pre;} Check Github and Bitbucket to see what I’ve been up to. Otherwise, here’s a quick roundup… code amimodels is a Python library that provides core implementations of models designed for use with Advanced Metering Infrastructure (AMI) data in eemeter. The implementations are fundamentally ..." />
+        <meta name="description" content="Projects code{white-space: pre;} Check Github and Bitbucket to see what I’ve been up to. Otherwise, here’s a quick roundup… python-code R-code hsplus is a Python library (with R bindings) that provides estimations for quantities involving the Horseshoe and Horseshoe+ sparsity priors. It also contains general numeric ..." />
 
     <meta property="og:site_name" content="Brandon T. Willard" />
     <meta property="og:type" content="article"/>
     <meta property="og:title" content="Projects"/>
     <meta property="og:url" content="https://brandonwillard.github.io/pages/projects.html"/>
-    <meta property="og:description" content="Projects code{white-space: pre;} Check Github and Bitbucket to see what I’ve been up to. Otherwise, here’s a quick roundup… code amimodels is a Python library that provides core implementations of models designed for use with Advanced Metering Infrastructure (AMI) data in eemeter. The implementations are fundamentally ..." />
+    <meta property="og:description" content="Projects code{white-space: pre;} Check Github and Bitbucket to see what I’ve been up to. Otherwise, here’s a quick roundup… python-code R-code hsplus is a Python library (with R bindings) that provides estimations for quantities involving the Horseshoe and Horseshoe+ sparsity priors. It also contains general numeric ..." />
 
 
     <!-- Bootstrap -->
@@ -102,6 +102,18 @@ Brandon T. Willard            </a>
 <!-- </div> -->
 <!--  -->
 <p>Check <a href="https://github.com/brandonwillard">Github</a> and <a href="https://bitbucket.org/brandonwillard">Bitbucket</a> to see what I’ve been up to. Otherwise, here’s a quick roundup…</p>
+<div class="project" name="hsplus" markdown="">
+<ul class="project-links">
+<li>
+<a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg">python-code</a>
+</li>
+<li>
+<a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg">R-code</a>
+</li>
+</ul>
+<p><code>hsplus</code> is a Python library (with R bindings) that provides estimations for quantities involving the Horseshoe and Horseshoe+ sparsity priors.<br />
+It also contains general numeric estimation procedures for the bivariate confluent hypergeometric functions involved and symbolic SymPy implementations of these functions.</p>
+</div>
 <div class="project" name="amimodels" markdown="">
 <ul class="project-links">
 <li>
@@ -127,6 +139,14 @@ Brandon T. Willard            </a>
 </ul>
 <p>Bus Time is the open source Java suite that provides real-time bus tracking to NYC. I designed and developed the <a href="https://github.com/camsys/onebusaway-nyc/wiki/Inference-Engine">statistical inference capabilities</a> and helped build the production service components. The model handles free and constrained location tracking along street networks, inference for unobserved operational states (e.g. in layover, at a stop, in progress) and path-based states (e.g. current trip, route, run), as well as inference for faulty operator input (e.g. operator ids, sign codes).</p>
 <p>In production the model handles real-time updates at ~30 second intervals for hundreds of routes and thousands of buses simultaneously. Its statistical specification is Bayesian and its estimation is performed by a custom particle filter.</p>
+</div>
+<div class="project" name="prox-methods" markdown="">
+<ul class="project-links">
+<li>
+<a href="https://bitbucket.org/prox-methods-in-stats/prox-methods-rpkg">code</a>
+</li>
+</ul>
+<p><code>prox-methods</code> is a very experimental R package with C++ implementations (via Rcpp) for some of the proximal optimization methods from the paper <a href="https://projecteuclid.org/euclid.ss/1449670858">“Proximal Algorithms in Statistics and Machine Learning”</a>.</p>
 </div>
 <div class="project" name="open-tracking-tools" markdown="">
 <ul class="project-links">
