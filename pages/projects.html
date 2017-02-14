@@ -91,6 +91,7 @@ Brandon T. Willard            </a>
   <meta name="generator" content="pandoc" />
   <title>Projects</title>
   <style type="text/css">code{white-space: pre;}</style>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
 </head>
 <body>
 <!--  -->
@@ -121,6 +122,46 @@ It also contains general numeric estimation procedures for the bivariate conflue
 </li>
 </ul>
 <p><code>amimodels</code> is a Python library that provides core implementations of models designed for use with Advanced Metering Infrastructure (AMI) data in <a href="http://www.openeemeter.org/"><code>eemeter</code></a>. The implementations are fundamentally Bayesian state-space and mixture models that automatically account for the systematic changes, missing data and varied observation frequencies. The models and custom MCMC estimation methods are written in <a href="https://pymc-devs.github.io/pymc/">PyMC2</a> and—as such—are easily extensible.</p>
+</div>
+<div class="project" name="estimation examples" markdown="">
+<ul class="project-links">
+<li>
+<a href="http://andrewgelman.com/2015/02/17/bayesian-survival-analysis-horseshoe-priors/">news</a>
+</li>
+</ul>
+<br> Complete R and <a href="http://mc-stan.org/">Stan</a> Horseshoe and Horseshoe+ shrinkage prior examples from our paper <a href="https://academic.oup.com/biomet/article-abstract/103/4/955/2659031/Default-Bayesian-analysis-with-global-local">“Default Bayesian Analysis with Horseshoe Estimators”</a>:
+<ul>
+<li>
+<a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-nvm.html">sparse multivariate normal estimation</a>
+</li>
+<li>
+<a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-fc.html">ratio of normals estimation</a>
+</li>
+<li>
+<a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-pm.html">product of normals estimation</a>
+</li>
+<li>
+<a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-efron-max.html">max of multivariate normal estimation</a>
+</li>
+<li>
+<a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-efron-sum.html">sum of squares estimation</a>
+</li>
+</ul>
+Sparse signal estimation examples, in R, using proximal algorithms:
+<ul>
+<li>
+<a href="https://brandonwillard.bitbucket.io/bayes-map/bayes-map-l2-l1-example.html"><span class="math inline">\(\ell_2\)</span> loss with <span class="math inline">\(\ell_1\)</span> penalty</a>
+</li>
+<li>
+<a href="https://brandonwillard.bitbucket.io/bayes-map/bayes-map-l2-lq-example.html"><span class="math inline">\(\ell_2\)</span> loss with <span class="math inline">\(\ell_q\)</span>, for <span class="math inline">\(0 &lt; q &lt; 1\)</span> penalty</a> (with C++ implementation)
+</li>
+<li>
+<a href="https://brandonwillard.bitbucket.io/bayes-map/bayes-map-l2-pareto-example.html"><span class="math inline">\(\ell_2\)</span> loss with double-Pareto penalty</a>
+</li>
+<li>
+<a href="https://brandonwillard.bitbucket.io/bayes-map/bayes-map-logit-pareto-example.html">logit loss with double-Pareto penalty</a>
+</li>
+</ul>
 </div>
 <div class="project" name="MTA Bus Time" markdown="">
 <ul class="project-links">
