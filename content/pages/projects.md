@@ -35,6 +35,40 @@ frequencies. The models and custom MCMC estimation methods are written in
 
 </div>
 
+<div class='project' name="estimation examples" markdown>
+<ul class='project-links'>
+  <li><a href="http://andrewgelman.com/2015/02/17/bayesian-survival-analysis-horseshoe-priors/">news</a></li>
+</ul>
+
+<br>
+Complete R and [Stan](http://mc-stan.org/) Horseshoe and Horseshoe+ shrinkage prior examples from our paper
+["Default Bayesian Analysis with Horseshoe Estimators"](https://academic.oup.com/biomet/article-abstract/103/4/955/2659031/Default-Bayesian-analysis-with-global-local):
+<ul>
+  <li><a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-nvm.html">sparse multivariate normal estimation</a>
+  </li>
+  <li><a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-fc.html">ratio of normals estimation</a>
+  </li>
+  <li><a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-pm.html">product of normals estimation</a>
+  </li>
+  <li><a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-efron-max.html">max of multivariate normal estimation</a>
+  </li>
+  <li><a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-efron-sum.html">sum of squares estimation</a>
+  </li>
+</ul>
+
+Sparse signal estimation examples, in R, using proximal algorithms:
+<ul>
+  <li><a href="https://brandonwillard.bitbucket.io/bayes-map/bayes-map-l2-l1-example.html">$\ell_2$ loss with $\ell_1$ penalty</a>
+  </li>
+  <li><a href="https://brandonwillard.bitbucket.io/bayes-map/bayes-map-l2-lq-example.html">$\ell_2$ loss with $\ell_q$, for $0 < q < 1$ penalty</a> (with C++ implementation)
+  </li>
+  <li><a href="https://brandonwillard.bitbucket.io/bayes-map/bayes-map-l2-pareto-example.html">$\ell_2$ loss with double-Pareto penalty</a>
+  </li>
+  <li><a href="https://brandonwillard.bitbucket.io/bayes-map/bayes-map-logit-pareto-example.html">logit loss with double-Pareto penalty</a>
+  </li>
+</ul>
+</div>
+
 <div class='project' name="MTA Bus Time" markdown>
 <ul class='project-links'>
   <li><a href="http://bustime.mta.info/">site</a></li>
