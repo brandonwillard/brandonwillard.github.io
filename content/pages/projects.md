@@ -12,17 +12,17 @@ a quick roundup...
   <li><a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg">R-code</a></li>
 </ul>
 
-`hsplus` is a Python library (with R bindings) that provides estimations for
-quantities involving the Horseshoe and Horseshoe+ sparsity priors.  
-It also contains general numeric estimation procedures for the bivariate confluent
-hypergeometric functions involved and symbolic SymPy implementations of these
-functions.
+`hsplus` is a Python library (with R bindings) that provides estimates for
+quantities involving the Horseshoe and Horseshoe+ shrinkage priors.  
+It also contains general numerical estimation procedures for bivariate confluent
+hypergeometric functions, as well as symbolic SymPy implementations.
 
 </div>
 
 <div class='project' name="amimodels" markdown>
 <ul class='project-links'>
   <li><a href="https://github.com/openeemeter/amimodels">code</a></li>
+  <li><a href="https://amimodels.readthedocs.io/en/latest/methodology.html">docs</a></li>
 </ul>
 
 `amimodels` is a Python library that provides core implementations of models
@@ -67,6 +67,9 @@ Sparse signal estimation examples, in R, using proximal algorithms:
   <li><a href="https://brandonwillard.bitbucket.io/bayes-map/bayes-map-logit-pareto-example.html">logit loss with double-Pareto penalty</a>
   </li>
 </ul>
+
+  [Simple, custom slice sampler](https://brandonwillard.bitbucket.io/bayes-optimization/bayes-opt-rosenbrock.html) for the 
+  [Rosenbrock function](https://en.wikipedia.org/wiki/Rosenbrock_function).
 </div>
 
 <div class='project' name="MTA Bus Time" markdown>
