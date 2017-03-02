@@ -151,8 +151,8 @@ following sections.
 Much recent work in statistical modeling and estimation has revolved around the
 desire for sparsity, regularization and efficient [automatic] model selection.
 This is, in some sense, an objective shared with the more specialized areas of
-Deep Learning and Compressed Sensing.  In the latter case, we can point to
-Dropout \citep{srivastava_dropout_2014} and, in the former, $\ell_p$
+Deep Learning and Compressed Sensing.  In the former case, we can point to
+Dropout \citep{srivastava_dropout_2014} and, in the latter, $\ell_p$
 regularization \citep{donoho_compressed_2006}.
 
 Without delving into those topics here, we'll simply assume that a practitioner
@@ -161,17 +161,10 @@ First, some setup:
 <<evaluate=True, echo=True>>=
 import numpy as np
 import scipy as sc
-import pandas as pd
 
 import pymc3 as pm
 import theano
 import theano.tensor as tt
-
-import matplotlib.pyplot as plt
-import seaborn as sb
-
-# plt.style.use('ggplot')
-plt.rc('text', usetex=True)
 
 theano.config.mode = 'FAST_COMPILE'
 @
@@ -196,7 +189,8 @@ with pm.Model() as lasso_model:
     # the shared variables X_tt.
     # See https://github.com/pymc-devs/pymc3/pull/1125
     beta_rv = pm.Laplace('beta', mu=0, b=1, shape=X.shape[1])
-    y_rv = pm.Normal('y', mu=X_tt.dot(beta_rv), sd=1, shape=y.shape[0], observed=y_tt)
+    y_rv = pm.Normal('y', mu=X_tt.dot(beta_rv), sd=1,
+                     shape=y.shape[0], observed=y_tt)
 @
 
 The negative total log likelihood in our example problem has a non-smooth
@@ -377,7 +371,7 @@ tt.printing.debugprint(lasso_model.logpt)
 We see that the top-most operator is an \texttt{Elemwise} that applies
 the scalar \texttt{add} operation.  This is the $+$ in $l(\beta) + \phi(\beta)$.
 If we were to consider the inputs to this operator as our candidates for
-$l$ and $\phi$, then we might find the pair with the following:
+$l$ and $\phi$, then we might find this pair with the following:
 <<evaluate=True, echo=True, term=True>>=
 print(lasso_model.logpt.owner.inputs)
 @
@@ -514,7 +508,7 @@ to determining convexity using this simple idea.
 
 \begin{remark}
   Other great examples of linear algebra themed optimizations are in
-  \texttt{theano.sandbox.linalg}: for example, \texttt{no\_transpose\_symmetric}.
+  \texttt{theano.sandbox.linalg}: for instance, \texttt{no\_transpose\_symmetric}.
   Some of these demonstrate exactly how straight-forward it can be to
   add algebraic considerations.
 \end{remark}
