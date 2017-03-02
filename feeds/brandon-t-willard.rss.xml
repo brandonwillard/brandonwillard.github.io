@@ -68,21 +68,14 @@ code &gt; span.in { color: #808080; font-weight: bold; font-style: italic; } /* 
 &lt;p&gt;That said, statistical modeling and estimation as a whole should seriously consider aligning more with the current tools and offerings of symbolic mathematics. Relative to the subject matter here, symbolic integration provides an excellent example. In computer algebra systems, mappings between basic functional forms and their generalized hypergeometric equivalents are used to exploit convenient convolution identities. In the same vein, it might be possible to use analogous tables for solutions to a wide variety of non-smooth models. We outline how this might be done in the following sections.&lt;/p&gt;
 &lt;section id="a-context" class="level2"&gt;
 &lt;h2&gt;A Context&lt;/h2&gt;
-&lt;p&gt;Much recent work in statistical modeling and estimation has revolved around the desire for sparsity, regularization and efficient [automatic] model selection. This is, in some sense, an objective shared with the more specialized areas of Deep Learning and Compressed Sensing. In the latter case, we can point to Dropout &lt;span class="citation" data-cites="srivastava_dropout_2014"&gt;(Srivastava et al. 2014)&lt;/span&gt; and, in the former, &lt;span class="math inline"&gt;\(\ell_p\)&lt;/span&gt; regularization &lt;span class="citation" data-cites="donoho_compressed_2006"&gt;(Donoho 2006)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Much recent work in statistical modeling and estimation has revolved around the desire for sparsity, regularization and efficient [automatic] model selection. This is, in some sense, an objective shared with the more specialized areas of Deep Learning and Compressed Sensing. In the former case, we can point to Dropout &lt;span class="citation" data-cites="srivastava_dropout_2014"&gt;(Srivastava et al. 2014)&lt;/span&gt; and, in the latter, &lt;span class="math inline"&gt;\(\ell_p\)&lt;/span&gt; regularization &lt;span class="citation" data-cites="donoho_compressed_2006"&gt;(Donoho 2006)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;Without delving into those topics here, we’ll simply assume that a practitioner intends to produce a sparse estimate for a model that results in LASSO. First, some setup:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;import&lt;/span&gt; numpy &lt;span class="im"&gt;as&lt;/span&gt; np
 &lt;span class="im"&gt;import&lt;/span&gt; scipy &lt;span class="im"&gt;as&lt;/span&gt; sc
-&lt;span class="im"&gt;import&lt;/span&gt; pandas &lt;span class="im"&gt;as&lt;/span&gt; pd
 
 &lt;span class="im"&gt;import&lt;/span&gt; pymc3 &lt;span class="im"&gt;as&lt;/span&gt; pm
 &lt;span class="im"&gt;import&lt;/span&gt; theano
 &lt;span class="im"&gt;import&lt;/span&gt; theano.tensor &lt;span class="im"&gt;as&lt;/span&gt; tt
-
-&lt;span class="im"&gt;import&lt;/span&gt; matplotlib.pyplot &lt;span class="im"&gt;as&lt;/span&gt; plt
-&lt;span class="im"&gt;import&lt;/span&gt; seaborn &lt;span class="im"&gt;as&lt;/span&gt; sb
-
-&lt;span class="co"&gt;# plt.style.use(&amp;#39;ggplot&amp;#39;)&lt;/span&gt;
-plt.rc(&lt;span class="st"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;, usetex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)
 
 theano.config.mode &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;FAST_COMPILE&amp;#39;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Using PyMC3, the Bayes version of the LASSO &lt;span class="citation" data-cites="park_bayesian_2008"&gt;(Park and Casella 2008)&lt;/span&gt; model is easily specified.&lt;/p&gt;
@@ -104,7 +97,7 @@ y_tt &lt;span class="op"&gt;=&lt;/span&gt; tt_shared(y, name&lt;span class="op"&
     &lt;span class="co"&gt;# See https://github.com/pymc-devs/pymc3/pull/1125&lt;/span&gt;
     beta_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Laplace(&lt;span class="st"&gt;&amp;#39;beta&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;, b&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;, shape&lt;span class="op"&gt;=&lt;/span&gt;X.shape[&lt;span class="dv"&gt;1&lt;/span&gt;])
     y_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;X_tt.dot(beta_rv), sd&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;,
-shape&lt;span class="op"&gt;=&lt;/span&gt;y.shape[&lt;span class="dv"&gt;0&lt;/span&gt;], observed&lt;span class="op"&gt;=&lt;/span&gt;y_tt)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+                     shape&lt;span class="op"&gt;=&lt;/span&gt;y.shape[&lt;span class="dv"&gt;0&lt;/span&gt;], observed&lt;span class="op"&gt;=&lt;/span&gt;y_tt)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The negative total log likelihood in our example problem has a non-smooth &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; term. The standard means of estimating a [MAP] solution to this problem usually involves the soft-thresholding operator, which is a type of proximal operator. This operator is cheap to compute, so that–among other things–makes the proximal approaches that use it quite appealing.&lt;/p&gt;
 &lt;p&gt;Moving on, let’s say we wanted to produce a MAP estimate in this PyMC3 context. A function is already provided for this generic task: &lt;code&gt;find_MAP&lt;/code&gt;.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; lasso_model:
@@ -259,7 +252,7 @@ Out[&lt;span class="dv"&gt;5&lt;/span&gt;]: Elemwise{add,no_inplace} [&lt;span c
        &lt;span class="op"&gt;|&lt;/span&gt;   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="fl"&gt;2.0&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; BJ]
        &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; BK] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;
          &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="op"&gt;-&lt;/span&gt;inf} [&lt;span class="bu"&gt;id&lt;/span&gt; BL]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;We see that the top-most operator is an &lt;code&gt;Elemwise&lt;/code&gt; that applies the scalar &lt;code&gt;add&lt;/code&gt; operation. This is the &lt;span class="math inline"&gt;\(+\)&lt;/span&gt; in &lt;span class="math inline"&gt;\(l(\beta) + \phi(\beta)\)&lt;/span&gt;. If we were to consider the inputs to this operator as our candidates for &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;, then we might find the pair with the following:&lt;/p&gt;
+&lt;p&gt;We see that the top-most operator is an &lt;code&gt;Elemwise&lt;/code&gt; that applies the scalar &lt;code&gt;add&lt;/code&gt; operation. This is the &lt;span class="math inline"&gt;\(+\)&lt;/span&gt; in &lt;span class="math inline"&gt;\(l(\beta) + \phi(\beta)\)&lt;/span&gt;. If we were to consider the inputs to this operator as our candidates for &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;, then we might find this pair with the following:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;
 In [&lt;span class="dv"&gt;6&lt;/span&gt;]: &lt;span class="bu"&gt;print&lt;/span&gt;(lasso_model.logpt.owner.inputs)
 Out[&lt;span class="dv"&gt;6&lt;/span&gt;]: [Sum{acc_dtype&lt;span class="op"&gt;=&lt;/span&gt;float64}.&lt;span class="dv"&gt;0&lt;/span&gt;, Sum{acc_dtype&lt;span class="op"&gt;=&lt;/span&gt;float64}.&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
@@ -410,7 +403,7 @@ Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; M] &lt;span cla
 &lt;p&gt;There is much more to consider in the examples above. Nonetheless, standalone libraries, like &lt;a href="https://github.com/logpy/logpy/"&gt;LogPy&lt;/a&gt; and SymPy, can be adapted to Theano graphs to provide the functionality necessary to cover most of these considerations.&lt;/p&gt;
 &lt;p&gt;Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the &lt;code&gt;hessian&lt;/code&gt; function, and within &lt;code&gt;theano.sandbox.linalg&lt;/code&gt; are &lt;code&gt;Optimizer&lt;/code&gt; hints for matrix positivity and other properties relevant to determining convexity using this simple idea.&lt;/p&gt;
 &lt;div class="remark" markdown="" env-number="2" title-name=""&gt;
-&lt;p&gt;Other great examples of linear algebra themed optimizations are in &lt;code&gt;theano.sandbox.linalg&lt;/code&gt;: for example, &lt;code&gt;no_transpose_symmetric&lt;/code&gt;. Some of these demonstrate exactly how straight-forward it can be to add algebraic considerations.&lt;/p&gt;
+&lt;p&gt;Other great examples of linear algebra themed optimizations are in &lt;code&gt;theano.sandbox.linalg&lt;/code&gt;: for instance, &lt;code&gt;no_transpose_symmetric&lt;/code&gt;. Some of these demonstrate exactly how straight-forward it can be to add algebraic considerations.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;Although our convexity testing idea is far too simple for many &lt;span class="math inline"&gt;\(l\)&lt;/span&gt;, the point we want to make is that the basic code necessary for simple tests like this may already be in place. However, with the logic programming mentioned earlier in this section, comes the possibility of implementing aspects of the convex function calculus, by which one can determine convexity for many more classes of functions.&lt;/p&gt;
 &lt;/section&gt;

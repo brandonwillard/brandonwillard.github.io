@@ -176,21 +176,14 @@ code > span.in { color: #808080; font-weight: bold; font-style: italic; } /* Inf
 <p>That said, statistical modeling and estimation as a whole should seriously consider aligning more with the current tools and offerings of symbolic mathematics. Relative to the subject matter here, symbolic integration provides an excellent example. In computer algebra systems, mappings between basic functional forms and their generalized hypergeometric equivalents are used to exploit convenient convolution identities. In the same vein, it might be possible to use analogous tables for solutions to a wide variety of non-smooth models. We outline how this might be done in the following sections.</p>
 <section id="a-context" class="level2">
 <h2>A Context</h2>
-<p>Much recent work in statistical modeling and estimation has revolved around the desire for sparsity, regularization and efficient [automatic] model selection. This is, in some sense, an objective shared with the more specialized areas of Deep Learning and Compressed Sensing. In the latter case, we can point to Dropout <span class="citation" data-cites="srivastava_dropout_2014">(Srivastava et al. 2014)</span> and, in the former, <span class="math inline">\(\ell_p\)</span> regularization <span class="citation" data-cites="donoho_compressed_2006">(Donoho 2006)</span>.</p>
+<p>Much recent work in statistical modeling and estimation has revolved around the desire for sparsity, regularization and efficient [automatic] model selection. This is, in some sense, an objective shared with the more specialized areas of Deep Learning and Compressed Sensing. In the former case, we can point to Dropout <span class="citation" data-cites="srivastava_dropout_2014">(Srivastava et al. 2014)</span> and, in the latter, <span class="math inline">\(\ell_p\)</span> regularization <span class="citation" data-cites="donoho_compressed_2006">(Donoho 2006)</span>.</p>
 <p>Without delving into those topics here, we’ll simply assume that a practitioner intends to produce a sparse estimate for a model that results in LASSO. First, some setup:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> numpy <span class="im">as</span> np
 <span class="im">import</span> scipy <span class="im">as</span> sc
-<span class="im">import</span> pandas <span class="im">as</span> pd
 
 <span class="im">import</span> pymc3 <span class="im">as</span> pm
 <span class="im">import</span> theano
 <span class="im">import</span> theano.tensor <span class="im">as</span> tt
-
-<span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt
-<span class="im">import</span> seaborn <span class="im">as</span> sb
-
-<span class="co"># plt.style.use(&#39;ggplot&#39;)</span>
-plt.rc(<span class="st">&#39;text&#39;</span>, usetex<span class="op">=</span><span class="va">True</span>)
 
 theano.config.mode <span class="op">=</span> <span class="st">&#39;FAST_COMPILE&#39;</span></code></pre></div>
 <p>Using PyMC3, the Bayes version of the LASSO <span class="citation" data-cites="park_bayesian_2008">(Park and Casella 2008)</span> model is easily specified.</p>
@@ -212,7 +205,7 @@ y_tt <span class="op">=</span> tt_shared(y, name<span class="op">=</span><span c
     <span class="co"># See https://github.com/pymc-devs/pymc3/pull/1125</span>
     beta_rv <span class="op">=</span> pm.Laplace(<span class="st">&#39;beta&#39;</span>, mu<span class="op">=</span><span class="dv">0</span>, b<span class="op">=</span><span class="dv">1</span>, shape<span class="op">=</span>X.shape[<span class="dv">1</span>])
     y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;y&#39;</span>, mu<span class="op">=</span>X_tt.dot(beta_rv), sd<span class="op">=</span><span class="dv">1</span>,
-shape<span class="op">=</span>y.shape[<span class="dv">0</span>], observed<span class="op">=</span>y_tt)</code></pre></div>
+                     shape<span class="op">=</span>y.shape[<span class="dv">0</span>], observed<span class="op">=</span>y_tt)</code></pre></div>
 <p>The negative total log likelihood in our example problem has a non-smooth <span class="math inline">\(\ell_1\)</span> term. The standard means of estimating a [MAP] solution to this problem usually involves the soft-thresholding operator, which is a type of proximal operator. This operator is cheap to compute, so that–among other things–makes the proximal approaches that use it quite appealing.</p>
 <p>Moving on, let’s say we wanted to produce a MAP estimate in this PyMC3 context. A function is already provided for this generic task: <code>find_MAP</code>.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">with</span> lasso_model:
@@ -367,7 +360,7 @@ Out[<span class="dv">5</span>]: Elemwise{add,no_inplace} [<span class="bu">id</s
        <span class="op">|</span>   <span class="op">|</span>TensorConstant{<span class="fl">2.0</span>} [<span class="bu">id</span> BJ]
        <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BK] <span class="st">&#39;&#39;</span>
          <span class="op">|</span>TensorConstant{<span class="op">-</span>inf} [<span class="bu">id</span> BL]</code></pre></div>
-<p>We see that the top-most operator is an <code>Elemwise</code> that applies the scalar <code>add</code> operation. This is the <span class="math inline">\(+\)</span> in <span class="math inline">\(l(\beta) + \phi(\beta)\)</span>. If we were to consider the inputs to this operator as our candidates for <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span>, then we might find the pair with the following:</p>
+<p>We see that the top-most operator is an <code>Elemwise</code> that applies the scalar <code>add</code> operation. This is the <span class="math inline">\(+\)</span> in <span class="math inline">\(l(\beta) + \phi(\beta)\)</span>. If we were to consider the inputs to this operator as our candidates for <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span>, then we might find this pair with the following:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
 In [<span class="dv">6</span>]: <span class="bu">print</span>(lasso_model.logpt.owner.inputs)
 Out[<span class="dv">6</span>]: [Sum{acc_dtype<span class="op">=</span>float64}.<span class="dv">0</span>, Sum{acc_dtype<span class="op">=</span>float64}.<span class="dv">0</span>]</code></pre></div>
@@ -518,7 +511,7 @@ Elemwise{add,no_inplace} [<span class="bu">id</span> M] <span class="st">&#39;&#
 <p>There is much more to consider in the examples above. Nonetheless, standalone libraries, like <a href="https://github.com/logpy/logpy/">LogPy</a> and SymPy, can be adapted to Theano graphs to provide the functionality necessary to cover most of these considerations.</p>
 <p>Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the <code>hessian</code> function, and within <code>theano.sandbox.linalg</code> are <code>Optimizer</code> hints for matrix positivity and other properties relevant to determining convexity using this simple idea.</p>
 <div class="remark" markdown="" env-number="2" title-name="">
-<p>Other great examples of linear algebra themed optimizations are in <code>theano.sandbox.linalg</code>: for example, <code>no_transpose_symmetric</code>. Some of these demonstrate exactly how straight-forward it can be to add algebraic considerations.</p>
+<p>Other great examples of linear algebra themed optimizations are in <code>theano.sandbox.linalg</code>: for instance, <code>no_transpose_symmetric</code>. Some of these demonstrate exactly how straight-forward it can be to add algebraic considerations.</p>
 </div>
 <p>Although our convexity testing idea is far too simple for many <span class="math inline">\(l\)</span>, the point we want to make is that the basic code necessary for simple tests like this may already be in place. However, with the logic programming mentioned earlier in this section, comes the possibility of implementing aspects of the convex function calculus, by which one can determine convexity for many more classes of functions.</p>
 </section>
