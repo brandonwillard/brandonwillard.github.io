@@ -112,7 +112,6 @@ dlogp &lt;span class="op"&gt;=&lt;/span&gt; bij.mapf(lasso_model.fastdlogp(lasso
 
 &lt;span class="co"&gt;# Could also inspect the log likelihood of the prior:&lt;/span&gt;
 &lt;span class="co"&gt;# beta_rv.dlogp().f(np.zeros_like(start[&amp;#39;beta&amp;#39;]))&lt;/span&gt;
-&lt;span class="co"&gt;# beta_rv.dlogp().f(np.zeros_like(start[&amp;#39;beta&amp;#39;]))&lt;/span&gt;
 
 grad_at_0 &lt;span class="op"&gt;=&lt;/span&gt; dlogp(np.zeros_like(start[&lt;span class="st"&gt;&amp;#39;beta&amp;#39;&lt;/span&gt;]))
 grad_at_1 &lt;span class="op"&gt;=&lt;/span&gt; dlogp(np.ones_like(start[&lt;span class="st"&gt;&amp;#39;beta&amp;#39;&lt;/span&gt;]))&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
