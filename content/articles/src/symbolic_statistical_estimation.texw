@@ -222,7 +222,6 @@ dlogp = bij.mapf(lasso_model.fastdlogp(lasso_model.vars))
 
 # Could also inspect the log likelihood of the prior:
 # beta_rv.dlogp().f(np.zeros_like(start['beta']))
-# beta_rv.dlogp().f(np.zeros_like(start['beta']))
 
 grad_at_0 = dlogp(np.zeros_like(start['beta']))
 grad_at_1 = dlogp(np.ones_like(start['beta']))
