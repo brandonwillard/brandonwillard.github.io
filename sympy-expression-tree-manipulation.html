@@ -13,13 +13,13 @@
 <link rel="canonical" href="https://brandonwillard.github.io/sympy-expression-tree-manipulation.html">
 
         <meta name="author" content="Brandon Willard" />
-        <meta name="description" content="SymPy Expression Tree Manipulation code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; } td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #dddddd; } td.sourceCode { padding-left: 5px; } code &gt; span.kw ..." />
+        <meta name="description" content="SymPy Expression Tree Manipulation code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; background-color: #ffffff; color: #1f1c1b; } td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #ffffff; color: #a0a0a0; border-right ..." />
 
         <meta property="og:site_name" content="Brandon T. Willard" />
         <meta property="og:type" content="article"/>
         <meta property="og:title" content="SymPy Expression Tree Manipulation"/>
         <meta property="og:url" content="https://brandonwillard.github.io/sympy-expression-tree-manipulation.html"/>
-        <meta property="og:description" content="SymPy Expression Tree Manipulation code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; } td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #dddddd; } td.sourceCode { padding-left: 5px; } code &gt; span.kw ..."/>
+        <meta property="og:description" content="SymPy Expression Tree Manipulation code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; background-color: #ffffff; color: #1f1c1b; } td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #ffffff; color: #a0a0a0; border-right ..."/>
         <meta property="article:published_time" content="2016-10-27" />
             <meta property="article:section" content="articles" />
             <meta property="article:author" content="Brandon Willard" />
@@ -120,37 +120,41 @@ Brandon T. Willard            </a>
 div.sourceCode { overflow-x: auto; }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #dddddd; }
+table.sourceCode { width: 100%; line-height: 100%; background-color: #ffffff; color: #1f1c1b; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #ffffff; color: #a0a0a0; border-right: 1px solid #a0a0a0; }
 td.sourceCode { padding-left: 5px; }
-code > span.kw { font-weight: bold; } /* Keyword */
-code > span.dt { color: #800000; } /* DataType */
-code > span.dv { color: #0000ff; } /* DecVal */
-code > span.bn { color: #0000ff; } /* BaseN */
-code > span.fl { color: #800080; } /* Float */
-code > span.ch { color: #ff00ff; } /* Char */
-code > span.st { color: #dd0000; } /* String */
-code > span.co { color: #808080; font-style: italic; } /* Comment */
-code > span.al { color: #00ff00; font-weight: bold; } /* Alert */
-code > span.fu { color: #000080; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #ff0000; font-weight: bold; } /* Warning */
-code > span.cn { color: #000000; } /* Constant */
-code > span.sc { color: #ff00ff; } /* SpecialChar */
-code > span.vs { color: #dd0000; } /* VerbatimString */
-code > span.ss { color: #dd0000; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { } /* Variable */
-code > span.cf { } /* ControlFlow */
-code > span.op { } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { font-weight: bold; } /* Preprocessor */
-code > span.at { } /* Attribute */
-code > span.do { color: #808080; font-style: italic; } /* Documentation */
-code > span.an { color: #808080; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #808080; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #808080; font-weight: bold; font-style: italic; } /* Information */
+pre, code { color: #1f1c1b; background-color: #ffffff; }
+code > span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
+code > span.dt { color: #0057ae; } /* DataType */
+code > span.dv { color: #b08000; } /* DecVal */
+code > span.bn { color: #b08000; } /* BaseN */
+code > span.fl { color: #b08000; } /* Float */
+code > span.cn { color: #aa5500; } /* Constant */
+code > span.ch { color: #924c9d; } /* Char */
+code > span.sc { color: #3daee9; } /* SpecialChar */
+code > span.st { color: #bf0303; } /* String */
+code > span.vs { color: #bf0303; } /* VerbatimString */
+code > span.ss { color: #ff5500; } /* SpecialString */
+code > span.im { color: #ff5500; } /* Import */
+code > span.co { color: #898887; } /* Comment */
+code > span.do { color: #607880; } /* Documentation */
+code > span.an { color: #ca60ca; } /* Annotation */
+code > span.cv { color: #0095ff; } /* CommentVar */
+code > span.ot { color: #006e28; } /* Other */
+code > span.fu { color: #644a9b; } /* Function */
+code > span.va { color: #0057ae; } /* Variable */
+code > span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #1f1c1b; } /* Operator */
+code > span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
+code > span.ex { color: #0095ff; font-weight: bold; } /* Extension */
+code > span.pp { color: #006e28; } /* Preprocessor */
+code > span.at { color: #0057ae; } /* Attribute */
+code > span.re { color: #0057ae; } /* RegionMarker */
+code > span.in { color: #b08000; } /* Information */
+code > span.wa { color: #bf0303; } /* Warning */
+code > span.al { color: #bf0303; font-weight: bold; } /* Alert */
+code > span.er { color: #bf0303; text-decoration: underline; } /* Error */
+code > span. { color: #1f1c1b; } /* Normal */
   </style>
   <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
 </head>
@@ -175,7 +179,7 @@ E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \g
 \;.
 \label{eq:expectation}
 \end{equation}\]</span></p>
-<p>As an example, let’s set up a situation in which <code>as_expectations</code> would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match <span class="math inline">\(\eqref{eq:expectation}\)</span>:</p>
+<p>As an example, let’s set up a situation in which <code>as_expectations</code> would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match Equation <span class="math inline">\(\eqref{eq:expectation}\)</span>:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> sympy <span class="im">as</span> sp
 
 <span class="im">from</span> hsplus.horn_symbolic <span class="im">import</span> HornPhi1
@@ -215,13 +219,13 @@ z_{1}, \quad z_{2}\right )\right)}}{g
 \quad z_{2}\right )\right)}}
 \end{equation*}\]</span></p>
 <p>The ratios <code>r_1</code> and <code>r_2</code> should both be replaced by a symbol for <span class="math inline">\(E[X^m]\)</span>, for <span class="math inline">\(m = n\)</span> and <span class="math inline">\(m = n - i\)</span> when <span class="math inline">\(i &lt; n\)</span> respectively. We could allow <span class="math inline">\(E[X^0]\)</span>, I suppose, but–for a more interesting discussion–let’s not.</p>
-<p>We start by creating a SymPy pattern that expresses the mathematical form of <span class="math inline">\(E[X^m]\)</span> in <span class="math inline">\(\eqref{eq:expectation}\)</span>.</p>
+<p>We start by creating a SymPy pattern that expresses the mathematical form of <span class="math inline">\(E[X^m]\)</span> in Equation <span class="math inline">\(\eqref{eq:expectation}\)</span>.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">pnames <span class="op">=</span> (<span class="st">&#39;a&#39;</span>, <span class="st">&#39;b&#39;</span>, <span class="st">&#39;g&#39;</span>, <span class="st">&#39;z_1&#39;</span>, <span class="st">&#39;z_2&#39;</span>)
-phi1_wild_args_n <span class="op">=</span> sp.symbols(<span class="st">&#39;,&#39;</span>.join(n_ <span class="op">+</span> <span class="st">&#39;_w&#39;</span> <span class="cf">for</span> n_ <span class="op">in</span> pnames),
+phi1_wild_args_n <span class="op">=</span> sp.symbols(<span class="st">&#39;,&#39;</span>.join(n_ <span class="op">+</span> <span class="st">&#39;_w&#39;</span> <span class="cf">for</span> n_ <span class="kw">in</span> pnames),
                               cls<span class="op">=</span>sp.Wild, real<span class="op">=</span><span class="va">True</span>)
 
 n_w <span class="op">=</span> sp.Wild(<span class="st">&#39;n_w&#39;</span>,
-              properties<span class="op">=</span>(<span class="kw">lambda</span> x: x.is_integer <span class="op">and</span> x.is_positive,),
+              properties<span class="op">=</span>(<span class="kw">lambda</span> x: x.is_integer <span class="kw">and</span> x.is_positive,),
               exclude<span class="op">=</span>(phi1_wild_args_n[<span class="dv">2</span>],))
 
 phi1_wild_d <span class="op">=</span> HornPhi1(phi1_wild_args_n[<span class="dv">0</span>:<span class="dv">2</span>],
@@ -238,28 +242,21 @@ E_pattern <span class="op">=</span> phi1_wild_n <span class="op">/</span> phi1_w
 E_fn <span class="op">=</span> sp.Function(<span class="st">&quot;E&quot;</span>, real<span class="op">=</span><span class="va">True</span>)</code></pre></div>
 <p>When we find an <span class="math inline">\(E[X^m]\)</span> we’ll replace it with the symbolic function <code>E_fn</code>.</p>
 <p>If we focus on only one of the terms (one we know matches <code>E_pattern</code>), <code>r_1</code>, we should find that our pattern suffices:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
-In [<span class="dv">1</span>]: r_1.match(E_pattern)
-Out[<span class="dv">1</span>]: {a_w: a, b_w: b, g_w: g, n_w: n, z_1_w: z_1, z_2_w: z_2}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> r_1.match(E_pattern)
+{n_w_: _n, z_2_w_: z_2, z_1_w_: z_1, a_w_: a, g_w_: g, b_w_: b}</code></pre></div>
 <p>However, building up to the complexity of <code>expr</code>, we see that a simple product doesn’t:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
-In [<span class="dv">2</span>]: (a <span class="op">*</span> r_1).match(E_pattern)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).match(E_pattern)</code></pre></div>
 <p>Basically, the product has introduced some problems that arise from associativity. Here are the details for the root expression tree:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
-In [<span class="dv">3</span>]: (a <span class="op">*</span> r_1).func
-Out[<span class="dv">3</span>]: sympy.core.mul.Mul
-In [<span class="dv">4</span>]: (a <span class="op">*</span> r_1).args
-Out[<span class="dv">4</span>]:
-                 <span class="dv">1</span>
-(a, <span class="op">---------------------------</span>, HornPhi1(a, b, n <span class="op">+</span> g, z_1, z_2))
-    HornPhi1(a, b, g, z_1, z_2)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).func
+<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;sympy.core.mul.Mul&#39;</span><span class="op">&gt;</span>
+<span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).args
+(a, <span class="dv">1</span><span class="op">/</span>HornPhi1(a, b, g, z_1, z_2), HornPhi1(a, b, _n <span class="op">+</span> g, z_1, z_2))</code></pre></div>
 <p>The root operation is multiplication and the operation’s arguments are all terms in the product/division.</p>
 <p>Any complete search for matches to <code>E_pattern</code> would have to consider all possible combinations of terms in <code>(a * r_1).args</code>, i.e. all possible groupings that arise due to associativity. The simple inclusion of another <code>Wild</code> term causes the match to succeed, since SymPy’s basic pattern matching does account for associativity in this case.</p>
 <p>Here are a few explicit ways to make the match work:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
-In [<span class="dv">5</span>]: (a <span class="op">*</span> r_1).match(C_w <span class="op">*</span> E_pattern)
-Out[<span class="dv">5</span>]: {C_w: a, a_w: a, b_w: b, g_w: g, n_w: n, z_1_w: z_1, z_2_w:
-z_2}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).match(C_w <span class="op">*</span> E_pattern)
+{a_w_: a, n_w_: _n, g_w_: g, z_2_w_: z_2, C_w_: a, b_w_: b, z_1_w_:
+z_1}</code></pre></div>
 <p>or as a replacement:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">res <span class="op">=</span> (a <span class="op">*</span> r_1).replace(C_w <span class="op">*</span> E_pattern, C_w <span class="op">*</span> E_fn(n_w,
 <span class="op">*</span>phi1_wild_args_n))
@@ -352,23 +349,18 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 \left\{\right\}
 \end{equation*}\]</span></p>
 <p>The constrained integer <code>Wild</code> term, <code>n_w</code>, probably isn’t matching. Given the form of our pattern, <code>n_w</code> should match <code>n - i</code>, but <code>n - i</code> isn’t strictly positive, as required:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
-In [<span class="dv">6</span>]: (n <span class="op">-</span> i).is_positive <span class="op">==</span> <span class="va">True</span>
-Out[<span class="dv">6</span>]: <span class="va">False</span>
-In [<span class="dv">7</span>]: sp.ask(sp.Q.positive(n <span class="op">-</span> i)) <span class="op">==</span> <span class="va">True</span>
-Out[<span class="dv">7</span>]: <span class="va">False</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> (n <span class="op">-</span> i).is_positive <span class="op">==</span> <span class="va">True</span>
+<span class="va">False</span>
+<span class="op">&gt;&gt;&gt;</span> sp.ask(sp.Q.positive(n <span class="op">-</span> i)) <span class="op">==</span> <span class="va">True</span>
+<span class="va">False</span></code></pre></div>
 <p>Since <span class="math inline">\(n &gt; 0\)</span> and <span class="math inline">\(i &gt;= 0\)</span>, the only missing piece is that <span class="math inline">\(n &gt; i\)</span>. The most relevant mechanism in SymPy to assess this information is the <a href="http://docs.sympy.org/dev/modules/assumptions/index.html"><code>sympy.assumptions</code></a> interface. We could add and retrieve the assumption <code>sympy.Q.is_true(n &gt; i)</code> via <code>sympy.assume.global_assumptions</code>, or perform these operations inside of a Python <code>with</code> block, etc. This context management, via <code>sympy.assumptions.assume.AssumptionsContext</code>, would have to be performed manually, since I am not aware of any such mechanism offered by <code>Sum</code> and/or <code>Basic.replace</code>.</p>
 <p>Unfortunately, these ideas sound good, but aren’t implemented:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">
-In [<span class="dv">8</span>]: sp.ask(sp.Q.positive(n <span class="op">-</span> i), sp.Q.is_true(n <span class="op">&gt;</span> i)) <span class="op">==</span> <span class="va">True</span>
-Out[<span class="dv">8</span>]: <span class="va">False</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> sp.ask(sp.Q.positive(n <span class="op">-</span> i), sp.Q.is_true(n <span class="op">&gt;</span> i)) <span class="op">==</span> <span class="va">True</span>
+<span class="va">False</span></code></pre></div>
 <p>See the documentation for <code>sympy.assumptions.ask.ask</code>; it explicitely states that inequalities aren’t handled, yet.</p>
 <p>We could probably perform a manual reworking of <code>sympy.Q.is_true(n &gt; i)</code> to <code>sympy.Q.is_true(n - i &gt; 0)</code>, which is of course equivalent to <code>sympy.Q.positive(n - i)</code>: the result we want.</p>
 <p>If one were to provide this functionality, there’s still the question of how the relevant <code>AssumptionsContext</code>s would be created and passed around/nested during the subexpression replacements. There is no apparent means of adding this sort of functionality through the <code>Basic.replace</code> interface, so this path looks less appealing. However, nesting <code>with</code> blocks from strategies in <code>sympy.strategies</code> does seem quite possible. For example, in <code>sympy.strategies.traverse.sall</code>, one could possibly wrap the <code>return</code> statement after the <code>map(rule, ...)</code> call in a <code>with sympy.assuming(...):</code> block that contains the assumptions for any variables arising as, say, the index of a <code>Sum</code>–like in our case. In this scenario, code in the subexpressions would be able to ask questions like <code>sympy.Q.is_true(n &gt; i)</code> without altering the global assumptions context or the objects involved.</p>
 <p>Anyway, that’s all I wanted to cover here. Perhaps later I’ll post a hack for the assumptions approach, but–at the very least–I’ll try to follow up with a more direct solution that uses <code>sympy.strategies</code>.</p>
-<div id="refs" class="references">
-
-</div>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   CommonHTML: { linebreaks: { automatic: true } },
