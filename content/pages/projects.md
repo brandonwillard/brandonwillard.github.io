@@ -42,7 +42,7 @@ frequencies. The models and custom MCMC estimation methods are written in
 
 <br>
 Complete R and [Stan](http://mc-stan.org/) Horseshoe and Horseshoe+ shrinkage prior examples from our paper
-["Default Bayesian Analysis with Horseshoe Estimators"](https://academic.oup.com/biomet/article-abstract/103/4/955/2659031/Default-Bayesian-analysis-with-global-local):
+["Default Bayesian analysis with global-local shrinkage priors"](https://academic.oup.com/biomet/article-abstract/103/4/955/2659031/Default-Bayesian-analysis-with-global-local):
 <ul>
   <li><a href="https://brandonwillard.bitbucket.io/bayes-horseshoe-plus/horseshoe-stan-nvm.html">sparse multivariate normal estimation</a>
   </li>

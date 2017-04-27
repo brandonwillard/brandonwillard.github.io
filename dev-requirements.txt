@@ -34,3 +34,4 @@ sympy==1.0
 traitlets==4.3.1
 Unidecode==0.4.19
 wcwidth==0.1.7
+-e git+git@github.com:brandonwillard/pynoweb_tools.git#egg=pynoweb_tools

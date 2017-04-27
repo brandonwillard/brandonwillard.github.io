@@ -25,61 +25,31 @@
 \usepackage[backgroundcolor=bg, topline=false, bottomline=false, leftline=false, rightline=false]{mdframed}
 
 <<pweave_code, echo=False, evaluate=False>>=
-# ignore/change this stuff (and set infile manually) if you don't use neovim
-import neovim, os
+from pynoweb_tools.editor_utils import nvim_weave
 
-nvim = neovim.attach('socket', path=os.getenv("NVIM_LISTEN_ADDRESS"))
-currbuf = nvim.current.buffer
-infile = os.path.basename(currbuf.name)
-
-# here's a Pweave weave script...
-from pweave_custom import PwebMintedPandoc
-from pweave import rcParams, Pweb
-
-outext = "tex"
-docmode = False
-
-#dirs_split = os.getcwd().split(os.sep)
-#project_dir = str.join(os.sep, dirs_split[:dirs_split.index("src")])
-#output_file = str.join(os.sep, [project_dir, "src", "tex",
-#                                infile.split(os.path.extsep)[0] +
-#                                os.path.extsep + outext])
-project_dir = os.getcwd()
-output_file = str.join(os.sep, [project_dir,
-                                infile.split(os.path.extsep)[0] +
-                                os.path.extsep + outext])
-
-rcParams['figdir'] = str.join(os.sep, [os.path.join(project_dir, '..'), "figures"])
-rcParams['storeresults'] = docmode
-#rcParams['chunk']['defaultoptions']['engine'] = 'ipython'
-
-PwebFM = PwebMintedPandoc(file=infile,
-                          format=outext,
-                          shell="ipython_ext",
-                          figdir=rcParams['figdir'],
-                          output=output_file)
-PwebFM.updateformat({'width': '', 'figfmt': '.png', 'savedformats': ['.png']})
-
-# weave something
-PwebFM.weave(shell="ipython_ext")
+input_file_base = nvim_weave(rel_figdir='../figures',
+                             rel_outdir="./",
+                             format_opts={'width': r'\textwidth',
+                                          'figfmt': '.png',
+                                          'savedformats': ['.png', '.pdf']})
 
 # Compile document to markdown
-assert os.system('make {}.md'.format(infile.split(os.path.extsep)[0])) == 0
+assert os.system('make {}.pdf'.format(input_file_base)) == 0
+assert os.system('make {}.md'.format(input_file_base)) == 0
 @
 
 \usepackage{minted}
-\setminted{
-  fontsize=\footnotesize
-  , breaklines=true
-  , breakanywhere=true
-  , breakautoindent=true
-}
+\setminted{fontsize=\footnotesize, breaklines=true, breakanywhere=true,
+breakautoindent=true}
 
 % this order is important
 %\PassOptionsToPackage{hyphens}{url}
 \RequirePackage[hyphens]{url}
 \RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage[authoryear]{natbib}
+
+% Apparently cleveref must always be last.
+\usepackage{cleveref}
 
 \allowdisplaybreaks
 
@@ -106,7 +76,7 @@ frameworks.
 Specifically, we consider the optimization problems resulting from models with
 non-smooth objective functions.  These problems arise in the context of
 regularization and shrinkage, and here we'll address their automated application within
-the \emph{proximal framework} \citep{polson_proximal_2015}.  In \cite{polson_proximal_2015}
+the \emph{proximal framework} \citep{polson_proximal_2015}.  In \citet{polson_proximal_2015}
 we outlined a set of seemingly disparate optimization techniques within the fields
 of statistics, computer vision, and machine learning, that are unified by the types
 of functional bounds employed, the tools of convex analysis and the language of
@@ -120,7 +90,7 @@ within proximal algorithms--can be solved exactly with symbolic differentiation 
 algebraic equation solvers.  With perhaps only the addition of sophisticated
 variable assumptions and an ability to manipulate inequalities, even larger
 \emph{classes} of proximal operators could be solved.
-We refer the reader to the table in \cite{polson_proximal_2015} for examples
+We refer the reader to the table in \citet{polson_proximal_2015} for examples
 of operators that are currently solved--by hand--using roughly the same
 means.
 
@@ -528,7 +498,7 @@ Some key steps in the process will most likely require the integration of a
 symbolic algebra system, so that a much wider array of algebraic machinery can
 be leveraged to assess--say--convexity of the terms or to solve the proximal
 operators themselves.  Connections between Theano, SymPy and LogPy have already
-been explored in \cite{rocklin_mathematically_2013}, as well as many other
+been explored in \citet{rocklin_mathematically_2013}, as well as many other
 important aspects of the topics discussed here.
 
 Additionally, more advanced proximal algorithms exist to improve upon the convergence and
@@ -644,7 +614,7 @@ for these optimizations could be straightforward and computationally based
 (e.g. reducing the number of operations in computations of the log likelihood
 and other quantities) or more statistically focused (e.g. highly efficient
 sampling, improve mixing).  These ideas are most definitely not new--one
-example is given by \cite{mohasel_afshar_probabilistic_2016} for symbolic Gibbs
+example is given by \citet{mohasel_afshar_probabilistic_2016} for symbolic Gibbs
 sampling, but we hope the examples given here make the point that the tools are
 readily available and quite accessible.
 
