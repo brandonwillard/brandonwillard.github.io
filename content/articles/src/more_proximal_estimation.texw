@@ -190,7 +190,7 @@ lambda_max = np.linalg.norm(X.T.dot(y), np.inf)
 @
 
 As in \citet{willard_role_2017}, we can start with a model defined within a
-system like PyMC3 \citep{pymc3}.
+system like PyMC3 \citep{salvatier_probabilistic_2016}.
 <<create_pymc3_model, evaluate=True, echo=True>>=
 with pm.Model() as lasso_model:
     beta_rv = pm.Laplace('beta', mu=0, b=1,
@@ -1264,18 +1264,6 @@ plt.tight_layout()
 
 \section{Discussion}
 
-We would like to note that related developments in symbolic computing and
-automated optimization can be found in \cite{wytock_new_2016}.
-The particular value and distinction we've attempted to emphasized in symbolic
-tools is not just their ability to act as a compiler at the
-math level, but more for their ability to encode the potentially necessary
-relationships found in the mathematical characterizations of optimization
-problems.  This could imply--say--Theano optimizations that make direct use of
-the Moreau-Fenchel theorem, and automate consideration for multiple estimation
-methods via splitting (e.g. ADMM, Douglas-Rachford, etc.)--perhaps making
-decisions based on operator/matrix properties one could only reasonably
-specific in this context.
-
 Maybe small steps in this direction could even motivate much larger changes
 in our standard tools--like full support for sub-differentials and set-valued
 results, instead of the overly restrictive point-wise characterizations
@@ -1288,7 +1276,46 @@ use \emph{and} simultaneous bypassing of set-valued maps--in implementation, at
 least.  In a sense, frameworks like these could be minor abstractions to
 libraries with set-valued support.
 
-In future installments we'll attempt to delve into the details of these features.
+The value provided by the symbolic tools we've discussed are not \emph{just}
+their ability to act as compilers at a ``math level'', but more for their
+ability to concretely encode mathematical characterizations of optimization
+problems and methods.  Work in this direction is not new by any means; however,
+the combination of open-source tools and industry interest in algorithms that
+fall under the broad class of proximal methods (e.g. gradient descent, ADMM, EM,
+etc.) provides a more immediate reason to pursue these abstractions in
+code and automate their use.
+
+\cite{wytock_new_2016} discusses a similar approach to optimization (i.e.
+symbolic and with close coupling to useful mathematical abstractions), and
+there are other good examples \citep{diamond_cvxpy:_2016} of effective
+mathematical abstractions applied in code.
+In most cases, these examples do not--however--attempt to place their implementations
+upon a symbolic foundation and then realize their relevant
+methodologies in that context.  Most often, the mathematical abstractions--or
+just the methods--are directly implemented at the highest levels of
+abstraction possible (e.g. individual functions for ADMM,
+forward-backward/proximal gradient and Douglas-Rachford
+\cite{svaiter_pyprox_2017}).  This is most common and it makes sense in terms
+of simplicity, but offers none of the extensibility, generalization, or
+possibly efficiency provided by shared efforts across related projects.
+For example, in the context described here, implementations immediately
+benefit from Theano's code conversion, parallelization and relevant
+improvements to its basic graph optimizations.  The latter covers
+both low-level implementation improvements--including automatic use
+of relevant BLAS functions--as well as high-level tensor algebra
+simplifications.
+In a development community that builds from such tools, related efficiency and
+performance gains could occur much more often and be much more specific
+to certain areas of mathematics.
+
+The utility of these encodings may manifest as--say--Theano optimizations that
+make direct use of the orthonormal basis property in \Cref{eq:prox_ortho_basis}, or
+the Moreau-Fenchel theorem, and automate consideration for
+multiple estimation methods via splitting (e.g. ADMM, Douglas-Rachford,
+etc.)--perhaps by making decisions based on operator/matrix properties one
+could reasonably specific in this context.
+In future installments we'll attempt to delve into the details of these
+features.
 
 \bibliographystyle{plainnat}
 \bibliography{more-proximal-estimation}
