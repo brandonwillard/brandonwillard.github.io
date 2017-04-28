@@ -472,21 +472,28 @@ of shared variable.
 
 \subsection{Step Sizes}
 
-A critical aspect of the proximal gradient approach involves the use of
-appropriate step sizes, $\alpha$.  They needn't always be fixed values, and,
-because of this, we can search for an appropriate value during estimation.
-These values have an obvious connection to the performance of a method--beyond
-basic guarantees of convergence--and sometimes
-Most often, there are ranges of such values that are easily specified by
-the Lipschitz properties of the operators involved.
-The same function-analytic considerations underlie the classical line-search
-methods in iterative optimization, give meaning to ``tuning parameters'',
-and often highlight the need for more ``mathematical'' considerations in
-practice.
+A critical aspect of the proximal gradient approach--and most
+optimization--involves the use of appropriate step sizes, $\alpha$.  They
+needn't always be fixed values, and, because of this, we can search for a
+suitable value during estimation.  Furthermore, in some cases, step sizes can
+be sequences amenable to acceleration techniques \citep{beck_fast_2014}.
 
-In the spirit of more mathematical considerations and their automation,
-one particularly relevant direction can be found in Theano's
-experimental matrix ``Hints''.  The ideas behind
+These values have obvious connections to the performance of an optimization
+method--beyond basic guarantees of convergence, so the power of any
+implementation will depend on how much support it has for various types of step
+size sequences.
+
+Often acceptible ranges of step size values are derived from Lipschitz
+and related properties of the functions involved--and/or their gradients.
+Similar considerations underlie the classical line-search methods in
+optimization, and give meaning to what some call ``tuning parameters''.
+These connections between function-analytic properties and
+``tuning parameters'' themselves highlight the need for more mathematical
+coverage within implementations--by which we imply their place in a fully
+computational, symbolic setting.
+
+In this spirit, one particularly relevant direction of work can be found in
+Theano's experimental matrix ``Hints''.  The ideas behind
 \texttt{theano.sandbox.linalg.ops.\{psd, spectral\_radius\_bound\}}
 encompass some of the machinery needed to automatically determine
 applicable and efficient $\alpha$ constants and sequences.
@@ -533,8 +540,17 @@ def backtracking_search(beta_, alpha_,
   Although \texttt{scan} and tighter Theano integration may not on average
   produce better results than our current use of its compiled functions, we
   still wish to emphasize the possibilities.
-\end{remark}
 
+  Likewise, an \texttt{Op} for the proximal operator might also be necessary for
+  solving proximal operators automatically in closed-form (when possible)
+  within a graph.
+  This is based on the standard use of lookup tables combined with sets of
+  algebraic relationships and identities used in symbolic algebra libraries for
+  automatic differentiation and integration.  The same can be done to extend
+  the coverage of known closed-form solutions to proximal operators in an
+  automated setting.
+
+\end{remark}
 
 <<echo=False, evaluate=False>>=
 gamma_ls_upper_tt = tt.nlinalg.norm(X_tt.T.dot(y_tt), 'inf')
@@ -837,19 +853,12 @@ g.axes[0, 0].set_xbound(-2,
 
 @
 
-\Cref{fig:pg_ls_plot} shows the results for proximal gradient steps alongside
-the step size changes due to backtracking line-search.  Regarding the latter,
-for our example a sufficient step size is found in the first few iterations, so
-the overall result isn't too interesting.  Fortunately, this sort of behaviour
-isn't uncommon, and it makes line-search quite effective in practice.
-
-The other most noticeable result in \Cref{fig:pg_ls_plot} is the quick
-decrease in loss for the first 20 or so iterations, then the very
-gradual convergence iterates $\beta^{(i)}$.  This is nice property to
-contrast with the coordinate-wise estimation in the next section, so
-we'll revisit that; however, it's worth mentioning now that the choice of
-stopping criteria should probably be informed by the optimization method
-used and its convergence properties--among other things.
+\Cref{fig:pg_ls_plot} shows a couple convergence measures for proximal gradient
+steps alongside the step size changes due to backtracking line-search.
+Regarding the latter, in our example a sufficient step size is found within
+the first few iterations, so the overall result isn't too interesting.
+Fortunately, this sort of behaviour isn't uncommon, which makes line-search
+quite effective in practice.
 
 \section{Coordinate-wise Estimation}
 
@@ -897,7 +906,7 @@ $\prox_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)$, where
 the latter is the soft thresholding operator.
 
 
-Now, if we wanted to relate this type of coordinate-descent to the much more
+Now, if we wanted to relate this type of coordinate descent to the much more
 general statement of the proximal gradient solution in
 \Cref{eq:forward-backward}, we would use a result like the
 following:
@@ -978,18 +987,14 @@ following:
   \end{proof}
 \end{proposition}
 
-Association with the proximal gradient algorithm can provide a fairly general
-means of expand and characterizing existing coordinate descent approaches.
-Perhaps the most readily available improvements involve sequence acceleration
-\citep{beck_fast_2014}.
-
 \begin{remark}
   \label{rem:bases}
-  The property in \Cref{eq:prox_ortho_basis} can be extended to other
-  orthonormal bases.  This might be a means of relating $X$-based
-  orthogonalizations of a regression problem, enforce different forms
-  of sparsity on $\beta$ estimates, or to simply investigate
-  convergence properties.
+  The property in \Cref{eq:prox_ortho_basis} can be extended to any other
+  orthonormal bases and provide quite a robust means of deriving methods for
+  certain classes of problems \citep{chaux_variational_2007}.
+  More specifically, this property is really a nice way to use $X$-based
+  orthogonalizations of a regression problem and implement different forms of
+  sparsity on $\beta$ estimates.
 \end{remark}
 
 \subsection{Implementation}
@@ -1009,9 +1014,6 @@ class CoordDescent(object):
 
         # (Inverse) 2-norm of each column/feature, i.e.
         #   np.reciprocal(np.diag(np.dot(X.T, X)))
-        #
-        # Notice how much larger each coordinate step is compared
-        # to `alpha_0`.
         self.alpha_vals = np.reciprocal((self.X**2).sum(axis=0))
 
         if col_seq is None:
@@ -1041,6 +1043,8 @@ class CoordDescent(object):
         return beta_val
 @
 
+Our example run randomizes the order of coordinates to demonstrate
+some of the variation introduced by this approach.
 <<coord_desc_example, echo=True, evaluate=True>>=
 beta_0 = np.zeros(M).astype('float64')
 lambda_val = 1e-2 * lambda_max
@@ -1100,22 +1104,34 @@ g.axes[0, 0].set_xbound(-2,
                         pg_coord_plot_data.index.get_values().max() + 1)
 @
 
-\Cref{fig:pg_coord_plot} demonstrates how well coordinate descent can work on
-some problems.  The number of iterations between coordinate descent and
-``batch'' proximal gradient is fairly noticeable in this example, yet both
-approach effectively the same limits as \texttt{cvx}.  It seems like the same
-ideas behind most batched vs. non-batched gradient and sampling methods (e.g.
-batched Gibbs sampling) are in effect here, as well.   In those cases, spectral
-properties of the $X$, or $X^\top X$, space often play a big part, and this
-idea connects back to our comment in \Cref{rem:bases}.
+\Cref{fig:pg_coord_plot} shows the distance measures for each randomized
+coordinate order.  The number of [average] iterations between
+coordinate descent and ``batch'' proximal gradient is fairly noticeable in this
+example, yet both reach effectively the same limits in parameter distance and
+minimum objective value as \texttt{cvx}.
+
+\begin{remark}
+  The same ideas behind batched vs. non-batched steps and block sampling found
+  within the Gibbs sampling literature \citep{roberts_updating_1997}
+  likely explain variation due to coordinate order and the relative efficiency of
+  coordinate descent.  There also appear to be some connections with our
+  comments in \Cref{rem:bases} and, to some extent, stochastic
+  gradient descent (SGD) \citep{bertsekas_incremental_2010}, as well.
+
+  Simply put, in these situations, the [spectral] properties of $l$/$\nabla l$
+  and $X$ fundamentally determine the extent to which steps sizes can be
+  increased or accelerated, and the bases, frames, or partitions introduced by
+  coordinate descent, blocking and SGD further act upon those properties
+\end{remark}
 
 \subsubsection{Regularization Paths}
 
-Also, due to the relatively fast convergence of coordinate descent, the
-method is a little more suitable for the computation of regularization paths--
-i.e. varying $\lambda$ between iterations.  There is much more to this
-topic, but for simplicity let's just say that each $\lambda$ step
-has a ``warm-start'' from the previous descent iteration.
+Also, due to the relatively fast convergence of coordinate descent, the method
+is a little more suitable for the computation of regularization paths-- i.e.
+varying $\lambda$ between iterations.  There is much more to this topic, but
+for simplicity let's just note that each $\lambda$ step has a ``warm-start''
+from the previous descent iteration--which helps--and that we're otherwise fine
+with the solution provided by this approach.
 
 Next, we make a small extension to demonstrate the computation
 of regularization paths--using \texttt{lasso\_path} for comparison.
