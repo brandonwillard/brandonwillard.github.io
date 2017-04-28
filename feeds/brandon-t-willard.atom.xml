@@ -65,21 +65,18 @@ code &gt; span. { color: #1f1c1b; } /* Normal */
 &lt;!--  --&gt;
 &lt;section id="introduction" class="level1"&gt;
 &lt;h1&gt;Introduction&lt;/h1&gt;
-&lt;p&gt;The focal point of this short exposition will be an elaboration of &lt;span class="citation" data-cites="willard_role_2017"&gt;Willard (2017)&lt;/span&gt; via the numeric implementation of the basic &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; penalization problem, &lt;span class="math display"&gt;\[\begin{equation}
+&lt;p&gt;The focal point of this short exposition will be an elaboration of the basic &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; penalization problem discussed in &lt;span class="citation" data-cites="willard_role_2017"&gt;Willard (2017)&lt;/span&gt;, &lt;span class="math display"&gt;\[\begin{equation}
 \operatorname*{argmin}_{\beta} \left\{
   \frac{1}{2} \|y - X \beta\|^2_2
     + \lambda \|\beta\|_1
   \right\}
-  \;,
+  \;.
   \label{eq:lasso}
-\end{equation}\]&lt;/span&gt; alongside some additional, related topics concerning automation and symbolic computation. Again, our framing of the problem is in terms of proximal methods &lt;span class="citation" data-cites="parikh_proximal_2014 combettes_proximal_2011"&gt;(Parikh and Boyd 2014; Combettes and Pesquet 2011)&lt;/span&gt;, how they relate to some common estimation practices–specifically, coordinate descent and line-searching–and their implementation in Theano &lt;span class="citation" data-cites="bergstra_theano_2010"&gt;(Bergstra et al. 2010)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;We start by focusing on the connections with coordinate-wise path estimation of Equation &lt;span class="math inline"&gt;\(\eqref{eq:lasso}\)&lt;/span&gt;–and related problems–in the statistics literature. The goal is one among many &lt;span class="citation" data-cites="polson_proximal_2015"&gt;(Polson, Scott, and Willard 2015)&lt;/span&gt; steps intended to provide details of the already well established relationship between these problems and proximal methods. Minimally, these connections can contextualize the past developments and direction of work in this area, and–ideally–open up avenues for readily drawing from established work in proximal algorithms across numerous fields.&lt;/p&gt;
-&lt;p&gt;Although Equation &lt;span class="math inline"&gt;\(\eqref{eq:lasso}\)&lt;/span&gt; is strictly &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt;–or Lasso, we simply allude to the relatively minor alterations that produce the ElasticNet, grouped Lasso and related models. Under the proximal framework, the distinctions between these models do not generally lead to major theoretical re-workings, or the need to consider principles not already found within the proximal methods.&lt;/p&gt;
-&lt;p&gt;For example, the transition from standard Lasso to grouped Lasso may not be trivial, but–within the proximal framework–the change amounts to an intermediate operator composition step &lt;span class="citation" data-cites="argyriou_efficient_2011 hu_proximal"&gt;(Argyriou et al. 2011; Hu, Li, and Yang, n.d.)&lt;/span&gt;. This change can be introduced into existing proximal algorithms without significant alteration to the established steps. In some cases the exact change can be entirely transparent and only result in nominally different arguments to existing functions.&lt;/p&gt;
+\end{equation}\]&lt;/span&gt; We continue our discussion on topics concerning automation and symbolic computation in Theano &lt;span class="citation" data-cites="bergstra_theano_2010"&gt;(Bergstra et al. 2010)&lt;/span&gt;, as well as the mathematical methodology we believe is suitable for such implementations. Again, our framing of the problem is in terms of “proximal methods” &lt;span class="citation" data-cites="parikh_proximal_2014 combettes_proximal_2011"&gt;(Parikh and Boyd 2014; Combettes and Pesquet 2011)&lt;/span&gt;. Along the way we propose one simple means of placing the well-known technique of coordinate descent within the scope of proximal methods via a general property of proximal operators. These efforts are a continued outgrowth of our work in &lt;span class="citation" data-cites="polson_proximal_2015"&gt;Polson, Scott, and Willard (2015)&lt;/span&gt;.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="proximal-and-computational-components" class="level1"&gt;
 &lt;h1&gt;Proximal and Computational Components&lt;/h1&gt;
-&lt;p&gt;First, the workhorse of the proximal framework: the &lt;em&gt;proximal operator&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;First, we [re]-introduce the workhorse of proximal methods: the &lt;em&gt;proximal operator&lt;/em&gt;.&lt;/p&gt;
 &lt;div class="Def" markdown="" env-number="1" title-name="[Proximal Operator]"&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
@@ -123,12 +120,12 @@ lambda_max &lt;span class="op"&gt;=&lt;/span&gt; np.linalg.norm(X.T.dot(y), np.i
                          shape&lt;span class="op"&gt;=&lt;/span&gt;X.shape[&lt;span class="dv"&gt;1&lt;/span&gt;])
     y_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;X_tt.dot(beta_rv), sd&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;,
                      shape&lt;span class="op"&gt;=&lt;/span&gt;y.shape[&lt;span class="dv"&gt;0&lt;/span&gt;], observed&lt;span class="op"&gt;=&lt;/span&gt;y_tt)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;A system that worked in this way might then arrive at the necessary steps toward estimation through a sophisticated means of identifying the underlying &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; estimation problem.&lt;/p&gt;
+&lt;p&gt;In this setting one might then arrive at the necessary steps toward estimation automatically (i.e. identify the underlying &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; estimation problem). We discuss this more in &lt;span class="citation" data-cites="willard_role_2017"&gt;Willard (2017)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;For simplicity we’ll just assume that all components of the estimation problem are know–i.e. loss and penalty functions. The proximal operator that arises in this standard example is the &lt;em&gt;soft thresholding&lt;/em&gt; operator. In Theano, it can be implemented with the following:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; tt_soft_threshold(beta_, lambda_):
     &lt;span class="cf"&gt;return&lt;/span&gt; tt.sgn(beta_) &lt;span class="op"&gt;*&lt;/span&gt; tt.maximum(tt.abs_(beta_) &lt;span class="op"&gt;-&lt;/span&gt; lambda_, &lt;span class="dv"&gt;0&lt;/span&gt;)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="remark" markdown="" env-number="1" title-name=""&gt;
-&lt;p&gt;This operator can take other forms, and the one used here is likely not the best. For instance, our use of &lt;code&gt;maximum&lt;/code&gt; can be replaced by other conditional-like statements taking the general form &lt;span class="math display"&gt;\[\begin{equation*}
+&lt;p&gt;This operator can take other forms, and the one used here is likely not the best. The &lt;code&gt;maximum&lt;/code&gt; can be replaced by other conditional-like statements–such as &lt;span class="math display"&gt;\[\begin{equation*}
 \operatorname{S}(z, \lambda) =
     \begin{cases}
      {\mathop{\mathrm{sgn}}}(\beta) (\beta - \lambda) &amp;amp; \beta &amp;gt; \lambda
@@ -568,9 +565,6 @@ pg_path_data &lt;span class="op"&gt;=&lt;/span&gt; pg_path_data.append(sklearn_p
 &lt;section id="bibliography" class="level1 unnumbered"&gt;
 &lt;h1&gt;References&lt;/h1&gt;
 &lt;div id="refs" class="references"&gt;
-&lt;div id="ref-argyriou_efficient_2011"&gt;
-&lt;p&gt;Argyriou, Andreas, Charles A. Micchelli, Massimiliano Pontil, Lixin Shen, and Yuesheng Xu. 2011. “Efficient First Order Methods for Linear Composite Regularizers,” 1–19.&lt;/p&gt;
-&lt;/div&gt;
 &lt;div id="ref-beck_fast_2014"&gt;
 &lt;p&gt;Beck, Amir, and Marc Teboulle. 2014. “A Fast Dual Proximal Gradient Algorithm for Convex Minimization and Applications.” &lt;em&gt;Operations Research Letters&lt;/em&gt; 42 (1): 1–6. &lt;a href="http://www.sciencedirect.com/science/article/pii/S0167637713001454" class="uri"&gt;http://www.sciencedirect.com/science/article/pii/S0167637713001454&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
@@ -588,9 +582,6 @@ pg_path_data &lt;span class="op"&gt;=&lt;/span&gt; pg_path_data.append(sklearn_p
 &lt;/div&gt;
 &lt;div id="ref-friedman_pathwise_2007"&gt;
 &lt;p&gt;Friedman, Jerome, Trevor Hastie, Holger Höfling, Robert Tibshirani, and others. 2007. “Pathwise Coordinate Optimization.” &lt;em&gt;The Annals of Applied Statistics&lt;/em&gt; 1 (2): 302–32. &lt;a href="http://projecteuclid.org/euclid.aoas/1196438020" class="uri"&gt;http://projecteuclid.org/euclid.aoas/1196438020&lt;/a&gt;.&lt;/p&gt;
-&lt;/div&gt;
-&lt;div id="ref-hu_proximal"&gt;
-&lt;p&gt;Hu, YH, C Li, and XQ Yang. n.d. “Proximal Gradient Algorithm for Group Sparse Optimization.”&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-mazumder_regularization_2009"&gt;
 &lt;p&gt;Mazumder, Rahul, Trevor Hastie, and Rob Tibshirani. 2009. “Regularization Methods for Learning Incomplete Matrices.” &lt;em&gt;arXiv Preprint arXiv:0906.2034&lt;/em&gt;. &lt;a href="https://arxiv.org/abs/0906.2034" class="uri"&gt;https://arxiv.org/abs/0906.2034&lt;/a&gt;.&lt;/p&gt;
