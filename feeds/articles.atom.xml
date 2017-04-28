@@ -243,8 +243,10 @@ tt_func_mode &lt;span class="op"&gt;=&lt;/span&gt; NanGuardMode(nan_is_error&lt;
 &lt;/section&gt;
 &lt;section id="step-sizes" class="level2"&gt;
 &lt;h2&gt;Step Sizes&lt;/h2&gt;
-&lt;p&gt;A critical aspect of the proximal gradient approach involves the use of appropriate step sizes, &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt;. They needn’t always be fixed values, and, because of this, we can search for an appropriate value during estimation. These values have an obvious connection to the performance of a method–beyond basic guarantees of convergence–and sometimes Most often, there are ranges of such values that are easily specified by the Lipschitz properties of the operators involved. The same function-analytic considerations underlie the classical line-search methods in iterative optimization, give meaning to “tuning parameters”, and often highlight the need for more “mathematical” considerations in practice.&lt;/p&gt;
-&lt;p&gt;In the spirit of more mathematical considerations and their automation, one particularly relevant direction can be found in Theano’s experimental matrix “Hints”. The ideas behind &lt;code&gt;theano.sandbox.linalg.ops.{psd, spectral_radius_bound}&lt;/code&gt; encompass some of the machinery needed to automatically determine applicable and efficient &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt; constants and sequences.&lt;/p&gt;
+&lt;p&gt;A critical aspect of the proximal gradient approach–and most optimization–involves the use of appropriate step sizes, &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt;. They needn’t always be fixed values, and, because of this, we can search for a suitable value during estimation. Furthermore, in some cases, step sizes can be sequences amenable to acceleration techniques &lt;span class="citation" data-cites="beck_fast_2014"&gt;(Beck and Teboulle 2014)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;These values have obvious connections to the performance of an optimization method–beyond basic guarantees of convergence, so the power of any implementation will depend on how much support it has for various types of step size sequences.&lt;/p&gt;
+&lt;p&gt;Often acceptible ranges of step size values are derived from Lipschitz and related properties of the functions involved–and/or their gradients. Similar considerations underlie the classical line-search methods in optimization, and give meaning to what some call “tuning parameters”. These connections between function-analytic properties and “tuning parameters” themselves highlight the need for more mathematical coverage within implementations–by which we imply their place in a fully computational, symbolic setting.&lt;/p&gt;
+&lt;p&gt;In this spirit, one particularly relevant direction of work can be found in Theano’s experimental matrix “Hints”. The ideas behind &lt;code&gt;theano.sandbox.linalg.ops.{psd, spectral_radius_bound}&lt;/code&gt; encompass some of the machinery needed to automatically determine applicable and efficient &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt; constants and sequences.&lt;/p&gt;
 &lt;p&gt;In our example, we use the standard backtracking line-search.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; backtracking_search(beta_, alpha_,
                         prox_fn, loss_fn, loss_grad_fn,
@@ -258,8 +260,6 @@ tt_func_mode &lt;span class="op"&gt;=&lt;/span&gt; NanGuardMode(nan_is_error&lt;
 
         beta_ &lt;span class="op"&gt;=&lt;/span&gt; beta_start_ &lt;span class="op"&gt;-&lt;/span&gt; alpha_ &lt;span class="op"&gt;*&lt;/span&gt; loss_grad_start_
         z &lt;span class="op"&gt;=&lt;/span&gt; prox_fn(beta_, alpha_ &lt;span class="op"&gt;*&lt;/span&gt; lambda_)
-        &lt;span class="co"&gt;# x.step = x.last - alpha.run * x.grad&lt;/span&gt;
-        &lt;span class="co"&gt;# z = fprox.fun(x.step, alpha.run * lambda)&lt;/span&gt;
 
         loss_z &lt;span class="op"&gt;=&lt;/span&gt; loss_fn(z)
         step_diff &lt;span class="op"&gt;=&lt;/span&gt; z &lt;span class="op"&gt;-&lt;/span&gt; beta_start_
@@ -267,9 +267,6 @@ tt_func_mode &lt;span class="op"&gt;=&lt;/span&gt; NanGuardMode(nan_is_error&lt;
         line_diff &lt;span class="op"&gt;=&lt;/span&gt; alpha_ &lt;span class="op"&gt;*&lt;/span&gt; (loss_diff &lt;span class="op"&gt;-&lt;/span&gt;
 loss_grad_start_.T.dot(step_diff))
         line_diff &lt;span class="op"&gt;-=&lt;/span&gt; step_diff.T.dot(step_diff) &lt;span class="op"&gt;/&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;.
-        &lt;span class="co"&gt;# f.line.diff = alpha.run * (loss.fun(z) - loss.fun(x.last) -&lt;/span&gt;
-        &lt;span class="co"&gt;#                     crossprod(x.grad, z - x.last)) -&lt;/span&gt;
-crossprod(z &lt;span class="op"&gt;-&lt;/span&gt; x.last)&lt;span class="op"&gt;/&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt;
 
         &lt;span class="cf"&gt;if&lt;/span&gt; line_diff &lt;span class="op"&gt;&amp;lt;=&lt;/span&gt; obj_tol:
             &lt;span class="cf"&gt;return&lt;/span&gt; z, alpha_, loss_z
@@ -280,6 +277,7 @@ crossprod(z &lt;span class="op"&gt;-&lt;/span&gt; x.last)&lt;span class="op"&gt;
 &lt;p&gt;Routines like this that make use of the gradient and other quantities might also be good candidates for execution in Theano, if only because of the graph optimizations that are able to remedy obviously redundant computations.&lt;/p&gt;
 &lt;p&gt;In this vein, we could consider performing the line-search, and/or the entire optimization loop, within a Theano &lt;code&gt;scan&lt;/code&gt; operation. We could also create &lt;code&gt;Op&lt;/code&gt;s that represents gradient and line-search step. These might make graph construction much simpler, and be more suited for the current optimization framework.&lt;/p&gt;
 &lt;p&gt;Although &lt;code&gt;scan&lt;/code&gt; and tighter Theano integration may not on average produce better results than our current use of its compiled functions, we still wish to emphasize the possibilities.&lt;/p&gt;
+&lt;p&gt;Likewise, an &lt;code&gt;Op&lt;/code&gt; for the proximal operator might also be necessary for solving proximal operators automatically in closed-form (when possible) within a graph. This is based on the standard use of lookup tables combined with sets of algebraic relationships and identities used in symbolic algebra libraries for automatic differentiation and integration. The same can be done to extend the coverage of known closed-form solutions to proximal operators in an automated setting.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/section&gt;
 &lt;/section&gt;
@@ -357,8 +355,7 @@ pg_est_data, _ &lt;span class="op"&gt;=&lt;/span&gt; iterative_run(pg_step, loss
 pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)
 &lt;span class="co"&gt;# pg_ls_data = pg_ls_data.append(pg_est_data, ignore_index=True)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:pg_ls_plot"&gt;&lt;span id="fig:pg_ls_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{1}\label{fig:pg_ls_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_ls_plot_1.png" title="fig:" alt="Minimization by proximal gradient with backtracking line-search." /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_ls_plot}\)&lt;/span&gt; shows the results for proximal gradient steps alongside the step size changes due to backtracking line-search. Regarding the latter, for our example a sufficient step size is found in the first few iterations, so the overall result isn’t too interesting. Fortunately, this sort of behaviour isn’t uncommon, and it makes line-search quite effective in practice.&lt;/p&gt;
-&lt;p&gt;The other most noticeable result in Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_ls_plot}\)&lt;/span&gt; is the quick decrease in loss for the first 20 or so iterations, then the very gradual convergence iterates &lt;span class="math inline"&gt;\(\beta^{(i)}\)&lt;/span&gt;. This is nice property to contrast with the coordinate-wise estimation in the next section, so we’ll revisit that; however, it’s worth mentioning now that the choice of stopping criteria should probably be informed by the optimization method used and its convergence properties–among other things.&lt;/p&gt;
+&lt;p&gt;Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_ls_plot}\)&lt;/span&gt; shows a couple convergence measures for proximal gradient steps alongside the step size changes due to backtracking line-search. Regarding the latter, in our example a sufficient step size is found within the first few iterations, so the overall result isn’t too interesting. Fortunately, this sort of behaviour isn’t uncommon, which makes line-search quite effective in practice.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="coordinate-wise-estimation" class="level1"&gt;
 &lt;h1&gt;Coordinate-wise Estimation&lt;/h1&gt;
@@ -384,7 +381,7 @@ pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)
   \end{aligned}
   \label{eq:partial_resid}
 \end{equation}\]&lt;/span&gt; The last expression hints at the most basic idea behind the coordinate-wise approach: conditional minimization in each &lt;span class="math inline"&gt;\(m\)&lt;/span&gt;. Its exact solution in each coordinate is given by the aforementioned soft thresholding function, which–as we’ve already stated–is a proximal operator. In symbols, &lt;span class="math inline"&gt;\(\operatorname*{prox}_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)\)&lt;/span&gt;, where the latter is the soft thresholding operator.&lt;/p&gt;
-&lt;p&gt;Now, if we wanted to relate this type of coordinate-descent to the much more general statement of the proximal gradient solution in Equation &lt;span class="math inline"&gt;\(\eqref{eq:forward-backward}\)&lt;/span&gt;, we would use a result like the following:&lt;/p&gt;
+&lt;p&gt;Now, if we wanted to relate this type of coordinate descent to the much more general statement of the proximal gradient solution in Equation &lt;span class="math inline"&gt;\(\eqref{eq:forward-backward}\)&lt;/span&gt;, we would use a result like the following:&lt;/p&gt;
 &lt;div id="eq:prox_grad_descent" class="proposition" markdown="" env-number="1" title-name=""&gt;
 &lt;p&gt;&lt;span id="eq:prox_grad_descent_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{1}\label{eq:prox_grad_descent}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;For &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; such that &lt;span class="math inline"&gt;\({{\bf 1}}^\top X e_m = 0\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(e^\top_m X^\top X e_m = 1\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(m \in \{1, \dots, M\}\)&lt;/span&gt;, the coordinate-wise step of the Lasso in &lt;span class="citation" data-cites="friedman_pathwise_2007"&gt;Friedman et al. (2007 Equation (9))&lt;/span&gt;, &lt;span class="math display"&gt;\[\begin{equation*}
@@ -438,10 +435,9 @@ pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)
     \end{aligned}
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;/div&gt;
-&lt;p&gt;Association with the proximal gradient algorithm can provide a fairly general means of expand and characterizing existing coordinate descent approaches. Perhaps the most readily available improvements involve sequence acceleration &lt;span class="citation" data-cites="beck_fast_2014"&gt;(Beck and Teboulle 2014)&lt;/span&gt;.&lt;/p&gt;
 &lt;div id="rem:bases" class="remark" markdown="" env-number="3" title-name=""&gt;
 &lt;p&gt;&lt;span id="rem:bases_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{3}\label{rem:bases}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;The property in can be extended to other orthonormal bases. This might be a means of relating &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;-based orthogonalizations of a regression problem, enforce different forms of sparsity on &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; estimates, or to simply investigate convergence properties.&lt;/p&gt;
+&lt;p&gt;The property in can be extended to any other orthonormal bases and provide quite a robust means of deriving methods for certain classes of problems &lt;span class="citation" data-cites="chaux_variational_2007"&gt;(Chaux et al. 2007)&lt;/span&gt;. More specifically, this property is really a nice way to use &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;-based orthogonalizations of a regression problem and implement different forms of sparsity on &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; estimates.&lt;/p&gt;
 &lt;/div&gt;
 &lt;section id="implementation-1" class="level2"&gt;
 &lt;h2&gt;Implementation&lt;/h2&gt;
@@ -459,9 +455,6 @@ pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)
 
         &lt;span class="co"&gt;# (Inverse) 2-norm of each column/feature, i.e.&lt;/span&gt;
         &lt;span class="co"&gt;#   np.reciprocal(np.diag(np.dot(X.T, X)))&lt;/span&gt;
-        &lt;span class="co"&gt;#&lt;/span&gt;
-        &lt;span class="co"&gt;# Notice how much larger each coordinate step is compared&lt;/span&gt;
-        &lt;span class="co"&gt;# to `alpha_0`.&lt;/span&gt;
         &lt;span class="va"&gt;self&lt;/span&gt;.alpha_vals &lt;span class="op"&gt;=&lt;/span&gt; np.reciprocal((&lt;span class="va"&gt;self&lt;/span&gt;.X&lt;span class="op"&gt;**&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt;).&lt;span class="bu"&gt;sum&lt;/span&gt;(axis&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;))
 
         &lt;span class="cf"&gt;if&lt;/span&gt; col_seq &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:
@@ -491,6 +484,7 @@ alpha_val)
         &lt;span class="va"&gt;self&lt;/span&gt;.beta_last &lt;span class="op"&gt;=&lt;/span&gt; beta_val
 
         &lt;span class="cf"&gt;return&lt;/span&gt; beta_val&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Our example run randomizes the order of coordinates to demonstrate some of the variation introduced by this approach.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;beta_0 &lt;span class="op"&gt;=&lt;/span&gt; np.zeros(M).astype(&lt;span class="st"&gt;&amp;#39;float64&amp;#39;&lt;/span&gt;)
 lambda_val &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1e-2&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; lambda_max
 cd_step &lt;span class="op"&gt;=&lt;/span&gt; CoordDescent(y, X, beta_0,
@@ -508,10 +502,14 @@ pg_coord_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame()
     cd_step.reset()
     np.random.shuffle(cd_step.col_seq)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:pg_coord_plot"&gt;&lt;span id="fig:pg_coord_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{2}\label{fig:pg_coord_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_coord_plot_1.png" title="fig:" alt="Minimization by coordinate descent." /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_coord_plot}\)&lt;/span&gt; demonstrates how well coordinate descent can work on some problems. The number of iterations between coordinate descent and “batch” proximal gradient is fairly noticeable in this example, yet both approach effectively the same limits as &lt;code&gt;cvx&lt;/code&gt;. It seems like the same ideas behind most batched vs. non-batched gradient and sampling methods (e.g. batched Gibbs sampling) are in effect here, as well. In those cases, spectral properties of the &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;, or &lt;span class="math inline"&gt;\(X^\top X\)&lt;/span&gt;, space often play a big part, and this idea connects back to our comment in &lt;span class="math inline"&gt;\(\ref{rem:bases}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_coord_plot}\)&lt;/span&gt; shows the distance measures for each randomized coordinate order. The number of [average] iterations between coordinate descent and “batch” proximal gradient is fairly noticeable in this example, yet both reach effectively the same limits in parameter distance and minimum objective value as &lt;code&gt;cvx&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="remark" markdown="" env-number="4" title-name=""&gt;
+&lt;p&gt;The same ideas behind batched vs. non-batched steps and block sampling found within the Gibbs sampling literature &lt;span class="citation" data-cites="roberts_updating_1997"&gt;(Roberts and Sahu 1997)&lt;/span&gt; likely explain variation due to coordinate order and the relative efficiency of coordinate descent. There also appear to be some connections with our comments in and, to some extent, stochastic gradient descent (SGD) &lt;span class="citation" data-cites="bertsekas_incremental_2010"&gt;(Bertsekas 2010)&lt;/span&gt;, as well.&lt;/p&gt;
+&lt;p&gt;Simply put, in these situations, the [spectral] properties of &lt;span class="math inline"&gt;\(l\)&lt;/span&gt;/&lt;span class="math inline"&gt;\(\nabla l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; fundamentally determine the extent to which steps sizes can be increased or accelerated, and the bases, frames, or partitions introduced by coordinate descent, blocking and SGD further act upon those properties&lt;/p&gt;
+&lt;/div&gt;
 &lt;section id="regularization-paths" class="level3"&gt;
 &lt;h3&gt;Regularization Paths&lt;/h3&gt;
-&lt;p&gt;Also, due to the relatively fast convergence of coordinate descent, the method is a little more suitable for the computation of regularization paths– i.e. varying &lt;span class="math inline"&gt;\(\lambda\)&lt;/span&gt; between iterations. There is much more to this topic, but for simplicity let’s just say that each &lt;span class="math inline"&gt;\(\lambda\)&lt;/span&gt; step has a “warm-start” from the previous descent iteration.&lt;/p&gt;
+&lt;p&gt;Also, due to the relatively fast convergence of coordinate descent, the method is a little more suitable for the computation of regularization paths– i.e. varying &lt;span class="math inline"&gt;\(\lambda\)&lt;/span&gt; between iterations. There is much more to this topic, but for simplicity let’s just note that each &lt;span class="math inline"&gt;\(\lambda\)&lt;/span&gt; step has a “warm-start” from the previous descent iteration–which helps–and that we’re otherwise fine with the solution provided by this approach.&lt;/p&gt;
 &lt;p&gt;Next, we make a small extension to demonstrate the computation of regularization paths–using &lt;code&gt;lasso_path&lt;/code&gt; for comparison.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;from&lt;/span&gt; sklearn.linear_model &lt;span class="im"&gt;import&lt;/span&gt; lasso_path, enet_path
 
@@ -574,6 +572,12 @@ pg_path_data &lt;span class="op"&gt;=&lt;/span&gt; pg_path_data.append(sklearn_p
 &lt;div id="ref-bergstra_theano_2010"&gt;
 &lt;p&gt;Bergstra, James, Olivier Breuleux, Frédéric Bastien, Pascal Lamblin, Razvan Pascanu, Guillaume Desjardins, Joseph Turian, David Warde-Farley, and Yoshua Bengio. 2010. “Theano: A CPU and GPU Math Expression Compiler.” In &lt;em&gt;Proceedings of the Python for Scientific Computing Conference (SciPy)&lt;/em&gt;. Austin, TX.&lt;/p&gt;
 &lt;/div&gt;
+&lt;div id="ref-bertsekas_incremental_2010"&gt;
+&lt;p&gt;Bertsekas, Dimitri P. 2010. “Incremental Gradient, Subgradient, and Proximal Methods for Convex Optimization: A Survey.” &lt;a href="http://web.mit.edu/dimitrib/www/Incremental_Survey_LIDS.pdf" class="uri"&gt;http://web.mit.edu/dimitrib/www/Incremental_Survey_LIDS.pdf&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id="ref-chaux_variational_2007"&gt;
+&lt;p&gt;Chaux, Caroline, Patrick L Combettes, Jean-Christophe Pesquet, and Valérie R Wajs. 2007. “A Variational Formulation for Frame-Based Inverse Problems.” &lt;em&gt;Inverse Problems&lt;/em&gt; 23 (4): 1495.&lt;/p&gt;
+&lt;/div&gt;
 &lt;div id="ref-combettes_proximal_2011"&gt;
 &lt;p&gt;Combettes, Patrick L, and Jean-Christophe Pesquet. 2011. “Proximal Splitting Methods in Signal Processing.” &lt;em&gt;Fixed-Point Algorithms for Inverse Problems in Science and Engineering&lt;/em&gt;, 185–212.&lt;/p&gt;
 &lt;/div&gt;
@@ -591,6 +595,9 @@ pg_path_data &lt;span class="op"&gt;=&lt;/span&gt; pg_path_data.append(sklearn_p
 &lt;/div&gt;
 &lt;div id="ref-polson_proximal_2015"&gt;
 &lt;p&gt;Polson, Nicholas G., James G. Scott, and Brandon T. Willard. 2015. “Proximal Algorithms in Statistics and Machine Learning.” &lt;em&gt;Statistical Science&lt;/em&gt; 30 (4): 559–81. doi:&lt;a href="https://doi.org/10.1214/15-STS530"&gt;10.1214/15-STS530&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id="ref-roberts_updating_1997"&gt;
+&lt;p&gt;Roberts, Gareth O., and Sujit K. Sahu. 1997. “Updating Schemes, Correlation Structure, Blocking and Parameterization for the Gibbs Sampler.” &lt;em&gt;Journal of the Royal Statistical Society: Series B (Statistical Methodology)&lt;/em&gt; 59 (2): 291–317. &lt;a href="http://onlinelibrary.wiley.com/doi/10.1111/1467-9868.00070/abstract" class="uri"&gt;http://onlinelibrary.wiley.com/doi/10.1111/1467-9868.00070/abstract&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-salvatier_probabilistic_2016"&gt;
 &lt;p&gt;Salvatier, John, Thomas V. Wiecki, and Christopher Fonnesbeck. 2016. “Probabilistic Programming in Python Using PyMC3.” &lt;em&gt;PeerJ Computer Science&lt;/em&gt; 2 (April): e55. doi:&lt;a href="https://doi.org/10.7717/peerj-cs.55"&gt;10.7717/peerj-cs.55&lt;/a&gt;.&lt;/p&gt;
