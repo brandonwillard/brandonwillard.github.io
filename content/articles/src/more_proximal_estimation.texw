@@ -848,8 +848,8 @@ g.axes[0, 0].set_yscale('symlog')
 
 plt.tight_layout()
 
-g.axes[0, 0].set_xbound(-2,
-                        pg_ls_plot_data.index.get_values().max() + 1)
+g.axes[0, 0].set_xbound(-0.5,
+                        pg_ls_plot_data.index.get_values().max() + 0.5)
 
 @
 
@@ -1100,8 +1100,8 @@ g.axes[0, 0].set_yscale('symlog', linthreshy=1)
 
 plt.tight_layout()
 
-g.axes[0, 0].set_xbound(-2,
-                        pg_coord_plot_data.index.get_values().max() + 1)
+g.axes[0, 0].set_xbound(-0.5,
+                        pg_coord_plot_data.index.get_values().max() + 0.5)
 @
 
 \Cref{fig:pg_coord_plot} shows the distance measures for each randomized
@@ -1118,10 +1118,11 @@ minimum objective value as \texttt{cvx}.
   comments in \Cref{rem:bases} and, to some extent, stochastic
   gradient descent (SGD) \citep{bertsekas_incremental_2010}, as well.
 
-  Simply put, in these situations, the [spectral] properties of $l$/$\nabla l$
-  and $X$ fundamentally determine the extent to which steps sizes can be
-  increased or accelerated, and the bases, frames, or partitions introduced by
-  coordinate descent, blocking and SGD further act upon those properties
+  As a lacking over-generalization, let's say that the [spectral] properties of
+  $l$/$\nabla l$ and $X$ fundamentally determine the extent to which steps
+  sizes can be increased or accelerated, and the bases, frames, or partitions
+  introduced by coordinate descent, blocking and SGD further affect those
+  properties.
 \end{remark}
 
 \subsubsection{Regularization Paths}
@@ -1178,7 +1179,6 @@ pg_path_data = pg_path_data.assign(type='pg')
 pg_path_data = pg_path_data.append(sklearn_path_data,
                                    ignore_index=True)
 @
-
 <<pg_path_plot, echo=False, fig=True, caption=r'Regularization paths via coordinate descent.'>>=
 pg_path_plot_data = pg_path_data.set_index(
     [r'$\lambda$', "type"])
@@ -1270,58 +1270,82 @@ plt.tight_layout()
 
 \section{Discussion}
 
-Maybe small steps in this direction could even motivate much larger changes
-in our standard tools--like full support for sub-differentials and set-valued
-results, instead of the overly restrictive point-wise characterizations
-currently ubiquitous.  A similar idea is present in the symbolic
-calculation of limits addressed using filters \citep{beeson_meaning_2005}, and
-is somewhat analogous to the more modern jump from matrix and linear algebra
-libraries to tensor libraries.
-Our use of the proximal framework is, in part, motivated by its near seamless
-use \emph{and} simultaneous bypassing of set-valued maps--in implementation, at
-least.  In a sense, frameworks like these could be minor abstractions to
-libraries with set-valued support.
+Among the changes discussed earlier regarding Theano \texttt{Op}s for the
+proximal objects used here, we would also like to motivate much larger changes
+to the applied mathematician/statistician's standard tools by demonstrating
+the relevance of less common--yet increasingly useful--abstractions.
+For instance, the proximal methods are neatly framed within
+operator theory and set-valued analysis, where concepts like the
+resolvent, sub-differential/gradient and others are common.  Abstractions
+like these provide a compact means of extending familiar ideas into
+new contexts--such as non-differentiable functions.
 
-The value provided by the symbolic tools we've discussed are not \emph{just}
-their ability to act as compilers at a ``math level'', but more for their
-ability to concretely encode mathematical characterizations of optimization
-problems and methods.  Work in this direction is not new by any means; however,
-the combination of open-source tools and industry interest in algorithms that
-fall under the broad class of proximal methods (e.g. gradient descent, ADMM, EM,
-etc.) provides a more immediate reason to pursue these abstractions in
-code and automate their use.
+Unfortunately, our numemrical software libraries do not provide much in the way
+utilizing these abstractions.  Most are strictly founded in the
+representation of point-valued mappings, which can require significant
+work-arounds to handle even the most common non-differentiable functions (e.g.
+the absolute value within our example problem).  Our use of the proximal
+framework is, in part, motivated by its near seamless use \emph{and}
+simultaneous bypassing of set-valued maps--in implementation, at least.
 
-\cite{wytock_new_2016} discusses a similar approach to optimization (i.e.
-symbolic and with close coupling to useful mathematical abstractions), and
-there are other good examples \citep{diamond_cvxpy:_2016} of effective
-mathematical abstractions applied in code.
-In most cases, these examples do not--however--attempt to place their implementations
-upon a symbolic foundation and then realize their relevant
-methodologies in that context.  Most often, the mathematical abstractions--or
-just the methods--are directly implemented at the highest levels of
-abstraction possible (e.g. individual functions for ADMM,
-forward-backward/proximal gradient and Douglas-Rachford
-\cite{svaiter_pyprox_2017}).  This is most common and it makes sense in terms
-of simplicity, but offers none of the extensibility, generalization, or
-possibly efficiency provided by shared efforts across related projects.
-For example, in the context described here, implementations immediately
-benefit from Theano's code conversion, parallelization and relevant
-improvements to its basic graph optimizations.  The latter covers
-both low-level implementation improvements--including automatic use
-of relevant BLAS functions--as well as high-level tensor algebra
-simplifications.
-In a development community that builds from such tools, related efficiency and
-performance gains could occur much more often and be much more specific
-to certain areas of mathematics.
+There is no fundamental restriction blocking support for set-valued maps,
+however--aside from the necessary labor and community interest.  Even minimal
+support could provide a context that makes frameworks like ours merely minor
+abstractions.
+A similar idea can be found in the symbolic calculation of limits via
+filters \citep{beeson_meaning_2005}.  Perhaps we can liken these changes to the
+modern evolution of linear algebra libraries to tensor libraries.
 
-The utility of these encodings may manifest as--say--Theano optimizations that
+We would also like to stress that the value provided by the symbolic tools
+discussed here (Theano, really) are not \emph{just} in their ability to act as
+compilers at a ``math level'', but more for their ability to concretely encode
+mathematical characterizations of optimization problems and methods.  Work in
+this direction is not new by any means; however, the combination of open-source
+tools and industry interest in algorithms that fall under the broad class of
+proximal methods (e.g. gradient descent, ADMM, EM, etc.) provides a more
+immediate reason to pursue these abstractions in code and automate their use.
+
+Regarding the proximal methods, we can consider Theano optimizations that
 make direct use of the orthonormal basis property in \Cref{eq:prox_ortho_basis}, or
 the Moreau-Fenchel theorem, and automate consideration for
-multiple estimation methods via splitting (e.g. ADMM, Douglas-Rachford,
-etc.)--perhaps by making decisions based on operator/matrix properties one
-could reasonably specific in this context.
-In future installments we'll attempt to delve into the details of these
-features.
+various estimation methods via splitting (e.g. ADMM, Douglas-Rachford,
+etc.)--perhaps by making decisions based on inferred or specified
+tensor, function, and operator properties.
+In future installments we'll delve into the details of these ideas.
+
+\cite{wytock_new_2016} also discuss similar ideas in an optimization setting,
+such as the use of symbolic graphs and a close coupling with useful mathematical
+abstractions--including proximal operators.
+Additionally, there are many other good examples \citep{diamond_cvxpy:_2016} of
+constructive mathematical abstractions applied in code.
+
+In most cases, libraries providing optimization tools and supporting model
+estimation do not attempt to root their implementations within an independently
+developed symbolic framework and then realize their relevant methodologies in
+that context.  Too often the mathematical abstractions--or the resulting
+methods alone--are directly implemented at the highest levels of abstraction
+possible.  This is what we see as the result of popular libraries like
+\texttt{scikit-learn} and the body of \texttt{R} packages.
+One can also find the same efforts for proximal methods themselves--e.g.
+in \cite{svaiter_pyprox_2017}, where individual functions for ADMM,
+forward-backward/proximal gradient and Douglas-Rachford are the end result.
+This is the most common approach and it makes sense in terms of simplicity, but
+offers very little of the extensibility, generalization, or efficiencies
+provided by shared efforts across related projects and fields.
+
+In the context of Theano, implementations immediately benefit from its code
+conversion, parallelization and relevant improvements to its basic graph
+optimizations.  The latter covers both low-level computational efficiency--such
+as relevant application of BLAS functions--and high-level tensor algebra
+simplifications.
+
+In a development community that builds on these tools, related efficiency and
+performance gains can occur much more often, without necessarily sacrificing
+the specificity inherent to certain areas of application.  For example, we can
+safely use the Rao-Blackwell theorem as the basis of a graph optimization
+in PyMC3, so it could be included among that project's default offerings;
+however, it would be far too cumbersome to use productively in a less specific
+context.
 
 \bibliographystyle{plainnat}
 \bibliography{more-proximal-estimation}
