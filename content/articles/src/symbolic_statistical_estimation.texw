@@ -224,7 +224,7 @@ proximal operators exist for many $\phi$.  These are the elements that could
 exist in a table, many entries of which could be generated automatically, in
 analogy to symbolic integration.
 
-The proximal operator relevant to our example, the soft-threshold operator, is implement in
+The proximal operator relevant to our example, the soft - threshold operator, is implement in
 Theano with something like the following:
 <<soft_thresholding, echo=True, evaluate=True>>=
 beta_tt = tt.vector('beta', dtype=tt.config.floatX)

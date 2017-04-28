@@ -198,9 +198,9 @@ with pm.Model() as lasso_model:
     y_rv = pm.Normal('y', mu=X_tt.dot(beta_rv), sd=1,
                      shape=y.shape[0], observed=y_tt)
 @
-A system that worked in this way might then arrive at
-the necessary steps toward estimation through a sophisticated
-means of identifying the underlying $\ell_1$ estimation problem.
+In this setting one might then arrive at the necessary steps toward estimation
+automatically (i.e.  identify the underlying $\ell_1$ estimation problem).  We
+discuss this more in \citet{willard_role_2017}.
 
 For simplicity we'll just assume that all components of the estimation problem
 are know--i.e. loss and penalty functions.  The proximal operator
@@ -213,8 +213,8 @@ def tt_soft_threshold(beta_, lambda_):
 
 \begin{remark}
   This operator can take other forms, and the one used here is likely not
-  the best.  For instance, our use of \texttt{maximum} can be replaced
-  by other conditional-like statements taking the general form
+  the best.  The \texttt{maximum} can be replaced by other conditional-like
+  statements--such as
   \begin{equation*}
     \operatorname{S}(z, \lambda) =
     \begin{cases}
@@ -512,16 +512,12 @@ def backtracking_search(beta_, alpha_,
 
         beta_ = beta_start_ - alpha_ * loss_grad_start_
         z = prox_fn(beta_, alpha_ * lambda_)
-        # x.step = x.last - alpha.run * x.grad
-        # z = fprox.fun(x.step, alpha.run * lambda)
 
         loss_z = loss_fn(z)
         step_diff = z - beta_start_
         loss_diff = loss_z - loss_start_
         line_diff = alpha_ * (loss_diff - loss_grad_start_.T.dot(step_diff))
         line_diff -= step_diff.T.dot(step_diff) / 2.
-        # f.line.diff = alpha.run * (loss.fun(z) - loss.fun(x.last) -
-        #                     crossprod(x.grad, z - x.last)) - crossprod(z - x.last)/2
 
         if line_diff <= obj_tol:
             return z, alpha_, loss_z
@@ -753,6 +749,7 @@ def iterative_run(step_fn, loss_fn_, cols_fns,
         beta_val = step_fn.step(beta_val)
         loss_val = loss_fn_(beta_val)
 
+        # TODO: Could stop on either or both criteria.
         if stop_loss:
             # stop_diff = np.abs(loss_val - loss_prev)
             stop_diff = np.sum(np.square(loss_val - loss_prev))
