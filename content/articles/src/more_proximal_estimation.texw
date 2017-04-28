@@ -1280,7 +1280,7 @@ resolvent, sub-differential/gradient and others are common.  Abstractions
 like these provide a compact means of extending familiar ideas into
 new contexts--such as non-differentiable functions.
 
-Unfortunately, our numemrical software libraries do not provide much in the way
+Unfortunately, our numerical software libraries do not provide much in the way
 utilizing these abstractions.  Most are strictly founded in the
 representation of point-valued mappings, which can require significant
 work-arounds to handle even the most common non-differentiable functions (e.g.
