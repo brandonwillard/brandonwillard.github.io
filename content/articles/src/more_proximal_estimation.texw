@@ -70,54 +70,47 @@ breakautoindent=true}
 
 \section{Introduction}
 
-The focal point of this short exposition will be an
-elaboration of \citet{willard_role_2017} via the numeric
-implementation of the basic $\ell_1$ penalization problem,
+The focal point of this short exposition will be an elaboration of the basic
+$\ell_1$ penalization problem discussed in \citet{willard_role_2017},
 \begin{equation}
   \argmin_{\beta} \left\{
   \frac{1}{2} \|y - X \beta\|^2_2
     + \lambda \|\beta\|_1
   \right\}
-  \;,
+  \;.
   \label{eq:lasso}
 \end{equation}
-alongside some additional, related topics concerning automation and
-symbolic computation.
-Again, our framing of the problem is in terms of proximal methods
-\citep{parikh_proximal_2014, combettes_proximal_2011}, how they relate
-to some common estimation practices--specifically, coordinate descent
-and line-searching--and their implementation in Theano
-\citep{bergstra_theano_2010}.
+We continue our discussion on topics concerning automation and
+symbolic computation in Theano \citep{bergstra_theano_2010}, as
+well as the mathematical methodology we believe is suitable for
+such implementations.
+Again, our framing of the problem is in terms of ``proximal methods''
+\citep{parikh_proximal_2014, combettes_proximal_2011}.  Along the way
+we propose one simple means of placing the well-known technique of coordinate
+descent within the scope of proximal methods via a general property of proximal
+operators.  These efforts are a continued outgrowth of our work in
+\citet{polson_proximal_2015}.
 
 
-We start by focusing on the connections with coordinate-wise path estimation of
-\Cref{eq:lasso}--and related problems--in the statistics literature.  The goal
-is one among many \citep{polson_proximal_2015} steps intended to provide
-details of the already well established relationship between these problems and
-proximal methods.  Minimally, these connections can contextualize the past
-developments and direction of work in this area, and--ideally--open up avenues
-for readily drawing from established work in proximal algorithms across
-numerous fields.
+% Although \Cref{eq:lasso} is strictly $\ell_1$--or Lasso, we simply allude to
+% the relatively minor alterations that produce the ElasticNet, grouped Lasso
+% and related models.  Under the proximal framework, the distinctions between
+% these models do not generally lead to major theoretical re-workings, or the
+% need to consider principles not already found within the proximal methods.
 
-Although \Cref{eq:lasso} is strictly $\ell_1$--or Lasso, we simply allude to
-the relatively minor alterations that produce the ElasticNet, grouped Lasso
-and related models.  Under the proximal framework, the distinctions between
-these models do not generally lead to major theoretical re-workings, or the
-need to consider principles not already found within the proximal methods.
-
-For example, the transition from standard Lasso to grouped Lasso may not be
-trivial, but--within the proximal framework--the change amounts to an
-intermediate operator composition step \citep{argyriou_efficient_2011,
-hu_proximal}.
-This change can be introduced into existing proximal algorithms without
-significant alteration to the established steps.  In some cases the exact
-change can be entirely transparent and only result in nominally different
-arguments to existing functions.
+% For example, the transition from standard Lasso to grouped Lasso may not be
+% trivial, but--within the proximal framework--the change amounts to an
+% intermediate operator composition step \citep{argyriou_efficient_2011,
+% hu_proximal}.
+% This change can be introduced into existing proximal algorithms without
+% significant alteration to the established steps.  In some cases the exact
+% change can be entirely transparent and only result in nominally different
+% arguments to existing functions.
 
 \section{Proximal and Computational Components}
 
-First, the workhorse of the proximal framework: the \emph{proximal
-operator}.
+First, we [re]-introduce the workhorse of proximal methods: the
+\emph{proximal operator}.
 
 \begin{Def}[Proximal Operator]
   \begin{equation}
