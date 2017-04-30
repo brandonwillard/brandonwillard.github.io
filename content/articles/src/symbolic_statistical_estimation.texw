@@ -34,7 +34,7 @@ input_file_base = nvim_weave(rel_figdir='../figures',
                                           'savedformats': ['.png', '.pdf']})
 
 # Compile document to markdown
-assert os.system('make {}.pdf'.format(input_file_base)) == 0
+# assert os.system('make {}.pdf'.format(input_file_base)) == 0
 assert os.system('make {}.md'.format(input_file_base)) == 0
 @
 
@@ -109,45 +109,37 @@ Otherwise, the ideas discussed here are part of a never-ending attempt to
 answer a question that arises naturally in both mathematics and programming--at
 all levels: \emph{How does one provide a means of generating robust solutions
 to as many problems as possible?}
-Instead of the common attempt to independently implement each model, method
+Instead of the common efforts to independently implement each model, method
 and/or combination of the two--followed by their placement in an API or
-collection of functions--implementations can be encoded in and organized by the
+library of functions--implementations can be encoded in and organized by the
 very mathematics from which they were derived.  This close coupling between
-mathematical principles and their implementations is possibly the most
+mathematical principles and their implementations might be the only
 reasonable way to remove barriers between theory, research and practice.
-
-% Also, it is one of the few practical means of including the higher and lower level
-% considerations made by professionals at all stages of statistical modeling: mathematical,
-% numerical, computational (e.g. distributed environments, concurrency, etc.)
-% Some steps toward these broader goals are within reach and worth taking now.
 
 \subsection{A Context}
 
-Much recent work in statistical modeling and estimation has revolved around the
-desire for sparsity, regularization and efficient [automatic] model selection.
-This is, in some sense, an objective shared with the more specialized areas of
-Deep Learning and Compressed Sensing.  In the former case, we can point to
-Dropout \citep{srivastava_dropout_2014} and, in the latter, $\ell_p$
-regularization \citep{donoho_compressed_2006}.
+Much recent work in statistical modeling and estimation has had the goal of
+producing sparse results and/or efficient, near automatic model selection.
+This objective is shared with other related practices--such as Deep
+Learning and Compressed Sensing.  In the former case, we can point to
+Dropout \citep{srivastava_dropout_2014} and--in the latter--$\ell_p$
+regularization \citep{donoho_compressed_2006} as basic examples.
 
-Without delving into those topics here, we'll simply assume that a practitioner
-intends to produce a sparse estimate for a model that results in LASSO.
-First, some setup:
-<<evaluate=True, echo=True>>=
+Here we'll simply assume that a practitioner intends to produce sparse
+estimates using the well-known LASSO--or $\ell_1$ penalty.
+
+In PyMC3 \citep{salvatier_probabilistic_2016}, the Bayes version of
+LASSO \citep{park_bayesian_2008} is easily specified.
+<<evaluate=True, echo=True, results='hidden'>>=
 import numpy as np
 import scipy as sc
 
 import pymc3 as pm
 import theano
 import theano.tensor as tt
+from theano import shared as tt_shared
 
 theano.config.mode = 'FAST_COMPILE'
-@
-
-Using PyMC3, the Bayes version of the LASSO \citep{park_bayesian_2008} model is
-easily specified.
-<<evaluate=True, echo=True>>=
-from theano import shared as tt_shared
 
 mu_true = np.zeros(100)
 mu_true[:20] = np.exp(-np.arange(20)) * 100
@@ -168,27 +160,18 @@ with pm.Model() as lasso_model:
                      shape=y.shape[0], observed=y_tt)
 @
 
-The negative total log likelihood in our example problem has a non-smooth
-$\ell_1$ term.  The standard means of estimating a [MAP] solution to this problem
-usually involves the soft-thresholding operator, which is a type of proximal
-operator.  This operator is cheap to compute, so that--among other things--makes
-the proximal approaches that use it quite appealing.
-
-% Let's illustrate exactly how a symbolic context, like the one
-% provided by PyMC3 and Theano, provides a means of adding an otherwise inaccessible
-% automatic ``awareness'' to a function like \texttt{find\_MAP}.
-
-Moving on, let's say we wanted to produce a MAP estimate in this PyMC3 context.
-A function is already provided for this generic task: \texttt{find\_MAP}.
+Again, the negative total log likelihood in our example has a non-smooth
+$\ell_1$ term.  Keeping this in mind, let's say we wanted to produce a MAP
+estimate using PyMC3.
+A function is already provided for this task: \texttt{find\_MAP}.
 <<echo=True, evaluate=False>>=
 with lasso_model:
     params_0 = pm.find_MAP(vars=[beta_rv])
 @
-In our run of the above, an exception is thrown due to the \texttt{nan} values
-that arise within the gradient evaluation.
 
-More directly, we can inspect the gradient at $\beta = 0, 1$ to demonstrate the
-same.
+In our run of the above, an exception was thrown due to \texttt{nan} values
+within the gradient evaluation.  We can inspect the gradient at
+$\beta = 0, 1$ and reproduce the result.
 <<find_MAP_gradient, echo=True, evaluate=True>>=
 start = pm.Point({'beta': np.zeros(X.shape[1])}, model=lasso_model)
 bij = pm.DictToArrayBijection(pm.ArrayOrdering(lasso_model.vars), start)
@@ -206,6 +189,13 @@ print(np.sum(np.isnan(grad_at_0)))
 print(np.sum(np.isnan(grad_at_1)))
 @
 
+The \textttt{nan}s are not due to any short-coming of PyMC3; they only
+demonstrate a suitable place for our ideas and improvements.  Additionally, by
+working within PyMC3, we can readily apply certain mathematical results.  For
+instance, theorems that apply only to distributions.  This idea is more
+relevant to the graph optimizations we consider later, but is still
+very important.
+
 \section{The Proximal Context}
 
 We start with the essential ingredient: the proximal operator.
@@ -220,9 +210,9 @@ We start with the essential ingredient: the proximal operator.
 \end{Def}
 
 As we mentioned earlier, the proximal operator is the main tool of proximal
-algorithms.  Exact solutions to proximal operators exist for many $\phi$.
-These are the elements that could exist in a table, many entries of which could
-be generated automatically, in analogy to symbolic integration.
+algorithms.  Exact solutions to proximal operators exist for many $\phi$, and,
+since they're often quite simple in form, their computation is relatively
+cheap: a property that the proximal methods themselves can inherit.
 
 Consider the MAP estimation of a penalized likelihood, i.e.
 \begin{equation}
@@ -237,16 +227,16 @@ semi-continuous and convex--although quite a few useful results still hold for
 non-convex functions.
 
 Notice that \Cref{eq:prox_problem} takes the form of a proximal operator when
-$l(\beta) = \frac{1}{2} (y - \beta)^2$.  In regression problems, we
-have $l(\beta) = \frac{1}{2} \|y - X \beta\|^2$.  Properties of the proximal
-operator are then used to produce a independent proximal operators in each
-component of $\beta$.  Since more than one property of the proximal operator can
-accomplish this, we can see one reason for their breadth.
+$l(\beta) = \frac{1}{2} (y - \beta)^2$.  Otherwise, in regression problems, we
+have $l(\beta) = \frac{1}{2} \|y - X \beta\|^2$.  In this case, properties of
+the proximal operator can be used to produce independent proximal operators in
+each dimension of $\beta$.  Since more than one property of the proximal
+operator can accomplish this--and result in distinct approaches--one might begin
+to see here a reason for the breadth of proximal methods.
 
-
-The proximal operator relevant to our example, $\prox_{|\cdot|}$, is
-equivalent to the soft-thresholding operator.
-We can implement it in Theano with something like the following:
+The proximal operator relevant to our example, $\prox_{|\cdot|}$, is equivalent
+to the soft-thresholding operator.  Its implementation in Theano is somewhat
+trivial, but--for the sake of exposition--we provide an example.
 <<soft_thresholding, echo=True, evaluate=True>>=
 beta_tt = tt.vector('beta', dtype=tt.config.floatX)
 beta_tt.tag.test_value = np.r_[-10, -1, -0.2, 0, 0.2, 1, 10].astype(tt.config.floatX)
@@ -260,7 +250,8 @@ def soft_threshold(beta_, lambda_):
 <<term=True>>=
 print(soft_threshold(beta_tt, lambda_tt).tag.test_value)
 @
-Operators like these can be composed with a gradient step to produce a
+
+Proximal operators can be composed with a gradient step to produce the
 \emph{proximal gradient} algorithm:
 \begin{equation}
   \beta = \prox_{\alpha \lambda \phi}(\beta - \alpha \nabla l(\beta))
@@ -268,62 +259,24 @@ Operators like these can be composed with a gradient step to produce a
   \label{eq:forward-backward}
 \end{equation}
 
-
-Besides the proximal operator for $\phi$, the steps in a proximal gradient
-algorithm are very straightforward and rely primarily on the gradient of
-$l(\beta)$.  When considering this quantity, a tangible benefit of symbolic
-computation becomes apparent; complicated gradients can be computed
+Besides the proximal operator for $\phi$, steps in the proximal gradient
+algorithm are very straightforward and require only the gradient of
+$l(\beta)$.  This is where a tangible benefit of symbolic
+computation becomes apparent: $\nabla l(\beta)$ can be computed
 automatically and efficiently.  With [backtracking] line search to handle
-unknown step sizes, the proximal gradient alone provides a surprisingly general
-means of sparse estimation.
-
-Here is an implementation of a proximal gradient step:
-<<prox_gradient_setup, echo=True, evaluate=True>>=
-from theano import function as tt_function
-
-def prox_grad_step(logl, beta_tt, lambda_1_tt, gamma_prox_tt,
-                   prox_func=soft_threshold):
-    # Negative log-likelihood without non-smooth (\ell_1) term:
-    logl_grad = tt.grad(logl, wrt=beta_tt)
-    logl_grad.name = "logl_grad"
-
-    from theano.compile.nanguardmode import NanGuardMode
-    tt_func_mode = NanGuardMode(nan_is_error=True,
-                                inf_is_error=False,
-                                big_is_error=False)
-
-    beta_var_tt = tt.vector(name='beta', dtype=beta_tt.dtype)
-    beta_var_tt.tag.test_value = beta_tt.get_value()
-    grad_step = tt_function([beta_var_tt], logl_grad,
-                            mode=tt_func_mode,
-                            givens={beta_tt: beta_var_tt})
-
-    beta_quad_step = beta_tt - lambda_1_tt * logl_grad
-    beta_quad_step.name = "beta_quad_step"
-
-    beta_prox = prox_func(beta_quad_step, gamma_prox_tt * lambda_1_tt)
-    beta_prox.name = "beta_prox"
-
-    r_tt = y_tt - X_tt.dot(beta_tt)
-
-    prox_step = tt_function([],
-                            [beta_prox, logl, logl_grad, tt.mean(r_tt**2)],
-                            updates=[(beta_tt, beta_prox)],
-                            mode=tt_func_mode)
-
-    return (prox_step, grad_step)
-@
+unknown step sizes, $\alpha$, the proximal gradient algorithm provides a
+surprisingly general means of sparse estimation.
 
 \section{The Symbolic Operations}
 
-In order to employ a lookup table, or to even identify a proximal problem and
-check that its conditions (e.g. convexity) are satisfied, we need to obtain the
-exact forms of each component: $l$, $\phi$ and $\gamma$.
-We start with the determination of $l$ and $\phi$.
+In order to identify a relevant, non-smooth problem, check that a given
+proximal method's conditions are satisfied (e.g. convexity), and
+potentially solve the resulting proximal operators in closed-form,
+we need to obtain expressions for $l$ and $\phi$.
 
-In some cases, we're able to tease apart our $l(\beta)$ and $\phi(\beta)$ using
-the symbolic log likelihoods for the organizational designations of
-\emph{observed} and unobserved PyMC3 random variables.
+In some cases, we're able to tease apart $l$ and $\phi$ using
+only the interface provided by PyMC3.  Specifically, the \emph{observed} and
+\emph{unobserved} random variable fields in PyMC3 models.
 <<evaluate=False, echo=True>>=
 from theano import clone as tt_clone
 
@@ -331,11 +284,11 @@ logl = tt_clone(lasso_model.observed_RVs[0].logpt,
                 {beta_rv: beta_tt})
 logl.name = "logl"
 @
-Instead, let's assume we're extending \texttt{find\_MAP} with some generality,
-so that distinguishing $l$ and $\phi$ in \Cref{eq:prox_problem} using these
-designations isn't reliable.  This is necessary for cases in which a user
-specifies custom distributions or a potential function.  In either case, to
-achieve our desired functionality we need to operate at a more symbolic level.
+
+Instead, let's assume we're extending \texttt{find\_MAP} with even more
+generality, so that we can't determine $l$ and $\phi$ in this way.  This
+situation can occur when a user specifies custom distributions or potential
+functions.  Regardless, we need to operate at a more symbolic level.
 
 \begin{remark}
   At this point, it is extremely worthwhile to browse the
@@ -343,8 +296,8 @@ achieve our desired functionality we need to operate at a more symbolic level.
   regarding graphs and their constituent objects.
 \end{remark}
 
-The total log likelihood is a good place to start.  Let's
-look at symbolic graphs produced by ours.
+The total log-likelihood is a good place to start.  Let's look at the symbolic
+graph for the log-likelihood of our model.
 <<evaluate=True, echo=True>>=
 from theano import pp as tt_pp
 from theano import pprint as tt_pprint
@@ -353,29 +306,36 @@ from theano import pprint as tt_pprint
 print(tt_pp(lasso_model.logpt))
 @
 The \href{http://deeplearning.net/software/theano/tutorial/printing_drawing.html#pretty-printing}{pretty printed}
-Theano graph tells us, among other things, that we have the anticipated sum of
-$\ell_2$ and $\ell_1$ terms.
+Theano graph tells us--among other things--that we indeed have a
+sum of $\ell_2$ and $\ell_1$ terms, although they are found
+among other confusing results (such as a \texttt{switch} statement).
 
-As with most graphs produced by symbolic algebra systems, we need to consider
-exactly how its operations are arranged, so that we can develop a means of
-matching general structures.
+As with most graphs produced by symbolic algebra systems, we need to understand
+how operations and objects are expressed in a graph and exactly which ones are
+relevant to us.  After doing so, we can develop a means of finding what we
+want.
 The \href{http://deeplearning.net/software/theano/tutorial/printing_drawing.html#debug-print}{debug printout}
-is better for this.
+is often a better visual summary of graphs, since it expresses branches
+clearly.
 <<evaluate=True, echo=True, term=True>>=
 tt.printing.debugprint(lasso_model.logpt)
 @
 We see that the top-most operator is an \texttt{Elemwise} that applies
-the scalar \texttt{add} operation.  This is the $+$ in $l(\beta) + \phi(\beta)$.
-If we were to consider the inputs to this operator as our candidates for
-$l$ and $\phi$, then we might find this pair with the following:
+the scalar \texttt{add} operation.  This is the ``$+$'' in
+$l + \phi$.  If we were to consider the inputs of this operator as
+candidates for $l$ and $\phi$, then we could do the following:
 <<evaluate=True, echo=True, term=True>>=
 print(lasso_model.logpt.owner.inputs)
 @
-Using these two terms, we might simply search for an absolute value operator.
+
+Starting from the sub-graphs of each term, we could then search for any
+non-smooth functions that have known closed-form proximal operators.  In our
+case, we only consider the absolute value function.
 <<evaluate=True, echo=True>>=
 def get_abs_between(input_node):
-    # Get all the operations in the sub-tree between our input and the
-    # log likelihood output node.
+    """ Search for `abs` in the operations between our input and the
+    log-likelihood output node.
+    """
     term_ops = list(tt.gof.graph.ops([input_node], [lasso_model.logpt]))
 
     # Is there an absolute value in there?
@@ -394,42 +354,36 @@ for r_ in abs_res:
 tt.printing.debugprint(logp)
 tt.printing.debugprint(phi)
 @
-From these terms one can similarly attempt to determine multiplicative constants, or
-parts thereof (e.g. $\gamma$).
 
-The above approach is too limiting; we need something more robust.  The above
-logic will fail on
-graphs that are constructed differently (e.g. producing equivalent, but different,
-representations via associativity) or when our naive use of \texttt{theano.gof.graph.ops} is
-compromised by certain types of intermediate operations (e.g. non-distributed,
-non-affine).  These are only a few of the many weaknesses inherent to the naive
-approach above.  Furthermore, sufficient coverage of all the necessary conditions--using
-the same approach--is likely to result in complicated, less approachable code.
+The above approach is still too limiting; we need something more robust.  For
+instance, our logic could fail on graphs that are expressed as
+$\eta (l + \phi) + 1$--although a graph for the equivalent expression
+$\eta l + \eta \phi + \eta$ might succeed.
+These are types of weaknesses inherent to naive approaches like ours.
+Furthermore, sufficient logic that uses a similar approach is likely to
+result in complicated and less approachable code.
 
-What we need to identify the more general patterns suitable for our
-goal is mostly covered within the areas of graph unification and logic programming.
-Luckily, Theano has some basic unification capabilities that we're able to deploy
-immediately via \texttt{PatternSub}.
+The appropriate computational tools are found in the subjects of graph
+unification and term rewriting, as well as the areas of functional and logic
+programming.  Luckily, Theano provides some basic unification capabilities
+through its \texttt{PatternSub} class.
 
 \texttt{PatternSub} works within the context of Theano
 \href{http://deeplearning.net/software/theano/optimizations.html}{graph
-optimization}.  Graph optimizations essentially perform the common symbolic
-operations of simplification, reduction and rewriting.  Consider the
-\texttt{phi} variable; the printouts show an unnecessary subtraction (with
-$0$).  Clearly this step is unnecessary, so--in a basic way--we can see
+optimization}.  Graph optimizations perform the common symbolic
+operations of reduction/simplification and rewriting.  Consider the
+\texttt{phi} variable; the print-outs show an unnecessary subtraction with
+$0$.  Clearly this step is unnecessary, so--in a basic way--we can see
 that the graph hasn't been simplified, yet.
 
 Many standard algebraic simplifications are already present in Theano, and, by
-creating graph optimizations, we can provide ones that assist with
-our identification of $l$ and $\phi$, or closed-form solutions to proximal
-operators.
+creating our own graph optimizations, we can provide the advanced functionality
+we've been alluding to.
 
 \begin{Exa}[Algebraic Graph Optimization]
 
-To demonstrate the kind of operations that could be used to pre-condition a
-graph and robustly determine a set of supported $l$ and $\phi$, we'll make
-replacement patterns for multiplicative distribution across two forms of
-addition: \texttt{sum} and \texttt{add}.
+As a quick demonstration, we'll make replacement patterns for multiplicative
+distribution across two forms of addition: \texttt{sum} and \texttt{add}.
 <<evaluate=True, echo=True>>=
 test_a_tt = tt.as_tensor_variable(5, name='a')
 test_b_tt = tt.as_tensor_variable(2, name='b')
@@ -450,9 +404,9 @@ mul_dist_pat_tt += (tt.gof.opt.PatternSub(
 ),)
 @
 
-These searches and replacements can be applied to an objective function until
-it is in a sufficiently reduced form.  \texttt{EquilibriumOptimizer} provides
-this functionality.
+Substitutions can be applied to an objective function until it is in a
+fully-reduced form: \texttt{EquilibriumOptimizer} provides this
+functionality.
 <<evaluate=True, echo=True>>=
 test_sub_eqz_opt_tt = tt.gof.opt.EquilibriumOptimizer(
     mul_dist_pat_tt, max_use_ratio=10)
@@ -474,10 +428,10 @@ tt.printing.debugprint(test_fgraph_tt)
 @
 \end{Exa}
 
-More symbolic capabilities might be needed to [efficiently] achieve the
+Even more symbolic capabilities might be needed to [efficiently] achieve the
 functionality we desire.  Standalone libraries like SymPy and
-\href{https://github.com/logpy/logpy/}{LogPy} can be adapted to Theano graph
-objects to provide these capabilities--although direct implementation in Theano
+\href{https://github.com/logpy/logpy/}{LogPy} can be adapted to Theano graphs
+and provide these capabilities--although direct implementation in Theano
 may be better.
 
 % Could also mention the nice compartmentalization provided by independent
@@ -498,60 +452,47 @@ may be better.
 Finally, let's briefly imagine how convexity could be determined
 symbolically.  For differentiable terms, we could start with a simple
 second derivative test.  Within Theano, a ``second derivative'' can be
-obtained using the \texttt{hessian} function, and within \texttt{theano.sandbox.linalg}
-are \texttt{Optimizer} hints for matrix positivity and other properties relevant
-to determining convexity using this simple idea.
+obtained using the \texttt{hessian} function, and within
+\texttt{theano.sandbox.linalg} are \texttt{Optimizer} hints for matrix
+positivity and other properties relevant to determining convexity.
 
 \begin{remark}
   Other great examples of linear algebra themed optimizations are in
   \texttt{theano.sandbox.linalg}: for instance, \texttt{no\_transpose\_symmetric}.
-  Some of these demonstrate exactly how straight-forward it can be to
-  add algebraic considerations.
+  Some of these demonstrate exactly how straight-forward adding algebraic
+  features can be.
 \end{remark}
 
-Although our convexity testing idea is far too simple for many $l$, the point we want to
-make is that the basic code necessary for simple tests like this may already be in place.
-However, with the logic programming mentioned earlier in this section,
-comes the possibility of implementing aspects of the convex function calculus, by
-which one can determine convexity for many more classes of functions.
+Although our convexity testing idea is far too simple for some functions, the
+point is that the basic tools necessary for work in this direction are already
+in place.  With the logic programming and symbolic libraries mentioned earlier,
+a robust implementation of the convex function calculus could be very much in
+reach.
 
 \section{Discussion}
 
-We've sketched out the concepts and mechanism with which one can develop a robust
-estimation platform that can be transparently guided by the more abstract
-mathematics frameworks from which new, efficient methods are produced.
+We've sketched out some ideas and tools with which one could develop a robust
+estimation platform guided by the more abstract mathematical frameworks from
+which new and efficient methods are produced.
 
-Some key steps in the process will most likely require the integration of a
-symbolic algebra system, so that a much wider array of algebraic machinery can
-be leveraged to assess--say--convexity of the terms or to solve the proximal
-operators themselves.  Connections between Theano, SymPy and LogPy have already
-been explored in \citet{rocklin_mathematically_2013}, as well as many other
-important aspects of the topics discussed here.
+Some key steps may require the integration of a fully featured
+symbolic algebra system.  Along these lines, connections between Theano, SymPy
+and LogPy have been explored in \citet{rocklin_mathematically_2013}--as
+well as many other important aspects of the topics discussed here.
 
-Additionally, more advanced proximal algorithms exist to improve upon the convergence and
-stability of the most basic proximal gradient given here.  These algorithms often involve
-operator splitting, which requires careful consideration regarding the exact type of splitting
-and on which terms it is performed.  Within this area are the familiar convex-conjugate approaches;
-these too could be approached by symbolic solvers, or simply addressed by [partially] generated
-tables.
-
-Overall, there appear to be many avenues to explore just within the space of proximal
-algorithms and modern symbolic systems.  Not all of this work necessitates the inclusion of
-fully featured symbolic algebra systems; much can be done with the symbolic tools of Theano alone.
-Furthermore, there are specialized, lightweight logic programming systems--like
-LogPy--that can serve as a step before full symbolic algebra integration.
-
-Besides the automation of proximal algorithms themselves, there are areas of application involving
-very large and complicated models or graphs--such as the ones arising in Deep Learning.
-How might we consider the operator splitting of ADMM within deeply layered or hierarchical
-models \citep{polson_statistical_2015}?  At which levels and on which terms
-should the splitting be performed?  Beyond simply trying to solve the
-potentially intractable mathematics arising from related questions, with the
-symbolic capabilities described here, we can at least begin to experiment with
-the questions.
+Besides the automation of proximal algorithms themselves, there are areas of
+application involving very large and complex models--perhaps the
+ones arising in Deep Learning.  How might we consider the operator splitting of
+ADMM within deeply layered or hierarchical models
+\citep{polson_statistical_2015}?  At which levels and on which terms should the
+splitting be performed?  Beyond trying to solve the potentially unwieldy
+mathematics arising from such questions, by imbuing these symbolic tools
+with more mathematical awareness, we can at least experiment in these directions
+and quickly offer numerical solutions.  This is--in part--the edge from which
+statistics hasn't been benefiting and modern machine learning has.
 
 
-Before closing, a very related--and at least as interesting--set of ideas is
+Before closing, a very related--and interesting--set of ideas is
 worth mentioning: the possibility of encoding more symbolic knowledge into
 probabilistic programming platforms like PyMC3.  Using the same optimization
 mechanisms as the examples here, simple distributional
