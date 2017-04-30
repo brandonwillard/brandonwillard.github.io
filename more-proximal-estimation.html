@@ -229,7 +229,7 @@ lambda_max <span class="op">=</span> np.linalg.norm(X.T.dot(y), np.inf)</code></
     y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;y&#39;</span>, mu<span class="op">=</span>X_tt.dot(beta_rv), sd<span class="op">=</span><span class="dv">1</span>,
                      shape<span class="op">=</span>y.shape[<span class="dv">0</span>], observed<span class="op">=</span>y_tt)</code></pre></div>
 <p>In this setting one might then arrive at the necessary steps toward estimation automatically (i.e. identify the underlying <span class="math inline">\(\ell_1\)</span> estimation problem). We discuss this more in <span class="citation" data-cites="willard_role_2017">Willard (2017)</span>.</p>
-<p>For simplicity we’ll just assume that all components of the estimation problem are know–i.e. loss and penalty functions. The proximal operator that arises in this standard example is the <em>soft thresholding</em> operator. In Theano, it can be implemented with the following:</p>
+<p>For simplicity, we’ll just assume that all components of the estimation problem are know–i.e. loss and penalty functions. The proximal operator that arises in this standard example is the <em>soft thresholding</em> operator. In Theano, it can be implemented with the following:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> tt_soft_threshold(beta_, lambda_):
     <span class="cf">return</span> tt.sgn(beta_) <span class="op">*</span> tt.maximum(tt.abs_(beta_) <span class="op">-</span> lambda_, <span class="dv">0</span>)</code></pre></div>
 <div class="remark" markdown="" env-number="1" title-name="">
@@ -267,13 +267,13 @@ beta_tt <span class="op">=</span> tt_inputs([nlogl])[<span class="dv">4</span>]<
 \operatorname*{argmin}_\beta \left\{
     l(\beta) + \lambda \phi(\beta)
   \right\}
-  \;.
+  \;,
 \end{equation*}\]</span> when both <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> are lower semi-continuous convex functions, and <span class="math inline">\(l\)</span> is differentiable with Lipschitz gradient.</p>
 <p>The solution is given as the following fixed-point: <span class="math display">\[\begin{equation}
 \beta = \operatorname*{prox}_{\alpha \lambda \phi}(\beta - \alpha \nabla l(\beta))
   \;.
   \label{eq:forward-backward}
-\end{equation}\]</span> The constant step size <span class="math inline">\(\alpha\)</span> is related to the Lipschitz constant of <span class="math inline">\(\nabla l\)</span>, but can more generally be a sequence obeying certain constraints. Since our <span class="math inline">\(l\)</span> under consideration is <span class="math inline">\(\ell_2\)</span>, we have the incredibly standard <span class="math inline">\(\nabla l(\beta) = X^\top (X \beta - y)\)</span>.</p>
+\end{equation}\]</span> The constant step size <span class="math inline">\(\alpha\)</span> is related to the Lipschitz constant of <span class="math inline">\(\nabla l\)</span>, but can also be a sequence obeying certain constraints. Since our <span class="math inline">\(l\)</span> under consideration is <span class="math inline">\(\ell_2\)</span>, we have the incredibly standard <span class="math inline">\(\nabla l(\beta) = X^\top (X \beta - y)\)</span>.</p>
 <section id="implementation" class="level2">
 <h2>Implementation</h2>
 <p>As in <span class="citation" data-cites="willard_role_2017">Willard (2017)</span>, we provide an implementation of a proximal gradient step.</p>
@@ -347,14 +347,13 @@ tt_func_mode <span class="op">=</span> NanGuardMode(nan_is_error<span class="op"
         res <span class="op">+=</span> (loss_grad,)
 
     <span class="cf">return</span> res</code></pre></div>
-<p>This function could also be implemented in a less “stateful” fashion, in which the terms are given as arguments to each function call–instead of shared variable.</p>
 </section>
 <section id="step-sizes" class="level2">
 <h2>Step Sizes</h2>
 <p>A critical aspect of the proximal gradient approach–and most optimization–involves the use of appropriate step sizes, <span class="math inline">\(\alpha\)</span>. They needn’t always be fixed values, and, because of this, we can search for a suitable value during estimation. Furthermore, in some cases, step sizes can be sequences amenable to acceleration techniques <span class="citation" data-cites="beck_fast_2014">(Beck and Teboulle 2014)</span>.</p>
 <p>These values have obvious connections to the performance of an optimization method–beyond basic guarantees of convergence, so the power of any implementation will depend on how much support it has for various types of step size sequences.</p>
-<p>Often acceptible ranges of step size values are derived from Lipschitz and related properties of the functions involved–and/or their gradients. Similar considerations underlie the classical line-search methods in optimization, and give meaning to what some call “tuning parameters”. These connections between function-analytic properties and “tuning parameters” themselves highlight the need for more mathematical coverage within implementations–by which we imply their place in a fully computational, symbolic setting.</p>
-<p>In this spirit, one particularly relevant direction of work can be found in Theano’s experimental matrix “Hints”. The ideas behind <code>theano.sandbox.linalg.ops.{psd, spectral_radius_bound}</code> encompass some of the machinery needed to automatically determine applicable and efficient <span class="math inline">\(\alpha\)</span> constants and sequences.</p>
+<p>Often acceptable ranges of step size values are derived from Lipschitz and related properties of the functions involved–and/or their gradients. Similar considerations underlie the classical line-search methods in optimization, and give meaning to what some call “tuning parameters”. These connections between function-analytic properties and “tuning parameters” themselves highlight the need for more mathematical coverage within implementations–by which we imply their place in a fully computational, symbolic setting.</p>
+<p>In this spirit, one particularly relevant direction of work can be found in Theano’s experimental matrix “Hints”. The ideas behind <code>theano.sandbox.linalg.ops.{psd, spectral_radius_bound}</code> examples of the machinery needed to automatically determine applicable and efficient <span class="math inline">\(\alpha\)</span> constants and sequences.</p>
 <p>In our example, we use the standard backtracking line-search.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> backtracking_search(beta_, alpha_,
                         prox_fn, loss_fn, loss_grad_fn,
@@ -467,8 +466,8 @@ pg_ls_data <span class="op">=</span> pd.DataFrame(pg_est_data)
 </section>
 <section id="coordinate-wise-estimation" class="level1">
 <h1>Coordinate-wise Estimation</h1>
-<p>Given that our loss is a composition of <span class="math inline">\(\ell_2\)</span> and a linear operator of finite dimension, we can conveniently exploit some conditional separability to obtain simple estimation steps in each coordinate. This effectively characterizes coordinate–or cyclic–descent in our case, and it shows up as a common technique in the estimation of <span class="math inline">\(\ell_1\)</span> models <span class="citation" data-cites="friedman_pathwise_2007 mazumder_regularization_2009 scikit-learn_sklearn.linear_model.elasticnet_2017">(Friedman et al. 2007; Mazumder, Hastie, and Tibshirani 2009; scikit-learn 2017)</span>.</p>
-<p>From a more statistical perspective, the basics of coordinate-wise methods begin with the “partial residuals”, <span class="math inline">\(r_{-m} \in {{\mathbb{R}}}^{N}\)</span>, discussed in <span class="citation" data-cites="friedman_pathwise_2007">Friedman et al. (2007)</span> and implicitly defined for our problem by <span class="math display">\[\begin{equation}
+<p>Given that our loss is a composition of <span class="math inline">\(\ell_2\)</span> and a linear operator of finite dimension (i.e. <span class="math inline">\(X\)</span>), we can conveniently exploit conditional separability and obtain simple estimation steps in each coordinate. This is, effectively, what characterizes coordinate–or cyclic–descent. Since it is a common technique in the estimation of <span class="math inline">\(\ell_1\)</span> models <span class="citation" data-cites="friedman_pathwise_2007 mazumder_regularization_2009 scikit-learn_sklearn.linear_model.elasticnet_2017">(Friedman et al. 2007; Mazumder, Hastie, and Tibshirani 2009; scikit-learn 2017)</span>, it’s worthwhile to consider how it can viewed in terms of proximal operators.</p>
+<p>From a statistical perspective, the basics of coordinate-wise methods begin with the “partial residuals”, <span class="math inline">\(r_{-m} \in {{\mathbb{R}}}^{N}\)</span> discussed in <span class="citation" data-cites="friedman_pathwise_2007">Friedman et al. (2007)</span>, and implicitly defined by <span class="math display">\[\begin{equation}
 \begin{aligned}
     \beta^*
     &amp;= \operatorname*{argmin}_{\beta} \left\{
@@ -483,13 +482,26 @@ pg_ls_data <span class="op">=</span> pd.DataFrame(pg_est_data)
     &amp;= \operatorname*{argmin}_{\beta} \left\{
       \frac12
       \|r_{-m} - X e_m \cdot \beta_{m}\|^2_2
-      + \lambda \sum_{m^\prime \neq m} \left|\beta_{m^\prime}\right|
+      + \lambda \left|\beta_m\right|
+      + \dots
     \right\}
   \;.
   \end{aligned}
   \label{eq:partial_resid}
 \end{equation}\]</span> The last expression hints at the most basic idea behind the coordinate-wise approach: conditional minimization in each <span class="math inline">\(m\)</span>. Its exact solution in each coordinate is given by the aforementioned soft thresholding function, which–as we’ve already stated–is a proximal operator. In symbols, <span class="math inline">\(\operatorname*{prox}_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)\)</span>, where the latter is the soft thresholding operator.</p>
-<p>Now, if we wanted to relate this type of coordinate descent to the much more general statement of the proximal gradient solution in Equation <span class="math inline">\(\eqref{eq:forward-backward}\)</span>, we would use a result like the following:</p>
+<p>Now, if we wanted to relate Equation <span class="math inline">\(\eqref{eq:partial_resid}\)</span> a proximal method via the statement of a proximal gradient fixed-point solution–i.e. Equation <span class="math inline">\(\eqref{eq:forward-backward}\)</span>–we might use the following property of proximal operators:</p>
+<div id="lem:prox_ortho_basis" class="lemma" markdown="" env-number="1" title-name="">
+<p><span id="lem:prox_ortho_basis_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{1}\label{lem:prox_ortho_basis}\end{equation}\]</span></span></p>
+<p><span class="math display">\[\begin{equation*}
+\operatorname*{prox}_{\lambda \phi \circ e^\top_m}(z) =
+    \sum^M_m \operatorname*{prox}_{\lambda \phi}\left(e^\top_m z\right) e_m
+    \;.
+\end{equation*}\]</span></p>
+<div class="proof" markdown="" env-number="1" title-name="">
+<p>See <span class="citation" data-cites="chaux_variational_2007">Chaux et al. (2007)</span>.</p>
+</div>
+</div>
+<p>The next result yields our desired connection.</p>
 <div id="eq:prox_grad_descent" class="proposition" markdown="" env-number="1" title-name="">
 <p><span id="eq:prox_grad_descent_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{1}\label{eq:prox_grad_descent}\end{equation}\]</span></span></p>
 <p>For <span class="math inline">\(X\)</span> such that <span class="math inline">\({{\bf 1}}^\top X e_m = 0\)</span> and <span class="math inline">\(e^\top_m X^\top X e_m = 1\)</span>, <span class="math inline">\(m \in \{1, \dots, M\}\)</span>, the coordinate-wise step of the Lasso in <span class="citation" data-cites="friedman_pathwise_2007">Friedman et al. (2007 Equation (9))</span>, <span class="math display">\[\begin{equation*}
@@ -506,6 +518,7 @@ pg_ls_data <span class="op">=</span> pd.DataFrame(pg_est_data)
     \right] e_m
     \;.
 \end{equation*}\]</span></p>
+<div class="proof" markdown="" env-number="2" title-name="">
 <p>We start with an expansion of the terms in <span class="math inline">\(\operatorname*{prox}_{\lambda \phi} \equiv \operatorname{S}_\lambda\)</span>. After simplifying the notation with <span class="math display">\[\begin{equation*}
 \begin{gathered}
     \sum^N_{n} X_{n,m} z_n = e^\top_m X^\top z, \quad \text{and} \quad
@@ -522,12 +535,7 @@ pg_ls_data <span class="op">=</span> pd.DataFrame(pg_est_data)
       \\
       &amp;= e^\top_m \left(\beta + X^\top \left(y - X \beta\right)\right)
     \end{aligned}
-\end{equation*}\]</span> where the last step follows from <span class="math inline">\(X\)</span> standardization. This establishes the relationship with only component-wise. The connection to full vector <span class="math inline">\(\beta\)</span> iterations in comes from the following orthogonal basis property of proximal operators: <span class="math display">\[\begin{equation}
-\operatorname*{prox}_{\lambda \phi \circ e^\top_m}(z) =
-    \sum^M_m \operatorname*{prox}_{\lambda \phi}\left(e^\top_m z\right) e_m
-    \;.
-    \label{eq:prox_ortho_basis}
-\end{equation}\]</span> This together with <span class="math inline">\(z = \beta - \alpha \nabla l(\beta)\)</span> yields the proximal gradient fixed-point statement, i.e. <span class="math display">\[\begin{equation*}
+\end{equation*}\]</span> where the last step follows from <span class="math inline">\(X\)</span> standardization. This establishes the relationship with Equation <span class="math inline">\(\eqref{eq:forward-backward}\)</span> only component-wise. Using Lemma <span class="math inline">\(\eqref{lem:prox_ortho_basis}\)</span> together with <span class="math inline">\(z = \beta - \alpha \nabla  l(\beta)\)</span> yields the proximal gradient fixed-point statement, i.e. <span class="math display">\[\begin{equation*}
 \begin{aligned}
       \beta
       &amp;=
@@ -543,9 +551,10 @@ pg_ls_data <span class="op">=</span> pd.DataFrame(pg_est_data)
     \end{aligned}
 \end{equation*}\]</span></p>
 </div>
+</div>
 <div id="rem:bases" class="remark" markdown="" env-number="3" title-name="">
 <p><span id="rem:bases_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{3}\label{rem:bases}\end{equation}\]</span></span></p>
-<p>The property in can be extended to any other orthonormal bases and provide quite a robust means of deriving methods for certain classes of problems <span class="citation" data-cites="chaux_variational_2007">(Chaux et al. 2007)</span>. More specifically, this property is really a nice way to use <span class="math inline">\(X\)</span>-based orthogonalizations of a regression problem and implement different forms of sparsity on <span class="math inline">\(\beta\)</span> estimates.</p>
+<p>The property in Lemma <span class="math inline">\(\eqref{lem:prox_ortho_basis}\)</span> can used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques <span class="citation" data-cites="chaux_variational_2007">(Chaux et al. 2007)</span>. Also, this property provides a neat way to think about <span class="math inline">\(X\)</span>-based orthogonalizations in estimations for regression and grouped-penalization problems.</p>
 </div>
 <section id="implementation-1" class="level2">
 <h2>Implementation</h2>
@@ -592,7 +601,7 @@ alpha_val)
         <span class="va">self</span>.beta_last <span class="op">=</span> beta_val
 
         <span class="cf">return</span> beta_val</code></pre></div>
-<p>Our example run randomizes the order of coordinates to demonstrate some of the variation introduced by this approach.</p>
+<p>Our example randomizes the order of coordinates to loosely demonstrate the range of efficiency possible in coordinate descent.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">beta_0 <span class="op">=</span> np.zeros(M).astype(<span class="st">&#39;float64&#39;</span>)
 lambda_val <span class="op">=</span> <span class="fl">1e-2</span> <span class="op">*</span> lambda_max
 cd_step <span class="op">=</span> CoordDescent(y, X, beta_0,
@@ -610,10 +619,10 @@ pg_coord_data <span class="op">=</span> pd.DataFrame()
     cd_step.reset()
     np.random.shuffle(cd_step.col_seq)</code></pre></div>
 <p><span id="fig:pg_coord_plot"><span id="fig:pg_coord_plot_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{2}\label{fig:pg_coord_plot}\end{equation}\]</span></span><img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_coord_plot_1.png" title="fig:" alt="Minimization by coordinate descent." /></span></p>
-<p>Figure <span class="math inline">\(\ref{fig:pg_coord_plot}\)</span> shows the distance measures for each randomized coordinate order. The number of [average] iterations between coordinate descent and “batch” proximal gradient is fairly noticeable in this example, yet both reach effectively the same limits in parameter distance and minimum objective value as <code>cvx</code>.</p>
+<p>Figure <span class="math inline">\(\ref{fig:pg_coord_plot}\)</span> shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.</p>
 <div class="remark" markdown="" env-number="4" title-name="">
-<p>The same ideas behind batched vs. non-batched steps and block sampling found within the Gibbs sampling literature <span class="citation" data-cites="roberts_updating_1997">(Roberts and Sahu 1997)</span> likely explain variation due to coordinate order and the relative efficiency of coordinate descent. There also appear to be some connections with our comments in and, to some extent, stochastic gradient descent (SGD) <span class="citation" data-cites="bertsekas_incremental_2010">(Bertsekas 2010)</span>, as well.</p>
-<p>As a lacking over-generalization, let’s say that the [spectral] properties of <span class="math inline">\(l\)</span>/<span class="math inline">\(\nabla l\)</span> and <span class="math inline">\(X\)</span> fundamentally determine the extent to which steps sizes can be increased or accelerated, and the bases, frames, or partitions introduced by coordinate descent, blocking and SGD further affect those properties.</p>
+<p>Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature <span class="citation" data-cites="roberts_updating_1997">(Roberts and Sahu 1997)</span>–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark <span class="math inline">\(\ref{rem:bases}\)</span> and, to some extent, stochastic gradient descent (SGD) <span class="citation" data-cites="bertsekas_incremental_2010">(Bertsekas 2010)</span>.</p>
+<p>In a woefully lacking over-generalization, let’s say that it comes down to the [spectral] properties of the composite operator(s) <span class="math inline">\(l \circ X\)</span> and/or <span class="math inline">\(\nabla l \circ X\)</span>. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of <span class="math inline">\(\beta\)</span> nears or distances from those bounds.</p>
 </div>
 <section id="regularization-paths" class="level3">
 <h3>Regularization Paths</h3>
@@ -664,10 +673,10 @@ pg_path_data <span class="op">=</span> pg_path_data.append(sklearn_path_data,
 <section id="discussion" class="level1">
 <h1>Discussion</h1>
 <p>Among the changes discussed earlier regarding Theano <code>Op</code>s for the proximal objects used here, we would also like to motivate much larger changes to the applied mathematician/statistician’s standard tools by demonstrating the relevance of less common–yet increasingly useful–abstractions. For instance, the proximal methods are neatly framed within operator theory and set-valued analysis, where concepts like the resolvent, sub-differential/gradient and others are common. Abstractions like these provide a compact means of extending familiar ideas into new contexts–such as non-differentiable functions.</p>
-<p>Unfortunately, our numerical software libraries do not provide much in the way utilizing these abstractions. Most are strictly founded in the representation of point-valued mappings, which can require significant work-arounds to handle even the most common non-differentiable functions (e.g. the absolute value within our example problem). Our use of the proximal framework is, in part, motivated by its near seamless use <em>and</em> simultaneous bypassing of set-valued maps–in implementation, at least.</p>
+<p>Unfortunately, our numerical libraries do not provide much in the way utilizing these abstractions. Most are strictly founded in the representation of point-valued mappings, which can require significant work-arounds to handle even the most common non-differentiable functions (e.g. the absolute value within our example problem). Our use of the proximal framework is, in part, motivated by its near seamless use <em>and</em> simultaneous bypassing of set-valued maps–in implementation, at least.</p>
 <p>There is no fundamental restriction blocking support for set-valued maps, however–aside from the necessary labor and community interest. Even minimal support could provide a context that makes frameworks like ours merely minor abstractions. A similar idea can be found in the symbolic calculation of limits via filters <span class="citation" data-cites="beeson_meaning_2005">(Beeson and Wiedijk 2005)</span>. Perhaps we can liken these changes to the modern evolution of linear algebra libraries to tensor libraries.</p>
 <p>We would also like to stress that the value provided by the symbolic tools discussed here (Theano, really) are not <em>just</em> in their ability to act as compilers at a “math level”, but more for their ability to concretely encode mathematical characterizations of optimization problems and methods. Work in this direction is not new by any means; however, the combination of open-source tools and industry interest in algorithms that fall under the broad class of proximal methods (e.g. gradient descent, ADMM, EM, etc.) provides a more immediate reason to pursue these abstractions in code and automate their use.</p>
-<p>Regarding the proximal methods, we can consider Theano optimizations that make direct use of the orthonormal basis property in Equation <span class="math inline">\(\eqref{eq:prox_ortho_basis}\)</span>, or the Moreau-Fenchel theorem, and automate consideration for various estimation methods via splitting (e.g. ADMM, Douglas-Rachford, etc.)–perhaps by making decisions based on inferred or specified tensor, function, and operator properties. In future installments we’ll delve into the details of these ideas.</p>
+<p>Regarding the proximal methods, we can consider Theano optimizations that make direct use of the orthonormal basis property in Lemma <span class="math inline">\(\eqref{lem:prox_ortho_basis}\)</span>, or the Moreau-Fenchel theorem, and automate consideration for various estimation methods via splitting (e.g. ADMM, Douglas-Rachford, etc.)–perhaps by making decisions based on inferred or specified tensor, function, and operator properties. In future installments we’ll delve into the details of these ideas.</p>
 <p><span class="citation" data-cites="wytock_new_2016">(Wytock et al. 2016)</span> also discuss similar ideas in an optimization setting, such as the use of symbolic graphs and a close coupling with useful mathematical abstractions–including proximal operators. Additionally, there are many other good examples <span class="citation" data-cites="diamond_cvxpy:_2016">(Diamond and Boyd 2016)</span> of constructive mathematical abstractions applied in code.</p>
 <p>In most cases, libraries providing optimization tools and supporting model estimation do not attempt to root their implementations within an independently developed symbolic framework and then realize their relevant methodologies in that context. Too often the mathematical abstractions–or the resulting methods alone–are directly implemented at the highest levels of abstraction possible. This is what we see as the result of popular libraries like <code>scikit-learn</code> and the body of <code>R</code> packages. One can also find the same efforts for proximal methods themselves–e.g. in <span class="citation" data-cites="svaiter_pyprox_2017">(svaiter 2017)</span>, where individual functions for ADMM, forward-backward/proximal gradient and Douglas-Rachford are the end result. This is the most common approach and it makes sense in terms of simplicity, but offers very little of the extensibility, generalization, or efficiencies provided by shared efforts across related projects and fields.</p>
 <p>In the context of Theano, implementations immediately benefit from its code conversion, parallelization and relevant improvements to its basic graph optimizations. The latter covers both low-level computational efficiency–such as relevant application of BLAS functions–and high-level tensor algebra simplifications.</p>

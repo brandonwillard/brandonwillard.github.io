@@ -121,7 +121,7 @@ lambda_max &lt;span class="op"&gt;=&lt;/span&gt; np.linalg.norm(X.T.dot(y), np.i
     y_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;X_tt.dot(beta_rv), sd&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;,
                      shape&lt;span class="op"&gt;=&lt;/span&gt;y.shape[&lt;span class="dv"&gt;0&lt;/span&gt;], observed&lt;span class="op"&gt;=&lt;/span&gt;y_tt)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;In this setting one might then arrive at the necessary steps toward estimation automatically (i.e. identify the underlying &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; estimation problem). We discuss this more in &lt;span class="citation" data-cites="willard_role_2017"&gt;Willard (2017)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;For simplicity we’ll just assume that all components of the estimation problem are know–i.e. loss and penalty functions. The proximal operator that arises in this standard example is the &lt;em&gt;soft thresholding&lt;/em&gt; operator. In Theano, it can be implemented with the following:&lt;/p&gt;
+&lt;p&gt;For simplicity, we’ll just assume that all components of the estimation problem are know–i.e. loss and penalty functions. The proximal operator that arises in this standard example is the &lt;em&gt;soft thresholding&lt;/em&gt; operator. In Theano, it can be implemented with the following:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; tt_soft_threshold(beta_, lambda_):
     &lt;span class="cf"&gt;return&lt;/span&gt; tt.sgn(beta_) &lt;span class="op"&gt;*&lt;/span&gt; tt.maximum(tt.abs_(beta_) &lt;span class="op"&gt;-&lt;/span&gt; lambda_, &lt;span class="dv"&gt;0&lt;/span&gt;)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="remark" markdown="" env-number="1" title-name=""&gt;
@@ -159,13 +159,13 @@ beta_tt &lt;span class="op"&gt;=&lt;/span&gt; tt_inputs([nlogl])[&lt;span class=
 \operatorname*{argmin}_\beta \left\{
     l(\beta) + \lambda \phi(\beta)
   \right\}
-  \;.
+  \;,
 \end{equation*}\]&lt;/span&gt; when both &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; are lower semi-continuous convex functions, and &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; is differentiable with Lipschitz gradient.&lt;/p&gt;
 &lt;p&gt;The solution is given as the following fixed-point: &lt;span class="math display"&gt;\[\begin{equation}
 \beta = \operatorname*{prox}_{\alpha \lambda \phi}(\beta - \alpha \nabla l(\beta))
   \;.
   \label{eq:forward-backward}
-\end{equation}\]&lt;/span&gt; The constant step size &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt; is related to the Lipschitz constant of &lt;span class="math inline"&gt;\(\nabla l\)&lt;/span&gt;, but can more generally be a sequence obeying certain constraints. Since our &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; under consideration is &lt;span class="math inline"&gt;\(\ell_2\)&lt;/span&gt;, we have the incredibly standard &lt;span class="math inline"&gt;\(\nabla l(\beta) = X^\top (X \beta - y)\)&lt;/span&gt;.&lt;/p&gt;
+\end{equation}\]&lt;/span&gt; The constant step size &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt; is related to the Lipschitz constant of &lt;span class="math inline"&gt;\(\nabla l\)&lt;/span&gt;, but can also be a sequence obeying certain constraints. Since our &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; under consideration is &lt;span class="math inline"&gt;\(\ell_2\)&lt;/span&gt;, we have the incredibly standard &lt;span class="math inline"&gt;\(\nabla l(\beta) = X^\top (X \beta - y)\)&lt;/span&gt;.&lt;/p&gt;
 &lt;section id="implementation" class="level2"&gt;
 &lt;h2&gt;Implementation&lt;/h2&gt;
 &lt;p&gt;As in &lt;span class="citation" data-cites="willard_role_2017"&gt;Willard (2017)&lt;/span&gt;, we provide an implementation of a proximal gradient step.&lt;/p&gt;
@@ -239,14 +239,13 @@ tt_func_mode &lt;span class="op"&gt;=&lt;/span&gt; NanGuardMode(nan_is_error&lt;
         res &lt;span class="op"&gt;+=&lt;/span&gt; (loss_grad,)
 
     &lt;span class="cf"&gt;return&lt;/span&gt; res&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;This function could also be implemented in a less “stateful” fashion, in which the terms are given as arguments to each function call–instead of shared variable.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="step-sizes" class="level2"&gt;
 &lt;h2&gt;Step Sizes&lt;/h2&gt;
 &lt;p&gt;A critical aspect of the proximal gradient approach–and most optimization–involves the use of appropriate step sizes, &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt;. They needn’t always be fixed values, and, because of this, we can search for a suitable value during estimation. Furthermore, in some cases, step sizes can be sequences amenable to acceleration techniques &lt;span class="citation" data-cites="beck_fast_2014"&gt;(Beck and Teboulle 2014)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;These values have obvious connections to the performance of an optimization method–beyond basic guarantees of convergence, so the power of any implementation will depend on how much support it has for various types of step size sequences.&lt;/p&gt;
-&lt;p&gt;Often acceptible ranges of step size values are derived from Lipschitz and related properties of the functions involved–and/or their gradients. Similar considerations underlie the classical line-search methods in optimization, and give meaning to what some call “tuning parameters”. These connections between function-analytic properties and “tuning parameters” themselves highlight the need for more mathematical coverage within implementations–by which we imply their place in a fully computational, symbolic setting.&lt;/p&gt;
-&lt;p&gt;In this spirit, one particularly relevant direction of work can be found in Theano’s experimental matrix “Hints”. The ideas behind &lt;code&gt;theano.sandbox.linalg.ops.{psd, spectral_radius_bound}&lt;/code&gt; encompass some of the machinery needed to automatically determine applicable and efficient &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt; constants and sequences.&lt;/p&gt;
+&lt;p&gt;Often acceptable ranges of step size values are derived from Lipschitz and related properties of the functions involved–and/or their gradients. Similar considerations underlie the classical line-search methods in optimization, and give meaning to what some call “tuning parameters”. These connections between function-analytic properties and “tuning parameters” themselves highlight the need for more mathematical coverage within implementations–by which we imply their place in a fully computational, symbolic setting.&lt;/p&gt;
+&lt;p&gt;In this spirit, one particularly relevant direction of work can be found in Theano’s experimental matrix “Hints”. The ideas behind &lt;code&gt;theano.sandbox.linalg.ops.{psd, spectral_radius_bound}&lt;/code&gt; examples of the machinery needed to automatically determine applicable and efficient &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt; constants and sequences.&lt;/p&gt;
 &lt;p&gt;In our example, we use the standard backtracking line-search.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; backtracking_search(beta_, alpha_,
                         prox_fn, loss_fn, loss_grad_fn,
@@ -359,8 +358,8 @@ pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)
 &lt;/section&gt;
 &lt;section id="coordinate-wise-estimation" class="level1"&gt;
 &lt;h1&gt;Coordinate-wise Estimation&lt;/h1&gt;
-&lt;p&gt;Given that our loss is a composition of &lt;span class="math inline"&gt;\(\ell_2\)&lt;/span&gt; and a linear operator of finite dimension, we can conveniently exploit some conditional separability to obtain simple estimation steps in each coordinate. This effectively characterizes coordinate–or cyclic–descent in our case, and it shows up as a common technique in the estimation of &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; models &lt;span class="citation" data-cites="friedman_pathwise_2007 mazumder_regularization_2009 scikit-learn_sklearn.linear_model.elasticnet_2017"&gt;(Friedman et al. 2007; Mazumder, Hastie, and Tibshirani 2009; scikit-learn 2017)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;From a more statistical perspective, the basics of coordinate-wise methods begin with the “partial residuals”, &lt;span class="math inline"&gt;\(r_{-m} \in {{\mathbb{R}}}^{N}\)&lt;/span&gt;, discussed in &lt;span class="citation" data-cites="friedman_pathwise_2007"&gt;Friedman et al. (2007)&lt;/span&gt; and implicitly defined for our problem by &lt;span class="math display"&gt;\[\begin{equation}
+&lt;p&gt;Given that our loss is a composition of &lt;span class="math inline"&gt;\(\ell_2\)&lt;/span&gt; and a linear operator of finite dimension (i.e. &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;), we can conveniently exploit conditional separability and obtain simple estimation steps in each coordinate. This is, effectively, what characterizes coordinate–or cyclic–descent. Since it is a common technique in the estimation of &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; models &lt;span class="citation" data-cites="friedman_pathwise_2007 mazumder_regularization_2009 scikit-learn_sklearn.linear_model.elasticnet_2017"&gt;(Friedman et al. 2007; Mazumder, Hastie, and Tibshirani 2009; scikit-learn 2017)&lt;/span&gt;, it’s worthwhile to consider how it can viewed in terms of proximal operators.&lt;/p&gt;
+&lt;p&gt;From a statistical perspective, the basics of coordinate-wise methods begin with the “partial residuals”, &lt;span class="math inline"&gt;\(r_{-m} \in {{\mathbb{R}}}^{N}\)&lt;/span&gt; discussed in &lt;span class="citation" data-cites="friedman_pathwise_2007"&gt;Friedman et al. (2007)&lt;/span&gt;, and implicitly defined by &lt;span class="math display"&gt;\[\begin{equation}
 \begin{aligned}
     \beta^*
     &amp;amp;= \operatorname*{argmin}_{\beta} \left\{
@@ -375,13 +374,26 @@ pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)
     &amp;amp;= \operatorname*{argmin}_{\beta} \left\{
       \frac12
       \|r_{-m} - X e_m \cdot \beta_{m}\|^2_2
-      + \lambda \sum_{m^\prime \neq m} \left|\beta_{m^\prime}\right|
+      + \lambda \left|\beta_m\right|
+      + \dots
     \right\}
   \;.
   \end{aligned}
   \label{eq:partial_resid}
 \end{equation}\]&lt;/span&gt; The last expression hints at the most basic idea behind the coordinate-wise approach: conditional minimization in each &lt;span class="math inline"&gt;\(m\)&lt;/span&gt;. Its exact solution in each coordinate is given by the aforementioned soft thresholding function, which–as we’ve already stated–is a proximal operator. In symbols, &lt;span class="math inline"&gt;\(\operatorname*{prox}_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)\)&lt;/span&gt;, where the latter is the soft thresholding operator.&lt;/p&gt;
-&lt;p&gt;Now, if we wanted to relate this type of coordinate descent to the much more general statement of the proximal gradient solution in Equation &lt;span class="math inline"&gt;\(\eqref{eq:forward-backward}\)&lt;/span&gt;, we would use a result like the following:&lt;/p&gt;
+&lt;p&gt;Now, if we wanted to relate Equation &lt;span class="math inline"&gt;\(\eqref{eq:partial_resid}\)&lt;/span&gt; a proximal method via the statement of a proximal gradient fixed-point solution–i.e. Equation &lt;span class="math inline"&gt;\(\eqref{eq:forward-backward}\)&lt;/span&gt;–we might use the following property of proximal operators:&lt;/p&gt;
+&lt;div id="lem:prox_ortho_basis" class="lemma" markdown="" env-number="1" title-name=""&gt;
+&lt;p&gt;&lt;span id="lem:prox_ortho_basis_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{1}\label{lem:prox_ortho_basis}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
+\operatorname*{prox}_{\lambda \phi \circ e^\top_m}(z) =
+    \sum^M_m \operatorname*{prox}_{\lambda \phi}\left(e^\top_m z\right) e_m
+    \;.
+\end{equation*}\]&lt;/span&gt;&lt;/p&gt;
+&lt;div class="proof" markdown="" env-number="1" title-name=""&gt;
+&lt;p&gt;See &lt;span class="citation" data-cites="chaux_variational_2007"&gt;Chaux et al. (2007)&lt;/span&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The next result yields our desired connection.&lt;/p&gt;
 &lt;div id="eq:prox_grad_descent" class="proposition" markdown="" env-number="1" title-name=""&gt;
 &lt;p&gt;&lt;span id="eq:prox_grad_descent_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{1}\label{eq:prox_grad_descent}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;For &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; such that &lt;span class="math inline"&gt;\({{\bf 1}}^\top X e_m = 0\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(e^\top_m X^\top X e_m = 1\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(m \in \{1, \dots, M\}\)&lt;/span&gt;, the coordinate-wise step of the Lasso in &lt;span class="citation" data-cites="friedman_pathwise_2007"&gt;Friedman et al. (2007 Equation (9))&lt;/span&gt;, &lt;span class="math display"&gt;\[\begin{equation*}
@@ -398,6 +410,7 @@ pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)
     \right] e_m
     \;.
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
+&lt;div class="proof" markdown="" env-number="2" title-name=""&gt;
 &lt;p&gt;We start with an expansion of the terms in &lt;span class="math inline"&gt;\(\operatorname*{prox}_{\lambda \phi} \equiv \operatorname{S}_\lambda\)&lt;/span&gt;. After simplifying the notation with &lt;span class="math display"&gt;\[\begin{equation*}
 \begin{gathered}
     \sum^N_{n} X_{n,m} z_n = e^\top_m X^\top z, \quad \text{and} \quad
@@ -414,12 +427,7 @@ pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)
       \\
       &amp;amp;= e^\top_m \left(\beta + X^\top \left(y - X \beta\right)\right)
     \end{aligned}
-\end{equation*}\]&lt;/span&gt; where the last step follows from &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; standardization. This establishes the relationship with only component-wise. The connection to full vector &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; iterations in comes from the following orthogonal basis property of proximal operators: &lt;span class="math display"&gt;\[\begin{equation}
-\operatorname*{prox}_{\lambda \phi \circ e^\top_m}(z) =
-    \sum^M_m \operatorname*{prox}_{\lambda \phi}\left(e^\top_m z\right) e_m
-    \;.
-    \label{eq:prox_ortho_basis}
-\end{equation}\]&lt;/span&gt; This together with &lt;span class="math inline"&gt;\(z = \beta - \alpha \nabla l(\beta)\)&lt;/span&gt; yields the proximal gradient fixed-point statement, i.e. &lt;span class="math display"&gt;\[\begin{equation*}
+\end{equation*}\]&lt;/span&gt; where the last step follows from &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; standardization. This establishes the relationship with Equation &lt;span class="math inline"&gt;\(\eqref{eq:forward-backward}\)&lt;/span&gt; only component-wise. Using Lemma &lt;span class="math inline"&gt;\(\eqref{lem:prox_ortho_basis}\)&lt;/span&gt; together with &lt;span class="math inline"&gt;\(z = \beta - \alpha \nabla  l(\beta)\)&lt;/span&gt; yields the proximal gradient fixed-point statement, i.e. &lt;span class="math display"&gt;\[\begin{equation*}
 \begin{aligned}
       \beta
       &amp;amp;=
@@ -435,9 +443,10 @@ pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)
     \end{aligned}
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;/div&gt;
+&lt;/div&gt;
 &lt;div id="rem:bases" class="remark" markdown="" env-number="3" title-name=""&gt;
 &lt;p&gt;&lt;span id="rem:bases_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{3}\label{rem:bases}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;The property in can be extended to any other orthonormal bases and provide quite a robust means of deriving methods for certain classes of problems &lt;span class="citation" data-cites="chaux_variational_2007"&gt;(Chaux et al. 2007)&lt;/span&gt;. More specifically, this property is really a nice way to use &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;-based orthogonalizations of a regression problem and implement different forms of sparsity on &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; estimates.&lt;/p&gt;
+&lt;p&gt;The property in Lemma &lt;span class="math inline"&gt;\(\eqref{lem:prox_ortho_basis}\)&lt;/span&gt; can used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques &lt;span class="citation" data-cites="chaux_variational_2007"&gt;(Chaux et al. 2007)&lt;/span&gt;. Also, this property provides a neat way to think about &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;-based orthogonalizations in estimations for regression and grouped-penalization problems.&lt;/p&gt;
 &lt;/div&gt;
 &lt;section id="implementation-1" class="level2"&gt;
 &lt;h2&gt;Implementation&lt;/h2&gt;
@@ -484,7 +493,7 @@ alpha_val)
         &lt;span class="va"&gt;self&lt;/span&gt;.beta_last &lt;span class="op"&gt;=&lt;/span&gt; beta_val
 
         &lt;span class="cf"&gt;return&lt;/span&gt; beta_val&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Our example run randomizes the order of coordinates to demonstrate some of the variation introduced by this approach.&lt;/p&gt;
+&lt;p&gt;Our example randomizes the order of coordinates to loosely demonstrate the range of efficiency possible in coordinate descent.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;beta_0 &lt;span class="op"&gt;=&lt;/span&gt; np.zeros(M).astype(&lt;span class="st"&gt;&amp;#39;float64&amp;#39;&lt;/span&gt;)
 lambda_val &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1e-2&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; lambda_max
 cd_step &lt;span class="op"&gt;=&lt;/span&gt; CoordDescent(y, X, beta_0,
@@ -502,10 +511,10 @@ pg_coord_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame()
     cd_step.reset()
     np.random.shuffle(cd_step.col_seq)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:pg_coord_plot"&gt;&lt;span id="fig:pg_coord_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{2}\label{fig:pg_coord_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_coord_plot_1.png" title="fig:" alt="Minimization by coordinate descent." /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_coord_plot}\)&lt;/span&gt; shows the distance measures for each randomized coordinate order. The number of [average] iterations between coordinate descent and “batch” proximal gradient is fairly noticeable in this example, yet both reach effectively the same limits in parameter distance and minimum objective value as &lt;code&gt;cvx&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_coord_plot}\)&lt;/span&gt; shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.&lt;/p&gt;
 &lt;div class="remark" markdown="" env-number="4" title-name=""&gt;
-&lt;p&gt;The same ideas behind batched vs. non-batched steps and block sampling found within the Gibbs sampling literature &lt;span class="citation" data-cites="roberts_updating_1997"&gt;(Roberts and Sahu 1997)&lt;/span&gt; likely explain variation due to coordinate order and the relative efficiency of coordinate descent. There also appear to be some connections with our comments in and, to some extent, stochastic gradient descent (SGD) &lt;span class="citation" data-cites="bertsekas_incremental_2010"&gt;(Bertsekas 2010)&lt;/span&gt;, as well.&lt;/p&gt;
-&lt;p&gt;As a lacking over-generalization, let’s say that the [spectral] properties of &lt;span class="math inline"&gt;\(l\)&lt;/span&gt;/&lt;span class="math inline"&gt;\(\nabla l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; fundamentally determine the extent to which steps sizes can be increased or accelerated, and the bases, frames, or partitions introduced by coordinate descent, blocking and SGD further affect those properties.&lt;/p&gt;
+&lt;p&gt;Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature &lt;span class="citation" data-cites="roberts_updating_1997"&gt;(Roberts and Sahu 1997)&lt;/span&gt;–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark &lt;span class="math inline"&gt;\(\ref{rem:bases}\)&lt;/span&gt; and, to some extent, stochastic gradient descent (SGD) &lt;span class="citation" data-cites="bertsekas_incremental_2010"&gt;(Bertsekas 2010)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;In a woefully lacking over-generalization, let’s say that it comes down to the [spectral] properties of the composite operator(s) &lt;span class="math inline"&gt;\(l \circ X\)&lt;/span&gt; and/or &lt;span class="math inline"&gt;\(\nabla l \circ X\)&lt;/span&gt;. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; nears or distances from those bounds.&lt;/p&gt;
 &lt;/div&gt;
 &lt;section id="regularization-paths" class="level3"&gt;
 &lt;h3&gt;Regularization Paths&lt;/h3&gt;
@@ -556,10 +565,10 @@ pg_path_data &lt;span class="op"&gt;=&lt;/span&gt; pg_path_data.append(sklearn_p
 &lt;section id="discussion" class="level1"&gt;
 &lt;h1&gt;Discussion&lt;/h1&gt;
 &lt;p&gt;Among the changes discussed earlier regarding Theano &lt;code&gt;Op&lt;/code&gt;s for the proximal objects used here, we would also like to motivate much larger changes to the applied mathematician/statistician’s standard tools by demonstrating the relevance of less common–yet increasingly useful–abstractions. For instance, the proximal methods are neatly framed within operator theory and set-valued analysis, where concepts like the resolvent, sub-differential/gradient and others are common. Abstractions like these provide a compact means of extending familiar ideas into new contexts–such as non-differentiable functions.&lt;/p&gt;
-&lt;p&gt;Unfortunately, our numerical software libraries do not provide much in the way utilizing these abstractions. Most are strictly founded in the representation of point-valued mappings, which can require significant work-arounds to handle even the most common non-differentiable functions (e.g. the absolute value within our example problem). Our use of the proximal framework is, in part, motivated by its near seamless use &lt;em&gt;and&lt;/em&gt; simultaneous bypassing of set-valued maps–in implementation, at least.&lt;/p&gt;
+&lt;p&gt;Unfortunately, our numerical libraries do not provide much in the way utilizing these abstractions. Most are strictly founded in the representation of point-valued mappings, which can require significant work-arounds to handle even the most common non-differentiable functions (e.g. the absolute value within our example problem). Our use of the proximal framework is, in part, motivated by its near seamless use &lt;em&gt;and&lt;/em&gt; simultaneous bypassing of set-valued maps–in implementation, at least.&lt;/p&gt;
 &lt;p&gt;There is no fundamental restriction blocking support for set-valued maps, however–aside from the necessary labor and community interest. Even minimal support could provide a context that makes frameworks like ours merely minor abstractions. A similar idea can be found in the symbolic calculation of limits via filters &lt;span class="citation" data-cites="beeson_meaning_2005"&gt;(Beeson and Wiedijk 2005)&lt;/span&gt;. Perhaps we can liken these changes to the modern evolution of linear algebra libraries to tensor libraries.&lt;/p&gt;
 &lt;p&gt;We would also like to stress that the value provided by the symbolic tools discussed here (Theano, really) are not &lt;em&gt;just&lt;/em&gt; in their ability to act as compilers at a “math level”, but more for their ability to concretely encode mathematical characterizations of optimization problems and methods. Work in this direction is not new by any means; however, the combination of open-source tools and industry interest in algorithms that fall under the broad class of proximal methods (e.g. gradient descent, ADMM, EM, etc.) provides a more immediate reason to pursue these abstractions in code and automate their use.&lt;/p&gt;
-&lt;p&gt;Regarding the proximal methods, we can consider Theano optimizations that make direct use of the orthonormal basis property in Equation &lt;span class="math inline"&gt;\(\eqref{eq:prox_ortho_basis}\)&lt;/span&gt;, or the Moreau-Fenchel theorem, and automate consideration for various estimation methods via splitting (e.g. ADMM, Douglas-Rachford, etc.)–perhaps by making decisions based on inferred or specified tensor, function, and operator properties. In future installments we’ll delve into the details of these ideas.&lt;/p&gt;
+&lt;p&gt;Regarding the proximal methods, we can consider Theano optimizations that make direct use of the orthonormal basis property in Lemma &lt;span class="math inline"&gt;\(\eqref{lem:prox_ortho_basis}\)&lt;/span&gt;, or the Moreau-Fenchel theorem, and automate consideration for various estimation methods via splitting (e.g. ADMM, Douglas-Rachford, etc.)–perhaps by making decisions based on inferred or specified tensor, function, and operator properties. In future installments we’ll delve into the details of these ideas.&lt;/p&gt;
 &lt;p&gt;&lt;span class="citation" data-cites="wytock_new_2016"&gt;(Wytock et al. 2016)&lt;/span&gt; also discuss similar ideas in an optimization setting, such as the use of symbolic graphs and a close coupling with useful mathematical abstractions–including proximal operators. Additionally, there are many other good examples &lt;span class="citation" data-cites="diamond_cvxpy:_2016"&gt;(Diamond and Boyd 2016)&lt;/span&gt; of constructive mathematical abstractions applied in code.&lt;/p&gt;
 &lt;p&gt;In most cases, libraries providing optimization tools and supporting model estimation do not attempt to root their implementations within an independently developed symbolic framework and then realize their relevant methodologies in that context. Too often the mathematical abstractions–or the resulting methods alone–are directly implemented at the highest levels of abstraction possible. This is what we see as the result of popular libraries like &lt;code&gt;scikit-learn&lt;/code&gt; and the body of &lt;code&gt;R&lt;/code&gt; packages. One can also find the same efforts for proximal methods themselves–e.g. in &lt;span class="citation" data-cites="svaiter_pyprox_2017"&gt;(svaiter 2017)&lt;/span&gt;, where individual functions for ADMM, forward-backward/proximal gradient and Douglas-Rachford are the end result. This is the most common approach and it makes sense in terms of simplicity, but offers very little of the extensibility, generalization, or efficiencies provided by shared efforts across related projects and fields.&lt;/p&gt;
 &lt;p&gt;In the context of Theano, implementations immediately benefit from its code conversion, parallelization and relevant improvements to its basic graph optimizations. The latter covers both low-level computational efficiency–such as relevant application of BLAS functions–and high-level tensor algebra simplifications.&lt;/p&gt;
@@ -697,26 +706,25 @@ code &gt; span. { color: #1f1c1b; } /* Normal */
 &lt;!--  --&gt;
 &lt;section id="introduction" class="level1"&gt;
 &lt;h1&gt;Introduction&lt;/h1&gt;
-&lt;p&gt;In this document we describe how symbolic computation can be used to provide generalizable statistical estimation through a combination of existing open source frameworks.&lt;/p&gt;
-&lt;p&gt;Specifically, we consider the optimization problems resulting from models with non-smooth objective functions. These problems arise in the context of regularization and shrinkage, and here we’ll address their automated application within the &lt;em&gt;proximal framework&lt;/em&gt; &lt;span class="citation" data-cites="polson_proximal_2015"&gt;(Polson, Scott, and Willard 2015)&lt;/span&gt;. In &lt;span class="citation" data-cites="polson_proximal_2015"&gt;Polson, Scott, and Willard (2015)&lt;/span&gt; we outlined a set of seemingly disparate optimization techniques within the fields of statistics, computer vision, and machine learning, that are unified by the types of functional bounds employed, the tools of convex analysis and the language of operator theory. These methods–and the concepts behind them–have found much success in recent times and admit quite a few interesting paths for research.&lt;/p&gt;
-&lt;p&gt;In at least a few cases, the work required to produce a proximal algorithm overlaps with some highly functional areas in computer algebra and symbolic mathematics. For instance, some proximal operators–the main ingredient within proximal algorithms–can be solved exactly with symbolic differentiation and algebraic equation solvers. With perhaps only the addition of sophisticated variable assumptions and an ability to manipulate inequalities, even larger &lt;em&gt;classes&lt;/em&gt; of proximal operators could be solved. We refer the reader to the table in &lt;span class="citation" data-cites="polson_proximal_2015"&gt;Polson, Scott, and Willard (2015)&lt;/span&gt; for examples of operators that are currently solved–by hand–using roughly the same means.&lt;/p&gt;
-&lt;p&gt;The kind of automation proposed here only begins to answer a problem that arises somewhat naturally in these areas: how does one provide access to methods that produce–or apply to–numerous distinct problems and solutions. Instead of the common attempt to implement each model or method separately, and then combine them under a loosely organized API or function interface, the symbolic approach offers wider applicability and concise implementations in terms of code that maps directly to the mathematics. Also, it is one of the few practical means of including the higher and lower level considerations made by professionals at all stages of statistical modeling: mathematical, numerical, computational (e.g. distributed environments, concurrency, etc.) Some steps toward these broader goals are within reach and worth taking now.&lt;/p&gt;
-&lt;p&gt;That said, statistical modeling and estimation as a whole should seriously consider aligning more with the current tools and offerings of symbolic mathematics. Relative to the subject matter here, symbolic integration provides an excellent example. In computer algebra systems, mappings between basic functional forms and their generalized hypergeometric equivalents are used to exploit convenient convolution identities. In the same vein, it might be possible to use analogous tables for solutions to a wide variety of non-smooth models. We outline how this might be done in the following sections.&lt;/p&gt;
+&lt;p&gt;In this document we describe how symbolic computation can be used to provide generalizable statistical estimation through a combination of existing open source frameworks. Specifically, we will show how symbolic tools can be used to address the estimation of non-smooth functions that appear in models with parameter regularization, shrinkage and sparsity. We employ a mathematical framework that makes extensive use of &lt;em&gt;proximal operators&lt;/em&gt; &lt;span class="citation" data-cites="parikh_proximal_2014 combettes_proximal_2011"&gt;(Parikh and Boyd 2014; Combettes and Pesquet 2011)&lt;/span&gt; and their properties for maximum a posteriori (MAP) estimation: i.e. the &lt;em&gt;proximal framework&lt;/em&gt;. This framework produces what we’ll call &lt;em&gt;proximal methods&lt;/em&gt; and their implementations as &lt;em&gt;proximal algorithms&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;In &lt;span class="citation" data-cites="polson_proximal_2015"&gt;Polson, Scott, and Willard (2015)&lt;/span&gt; we outlined a set of seemingly disparate optimization techniques within the fields of statistics, computer vision, and machine learning (e.g. gradient descent, ADMM, EM, Douglas-Rachford) that are unified by their various applications of proximal methods. These methods–and the concepts behind them–have found much success in recent times and admit quite a few interesting paths for research. In other words, there are many reasons to alone discuss the implementation of proximal methods.&lt;/p&gt;
+&lt;p&gt;Proximal operators also enjoy a breadth of closed-form solutions and useful properties that are amenable to symbolic computation. In more than a few cases, the work required to produce a proximal algorithm overlaps with well-established features of computer algebra systems and symbolic mathematics, such as symbolic differentiation and algebraic equation solving.&lt;/p&gt;
+&lt;p&gt;Symbolic integration provides an excellent example of how proximal operators could be implemented in a symbolic system. In these systems, mappings between functions (as canonicalized graphs) and their generalized hypergeometric equivalents are used to exploit the latter’s relevant convolution identities. In the same vein, it is possible to use tables of closed-form proximal operators and their properties to produce a wide array of estimation algorithms for many non-smooth functions. We outline how this might be done in the following sections.&lt;/p&gt;
+&lt;p&gt;Otherwise, the ideas discussed here are part of a never-ending attempt to answer a question that arises naturally in both mathematics and programming–at all levels: &lt;em&gt;How does one provide a means of generating robust solutions to as many problems as possible?&lt;/em&gt; Instead of the common efforts to independently implement each model, method and/or combination of the two–followed by their placement in an API or library of functions–implementations can be encoded in and organized by the very mathematics from which they were derived. This close coupling between mathematical principles and their implementations might be the only reasonable way to remove barriers between theory, research and practice.&lt;/p&gt;
 &lt;section id="a-context" class="level2"&gt;
 &lt;h2&gt;A Context&lt;/h2&gt;
-&lt;p&gt;Much recent work in statistical modeling and estimation has revolved around the desire for sparsity, regularization and efficient [automatic] model selection. This is, in some sense, an objective shared with the more specialized areas of Deep Learning and Compressed Sensing. In the former case, we can point to Dropout &lt;span class="citation" data-cites="srivastava_dropout_2014"&gt;(Srivastava et al. 2014)&lt;/span&gt; and, in the latter, &lt;span class="math inline"&gt;\(\ell_p\)&lt;/span&gt; regularization &lt;span class="citation" data-cites="donoho_compressed_2006"&gt;(Donoho 2006)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;Without delving into those topics here, we’ll simply assume that a practitioner intends to produce a sparse estimate for a model that results in LASSO. First, some setup:&lt;/p&gt;
+&lt;p&gt;Much recent work in statistical modeling and estimation has had the goal of producing sparse results and/or efficient, near automatic model selection. This objective is shared with other related practices–such as Deep Learning and Compressed Sensing. In the former case, we can point to Dropout &lt;span class="citation" data-cites="srivastava_dropout_2014"&gt;(Srivastava et al. 2014)&lt;/span&gt; and–in the latter–&lt;span class="math inline"&gt;\(\ell_p\)&lt;/span&gt; regularization &lt;span class="citation" data-cites="donoho_compressed_2006"&gt;(Donoho 2006)&lt;/span&gt; as basic examples.&lt;/p&gt;
+&lt;p&gt;Here we’ll simply assume that a practitioner intends to produce sparse estimates using the well-known LASSO–or &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; penalty.&lt;/p&gt;
+&lt;p&gt;In PyMC3 &lt;span class="citation" data-cites="salvatier_probabilistic_2016"&gt;(Salvatier, Wiecki, and Fonnesbeck 2016)&lt;/span&gt;, the Bayes version of LASSO &lt;span class="citation" data-cites="park_bayesian_2008"&gt;(Park and Casella 2008)&lt;/span&gt; is easily specified.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;import&lt;/span&gt; numpy &lt;span class="im"&gt;as&lt;/span&gt; np
 &lt;span class="im"&gt;import&lt;/span&gt; scipy &lt;span class="im"&gt;as&lt;/span&gt; sc
 
 &lt;span class="im"&gt;import&lt;/span&gt; pymc3 &lt;span class="im"&gt;as&lt;/span&gt; pm
 &lt;span class="im"&gt;import&lt;/span&gt; theano
 &lt;span class="im"&gt;import&lt;/span&gt; theano.tensor &lt;span class="im"&gt;as&lt;/span&gt; tt
+&lt;span class="im"&gt;from&lt;/span&gt; theano &lt;span class="im"&gt;import&lt;/span&gt; shared &lt;span class="im"&gt;as&lt;/span&gt; tt_shared
 
-theano.config.mode &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;FAST_COMPILE&amp;#39;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre class="text"&gt;&lt;code&gt;Couldn&amp;#39;t import dot_parser, loading of dot files will not be possible.&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Using PyMC3, the Bayes version of the LASSO &lt;span class="citation" data-cites="park_bayesian_2008"&gt;(Park and Casella 2008)&lt;/span&gt; model is easily specified.&lt;/p&gt;
-&lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano &lt;span class="im"&gt;import&lt;/span&gt; shared &lt;span class="im"&gt;as&lt;/span&gt; tt_shared
+theano.config.mode &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;FAST_COMPILE&amp;#39;&lt;/span&gt;
 
 mu_true &lt;span class="op"&gt;=&lt;/span&gt; np.zeros(&lt;span class="dv"&gt;100&lt;/span&gt;)
 mu_true[:&lt;span class="dv"&gt;20&lt;/span&gt;] &lt;span class="op"&gt;=&lt;/span&gt; np.exp(&lt;span class="op"&gt;-&lt;/span&gt;np.arange(&lt;span class="dv"&gt;20&lt;/span&gt;)) &lt;span class="op"&gt;*&lt;/span&gt; &lt;span class="dv"&gt;100&lt;/span&gt;
@@ -735,12 +743,10 @@ y_tt &lt;span class="op"&gt;=&lt;/span&gt; tt_shared(y, name&lt;span class="op"&
     beta_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Laplace(&lt;span class="st"&gt;&amp;#39;beta&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;, b&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;, shape&lt;span class="op"&gt;=&lt;/span&gt;X.shape[&lt;span class="dv"&gt;1&lt;/span&gt;])
     y_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;X_tt.dot(beta_rv), sd&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;,
                      shape&lt;span class="op"&gt;=&lt;/span&gt;y.shape[&lt;span class="dv"&gt;0&lt;/span&gt;], observed&lt;span class="op"&gt;=&lt;/span&gt;y_tt)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;The negative total log likelihood in our example problem has a non-smooth &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; term. The standard means of estimating a [MAP] solution to this problem usually involves the soft-thresholding operator, which is a type of proximal operator. This operator is cheap to compute, so that–among other things–makes the proximal approaches that use it quite appealing.&lt;/p&gt;
-&lt;p&gt;Moving on, let’s say we wanted to produce a MAP estimate in this PyMC3 context. A function is already provided for this generic task: &lt;code&gt;find_MAP&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Again, the negative total log likelihood in our example has a non-smooth &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; term. Keeping this in mind, let’s say we wanted to produce a MAP estimate using PyMC3. A function is already provided for this task: &lt;code&gt;find_MAP&lt;/code&gt;.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; lasso_model:
     params_0 &lt;span class="op"&gt;=&lt;/span&gt; pm.find_MAP(&lt;span class="bu"&gt;vars&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;[beta_rv])&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;In our run of the above, an exception is thrown due to the &lt;code&gt;nan&lt;/code&gt; values that arise within the gradient evaluation.&lt;/p&gt;
-&lt;p&gt;More directly, we can inspect the gradient at &lt;span class="math inline"&gt;\(\beta = 0, 1\)&lt;/span&gt; to demonstrate the same.&lt;/p&gt;
+&lt;p&gt;In our run of the above, an exception was thrown due to &lt;code&gt;nan&lt;/code&gt; values within the gradient evaluation. We can inspect the gradient at &lt;span class="math inline"&gt;\(\beta = 0, 1\)&lt;/span&gt; and reproduce the result.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;start &lt;span class="op"&gt;=&lt;/span&gt; pm.Point({&lt;span class="st"&gt;&amp;#39;beta&amp;#39;&lt;/span&gt;: np.zeros(X.shape[&lt;span class="dv"&gt;1&lt;/span&gt;])}, model&lt;span class="op"&gt;=&lt;/span&gt;lasso_model)
 bij &lt;span class="op"&gt;=&lt;/span&gt; pm.DictToArrayBijection(pm.ArrayOrdering(lasso_model.&lt;span class="bu"&gt;vars&lt;/span&gt;),
 start)
@@ -756,17 +762,29 @@ grad_at_1 &lt;span class="op"&gt;=&lt;/span&gt; dlogp(np.ones_like(start[&lt;spa
 &lt;span class="dv"&gt;100&lt;/span&gt;
 &lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="bu"&gt;print&lt;/span&gt;(np.&lt;span class="bu"&gt;sum&lt;/span&gt;(np.isnan(grad_at_1)))
 &lt;span class="dv"&gt;0&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The s are not due to any short-coming of PyMC3; they only demonstrate a suitable place for our ideas and improvements. Additionally, by working within PyMC3, we can readily apply certain mathematical results. For instance, theorems that apply only to distributions. This idea is more relevant to the graph optimizations we consider later, but is still very important.&lt;/p&gt;
 &lt;/section&gt;
 &lt;/section&gt;
 &lt;section id="the-proximal-context" class="level1"&gt;
 &lt;h1&gt;The Proximal Context&lt;/h1&gt;
-&lt;p&gt;The general form of what we’re calling a &lt;em&gt;proximal problem&lt;/em&gt; mirrors a penalized likelihood, i.e. &lt;span class="math display"&gt;\[\begin{equation}
+&lt;p&gt;We start with the essential ingredient: the proximal operator.&lt;/p&gt;
+&lt;div class="Def" markdown="" env-number="1" title-name="[Proximal Operator]"&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
+\operatorname*{prox}_{\phi}(x) =
+    \operatorname*{argmin}_{z} \left\{
+    \frac{1}{2} \left(z - x\right)^2 + \phi(z)
+    \right\}
+    \;.
+\end{equation*}\]&lt;/span&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;As we mentioned earlier, the proximal operator is the main tool of proximal algorithms. Exact solutions to proximal operators exist for many &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;, and, since they’re often quite simple in form, their computation is relatively cheap: a property that the proximal methods themselves can inherit.&lt;/p&gt;
+&lt;p&gt;Consider the MAP estimation of a penalized likelihood, i.e. &lt;span class="math display"&gt;\[\begin{equation}
 \beta^* = \operatorname*{argmin}_\beta \left\{ l(\beta) + \gamma \phi(\beta) \right\}
   \;,
   \label{eq:prox_problem}
-\end{equation}\]&lt;/span&gt; where the entire sum is commonly associated with the negative log likelihood and the functions &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; with observation and prior terms, or loss and penalty terms, respectively. Within the proximal framework, &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; are usually convex and lower semi-continuous–although quite a few properties and results can still hold for non-convex functions.&lt;/p&gt;
-&lt;p&gt;The &lt;em&gt;proximal operator&lt;/em&gt; is an explicit form of Equation &lt;span class="math inline"&gt;\(\eqref{eq:prox_problem}\)&lt;/span&gt; that has &lt;span class="math inline"&gt;\(l(\beta) = \frac{1}{2} (\beta - z)^2\)&lt;/span&gt;. It is a defining part of the intermediate steps within most proximal algorithms. Exact solutions to proximal operators exist for many &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;. These are the elements that could exist in a table, many entries of which could be generated automatically, in analogy to symbolic integration.&lt;/p&gt;
-&lt;p&gt;The proximal operator relevant to our example, the soft-threshold operator, is implement in Theano with something like the following:&lt;/p&gt;
+\end{equation}\]&lt;/span&gt; where functions &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; are commonly referred to as likelihood and prior terms (or loss and penalty), respectively. The proximal framework usually assumes &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; are at least lower semi-continuous and convex–although quite a few useful results still hold for non-convex functions.&lt;/p&gt;
+&lt;p&gt;Notice that Equation &lt;span class="math inline"&gt;\(\eqref{eq:prox_problem}\)&lt;/span&gt; takes the form of a proximal operator when &lt;span class="math inline"&gt;\(l(\beta) = \frac{1}{2} (y - \beta)^2\)&lt;/span&gt;. Otherwise, in regression problems, we have &lt;span class="math inline"&gt;\(l(\beta) = \frac{1}{2} \|y - X \beta\|^2\)&lt;/span&gt;. In this case, properties of the proximal operator can be used to produce independent proximal operators in each dimension of &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt;. Since more than one property of the proximal operator can accomplish this–and result in distinct approaches–one might begin to see here a reason for the breadth of proximal methods.&lt;/p&gt;
+&lt;p&gt;The proximal operator relevant to our example, &lt;span class="math inline"&gt;\(\operatorname*{prox}_{|\cdot|}\)&lt;/span&gt;, is equivalent to the soft-thresholding operator. Its implementation in Theano is somewhat trivial, but–for the sake of exposition–we provide an example.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;beta_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.vector(&lt;span class="st"&gt;&amp;#39;beta&amp;#39;&lt;/span&gt;, dtype&lt;span class="op"&gt;=&lt;/span&gt;tt.config.floatX)
 beta_tt.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.r_[&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="dv"&gt;10&lt;/span&gt;, &lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;0.2&lt;/span&gt;, &lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="fl"&gt;0.2&lt;/span&gt;, &lt;span class="dv"&gt;1&lt;/span&gt;,
 &lt;span class="dv"&gt;10&lt;/span&gt;].astype(tt.config.floatX)
@@ -778,58 +796,27 @@ lambda_tt.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.array(&lt;span
     &lt;span class="cf"&gt;return&lt;/span&gt; tt.sgn(beta_) &lt;span class="op"&gt;*&lt;/span&gt; tt.maximum(tt.abs_(beta_) &lt;span class="op"&gt;-&lt;/span&gt; lambda_, &lt;span class="dv"&gt;0&lt;/span&gt;)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="bu"&gt;print&lt;/span&gt;(soft_threshold(beta_tt, lambda_tt).tag.test_value)
 [&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;9.5&lt;/span&gt; &lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt; &lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;.   &lt;span class="dv"&gt;0&lt;/span&gt;.   &lt;span class="dv"&gt;0&lt;/span&gt;.   &lt;span class="fl"&gt;0.5&lt;/span&gt;  &lt;span class="fl"&gt;9.5&lt;/span&gt;]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Operators like these can be composed with a gradient step to produce a &lt;em&gt;proximal gradient&lt;/em&gt; algorithm.&lt;/p&gt;
-&lt;p&gt;Besides the proximal operator for &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;, the steps in a proximal gradient algorithm are very straightforward and rely primarily on the gradient of &lt;span class="math inline"&gt;\(l(\beta)\)&lt;/span&gt;. When considering this quantity, a tangible benefit of symbolic computation becomes apparent; complicated gradients can be computed automatically and efficiently. With [backtracking] line search to handle unknown step sizes, the proximal gradient alone provides a surprisingly general means of sparse estimation.&lt;/p&gt;
-&lt;p&gt;Here is an implementation of a proximal gradient step:&lt;/p&gt;
-&lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano &lt;span class="im"&gt;import&lt;/span&gt; function &lt;span class="im"&gt;as&lt;/span&gt; tt_function
-
-&lt;span class="kw"&gt;def&lt;/span&gt; prox_grad_step(logl, beta_tt, lambda_1_tt, gamma_prox_tt,
-                   prox_func&lt;span class="op"&gt;=&lt;/span&gt;soft_threshold):
-    &lt;span class="co"&gt;# Negative log-likelihood without non-smooth (\ell_1) term:&lt;/span&gt;
-    logl_grad &lt;span class="op"&gt;=&lt;/span&gt; tt.grad(logl, wrt&lt;span class="op"&gt;=&lt;/span&gt;beta_tt)
-    logl_grad.name &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;quot;logl_grad&amp;quot;&lt;/span&gt;
-
-    &lt;span class="im"&gt;from&lt;/span&gt; theano.&lt;span class="bu"&gt;compile&lt;/span&gt;.nanguardmode &lt;span class="im"&gt;import&lt;/span&gt; NanGuardMode
-    tt_func_mode &lt;span class="op"&gt;=&lt;/span&gt; NanGuardMode(nan_is_error&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;,
-                                inf_is_error&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;False&lt;/span&gt;,
-                                big_is_error&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;False&lt;/span&gt;)
-
-    beta_var_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.vector(name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;beta&amp;#39;&lt;/span&gt;, dtype&lt;span class="op"&gt;=&lt;/span&gt;beta_tt.dtype)
-    beta_var_tt.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; beta_tt.get_value()
-    grad_step &lt;span class="op"&gt;=&lt;/span&gt; tt_function([beta_var_tt], logl_grad,
-                            mode&lt;span class="op"&gt;=&lt;/span&gt;tt_func_mode,
-                            givens&lt;span class="op"&gt;=&lt;/span&gt;{beta_tt: beta_var_tt})
-
-    beta_quad_step &lt;span class="op"&gt;=&lt;/span&gt; beta_tt &lt;span class="op"&gt;-&lt;/span&gt; lambda_1_tt &lt;span class="op"&gt;*&lt;/span&gt; logl_grad
-    beta_quad_step.name &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;quot;beta_quad_step&amp;quot;&lt;/span&gt;
-
-    beta_prox &lt;span class="op"&gt;=&lt;/span&gt; prox_func(beta_quad_step, gamma_prox_tt &lt;span class="op"&gt;*&lt;/span&gt; lambda_1_tt)
-    beta_prox.name &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;quot;beta_prox&amp;quot;&lt;/span&gt;
-
-    r_tt &lt;span class="op"&gt;=&lt;/span&gt; y_tt &lt;span class="op"&gt;-&lt;/span&gt; X_tt.dot(beta_tt)
-
-    prox_step &lt;span class="op"&gt;=&lt;/span&gt; tt_function([],
-                            [beta_prox, logl, logl_grad,
-tt.mean(r_tt&lt;span class="op"&gt;**&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt;)],
-                            updates&lt;span class="op"&gt;=&lt;/span&gt;[(beta_tt, beta_prox)],
-                            mode&lt;span class="op"&gt;=&lt;/span&gt;tt_func_mode)
-
-    &lt;span class="cf"&gt;return&lt;/span&gt; (prox_step, grad_step)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Proximal operators can be composed with a gradient step to produce the &lt;em&gt;proximal gradient&lt;/em&gt; algorithm: &lt;span class="math display"&gt;\[\begin{equation}
+\beta = \operatorname*{prox}_{\alpha \lambda \phi}(\beta - \alpha \nabla l(\beta))
+  \;.
+  \label{eq:forward-backward}
+\end{equation}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Besides the proximal operator for &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;, steps in the proximal gradient algorithm are very straightforward and require only the gradient of &lt;span class="math inline"&gt;\(l(\beta)\)&lt;/span&gt;. This is where a tangible benefit of symbolic computation becomes apparent: &lt;span class="math inline"&gt;\(\nabla l(\beta)\)&lt;/span&gt; can be computed automatically and efficiently. With [backtracking] line search to handle unknown step sizes, &lt;span class="math inline"&gt;\(\alpha\)&lt;/span&gt;, the proximal gradient algorithm provides a surprisingly general means of sparse estimation.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="the-symbolic-operations" class="level1"&gt;
 &lt;h1&gt;The Symbolic Operations&lt;/h1&gt;
-&lt;p&gt;In order to employ a lookup table, or to even identify a proximal problem and check that its conditions (e.g. convexity) are satisfied, we need to obtain the exact forms of each component: &lt;span class="math inline"&gt;\(l\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\gamma\)&lt;/span&gt;. We start with the determination of &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;In some cases, we’re able to tease apart our &lt;span class="math inline"&gt;\(l(\beta)\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi(\beta)\)&lt;/span&gt; using the symbolic log likelihoods for the organizational designations of &lt;em&gt;observed&lt;/em&gt; and unobserved PyMC3 random variables.&lt;/p&gt;
+&lt;p&gt;In order to identify a relevant, non-smooth problem, check that a given proximal method’s conditions are satisfied (e.g. convexity), and potentially solve the resulting proximal operators in closed-form, we need to obtain expressions for &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;In some cases, we’re able to tease apart &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; using only the interface provided by PyMC3. Specifically, the &lt;em&gt;observed&lt;/em&gt; and &lt;em&gt;unobserved&lt;/em&gt; random variable fields in PyMC3 models.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano &lt;span class="im"&gt;import&lt;/span&gt; clone &lt;span class="im"&gt;as&lt;/span&gt; tt_clone
 
 logl &lt;span class="op"&gt;=&lt;/span&gt; tt_clone(lasso_model.observed_RVs[&lt;span class="dv"&gt;0&lt;/span&gt;].logpt,
                 {beta_rv: beta_tt})
 logl.name &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;quot;logl&amp;quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Instead, let’s assume we’re extending &lt;code&gt;find_MAP&lt;/code&gt; with some generality, so that distinguishing &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; in Equation &lt;span class="math inline"&gt;\(\eqref{eq:prox_problem}\)&lt;/span&gt; using these designations isn’t reliable. This is necessary for cases in which a user specifies custom distributions or a potential function. In either case, to achieve our desired functionality we need to operate at a more symbolic level.&lt;/p&gt;
+&lt;p&gt;Instead, let’s assume we’re extending &lt;code&gt;find_MAP&lt;/code&gt; with even more generality, so that we can’t determine &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; in this way. This situation can occur when a user specifies custom distributions or potential functions. Regardless, we need to operate at a more symbolic level.&lt;/p&gt;
 &lt;div class="remark" markdown="" env-number="1" title-name=""&gt;
 &lt;p&gt;At this point, it is extremely worthwhile to browse the &lt;a href="http://deeplearning.net/software/theano/extending/graphstructures.html"&gt;Theano documentation&lt;/a&gt; regarding graphs and their constituent objects.&lt;/p&gt;
 &lt;/div&gt;
-&lt;p&gt;The total log likelihood is a good place to start. Let’s look at symbolic graphs produced by ours.&lt;/p&gt;
+&lt;p&gt;The total log-likelihood is a good place to start. Let’s look at the symbolic graph for the log-likelihood of our model.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano &lt;span class="im"&gt;import&lt;/span&gt; pp &lt;span class="im"&gt;as&lt;/span&gt; tt_pp
 &lt;span class="im"&gt;from&lt;/span&gt; theano &lt;span class="im"&gt;import&lt;/span&gt; pprint &lt;span class="im"&gt;as&lt;/span&gt; tt_pprint&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="bu"&gt;print&lt;/span&gt;(tt_pp(lasso_model.logpt))
@@ -839,8 +826,8 @@ Sum{acc_dtype&lt;span class="op"&gt;=&lt;/span&gt;float64}(Sum{acc_dtype&lt;span
 (((TensorConstant{&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;1.0&lt;/span&gt;} &lt;span class="op"&gt;*&lt;/span&gt; ((y &lt;span class="op"&gt;-&lt;/span&gt; (X &lt;span class="op"&gt;\&lt;/span&gt;dot &lt;span class="op"&gt;\&lt;/span&gt;beta)) &lt;span class="op"&gt;**&lt;/span&gt; TensorConstant{&lt;span class="dv"&gt;2&lt;/span&gt;}))
 &lt;span class="op"&gt;+&lt;/span&gt; log(TensorConstant{&lt;span class="fl"&gt;0.159154943092&lt;/span&gt;})) &lt;span class="op"&gt;/&lt;/span&gt; TensorConstant{&lt;span class="fl"&gt;2.0&lt;/span&gt;}),
 TensorConstant{&lt;span class="op"&gt;-&lt;/span&gt;inf}))))&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;The &lt;a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#pretty-printing"&gt;pretty printed&lt;/a&gt; Theano graph tells us, among other things, that we have the anticipated sum of &lt;span class="math inline"&gt;\(\ell_2\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; terms.&lt;/p&gt;
-&lt;p&gt;As with most graphs produced by symbolic algebra systems, we need to consider exactly how its operations are arranged, so that we can develop a means of matching general structures. The &lt;a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#debug-print"&gt;debug printout&lt;/a&gt; is better for this.&lt;/p&gt;
+&lt;p&gt;The &lt;a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#pretty-printing"&gt;pretty printed&lt;/a&gt; Theano graph tells us–among other things–that we indeed have a sum of &lt;span class="math inline"&gt;\(\ell_2\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\ell_1\)&lt;/span&gt; terms, although they are found among other confusing results (such as a &lt;code&gt;switch&lt;/code&gt; statement).&lt;/p&gt;
+&lt;p&gt;As with most graphs produced by symbolic algebra systems, we need to understand how operations and objects are expressed in a graph and exactly which ones are relevant to us. After doing so, we can develop a means of finding what we want. The &lt;a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#debug-print"&gt;debug printout&lt;/a&gt; is often a better visual summary of graphs, since it expresses branches clearly.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; tt.printing.debugprint(lasso_model.logpt)
 Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; A] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;
  &lt;span class="op"&gt;|&lt;/span&gt;Sum{acc_dtype&lt;span class="op"&gt;=&lt;/span&gt;float64} [&lt;span class="bu"&gt;id&lt;/span&gt; B] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;
@@ -883,13 +870,14 @@ Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; A] &lt;span cla
        &lt;span class="op"&gt;|&lt;/span&gt;   &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="fl"&gt;2.0&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; BJ]
        &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; BK] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;
          &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="op"&gt;-&lt;/span&gt;inf} [&lt;span class="bu"&gt;id&lt;/span&gt; BL]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;We see that the top-most operator is an &lt;code&gt;Elemwise&lt;/code&gt; that applies the scalar &lt;code&gt;add&lt;/code&gt; operation. This is the &lt;span class="math inline"&gt;\(+\)&lt;/span&gt; in &lt;span class="math inline"&gt;\(l(\beta) + \phi(\beta)\)&lt;/span&gt;. If we were to consider the inputs to this operator as our candidates for &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;, then we might find this pair with the following:&lt;/p&gt;
+&lt;p&gt;We see that the top-most operator is an &lt;code&gt;Elemwise&lt;/code&gt; that applies the scalar &lt;code&gt;add&lt;/code&gt; operation. This is the “&lt;span class="math inline"&gt;\(+\)&lt;/span&gt;” in &lt;span class="math inline"&gt;\(l + \phi\)&lt;/span&gt;. If we were to consider the inputs of this operator as candidates for &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;, then we could do the following:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="bu"&gt;print&lt;/span&gt;(lasso_model.logpt.owner.inputs)
 [Sum{acc_dtype&lt;span class="op"&gt;=&lt;/span&gt;float64}.&lt;span class="dv"&gt;0&lt;/span&gt;, Sum{acc_dtype&lt;span class="op"&gt;=&lt;/span&gt;float64}.&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Using these two terms, we might simply search for an absolute value operator.&lt;/p&gt;
+&lt;p&gt;Starting from the sub-graphs of each term, we could then search for any non-smooth functions that have known closed-form proximal operators. In our case, we only consider the absolute value function.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; get_abs_between(input_node):
-    &lt;span class="co"&gt;# Get all the operations in the sub-tree between our input and the&lt;/span&gt;
-    &lt;span class="co"&gt;# log likelihood output node.&lt;/span&gt;
+    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot; Search for `abs` in the operations between our input and the&lt;/span&gt;
+&lt;span class="co"&gt;    log-likelihood output node.&lt;/span&gt;
+&lt;span class="co"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
     term_ops &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;list&lt;/span&gt;(tt.gof.graph.ops([input_node],
 [lasso_model.logpt]))
 
@@ -946,12 +934,12 @@ Sum{acc_dtype&lt;span class="op"&gt;=&lt;/span&gt;float64} [&lt;span class="bu"&
        &lt;span class="op"&gt;|&lt;/span&gt;     &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;0&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; M]
        &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; N] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;
          &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{&lt;span class="dv"&gt;1&lt;/span&gt;} [&lt;span class="bu"&gt;id&lt;/span&gt; O]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;From these terms one can similarly attempt to determine multiplicative constants, or parts thereof (e.g. &lt;span class="math inline"&gt;\(\gamma\)&lt;/span&gt;).&lt;/p&gt;
-&lt;p&gt;The above approach is too limiting; we need something more robust. The above logic will fail on graphs that are constructed differently (e.g. producing equivalent, but different, representations via associativity) or when our naive use of &lt;code&gt;theano.gof.graph.ops&lt;/code&gt; is compromised by certain types of intermediate operations (e.g. non-distributed, non-affine). These are only a few of the many weaknesses inherent to the naive approach above. Furthermore, sufficient coverage of all the necessary conditions–using the same approach–is likely to result in complicated, less approachable code.&lt;/p&gt;
-&lt;p&gt;What we need to identify the more general patterns suitable for our goal is mostly covered within the areas of graph unification and logic programming. Luckily, Theano has some basic unification capabilities that we’re able to deploy immediately.&lt;/p&gt;
-&lt;p&gt;As an example, we’ll jump right to the creation of a &lt;a href="http://deeplearning.net/software/theano/optimizations.html"&gt;graph optimization&lt;/a&gt;. This is the context in which much of these symbolic operations are better suited; especially if we are required to alter the graph (or a copy thereof) during our search for terms. Consider the &lt;code&gt;phi&lt;/code&gt; variable; the printouts show an unnecessary subtraction (with &lt;span class="math inline"&gt;\(0\)&lt;/span&gt;). Clearly this part–and the entire graph–hasn’t been simplified. Standard simplifications already exist for these sorts of things, and most are performed in tandem.&lt;/p&gt;
-&lt;p&gt;Within the graph optimization framework we have the &lt;code&gt;PatternSub&lt;/code&gt; local optimization. It provides basic unification. To demonstrate the kind of operations that could be used to pre-condition a graph and robustly determine a set of supported &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;, we’ll make replacement patterns for multiplicative distribution across two forms of addition: &lt;code&gt;sum&lt;/code&gt; and &lt;code&gt;add&lt;/code&gt;. These searches and replacements can be applied to an objective function until it is in a sufficiently reduced form.&lt;/p&gt;
-&lt;p&gt;In the following, we’ll simply demonstrate the steps involved in programming the necessary logic.&lt;/p&gt;
+&lt;p&gt;The above approach is still too limiting; we need something more robust. For instance, our logic could fail on graphs that are expressed as &lt;span class="math inline"&gt;\(\eta (l + \phi) + 1\)&lt;/span&gt;–although a graph for the equivalent expression &lt;span class="math inline"&gt;\(\eta l + \eta \phi + \eta\)&lt;/span&gt; might succeed. These are types of weaknesses inherent to naive approaches like ours. Furthermore, sufficient logic that uses a similar approach is likely to result in complicated and less approachable code.&lt;/p&gt;
+&lt;p&gt;The appropriate computational tools are found in the subjects of graph unification and term rewriting, as well as the areas of functional and logic programming. Luckily, Theano provides some basic unification capabilities through its &lt;code&gt;PatternSub&lt;/code&gt; class.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;PatternSub&lt;/code&gt; works within the context of Theano &lt;a href="http://deeplearning.net/software/theano/optimizations.html"&gt;graph optimization&lt;/a&gt;. Graph optimizations perform the common symbolic operations of reduction/simplification and rewriting. Consider the &lt;code&gt;phi&lt;/code&gt; variable; the print-outs show an unnecessary subtraction with &lt;span class="math inline"&gt;\(0\)&lt;/span&gt;. Clearly this step is unnecessary, so–in a basic way–we can see that the graph hasn’t been simplified, yet.&lt;/p&gt;
+&lt;p&gt;Many standard algebraic simplifications are already present in Theano, and, by creating our own graph optimizations, we can provide the advanced functionality we’ve been alluding to.&lt;/p&gt;
+&lt;div class="example" markdown="" env-number="1" title-name="[Algebraic Graph Optimization]"&gt;
+&lt;p&gt;As a quick demonstration, we’ll make replacement patterns for multiplicative distribution across two forms of addition: &lt;code&gt;sum&lt;/code&gt; and &lt;code&gt;add&lt;/code&gt;.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;test_a_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.as_tensor_variable(&lt;span class="dv"&gt;5&lt;/span&gt;, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;)
 test_b_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.as_tensor_variable(&lt;span class="dv"&gt;2&lt;/span&gt;, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;)
 test_c_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.as_tensor_variable(np.r_[&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;], name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;c&amp;#39;&lt;/span&gt;)
@@ -969,9 +957,9 @@ mul_dist_pat_tt &lt;span class="op"&gt;+=&lt;/span&gt; (tt.gof.opt.PatternSub(
     (tt.mul, &lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;, (tt.add, &lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;)),
     (tt.add, (tt.mul, &lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;), (tt.mul, &lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;))
 ),)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;The next step involves the repeated application of these operations, so that a non-trivial graph can be completely transformed/reduced in some way. We achieve this with the &lt;code&gt;EquilibriumOptimizer&lt;/code&gt; class.&lt;/p&gt;
-&lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;test_sub_eqz_opt_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.gof.opt.EquilibriumOptimizer(mul_dist_pat_tt,
-max_use_ratio&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;10&lt;/span&gt;)
+&lt;p&gt;Substitutions can be applied to an objective function until it is in a fully-reduced form: &lt;code&gt;EquilibriumOptimizer&lt;/code&gt; provides this functionality.&lt;/p&gt;
+&lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;test_sub_eqz_opt_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.gof.opt.EquilibriumOptimizer(
+    mul_dist_pat_tt, max_use_ratio&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;10&lt;/span&gt;)
 
 test_fgraph_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.gof.fg.FunctionGraph(
     tt.gof.graph.inputs(test_exprs_tt), test_exprs_tt)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
@@ -997,7 +985,7 @@ Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; K] &lt;span cla
  &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; M] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;0&lt;/span&gt;
    &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]} [&lt;span class="bu"&gt;id&lt;/span&gt; I]
    &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]} [&lt;span class="bu"&gt;id&lt;/span&gt; I]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Now, when we apply the optimization, the &lt;code&gt;FunctionGraph&lt;/code&gt; should have applied the replacements:&lt;/p&gt;
+&lt;p&gt;Now, when we apply the optimization, the &lt;code&gt;FunctionGraph&lt;/code&gt; should contain the replacements.&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;test_fgraph_opt &lt;span class="op"&gt;=&lt;/span&gt; test_sub_eqz_opt_tt.optimize(test_fgraph_tt)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; tt.printing.debugprint(test_fgraph_tt)
 Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; A] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;5&lt;/span&gt;
@@ -1027,21 +1015,20 @@ Elemwise{add,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; M] &lt;span cla
  &lt;span class="op"&gt;|&lt;/span&gt;Elemwise{mul,no_inplace} [&lt;span class="bu"&gt;id&lt;/span&gt; P] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;6&lt;/span&gt;
    &lt;span class="op"&gt;|&lt;/span&gt;DimShuffle{x} [&lt;span class="bu"&gt;id&lt;/span&gt; O] &lt;span class="st"&gt;&amp;#39;&amp;#39;&lt;/span&gt;   &lt;span class="dv"&gt;0&lt;/span&gt;
    &lt;span class="op"&gt;|&lt;/span&gt;TensorConstant{[&lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt;]} [&lt;span class="bu"&gt;id&lt;/span&gt; J]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;There is much more to consider in the examples above. Nonetheless, standalone libraries, like &lt;a href="https://github.com/logpy/logpy/"&gt;LogPy&lt;/a&gt; and SymPy, can be adapted to Theano graphs to provide the functionality necessary to cover most of these considerations.&lt;/p&gt;
-&lt;p&gt;Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the &lt;code&gt;hessian&lt;/code&gt; function, and within &lt;code&gt;theano.sandbox.linalg&lt;/code&gt; are &lt;code&gt;Optimizer&lt;/code&gt; hints for matrix positivity and other properties relevant to determining convexity using this simple idea.&lt;/p&gt;
-&lt;div class="remark" markdown="" env-number="2" title-name=""&gt;
-&lt;p&gt;Other great examples of linear algebra themed optimizations are in &lt;code&gt;theano.sandbox.linalg&lt;/code&gt;: for instance, &lt;code&gt;no_transpose_symmetric&lt;/code&gt;. Some of these demonstrate exactly how straight-forward it can be to add algebraic considerations.&lt;/p&gt;
 &lt;/div&gt;
-&lt;p&gt;Although our convexity testing idea is far too simple for many &lt;span class="math inline"&gt;\(l\)&lt;/span&gt;, the point we want to make is that the basic code necessary for simple tests like this may already be in place. However, with the logic programming mentioned earlier in this section, comes the possibility of implementing aspects of the convex function calculus, by which one can determine convexity for many more classes of functions.&lt;/p&gt;
+&lt;p&gt;Even more symbolic capabilities might be needed to [efficiently] achieve the functionality we desire. Standalone libraries like SymPy and &lt;a href="https://github.com/logpy/logpy/"&gt;LogPy&lt;/a&gt; can be adapted to Theano graphs and provide these capabilities–although direct implementation in Theano may be better.&lt;/p&gt;
+&lt;p&gt;Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the &lt;code&gt;hessian&lt;/code&gt; function, and within &lt;code&gt;theano.sandbox.linalg&lt;/code&gt; are &lt;code&gt;Optimizer&lt;/code&gt; hints for matrix positivity and other properties relevant to determining convexity.&lt;/p&gt;
+&lt;div class="remark" markdown="" env-number="2" title-name=""&gt;
+&lt;p&gt;Other great examples of linear algebra themed optimizations are in &lt;code&gt;theano.sandbox.linalg&lt;/code&gt;: for instance, &lt;code&gt;no_transpose_symmetric&lt;/code&gt;. Some of these demonstrate exactly how straight-forward adding algebraic features can be.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Although our convexity testing idea is far too simple for some functions, the point is that the basic tools necessary for work in this direction are already in place. With the logic programming and symbolic libraries mentioned earlier, a robust implementation of the convex function calculus could be very much in reach.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="discussion" class="level1"&gt;
 &lt;h1&gt;Discussion&lt;/h1&gt;
-&lt;p&gt;We’ve sketched out the concepts and mechanism with which one can develop a robust estimation platform that can be transparently guided by the more abstract mathematics frameworks from which new, efficient methods are produced.&lt;/p&gt;
-&lt;p&gt;Some key steps in the process will most likely require the integration of a symbolic algebra system, so that a much wider array of algebraic machinery can be leveraged to assess–say–convexity of the terms or to solve the proximal operators themselves. Connections between Theano, SymPy and LogPy have already been explored in &lt;span class="citation" data-cites="rocklin_mathematically_2013"&gt;Rocklin (2013)&lt;/span&gt;, as well as many other important aspects of the topics discussed here.&lt;/p&gt;
-&lt;p&gt;Additionally, more advanced proximal algorithms exist to improve upon the convergence and stability of the most basic proximal gradient given here. These algorithms often involve operator splitting, which requires careful consideration regarding the exact type of splitting and on which terms it is performed. Within this area are the familiar convex-conjugate approaches; these too could be approached by symbolic solvers, or simply addressed by [partially] generated tables.&lt;/p&gt;
-&lt;p&gt;Overall, there appear to be many avenues to explore just within the space of proximal algorithms and modern symbolic systems. Not all of this work necessitates the inclusion of fully featured symbolic algebra systems; much can be done with the symbolic tools of Theano alone. Furthermore, there are specialized, lightweight logic programming systems–like LogPy–that can serve as a step before full symbolic algebra integration.&lt;/p&gt;
-&lt;p&gt;Besides the automation of proximal algorithms themselves, there are areas of application involving very large and complicated models or graphs–such as the ones arising in Deep Learning. How might we consider the operator splitting of ADMM within deeply layered or hierarchical models &lt;span class="citation" data-cites="polson_statistical_2015"&gt;(Polson, Willard, and Heidari 2015)&lt;/span&gt;? At which levels and on which terms should the splitting be performed? Beyond simply trying to solve the potentially intractable mathematics arising from related questions, with the symbolic capabilities described here, we can at least begin to experiment with the questions.&lt;/p&gt;
-&lt;p&gt;Before closing, a very related–and at least as interesting–set of ideas is worth mentioning: the possibility of encoding more symbolic knowledge into probabilistic programming platforms like PyMC3. Using the same optimization mechanisms as the examples here, simple distributional relationships can be encoded. For instance, the convolution of normally distributed random variables:&lt;/p&gt;
+&lt;p&gt;We’ve sketched out some ideas and tools with which one could develop a robust estimation platform guided by the more abstract mathematical frameworks from which new and efficient methods are produced.&lt;/p&gt;
+&lt;p&gt;Some key steps may require the integration of a fully featured symbolic algebra system. Along these lines, connections between Theano, SymPy and LogPy have been explored in &lt;span class="citation" data-cites="rocklin_mathematically_2013"&gt;Rocklin (2013)&lt;/span&gt;–as well as many other important aspects of the topics discussed here.&lt;/p&gt;
+&lt;p&gt;Besides the automation of proximal algorithms themselves, there are areas of application involving very large and complex models–perhaps the ones arising in Deep Learning. How might we consider the operator splitting of ADMM within deeply layered or hierarchical models &lt;span class="citation" data-cites="polson_statistical_2015"&gt;(Polson, Willard, and Heidari 2015)&lt;/span&gt;? At which levels and on which terms should the splitting be performed? Beyond trying to solve the potentially unwieldy mathematics arising from such questions, by imbuing these symbolic tools with more mathematical awareness, we can at least experiment in these directions and quickly offer numerical solutions. This is–in part–the edge from which statistics hasn’t been benefiting and modern machine learning has.&lt;/p&gt;
+&lt;p&gt;Before closing, a very related–and interesting–set of ideas is worth mentioning: the possibility of encoding more symbolic knowledge into probabilistic programming platforms like PyMC3. Using the same optimization mechanisms as the examples here, simple distributional relationships can be encoded. For instance, the convolution of normally distributed random variables:&lt;/p&gt;
 &lt;div class="sourceCode"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;mu_X &lt;span class="op"&gt;=&lt;/span&gt; tt.vector(&lt;span class="st"&gt;&amp;#39;mu_X&amp;#39;&lt;/span&gt;)
 mu_X.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.array([&lt;span class="dv"&gt;1&lt;/span&gt;.], dtype&lt;span class="op"&gt;=&lt;/span&gt;tt.config.floatX)
 sd_X &lt;span class="op"&gt;=&lt;/span&gt; tt.vector(&lt;span class="st"&gt;&amp;#39;sd_X&amp;#39;&lt;/span&gt;)
@@ -1122,11 +1109,17 @@ NormConvOp [&lt;span class="bu"&gt;id&lt;/span&gt; A] &lt;span class="st"&gt;&am
 &lt;section id="bibliography" class="level1 unnumbered"&gt;
 &lt;h1&gt;References&lt;/h1&gt;
 &lt;div id="refs" class="references"&gt;
+&lt;div id="ref-combettes_proximal_2011"&gt;
+&lt;p&gt;Combettes, Patrick L, and Jean-Christophe Pesquet. 2011. “Proximal Splitting Methods in Signal Processing.” &lt;em&gt;Fixed-Point Algorithms for Inverse Problems in Science and Engineering&lt;/em&gt;, 185–212.&lt;/p&gt;
+&lt;/div&gt;
 &lt;div id="ref-donoho_compressed_2006"&gt;
 &lt;p&gt;Donoho, David L. 2006. “Compressed Sensing.” &lt;em&gt;IEEE Transactions on Information Theory&lt;/em&gt; 52 (4): 1289–1306. &lt;a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1614066" class="uri"&gt;http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1614066&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-mohasel_afshar_probabilistic_2016"&gt;
 &lt;p&gt;Mohasel Afshar, Hadi. 2016. “Probabilistic Inference in Piecewise Graphical Models.” &lt;a href="https://digitalcollections.anu.edu.au/handle/1885/107386" class="uri"&gt;https://digitalcollections.anu.edu.au/handle/1885/107386&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id="ref-parikh_proximal_2014"&gt;
+&lt;p&gt;Parikh, Neal, and Stephen Boyd. 2014. “Proximal Algorithms.” &lt;em&gt;Foundations and Trends in Optimization&lt;/em&gt; 1 (3): 123–231. doi:&lt;a href="https://doi.org/10.1561/2400000003"&gt;10.1561/2400000003&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-park_bayesian_2008"&gt;
 &lt;p&gt;Park, Trevor, and George Casella. 2008. “The Bayesian Lasso.” &lt;em&gt;Journal of the American Statistical Association&lt;/em&gt; 103 (482): 681–86. &lt;a href="http://amstat.tandfonline.com/doi/abs/10.1198/016214508000000337" class="uri"&gt;http://amstat.tandfonline.com/doi/abs/10.1198/016214508000000337&lt;/a&gt;.&lt;/p&gt;
@@ -1139,6 +1132,9 @@ NormConvOp [&lt;span class="bu"&gt;id&lt;/span&gt; A] &lt;span class="st"&gt;&am
 &lt;/div&gt;
 &lt;div id="ref-rocklin_mathematically_2013"&gt;
 &lt;p&gt;Rocklin, Matthew. 2013. “Mathematically Informed Linear Algebra Codes Through Term Rewriting.” PhD thesis, PhD Thesis, August. &lt;a href="http://people.cs.uchicago.edu/~mrocklin/storage/dissertation.pdf" class="uri"&gt;http://people.cs.uchicago.edu/~mrocklin/storage/dissertation.pdf&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id="ref-salvatier_probabilistic_2016"&gt;
+&lt;p&gt;Salvatier, John, Thomas V. Wiecki, and Christopher Fonnesbeck. 2016. “Probabilistic Programming in Python Using PyMC3.” &lt;em&gt;PeerJ Computer Science&lt;/em&gt; 2 (April): e55. doi:&lt;a href="https://doi.org/10.7717/peerj-cs.55"&gt;10.7717/peerj-cs.55&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-srivastava_dropout_2014"&gt;
 &lt;p&gt;Srivastava, Nitish, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan Salakhutdinov. 2014. “Dropout: A Simple Way to Prevent Neural Networks from Overfitting.” &lt;em&gt;The Journal of Machine Learning Research&lt;/em&gt; 15 (1): 1929–58. &lt;a href="http://dl.acm.org/citation.cfm?id=2670313" class="uri"&gt;http://dl.acm.org/citation.cfm?id=2670313&lt;/a&gt;.&lt;/p&gt;
