@@ -71,50 +71,55 @@ breakautoindent=true}
 
 In this document we describe how symbolic computation can be used to provide
 generalizable statistical estimation through a combination of existing open source
-frameworks.
+frameworks.  Specifically, we will show how symbolic tools can be used to
+address the estimation of non-smooth functions that appear in models with parameter
+regularization, shrinkage and sparsity.  We employ a mathematical framework
+that makes extensive use of \emph{proximal operators}
+\citep{parikh_proximal_2014, combettes_proximal_2011} and their properties for
+maximum a posteriori (MAP) estimation: i.e. the \emph{proximal framework}.
+This framework produces what we'll call \emph{proximal methods} and their
+implementations as \emph{proximal algorithms}.
 
-Specifically, we consider the optimization problems resulting from models with
-non-smooth objective functions.  These problems arise in the context of
-regularization and shrinkage, and here we'll address their automated application within
-the \emph{proximal framework} \citep{polson_proximal_2015}.  In \citet{polson_proximal_2015}
-we outlined a set of seemingly disparate optimization techniques within the fields
-of statistics, computer vision, and machine learning, that are unified by the types
-of functional bounds employed, the tools of convex analysis and the language of
-operator theory.  These methods--and the concepts behind them--have found much
-success in recent times and admit quite a few interesting paths for research.
+In \citet{polson_proximal_2015} we outlined a set of seemingly
+disparate optimization techniques within the fields of statistics, computer
+vision, and machine learning (e.g. gradient descent, ADMM, EM,
+Douglas-Rachford) that are unified by their various applications of proximal
+methods.  These methods--and the concepts behind them--have found much success
+in recent times and admit quite a few interesting paths for research.  In other
+words, there are many reasons to alone discuss the implementation of proximal
+methods.
 
-In at least a few cases, the work required to produce a proximal algorithm
-overlaps with some highly functional areas in computer algebra and
-symbolic mathematics.  For instance, some proximal operators--the main ingredient
-within proximal algorithms--can be solved exactly with symbolic differentiation and
-algebraic equation solvers.  With perhaps only the addition of sophisticated
-variable assumptions and an ability to manipulate inequalities, even larger
-\emph{classes} of proximal operators could be solved.
-We refer the reader to the table in \citet{polson_proximal_2015} for examples
-of operators that are currently solved--by hand--using roughly the same
-means.
+Proximal operators also enjoy a breadth of closed-form solutions and useful
+properties that are amenable to symbolic computation.
+In more than a few cases, the work required to produce a proximal algorithm
+overlaps with well-established features of computer algebra systems and
+symbolic mathematics, such as symbolic differentiation and
+algebraic equation solving.
 
-The kind of automation proposed here only begins to answer a problem
-that arises somewhat naturally in these areas: how does one provide access to methods that
-produce--or apply to--numerous distinct problems and solutions.  Instead of the common
-attempt to implement each model or method separately, and then combine them under a
-loosely organized API or function interface, the symbolic approach offers
-wider applicability and concise implementations in terms of code that
-maps directly to the mathematics.
-Also, it is one of the few practical means of including the higher and lower level
-considerations made by professionals at all stages of statistical modeling: mathematical,
-numerical, computational (e.g. distributed environments, concurrency, etc.)
-Some steps toward these broader goals are within reach and worth taking now.
-
-That said, statistical modeling and estimation as a whole should
-seriously consider aligning more with the current tools and offerings of
-symbolic mathematics.  Relative to the subject matter here, symbolic
-integration provides an excellent example.  In computer algebra systems,
-mappings between basic functional forms and their generalized hypergeometric
-equivalents are used to exploit convenient convolution identities.  In the same
-vein, it might be possible to use analogous tables for solutions to a wide
-variety of non-smooth models.  We outline how this might be done in the
+Symbolic integration provides an excellent example of how proximal operators
+could be implemented in a symbolic system.  In these systems, mappings between
+functions (as canonicalized graphs) and their generalized hypergeometric
+equivalents are used to exploit the latter's relevant convolution identities.
+In the same vein, it is possible to use tables of closed-form proximal
+operators and their properties to produce a wide array of estimation algorithms
+for many non-smooth functions.  We outline how this might be done in the
 following sections.
+
+Otherwise, the ideas discussed here are part of a never-ending attempt to
+answer a question that arises naturally in both mathematics and programming--at
+all levels: \emph{How does one provide a means of generating robust solutions
+to as many problems as possible?}
+Instead of the common attempt to independently implement each model, method
+and/or combination of the two--followed by their placement in an API or
+collection of functions--implementations can be encoded in and organized by the
+very mathematics from which they were derived.  This close coupling between
+mathematical principles and their implementations is possibly the most
+reasonable way to remove barriers between theory, research and practice.
+
+% Also, it is one of the few practical means of including the higher and lower level
+% considerations made by professionals at all stages of statistical modeling: mathematical,
+% numerical, computational (e.g. distributed environments, concurrency, etc.)
+% Some steps toward these broader goals are within reach and worth taking now.
 
 \subsection{A Context}
 
@@ -203,29 +208,45 @@ print(np.sum(np.isnan(grad_at_1)))
 
 \section{The Proximal Context}
 
-The general form of what we're calling a \emph{proximal problem} mirrors a
-penalized likelihood, i.e.
+We start with the essential ingredient: the proximal operator.
+\begin{Def}[Proximal Operator]
+  \begin{equation}
+    \prox_{\phi}(x) =
+    \argmin_{z} \left\{
+    \frac{1}{2} \left(z - x\right)^2 + \phi(z)
+    \right\}
+    \;.
+  \end{equation}
+\end{Def}
+
+As we mentioned earlier, the proximal operator is the main tool of proximal
+algorithms.  Exact solutions to proximal operators exist for many $\phi$.
+These are the elements that could exist in a table, many entries of which could
+be generated automatically, in analogy to symbolic integration.
+
+Consider the MAP estimation of a penalized likelihood, i.e.
 \begin{equation}
   \beta^* = \argmin_\beta \left\{ l(\beta) + \gamma \phi(\beta) \right\}
   \;,
   \label{eq:prox_problem}
 \end{equation}
-where the entire sum is commonly associated with the negative log likelihood
-and the functions $l$ and $\phi$ with observation and prior terms, or loss and
-penalty terms, respectively.
-Within the proximal framework, $l$ and $\phi$ are usually convex and lower
-semi-continuous--although quite a few properties and results can still hold for
+where functions $l$ and $\phi$ are commonly referred to as likelihood and prior terms
+(or loss and penalty), respectively.
+The proximal framework usually assumes $l$ and $\phi$ are at least lower
+semi-continuous and convex--although quite a few useful results still hold for
 non-convex functions.
 
-The \emph{proximal operator} is an explicit form of \Cref{eq:prox_problem} that has
-$l(\beta) = \frac{1}{2} (\beta - z)^2$.  It is a defining part of the
-intermediate steps within most proximal algorithms.  Exact solutions to
-proximal operators exist for many $\phi$.  These are the elements that could
-exist in a table, many entries of which could be generated automatically, in
-analogy to symbolic integration.
+Notice that \Cref{eq:prox_problem} takes the form of a proximal operator when
+$l(\beta) = \frac{1}{2} (y - \beta)^2$.  In regression problems, we
+have $l(\beta) = \frac{1}{2} \|y - X \beta\|^2$.  Properties of the proximal
+operator are then used to produce a independent proximal operators in each
+component of $\beta$.  Since more than one property of the proximal operator can
+accomplish this, we can see one reason for their breadth.
 
-The proximal operator relevant to our example, the soft - threshold operator, is implement in
-Theano with something like the following:
+
+The proximal operator relevant to our example, $\prox_{|\cdot|}$, is
+equivalent to the soft-thresholding operator.
+We can implement it in Theano with something like the following:
 <<soft_thresholding, echo=True, evaluate=True>>=
 beta_tt = tt.vector('beta', dtype=tt.config.floatX)
 beta_tt.tag.test_value = np.r_[-10, -1, -0.2, 0, 0.2, 1, 10].astype(tt.config.floatX)
@@ -240,7 +261,13 @@ def soft_threshold(beta_, lambda_):
 print(soft_threshold(beta_tt, lambda_tt).tag.test_value)
 @
 Operators like these can be composed with a gradient step to produce a
-\emph{proximal gradient} algorithm.
+\emph{proximal gradient} algorithm:
+\begin{equation}
+  \beta = \prox_{\alpha \lambda \phi}(\beta - \alpha \nabla l(\beta))
+  \;.
+  \label{eq:forward-backward}
+\end{equation}
+
 
 Besides the proximal operator for $\phi$, the steps in a proximal gradient
 algorithm are very straightforward and rely primarily on the gradient of
@@ -382,29 +409,27 @@ the same approach--is likely to result in complicated, less approachable code.
 What we need to identify the more general patterns suitable for our
 goal is mostly covered within the areas of graph unification and logic programming.
 Luckily, Theano has some basic unification capabilities that we're able to deploy
-immediately.
+immediately via \texttt{PatternSub}.
 
-As an example, we'll jump right to the creation of a
-\href{http://deeplearning.net/software/theano/optimizations.html}{graph optimization}.
-This is the context in
-which much of these symbolic operations are better suited;
-especially if we are required to alter the graph (or a copy thereof)
-during our search for terms.  Consider the \texttt{phi} variable;
- the printouts show an unnecessary subtraction (with
-$0$).  Clearly this part--and the entire graph--hasn't been simplified.
-Standard simplifications already exist for these sorts of things, and most are
-performed in tandem.
+\texttt{PatternSub} works within the context of Theano
+\href{http://deeplearning.net/software/theano/optimizations.html}{graph
+optimization}.  Graph optimizations essentially perform the common symbolic
+operations of simplification, reduction and rewriting.  Consider the
+\texttt{phi} variable; the printouts show an unnecessary subtraction (with
+$0$).  Clearly this step is unnecessary, so--in a basic way--we can see
+that the graph hasn't been simplified, yet.
 
-Within the graph optimization framework we have the \texttt{PatternSub}
-local optimization.  It provides basic unification.
-To demonstrate the kind of operations that could be used to pre-condition a graph
-and robustly determine a set of supported $l$ and $\phi$,
-we'll make replacement patterns for multiplicative distribution across two forms of addition:
-\texttt{sum} and \texttt{add}.  These searches and replacements can be applied to an objective
-function until it is in a sufficiently reduced form.
+Many standard algebraic simplifications are already present in Theano, and, by
+creating graph optimizations, we can provide ones that assist with
+our identification of $l$ and $\phi$, or closed-form solutions to proximal
+operators.
 
-In the following, we'll simply demonstrate the steps involved in programming
-the necessary logic.
+\begin{Exa}[Algebraic Graph Optimization]
+
+To demonstrate the kind of operations that could be used to pre-condition a
+graph and robustly determine a set of supported $l$ and $\phi$, we'll make
+replacement patterns for multiplicative distribution across two forms of
+addition: \texttt{sum} and \texttt{add}.
 <<evaluate=True, echo=True>>=
 test_a_tt = tt.as_tensor_variable(5, name='a')
 test_b_tt = tt.as_tensor_variable(2, name='b')
@@ -425,12 +450,12 @@ mul_dist_pat_tt += (tt.gof.opt.PatternSub(
 ),)
 @
 
-The next step involves the repeated application of these operations, so that a
-non-trivial graph can be completely transformed/reduced in some way.
-We achieve this with the \texttt{EquilibriumOptimizer} class.
+These searches and replacements can be applied to an objective function until
+it is in a sufficiently reduced form.  \texttt{EquilibriumOptimizer} provides
+this functionality.
 <<evaluate=True, echo=True>>=
-test_sub_eqz_opt_tt = tt.gof.opt.EquilibriumOptimizer(mul_dist_pat_tt,
-                                                      max_use_ratio=10)
+test_sub_eqz_opt_tt = tt.gof.opt.EquilibriumOptimizer(
+    mul_dist_pat_tt, max_use_ratio=10)
 
 test_fgraph_tt = tt.gof.fg.FunctionGraph(
     tt.gof.graph.inputs(test_exprs_tt), test_exprs_tt)
@@ -440,18 +465,20 @@ tt.printing.debugprint(test_fgraph_tt)
 @
 
 Now, when we apply the optimization, the \texttt{FunctionGraph} should
-have applied the replacements:
+contain the replacements.
 <<evaluate=True, echo=True>>=
 test_fgraph_opt = test_sub_eqz_opt_tt.optimize(test_fgraph_tt)
 @
 <<term=True>>=
 tt.printing.debugprint(test_fgraph_tt)
 @
+\end{Exa}
 
-There is much more to consider in the examples above.  Nonetheless, standalone
-libraries, like \href{https://github.com/logpy/logpy/}{LogPy} and
-SymPy, can be adapted to Theano graphs to provide the
-functionality necessary to cover most of these considerations.
+More symbolic capabilities might be needed to [efficiently] achieve the
+functionality we desire.  Standalone libraries like SymPy and
+\href{https://github.com/logpy/logpy/}{LogPy} can be adapted to Theano graph
+objects to provide these capabilities--although direct implementation in Theano
+may be better.
 
 % Could also mention the nice compartmentalization provided by independent
 % logic programming.  These provide many features foundational to symbolic

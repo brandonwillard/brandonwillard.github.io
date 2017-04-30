@@ -195,7 +195,7 @@ In this setting one might then arrive at the necessary steps toward estimation
 automatically (i.e.  identify the underlying $\ell_1$ estimation problem).  We
 discuss this more in \citet{willard_role_2017}.
 
-For simplicity we'll just assume that all components of the estimation problem
+For simplicity, we'll just assume that all components of the estimation problem
 are know--i.e. loss and penalty functions.  The proximal operator
 that arises in this standard example is the \emph{soft thresholding} operator.
 In Theano, it can be implemented with the following:
@@ -375,7 +375,7 @@ the proximal framework that provides solutions to problems of the form
   \argmin_\beta \left\{
     l(\beta) + \lambda \phi(\beta)
   \right\}
-  \;.
+  \;,
 \end{equation}
 when both $l$ and $\phi$ are lower semi-continuous convex
 functions, and $l$ is differentiable with Lipschitz gradient.
@@ -387,7 +387,7 @@ The solution is given as the following fixed-point:
   \label{eq:forward-backward}
 \end{equation}
 The constant step size $\alpha$ is related to the Lipschitz constant
-of $\nabla l$, but can more generally be a sequence obeying certain constraints.
+of $\nabla l$, but can also be a sequence obeying certain constraints.
 Since our $l$ under consideration is $\ell_2$, we have the incredibly
 standard $\nabla l(\beta) = X^\top (X \beta - y)$.
 
@@ -466,9 +466,6 @@ def prox_gradient_step(loss, beta_tt, prox_func,
 
     return res
 @
-This function could also be implemented in a less ``stateful'' fashion,
-in which the terms are given as arguments to each function call--instead
-of shared variable.
 
 \subsection{Step Sizes}
 
@@ -483,7 +480,7 @@ method--beyond basic guarantees of convergence, so the power of any
 implementation will depend on how much support it has for various types of step
 size sequences.
 
-Often acceptible ranges of step size values are derived from Lipschitz
+Often acceptable ranges of step size values are derived from Lipschitz
 and related properties of the functions involved--and/or their gradients.
 Similar considerations underlie the classical line-search methods in
 optimization, and give meaning to what some call ``tuning parameters''.
@@ -495,7 +492,7 @@ computational, symbolic setting.
 In this spirit, one particularly relevant direction of work can be found in
 Theano's experimental matrix ``Hints''.  The ideas behind
 \texttt{theano.sandbox.linalg.ops.\{psd, spectral\_radius\_bound\}}
-encompass some of the machinery needed to automatically determine
+examples of the machinery needed to automatically determine
 applicable and efficient $\alpha$ constants and sequences.
 
 In our example, we use the standard backtracking line-search.
@@ -863,19 +860,20 @@ quite effective in practice.
 \section{Coordinate-wise Estimation}
 
 Given that our loss is a composition of $\ell_2$ and a linear operator
-of finite dimension, we can conveniently exploit some conditional
-separability to obtain simple estimation steps in each coordinate.
-This effectively characterizes coordinate--or cyclic--descent in our case,
-and it shows up as a common technique in the estimation of $\ell_1$ models
+of finite dimension (i.e. $X$), we can conveniently exploit conditional
+separability and obtain simple estimation steps in each coordinate.
+This is, effectively, what characterizes coordinate--or cyclic--descent.
+Since it is a common technique in the estimation of $\ell_1$ models
 \citep{friedman_pathwise_2007, mazumder_regularization_2009,
-scikit-learn_sklearn.linear_model.elasticnet_2017}.
+scikit-learn_sklearn.linear_model.elasticnet_2017}, it's
+worthwhile to consider how it can viewed in terms of proximal operators.
 
 % See `sk.linear_model.ElasticNet.path`, `cd_fast.sparse_enet_coordinate_descent`
 % in sklearn/linear_model/coordinate_descent.py for a proper comparison
 
-From a more statistical perspective, the basics of coordinate-wise methods
-begin with the ``partial residuals'', $r_{-m} \in \Re^{N}$, discussed in
-\citet{friedman_pathwise_2007} and implicitly defined for our problem by
+From a statistical perspective, the basics of coordinate-wise methods
+begin with the ``partial residuals'', $r_{-m} \in \Re^{N}$ discussed in
+\citet{friedman_pathwise_2007}, and implicitly defined by
 \begin{equation}
   \begin{aligned}
     \beta^*
@@ -892,7 +890,8 @@ begin with the ``partial residuals'', $r_{-m} \in \Re^{N}$, discussed in
     &= \argmin_{\beta} \left\{
       \frac12
       \|r_{-m} - X e_m \cdot \beta_{m}\|^2_2
-      + \lambda \sum_{m^\prime \neq m} \left|\beta_{m^\prime}\right|
+      + \lambda \left|\beta_m\right|
+      + \dots
     \right\}
   \;.
   \end{aligned}
@@ -906,11 +905,23 @@ $\prox_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)$, where
 the latter is the soft thresholding operator.
 
 
-Now, if we wanted to relate this type of coordinate descent to the much more
-general statement of the proximal gradient solution in
-\Cref{eq:forward-backward}, we would use a result like the
-following:
+Now, if we wanted to relate \Cref{eq:partial_resid} a proximal method
+via the statement of a proximal gradient fixed-point solution--i.e.
+\Cref{eq:forward-backward}--we might use the following property
+of proximal operators:
+\begin{lemma}
+  \label{lem:prox_ortho_basis}
+  \begin{equation}
+    \prox_{\lambda \phi \circ e^\top_m}(z) =
+    \sum^M_m \prox_{\lambda \phi}\left(e^\top_m z\right) e_m
+    \;.
+  \end{equation}
+  \begin{proof}
+    See \citet{chaux_variational_2007}.
+  \end{proof}
+\end{lemma}
 
+The next result yields our desired connection.
 \begin{proposition}
   For $X$ such that $\1^\top X e_m = 0$ and
   $e^\top_m X^\top X e_m = 1$, $m \in \{1, \dots, M\}$,
@@ -958,17 +969,9 @@ following:
   \end{equation*}
   where the last step follows from $X$ standardization.
   This establishes the relationship with \Cref{eq:forward-backward}
-  only component-wise.  The connection to full vector $\beta$ iterations
-  in \Cref{eq:forward-backward} comes from the following orthogonal basis
-  property of proximal operators:
-  \begin{equation}
-    \prox_{\lambda \phi \circ e^\top_m}(z) =
-    \sum^M_m \prox_{\lambda \phi}\left(e^\top_m z\right) e_m
-    \;.
-    \label{eq:prox_ortho_basis}
-  \end{equation}
-  This together with $z = \beta - \alpha \nabla l(\beta)$ yields the
-  proximal gradient fixed-point statement, i.e.
+  only component-wise.
+  Using \Cref{lem:prox_ortho_basis} together with $z = \beta - \alpha \nabla
+  l(\beta)$ yields the proximal gradient fixed-point statement, i.e.
   \begin{equation*}
     \begin{aligned}
       \beta
@@ -989,12 +992,13 @@ following:
 
 \begin{remark}
   \label{rem:bases}
-  The property in \Cref{eq:prox_ortho_basis} can be extended to any other
-  orthonormal bases and provide quite a robust means of deriving methods for
-  certain classes of problems \citep{chaux_variational_2007}.
-  More specifically, this property is really a nice way to use $X$-based
-  orthogonalizations of a regression problem and implement different forms of
-  sparsity on $\beta$ estimates.
+  The property in \Cref{lem:prox_ortho_basis} can used with other
+  orthonormal bases--providing yet another connection between proximal methods
+  and established dimensionality reduction and sparse estimation techniques
+  \citep{chaux_variational_2007}.
+  Also, this property provides a neat way to think about $X$-based
+  orthogonalizations in estimations for regression and grouped-penalization
+  problems.
 \end{remark}
 
 \subsection{Implementation}
@@ -1043,8 +1047,8 @@ class CoordDescent(object):
         return beta_val
 @
 
-Our example run randomizes the order of coordinates to demonstrate
-some of the variation introduced by this approach.
+Our example randomizes the order of coordinates to loosely demonstrate the
+range of efficiency possible in coordinate descent.
 <<coord_desc_example, echo=True, evaluate=True>>=
 beta_0 = np.zeros(M).astype('float64')
 lambda_val = 1e-2 * lambda_max
@@ -1104,25 +1108,24 @@ g.axes[0, 0].set_xbound(-0.5,
                         pg_coord_plot_data.index.get_values().max() + 0.5)
 @
 
-\Cref{fig:pg_coord_plot} shows the distance measures for each randomized
-coordinate order.  The number of [average] iterations between
-coordinate descent and ``batch'' proximal gradient is fairly noticeable in this
-example, yet both reach effectively the same limits in parameter distance and
-minimum objective value as \texttt{cvx}.
+\Cref{fig:pg_coord_plot} shows convergence measures for each randomized
+coordinate order.  The [average] difference in the number of iterations
+required for coordinate descent and proximal gradient
+is fairly noticeable.  Nonetheless, both reach effectively the same limits.
 
 \begin{remark}
-  The same ideas behind batched vs. non-batched steps and block sampling found
-  within the Gibbs sampling literature \citep{roberts_updating_1997}
-  likely explain variation due to coordinate order and the relative efficiency of
-  coordinate descent.  There also appear to be some connections with our
-  comments in \Cref{rem:bases} and, to some extent, stochastic
-  gradient descent (SGD) \citep{bertsekas_incremental_2010}, as well.
+  Similar ideas behind batched vs. non-batched steps and block sampling--found
+  within the Gibbs sampling literature \citep{roberts_updating_1997}--could
+  explain the variation due to coordinate order and the relative efficiency of
+  coordinate descent.
+  There are also connections with our comments in \Cref{rem:bases} and, to some
+  extent, stochastic gradient descent (SGD) \citep{bertsekas_incremental_2010}.
 
-  As a lacking over-generalization, let's say that the [spectral] properties of
-  $l$/$\nabla l$ and $X$ fundamentally determine the extent to which steps
-  sizes can be increased or accelerated, and the bases, frames, or partitions
-  introduced by coordinate descent, blocking and SGD further affect those
-  properties.
+  In a woefully lacking over-generalization, let's say that it comes down to
+  the [spectral] properties of the composite operator(s) $l \circ X$ and/or
+  $\nabla l \circ X$.  These determine the bounds of efficiency for steps in
+  certain directions and how blocking or partitioning the dimensions of $\beta$
+  nears or distances from those bounds.
 \end{remark}
 
 \subsubsection{Regularization Paths}
@@ -1214,60 +1217,6 @@ g.axes[0, 0].set_xscale('log')
 plt.tight_layout()
 @
 
-
-% Now, let's devise an accelerated coordinate-wise algorithm
-% using the forward-backward connection and the technique of
-% \citet{teboulle}.
-
-% \section{Non-convex Problems}
-% One of our more recent projects involves a non-convex regularization term,
-% which results from an approximation to the Horseshoe prior
-% \citep{bhadra_horseshoe_2017}.
-% Given as a complete data posterior--coordinate-wise--the problem is
-% \begin{equation}
-%   p(\beta_i, u_i \mid y_i, \tau) \propto
-%   \exp\left(
-%     -\frac{(y_i - \beta_i)^2}{2} - \frac{u_i \beta^2_i}{\tau}
-%     + \log\left(1-e^{-u_i}\right) - \log(u_i)
-%   \right)
-% \end{equation}
-% so that the MAP estimate can be stated as
-% \begin{equation}
-% \argmin_{\beta_i, u_i} \left\{
-%     \frac{(y_i - \beta_i)^2}{2} + \frac{u_i \beta^2_i}{\tau}
-%     - \log\left(1-e^{-u_i}\right) + \log(u_i)
-%     \right\}
-% \end{equation}
-% <<echo=False, evaluate=False>>=
-% # hslike_EM <- function(Y, X) {
-% # 	a<-0.05
-% # 	p<-ncol(X)
-% # 	n<-length(Y)
-% # 	tol = 1e-8
-% # 	err=1
-% # 	t=1
-% # 	thetahat = rep(1,p)
-% # 	thetahat=scale(t(X)%*%Y)
-% # 	while (err>tol){
-% # 		utilde = (1/(2*pi))*(a^1.5/(thetahat^2*(thetahat^2 +a)))
-% # 		D=diag(as.vector(a/(2*utilde)))
-% # 		DXT = D%*%t(X)
-% # 		XTY = t(X)%*%Y
-% # 		cov=D - DXT%*%(solve(X%*%DXT + diag(n)))%*%t(DXT)
-% # 		thetahatnew = cov%*%XTY
-% # 		anew = (a^1.5/(p*pi))*sum(1/(thetahatnew^2+a))
-% # 		err<-sum((thetahatnew-thetahat)^2) + (a-anew)^2
-% #         cat("EM Iteration ",t, "Error ", err, "a ", a, "\n")
-% # 		thetahat=thetahatnew
-% # 		a=anew
-% # 		t<-t+1
-% # 	}
-% # 	return(list(thetahat=thetahat, ahat=a))
-% # }
-% @
-
-
-
 \section{Discussion}
 
 Among the changes discussed earlier regarding Theano \texttt{Op}s for the
@@ -1280,7 +1229,7 @@ resolvent, sub-differential/gradient and others are common.  Abstractions
 like these provide a compact means of extending familiar ideas into
 new contexts--such as non-differentiable functions.
 
-Unfortunately, our numerical software libraries do not provide much in the way
+Unfortunately, our numerical libraries do not provide much in the way
 utilizing these abstractions.  Most are strictly founded in the
 representation of point-valued mappings, which can require significant
 work-arounds to handle even the most common non-differentiable functions (e.g.
@@ -1306,7 +1255,7 @@ proximal methods (e.g. gradient descent, ADMM, EM, etc.) provides a more
 immediate reason to pursue these abstractions in code and automate their use.
 
 Regarding the proximal methods, we can consider Theano optimizations that
-make direct use of the orthonormal basis property in \Cref{eq:prox_ortho_basis}, or
+make direct use of the orthonormal basis property in \Cref{lem:prox_ortho_basis}, or
 the Moreau-Fenchel theorem, and automate consideration for
 various estimation methods via splitting (e.g. ADMM, Douglas-Rachford,
 etc.)--perhaps by making decisions based on inferred or specified
