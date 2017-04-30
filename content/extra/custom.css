@@ -71,6 +71,7 @@ ul.project-links li {
     display: block;
     margin: 12px 0;
     font-style: normal;
+    overflow: auto;
 }
 .proof:before {
     env-number: "";
@@ -79,8 +80,10 @@ ul.project-links li {
     font-style: italic;
 }
 .proof:after {
+    /* content: "\A\25FC"; */
+    /* white-space: pre-wrap; */
     content: "\25FC";
-    float:right;
+    float: right;
 }
 .definition {
     display: block;
