@@ -72,7 +72,7 @@ code &gt; span. { color: #1f1c1b; } /* Normal */
   \right\}
   \;.
   \label{eq:lasso}
-\end{equation}\]&lt;/span&gt; We continue our discussion on topics concerning automation and symbolic computation in Theano &lt;span class="citation" data-cites="bergstra_theano_2010"&gt;(Bergstra et al. 2010)&lt;/span&gt;, as well as the mathematical methodology we believe is suitable for such implementations. Again, our framing of the problem is in terms of “proximal methods” &lt;span class="citation" data-cites="parikh_proximal_2014 combettes_proximal_2011"&gt;(Parikh and Boyd 2014; Combettes and Pesquet 2011)&lt;/span&gt;. Along the way we propose one simple means of placing the well-known technique of coordinate descent within the scope of proximal methods via a general property of proximal operators. These efforts are a continued outgrowth of our work in &lt;span class="citation" data-cites="polson_proximal_2015"&gt;Polson, Scott, and Willard (2015)&lt;/span&gt;.&lt;/p&gt;
+\end{equation}\]&lt;/span&gt; We continue our discussion on topics concerning automation and symbolic computation in Theano &lt;span class="citation" data-cites="bergstra_theano_2010"&gt;(&lt;span class="citeproc-not-found" data-reference-id="bergstra_theano_2010"&gt;&lt;strong&gt;???&lt;/strong&gt;&lt;/span&gt;)&lt;/span&gt;, as well as the mathematical methodology we believe is suitable for such implementations. Again, our framing of the problem is in terms of “proximal methods” &lt;span class="citation" data-cites="parikh_proximal_2014 combettes_proximal_2011"&gt;(Parikh and Boyd 2014; Combettes and Pesquet 2011)&lt;/span&gt;. Along the way we propose one simple means of placing the well-known technique of coordinate descent within the scope of proximal methods via a general property of proximal operators. These efforts are a continued outgrowth of our work in &lt;span class="citation" data-cites="polson_proximal_2015"&gt;Polson, Scott, and Willard (2015)&lt;/span&gt;.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="proximal-and-computational-components" class="level1"&gt;
 &lt;h1&gt;Proximal and Computational Components&lt;/h1&gt;
@@ -581,10 +581,7 @@ pg_path_data &lt;span class="op"&gt;=&lt;/span&gt; pg_path_data.append(sklearn_p
 &lt;p&gt;Beck, Amir, and Marc Teboulle. 2014. “A Fast Dual Proximal Gradient Algorithm for Convex Minimization and Applications.” &lt;em&gt;Operations Research Letters&lt;/em&gt; 42 (1): 1–6. &lt;a href="http://www.sciencedirect.com/science/article/pii/S0167637713001454" class="uri"&gt;http://www.sciencedirect.com/science/article/pii/S0167637713001454&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-beeson_meaning_2005"&gt;
-&lt;p&gt;Beeson, Michael, and Freek Wiedijk. 2005. “The Meaning of Infinity in Calculus and Computer Algebra Systems.” &lt;em&gt;Journal of Symbolic Computation&lt;/em&gt;, Automated reasoning and computer algebra systems (ar-ca)AR-ca, 39 (5): 523–38. doi:&lt;a href="https://doi.org/10.1016/j.jsc.2004.12.002"&gt;10.1016/j.jsc.2004.12.002&lt;/a&gt;.&lt;/p&gt;
-&lt;/div&gt;
-&lt;div id="ref-bergstra_theano_2010"&gt;
-&lt;p&gt;Bergstra, James, Olivier Breuleux, Frédéric Bastien, Pascal Lamblin, Razvan Pascanu, Guillaume Desjardins, Joseph Turian, David Warde-Farley, and Yoshua Bengio. 2010. “Theano: A CPU and GPU Math Expression Compiler.” In &lt;em&gt;Proceedings of the Python for Scientific Computing Conference (SciPy)&lt;/em&gt;. Austin, TX.&lt;/p&gt;
+&lt;p&gt;Beeson, Michael, and Freek Wiedijk. 2005. “The Meaning of Infinity in Calculus and Computer Algebra Systems.” &lt;em&gt;Journal of Symbolic Computation&lt;/em&gt;, Automated reasoning and computer algebra systems (ar-ca)AR-ca, 39 (5): 523–38. &lt;a href="https://www.sciencedirect.com/science/article/pii/S074771710500026X" class="uri"&gt;https://www.sciencedirect.com/science/article/pii/S074771710500026X&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-bertsekas_incremental_2010"&gt;
 &lt;p&gt;Bertsekas, Dimitri P. 2010. “Incremental Gradient, Subgradient, and Proximal Methods for Convex Optimization: A Survey.” &lt;a href="http://web.mit.edu/dimitrib/www/Incremental_Survey_LIDS.pdf" class="uri"&gt;http://web.mit.edu/dimitrib/www/Incremental_Survey_LIDS.pdf&lt;/a&gt;.&lt;/p&gt;
@@ -608,13 +605,13 @@ pg_path_data &lt;span class="op"&gt;=&lt;/span&gt; pg_path_data.append(sklearn_p
 &lt;p&gt;Parikh, Neal, and Stephen Boyd. 2014. “Proximal Algorithms.” &lt;em&gt;Foundations and Trends in Optimization&lt;/em&gt; 1 (3): 123–231. doi:&lt;a href="https://doi.org/10.1561/2400000003"&gt;10.1561/2400000003&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-polson_proximal_2015"&gt;
-&lt;p&gt;Polson, Nicholas G., James G. Scott, and Brandon T. Willard. 2015. “Proximal Algorithms in Statistics and Machine Learning.” &lt;em&gt;Statistical Science&lt;/em&gt; 30 (4): 559–81. doi:&lt;a href="https://doi.org/10.1214/15-STS530"&gt;10.1214/15-STS530&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Polson, Nicholas G., James G. Scott, and Brandon T. Willard. 2015. “Proximal Algorithms in Statistics and Machine Learning.” &lt;em&gt;Statistical Science&lt;/em&gt; 30 (4): 559–81. &lt;a href="http://projecteuclid.org/euclid.ss/1449670858" class="uri"&gt;http://projecteuclid.org/euclid.ss/1449670858&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-roberts_updating_1997"&gt;
 &lt;p&gt;Roberts, Gareth O., and Sujit K. Sahu. 1997. “Updating Schemes, Correlation Structure, Blocking and Parameterization for the Gibbs Sampler.” &lt;em&gt;Journal of the Royal Statistical Society: Series B (Statistical Methodology)&lt;/em&gt; 59 (2): 291–317. &lt;a href="http://onlinelibrary.wiley.com/doi/10.1111/1467-9868.00070/abstract" class="uri"&gt;http://onlinelibrary.wiley.com/doi/10.1111/1467-9868.00070/abstract&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-salvatier_probabilistic_2016"&gt;
-&lt;p&gt;Salvatier, John, Thomas V. Wiecki, and Christopher Fonnesbeck. 2016. “Probabilistic Programming in Python Using PyMC3.” &lt;em&gt;PeerJ Computer Science&lt;/em&gt; 2 (April): e55. doi:&lt;a href="https://doi.org/10.7717/peerj-cs.55"&gt;10.7717/peerj-cs.55&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Salvatier, John, Thomas V. Wiecki, and Christopher Fonnesbeck. 2016. “Probabilistic Programming in Python Using PyMC3.” &lt;em&gt;PeerJ Computer Science&lt;/em&gt; 2 (April): e55. &lt;a href="https://peerj.com/articles/cs-55" class="uri"&gt;https://peerj.com/articles/cs-55&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-scikit-learn_sklearn.linear_model.elasticnet_2017"&gt;
 &lt;p&gt;scikit-learn. 2017. “Sklearn.Linear_model.ElasticNet Scikit-Learn 0.19.Dev0 Documentation.” &lt;a href="http://scikit-learn.org/dev/modules/generated/sklearn.linear_model.ElasticNet.html\#sklearn-linear-model-elasticnet" class="uri"&gt;http://scikit-learn.org/dev/modules/generated/sklearn.linear_model.ElasticNet.html\#sklearn-linear-model-elasticnet&lt;/a&gt;.&lt;/p&gt;
@@ -1125,7 +1122,7 @@ NormConvOp [&lt;span class="bu"&gt;id&lt;/span&gt; A] &lt;span class="st"&gt;&am
 &lt;p&gt;Park, Trevor, and George Casella. 2008. “The Bayesian Lasso.” &lt;em&gt;Journal of the American Statistical Association&lt;/em&gt; 103 (482): 681–86. &lt;a href="http://amstat.tandfonline.com/doi/abs/10.1198/016214508000000337" class="uri"&gt;http://amstat.tandfonline.com/doi/abs/10.1198/016214508000000337&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-polson_proximal_2015"&gt;
-&lt;p&gt;Polson, Nicholas G., James G. Scott, and Brandon T. Willard. 2015. “Proximal Algorithms in Statistics and Machine Learning.” &lt;em&gt;Statistical Science&lt;/em&gt; 30 (4): 559–81. doi:&lt;a href="https://doi.org/10.1214/15-STS530"&gt;10.1214/15-STS530&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Polson, Nicholas G., James G. Scott, and Brandon T. Willard. 2015. “Proximal Algorithms in Statistics and Machine Learning.” &lt;em&gt;Statistical Science&lt;/em&gt; 30 (4): 559–81. &lt;a href="http://projecteuclid.org/euclid.ss/1449670858" class="uri"&gt;http://projecteuclid.org/euclid.ss/1449670858&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-polson_statistical_2015"&gt;
 &lt;p&gt;Polson, Nicholas G., Brandon T. Willard, and Massoud Heidari. 2015. “A Statistical Theory of Deep Learning via Proximal Splitting.” &lt;em&gt;arXiv Preprint arXiv:1509.06061&lt;/em&gt;. &lt;a href="http://arxiv.org/abs/1509.06061" class="uri"&gt;http://arxiv.org/abs/1509.06061&lt;/a&gt;.&lt;/p&gt;
@@ -1134,7 +1131,7 @@ NormConvOp [&lt;span class="bu"&gt;id&lt;/span&gt; A] &lt;span class="st"&gt;&am
 &lt;p&gt;Rocklin, Matthew. 2013. “Mathematically Informed Linear Algebra Codes Through Term Rewriting.” PhD thesis, PhD Thesis, August. &lt;a href="http://people.cs.uchicago.edu/~mrocklin/storage/dissertation.pdf" class="uri"&gt;http://people.cs.uchicago.edu/~mrocklin/storage/dissertation.pdf&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-salvatier_probabilistic_2016"&gt;
-&lt;p&gt;Salvatier, John, Thomas V. Wiecki, and Christopher Fonnesbeck. 2016. “Probabilistic Programming in Python Using PyMC3.” &lt;em&gt;PeerJ Computer Science&lt;/em&gt; 2 (April): e55. doi:&lt;a href="https://doi.org/10.7717/peerj-cs.55"&gt;10.7717/peerj-cs.55&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Salvatier, John, Thomas V. Wiecki, and Christopher Fonnesbeck. 2016. “Probabilistic Programming in Python Using PyMC3.” &lt;em&gt;PeerJ Computer Science&lt;/em&gt; 2 (April): e55. &lt;a href="https://peerj.com/articles/cs-55" class="uri"&gt;https://peerj.com/articles/cs-55&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-srivastava_dropout_2014"&gt;
 &lt;p&gt;Srivastava, Nitish, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan Salakhutdinov. 2014. “Dropout: A Simple Way to Prevent Neural Networks from Overfitting.” &lt;em&gt;The Journal of Machine Learning Research&lt;/em&gt; 15 (1): 1929–58. &lt;a href="http://dl.acm.org/citation.cfm?id=2670313" class="uri"&gt;http://dl.acm.org/citation.cfm?id=2670313&lt;/a&gt;.&lt;/p&gt;
