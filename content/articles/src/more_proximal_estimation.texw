@@ -411,6 +411,8 @@ def prox_gradient_step(loss, beta_tt, prox_func,
                        ):
     r""" Creates a function that produces a proximal gradient step.
 
+    TODO: Consider using `FromFunctionOp`.
+
     Arguments
     =========
     loss: TensorVariable

@@ -150,7 +150,8 @@ implement parameter learning.
 
 <div class='project' name="CTA-sim" markdown>
 <ul class='project-links'>
-  <li><a href="http://dssg.io/projects/2013/\#cta">site</a></li>
+  <li><a href="https://dssg.uchicago.edu/cta-why-bus-crowding-happens-and-how-data-can-help">description</a></li>
+  <li><a href="https://dssg.uchicago.edu/project/simulating-better-bus-service/">site</a></li>
   <li><a href="https://github.com/dssg/cta-sim">code</a></li>
 </ul>
 
@@ -160,7 +161,8 @@ transit planning and reduce bus crowding.
 
 <div class='project' name="energywise" markdown>
 <ul class='project-links'>
-  <li><a href="http://dssg.io/projects/2013/\#lbnl">site</a></li>
+  <li><a href="https://github.com/dssg/energywise/wiki/Problem">description</a></li>
+  <li><a href="https://dssg.uchicago.edu/project/predicting-building-energy-savings/">site</a></li>
   <li><a href="https://github.com/dssg/energywise">code</a></li>
 </ul>
 

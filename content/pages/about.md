@@ -38,6 +38,6 @@ Here's a [live copy of my CV](http://goo.gl/AFV0ij).
 
 Here are some things I've been involved in:
 
-* [Data Science for Social Good](http://dssg.io/)
+* [Data Science for Social Good](https://dssg.uchicago.edu/)
 * [MTA Bus Time](http://bustime.mta.info/wiki/Main/Technology)
 
