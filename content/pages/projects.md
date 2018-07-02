@@ -2,8 +2,8 @@
 title: Projects
 ---
 
-Check [Github](https://github.com/brandonwillard) and 
-[Bitbucket](https://bitbucket.org/brandonwillard) to see what I've been up to.  Otherwise, here's
+Check [Github](https://github.com/brandonwillard) and
+[Bitbucket](https://bitbucket.io/brandonwillard) to see what I've been up to.  Otherwise, here's
 a quick roundup...
 
 <div class='project' name="hsplus" markdown>
@@ -13,7 +13,7 @@ a quick roundup...
 </ul>
 
 `hsplus` is a Python library (with R bindings) that provides estimates for
-quantities involving the Horseshoe and Horseshoe+ shrinkage priors.  
+quantities involving the Horseshoe and Horseshoe+ shrinkage priors.
 It also contains general numerical estimation procedures for bivariate confluent
 hypergeometric functions, as well as symbolic SymPy implementations.
 
@@ -26,7 +26,7 @@ hypergeometric functions, as well as symbolic SymPy implementations.
 </ul>
 
 `amimodels` is a Python library that provides core implementations of models
-designed for use with Advanced Metering Infrastructure (AMI) data in 
+designed for use with Advanced Metering Infrastructure (AMI) data in
 [`eemeter`](http://www.openeemeter.org/). The implementations
 are fundamentally Bayesian state-space and mixture models that automatically
 account for the systematic changes, missing data and varied observation
@@ -68,7 +68,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
   </li>
 </ul>
 
-  [Simple, custom slice sampler](https://brandonwillard.bitbucket.io/bayes-optimization/bayes-opt-rosenbrock.html) for the 
+  [Simple, custom slice sampler](https://brandonwillard.bitbucket.io/bayes-optimization/bayes-opt-rosenbrock.html) for the
   [Rosenbrock function](https://en.wikipedia.org/wiki/Rosenbrock_function).
 </div>
 
@@ -81,7 +81,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 </ul>
 
 Bus Time is the open source Java suite that provides real-time bus tracking to
-NYC.  I designed and developed the 
+NYC.  I designed and developed the
 [statistical inference capabilities](https://github.com/camsys/onebusaway-nyc/wiki/Inference-Engine) and
 helped build the production service components.  The model handles free and
 constrained location tracking along street networks, inference for unobserved
@@ -101,7 +101,7 @@ filter.
 </ul>
 
 `prox-methods` is a very experimental R package with C++ implementations (via Rcpp) for some of the
-proximal optimization methods from the paper 
+proximal optimization methods from the paper
 ["Proximal Algorithms in Statistics and Machine Learning"](https://projecteuclid.org/euclid.ss/1449670858).
 
 </div>
@@ -125,7 +125,7 @@ be used with fairly minimal effort.
   <li><a href="https://bitbucket.org/brandonwillard/statslibextensions">code</a></li>
 </ul>
 
-Extensions to the [Cognitive Foundry API](https://github.com/algorithmfoundry/Foundry) 
+Extensions to the [Cognitive Foundry API](https://github.com/algorithmfoundry/Foundry)
 including, but not limited to, specialized distributions, sampling techniques,
 and numerically stable computations for Dynamic Linear Models.
 </div>
@@ -168,4 +168,3 @@ transit planning and reduce bus crowding.
 
 An energy analytics tool to make commercial building more energy efficient.
 </div>
-
