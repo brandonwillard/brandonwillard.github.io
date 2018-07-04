@@ -21,7 +21,7 @@ hypergeometric functions, as well as symbolic SymPy implementations.
 
 <div class='project' name="amimodels" markdown>
 <ul class='project-links'>
-  <li><a href="https://github.com/openeemeter/amimodels">code</a></li>
+  <li><a href="https://github.com/brandonwillard/amimodels">code</a></li>
   <li><a href="https://amimodels.readthedocs.io/en/latest/methodology.html">docs</a></li>
 </ul>
 

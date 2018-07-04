@@ -1,0 +1,6 @@
+[submodule "pelican-themes"]
+	path = pelican-themes
+	url = ./pelican-themes
+[submodule "pelican-plugins"]
+	path = pelican-plugins
+	url = ./pelican-plugins

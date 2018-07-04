@@ -2,9 +2,14 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
-PLUGIN_PATHS = ["./plugins"]
 
-PLUGINS = ["liquid_tags", "pelican-bibtex", "pandoc_reader"]
+PLUGIN_PATHS = ['./pelican-plugins']
+
+PLUGINS = ['i18n_subsites', 'liquid_tags', 'pelican-bibtex', 'pandoc_reader']
+
+JINJA_ENVIRONMENT = {
+    'extensions': ['jinja2.ext.i18n'],
+}
 
 PUBLICATIONS_SRC = 'content/pages/publications.bib'
 
@@ -34,13 +39,13 @@ TIMEZONE = 'America/Chicago'
 DEFAULT_DATE = 'fs'
 DEFAULT_LANG = u'en'
 
-THEME = "theme/pelican-bootstrap3"
-BOOTSTRAP_THEME = "readable"
-PYGMENTS_STYLE = "vim"
+THEME = 'pelican-themes/pelican-bootstrap3'
+BOOTSTRAP_THEME = 'readable'
+PYGMENTS_STYLE = 'vim'
 
 CUSTOM_CSS = 'extra/custom.css'
 
-DISQUS_SITENAME = "brandonwillard-github-io"
+DISQUS_SITENAME = 'brandonwillard-github-io'
 
 # Feed generation is usually not desired when developing
 # FEED_ALL_ATOM = None
@@ -51,7 +56,7 @@ DISQUS_SITENAME = "brandonwillard-github-io"
 # AUTHOR_FEED_ATOM = None
 # AUTHOR_FEED_RSS = None
 
-ABOUT_ME = "applied math/stats person"
+ABOUT_ME = 'applied math/stats person'
 AVATAR = '/images/profile-pic.png'
 # PROFILE_PICTURE = '/images/profile-pic.png'
 
@@ -68,17 +73,22 @@ SOCIAL = (('linkedin', 'http://linkedin.com/pub/brandon-willard/10/bb4/468/'),
           ('github', 'https://github.com/brandonwillard'),
           )
 
-DIRECT_TEMPLATES = ['index', 'archives', 'publications']
+DIRECT_TEMPLATES = [
+    'index', 'archives', # 'publications'
+]
+EXTRA_TEMPLATES_PATHS = ['custom']
+
 DEFAULT_PAGINATION = 10
 
 PANDOC_BIBHEADER = 'References'
 PANDOC_BIBDIR = './content/articles/src'
-PANDOC_ARGS = ['-s', '--mathjax', '--old-dashes', '--section-divs',
+PANDOC_ARGS = ['-s', '--mathjax', '--section-divs',
                '--highlight-style=kate',
                '--include-after-body=./content/articles/src/after_body.html',
                '--template=pelican_template.html'
                ]
-PANDOC_EXTENSIONS = ['+yaml_metadata_block', '+raw_tex', '+auto_identifiers']
+PANDOC_EXTENSIONS = ['+old_dashes', '+yaml_metadata_block', '+raw_tex',
+                     '+auto_identifiers']
 PANDOC_FILTERS = ['pandoc-citeproc']
 
 DELETE_OUTPUT_DIRECTORY = True
