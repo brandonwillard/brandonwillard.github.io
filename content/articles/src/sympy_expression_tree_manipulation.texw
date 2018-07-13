@@ -108,11 +108,11 @@ I've been working on some extensions to our special function computations in
 \href{https://arxiv.org/abs/1605.04796}{Prediction risk for global-local shrinkage regression}
 and decided to employ \href{https://github.com/sympy/sympy}{SymPy} as much as possible.  Out of this came
 an
-\href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg/src/master/hsplus/horn_symbolic.py}{implementation}
+\href{https://bitbucket.io/bayes-horseshoe-plus/hsplus-python-pkg/src/master/hsplus/horn_symbolic.py}{implementation}
 of a bivariate confluent hypergeometric function: the \href{https://en.wikipedia.org/wiki/Humbert_series}{Humbert}
 $\Phi_1$.  This, and some numeric implementations, are available in a
-\href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg}{Python package}
-and an \href{https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg}{R package}.
+\href{https://bitbucket.io/bayes-horseshoe-plus/hsplus-python-pkg}{Python package}
+and an \href{https://bitbucket.io/bayes-horseshoe-plus/hsplus-r-pkg}{R package}.
 
 In the course of this work there are expectations that appear as ratios of $\Phi_1$
 functions, so it's helpful to have a symbolic replacement routine to identify them.
