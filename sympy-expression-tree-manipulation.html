@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"
->
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
     <title>SymPy Expression Tree Manipulation - Brandon T. Willard</title>
     <!-- Using the latest rendering mode for IE -->
@@ -13,16 +12,17 @@
 <link rel="canonical" href="https://brandonwillard.github.io/sympy-expression-tree-manipulation.html">
 
         <meta name="author" content="Brandon Willard" />
-        <meta name="description" content="SymPy Expression Tree Manipulation code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; background-color: #ffffff; color: #1f1c1b; } td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #ffffff; color: #a0a0a0; border-right ..." />
+        <meta name="description" content="SymPy Expression Tree Manipulation code{white-space: pre;} a.sourceLine { display: inline-block; line-height: 1.25; } a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; } a.sourceLine:empty { height: 1.2em; position: absolute; } .sourceCode { overflow: visible; } code.sourceCode { white-space: pre; position: relative; } div.sourceCode { margin: 1em 0; } pre.sourceCode { margin: 0; } @media screen …" />
 
         <meta property="og:site_name" content="Brandon T. Willard" />
         <meta property="og:type" content="article"/>
         <meta property="og:title" content="SymPy Expression Tree Manipulation"/>
         <meta property="og:url" content="https://brandonwillard.github.io/sympy-expression-tree-manipulation.html"/>
-        <meta property="og:description" content="SymPy Expression Tree Manipulation code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; background-color: #ffffff; color: #1f1c1b; } td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #ffffff; color: #a0a0a0; border-right ..."/>
+        <meta property="og:description" content="SymPy Expression Tree Manipulation code{white-space: pre;} a.sourceLine { display: inline-block; line-height: 1.25; } a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; } a.sourceLine:empty { height: 1.2em; position: absolute; } .sourceCode { overflow: visible; } code.sourceCode { white-space: pre; position: relative; } div.sourceCode { margin: 1em 0; } pre.sourceCode { margin: 0; } @media screen …"/>
         <meta property="article:published_time" content="2016-10-27" />
             <meta property="article:section" content="articles" />
             <meta property="article:author" content="Brandon Willard" />
+
 
 
     <!-- Bootstrap -->
@@ -36,14 +36,19 @@
 
         <link href="https://brandonwillard.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
               title="Brandon T. Willard ATOM Feed"/>
+
         <link href="https://brandonwillard.github.io/feeds/all.rss.xml" type="application/rss+xml" rel="alternate"
               title="Brandon T. Willard RSS Feed"/>
+
+
+        <link href="https://brandonwillard.github.io/feeds/articles.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Brandon T. Willard articles ATOM Feed"/>
 
 </head>
 <body>
 
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-	<div class="container">
+    <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
                 <span class="sr-only">Toggle navigation</span>
@@ -70,18 +75,19 @@ Brandon T. Willard            </a>
                         </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li><a href="https://brandonwillard.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
     </div>
 </div> <!-- /.navbar -->
+
 <!-- Banner -->
 <!-- End Banner -->
+
+<!-- Content Container -->
 <div class="container">
     <div class="row">
         <div class="col-sm-9">
-
     <section id="content">
         <article>
             <header class="page-header">
@@ -104,6 +110,8 @@ Brandon T. Willard            </a>
 
 
 
+
+
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
@@ -117,46 +125,74 @@ Brandon T. Willard            </a>
   <title>SymPy Expression Tree Manipulation</title>
   <style type="text/css">code{white-space: pre;}</style>
   <style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; background-color: #ffffff; color: #1f1c1b; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #ffffff; color: #a0a0a0; border-right: 1px solid #a0a0a0; }
-td.sourceCode { padding-left: 5px; }
-pre, code { color: #1f1c1b; background-color: #ffffff; }
-code > span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
-code > span.dt { color: #0057ae; } /* DataType */
-code > span.dv { color: #b08000; } /* DecVal */
-code > span.bn { color: #b08000; } /* BaseN */
-code > span.fl { color: #b08000; } /* Float */
-code > span.cn { color: #aa5500; } /* Constant */
-code > span.ch { color: #924c9d; } /* Char */
-code > span.sc { color: #3daee9; } /* SpecialChar */
-code > span.st { color: #bf0303; } /* String */
-code > span.vs { color: #bf0303; } /* VerbatimString */
-code > span.ss { color: #ff5500; } /* SpecialString */
-code > span.im { color: #ff5500; } /* Import */
-code > span.co { color: #898887; } /* Comment */
-code > span.do { color: #607880; } /* Documentation */
-code > span.an { color: #ca60ca; } /* Annotation */
-code > span.cv { color: #0095ff; } /* CommentVar */
-code > span.ot { color: #006e28; } /* Other */
-code > span.fu { color: #644a9b; } /* Function */
-code > span.va { color: #0057ae; } /* Variable */
-code > span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #1f1c1b; } /* Operator */
-code > span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
-code > span.ex { color: #0095ff; font-weight: bold; } /* Extension */
-code > span.pp { color: #006e28; } /* Preprocessor */
-code > span.at { color: #0057ae; } /* Attribute */
-code > span.re { color: #0057ae; } /* RegionMarker */
-code > span.in { color: #b08000; } /* Information */
-code > span.wa { color: #bf0303; } /* Warning */
-code > span.al { color: #bf0303; font-weight: bold; } /* Alert */
-code > span.er { color: #bf0303; text-decoration: underline; } /* Error */
-code > span. { color: #1f1c1b; } /* Normal */
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #a0a0a0;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+div.sourceCode
+  { color: #1f1c1b; background-color: #ffffff; }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span. { color: #1f1c1b; } /* Normal */
+code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
+code span.an { color: #ca60ca; } /* Annotation */
+code span.at { color: #0057ae; } /* Attribute */
+code span.bn { color: #b08000; } /* BaseN */
+code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
+code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #924c9d; } /* Char */
+code span.cn { color: #aa5500; } /* Constant */
+code span.co { color: #898887; } /* Comment */
+code span.cv { color: #0095ff; } /* CommentVar */
+code span.do { color: #607880; } /* Documentation */
+code span.dt { color: #0057ae; } /* DataType */
+code span.dv { color: #b08000; } /* DecVal */
+code span.er { color: #bf0303; text-decoration: underline; } /* Error */
+code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
+code span.fl { color: #b08000; } /* Float */
+code span.fu { color: #644a9b; } /* Function */
+code span.im { color: #ff5500; } /* Import */
+code span.in { color: #b08000; } /* Information */
+code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
+code span.op { color: #1f1c1b; } /* Operator */
+code span.ot { color: #006e28; } /* Other */
+code span.pp { color: #006e28; } /* Preprocessor */
+code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #ff5500; } /* SpecialString */
+code span.st { color: #bf0303; } /* String */
+code span.va { color: #0057ae; } /* Variable */
+code span.vs { color: #bf0303; } /* VerbatimString */
+code span.wa { color: #bf0303; } /* Warning */
   </style>
-  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
 </head>
 <body>
 <!--  -->
@@ -180,26 +216,26 @@ E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \g
 \label{eq:expectation}
 \end{equation}\]</span></p>
 <p>As an example, let’s set up a situation in which <code>as_expectations</code> would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match Equation <span class="math inline">\(\eqref{eq:expectation}\)</span>:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> sympy <span class="im">as</span> sp
-
-<span class="im">from</span> hsplus.horn_symbolic <span class="im">import</span> HornPhi1
-
-a, b, g, z_1, z_2 <span class="op">=</span> sp.symbols(<span class="st">&#39;a, b, g, z_1, z_2&#39;</span>, real<span class="op">=</span><span class="va">True</span>)
-phi1_1 <span class="op">=</span> HornPhi1((a, b), (g,), z_1, z_2)
-
-n <span class="op">=</span> sp.Dummy(<span class="st">&#39;n&#39;</span>, integer<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)
-i <span class="op">=</span> sp.Dummy(<span class="st">&#39;i&#39;</span>, integer<span class="op">=</span><span class="va">True</span>, nonnegative<span class="op">=</span><span class="va">True</span>)
-
-phi1_2 <span class="op">=</span> HornPhi1((a, b), (g <span class="op">+</span> n,), z_1, z_2)
-phi1_3 <span class="op">=</span> HornPhi1((a, b), (g <span class="op">+</span> n <span class="op">-</span> i,), z_1, z_2)
-
-r_1 <span class="op">=</span> phi1_2<span class="op">/</span>phi1_1
-r_2 <span class="op">=</span> phi1_3<span class="op">/</span>phi1_1
-
-expr <span class="op">=</span> a <span class="op">*</span> r_1 <span class="op">-</span> b <span class="op">*</span> r_1 <span class="op">/</span> g <span class="op">+</span> sp.Sum(z_1<span class="op">/</span>z_2 <span class="op">*</span> r_2 <span class="op">-</span> <span class="dv">3</span> <span class="op">*</span> r_2, (i, <span class="dv">0</span>,
-n))</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> sympy <span class="im">as</span> sp</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="im">from</span> hsplus.horn_symbolic <span class="im">import</span> HornPhi1</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">a, b, g, z_1, z_2 <span class="op">=</span> sp.symbols(<span class="st">&#39;a, b, g, z_1, z_2&#39;</span>, real<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">phi1_1 <span class="op">=</span> HornPhi1((a, b), (g,), z_1, z_2)</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">n <span class="op">=</span> sp.Dummy(<span class="st">&#39;n&#39;</span>, integer<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">i <span class="op">=</span> sp.Dummy(<span class="st">&#39;i&#39;</span>, integer<span class="op">=</span><span class="va">True</span>, nonnegative<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">phi1_2 <span class="op">=</span> HornPhi1((a, b), (g <span class="op">+</span> n,), z_1, z_2)</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">phi1_3 <span class="op">=</span> HornPhi1((a, b), (g <span class="op">+</span> n <span class="op">-</span> i,), z_1, z_2)</a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">r_1 <span class="op">=</span> phi1_2<span class="op">/</span>phi1_1</a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">r_2 <span class="op">=</span> phi1_3<span class="op">/</span>phi1_1</a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17">expr <span class="op">=</span> a <span class="op">*</span> r_1 <span class="op">-</span> b <span class="op">*</span> r_1 <span class="op">/</span> g <span class="op">+</span> sp.Sum(z_1<span class="op">/</span>z_2 <span class="op">*</span> r_2 <span class="op">-</span> <span class="dv">3</span> <span class="op">*</span> r_2, (i, <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb1-18" data-line-number="18">n))</a></code></pre></div>
 <p>Our test expression <code>expr</code> looks like this</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">print</span>(sp.latex(expr, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="bu">print</span>(sp.latex(expr, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</a></code></pre></div>
 <p><span class="math display">\[\begin{equation*}
 \frac{a \operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n + g,
 \quad z_{1}, \quad z_{2}\right
@@ -220,65 +256,65 @@ z_{1}, \quad z_{2}\right )\right)}}{g
 \end{equation*}\]</span></p>
 <p>The ratios <code>r_1</code> and <code>r_2</code> should both be replaced by a symbol for <span class="math inline">\(E[X^m]\)</span>, for <span class="math inline">\(m = n\)</span> and <span class="math inline">\(m = n - i\)</span> when <span class="math inline">\(i &lt; n\)</span> respectively. We could allow <span class="math inline">\(E[X^0]\)</span>, I suppose, but–for a more interesting discussion–let’s not.</p>
 <p>We start by creating a SymPy pattern that expresses the mathematical form of <span class="math inline">\(E[X^m]\)</span> in Equation <span class="math inline">\(\eqref{eq:expectation}\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">pnames <span class="op">=</span> (<span class="st">&#39;a&#39;</span>, <span class="st">&#39;b&#39;</span>, <span class="st">&#39;g&#39;</span>, <span class="st">&#39;z_1&#39;</span>, <span class="st">&#39;z_2&#39;</span>)
-phi1_wild_args_n <span class="op">=</span> sp.symbols(<span class="st">&#39;,&#39;</span>.join(n_ <span class="op">+</span> <span class="st">&#39;_w&#39;</span> <span class="cf">for</span> n_ <span class="kw">in</span> pnames),
-                              cls<span class="op">=</span>sp.Wild, real<span class="op">=</span><span class="va">True</span>)
-
-n_w <span class="op">=</span> sp.Wild(<span class="st">&#39;n_w&#39;</span>,
-              properties<span class="op">=</span>(<span class="kw">lambda</span> x: x.is_integer <span class="kw">and</span> x.is_positive,),
-              exclude<span class="op">=</span>(phi1_wild_args_n[<span class="dv">2</span>],))
-
-phi1_wild_d <span class="op">=</span> HornPhi1(phi1_wild_args_n[<span class="dv">0</span>:<span class="dv">2</span>],
-                       phi1_wild_args_n[<span class="dv">2</span>:<span class="dv">3</span>],
-                       <span class="op">*</span>phi1_wild_args_n[<span class="dv">3</span>:<span class="dv">5</span>])
-
-phi1_wild_n <span class="op">=</span> HornPhi1(phi1_wild_args_n[<span class="dv">0</span>:<span class="dv">2</span>],
-                       (phi1_wild_args_n[<span class="dv">2</span>] <span class="op">+</span> n_w,),
-                       <span class="op">*</span>phi1_wild_args_n[<span class="dv">3</span>:<span class="dv">5</span>])
-
-C_w <span class="op">=</span> sp.Wild(<span class="st">&#39;C_w&#39;</span>, exclude<span class="op">=</span>[sp.S.Zero])
-E_pattern <span class="op">=</span> phi1_wild_n <span class="op">/</span> phi1_wild_d
-
-E_fn <span class="op">=</span> sp.Function(<span class="st">&quot;E&quot;</span>, real<span class="op">=</span><span class="va">True</span>)</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">pnames <span class="op">=</span> (<span class="st">&#39;a&#39;</span>, <span class="st">&#39;b&#39;</span>, <span class="st">&#39;g&#39;</span>, <span class="st">&#39;z_1&#39;</span>, <span class="st">&#39;z_2&#39;</span>)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">phi1_wild_args_n <span class="op">=</span> sp.symbols(<span class="st">&#39;,&#39;</span>.join(n_ <span class="op">+</span> <span class="st">&#39;_w&#39;</span> <span class="cf">for</span> n_ <span class="kw">in</span> pnames),</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">                              cls<span class="op">=</span>sp.Wild, real<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">n_w <span class="op">=</span> sp.Wild(<span class="st">&#39;n_w&#39;</span>,</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">              properties<span class="op">=</span>(<span class="kw">lambda</span> x: x.is_integer <span class="kw">and</span> x.is_positive,),</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">              exclude<span class="op">=</span>(phi1_wild_args_n[<span class="dv">2</span>],))</a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9">phi1_wild_d <span class="op">=</span> HornPhi1(phi1_wild_args_n[<span class="dv">0</span>:<span class="dv">2</span>],</a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">                       phi1_wild_args_n[<span class="dv">2</span>:<span class="dv">3</span>],</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11">                       <span class="op">*</span>phi1_wild_args_n[<span class="dv">3</span>:<span class="dv">5</span>])</a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13">phi1_wild_n <span class="op">=</span> HornPhi1(phi1_wild_args_n[<span class="dv">0</span>:<span class="dv">2</span>],</a>
+<a class="sourceLine" id="cb3-14" data-line-number="14">                       (phi1_wild_args_n[<span class="dv">2</span>] <span class="op">+</span> n_w,),</a>
+<a class="sourceLine" id="cb3-15" data-line-number="15">                       <span class="op">*</span>phi1_wild_args_n[<span class="dv">3</span>:<span class="dv">5</span>])</a>
+<a class="sourceLine" id="cb3-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb3-17" data-line-number="17">C_w <span class="op">=</span> sp.Wild(<span class="st">&#39;C_w&#39;</span>, exclude<span class="op">=</span>[sp.S.Zero])</a>
+<a class="sourceLine" id="cb3-18" data-line-number="18">E_pattern <span class="op">=</span> phi1_wild_n <span class="op">/</span> phi1_wild_d</a>
+<a class="sourceLine" id="cb3-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb3-20" data-line-number="20">E_fn <span class="op">=</span> sp.Function(<span class="st">&quot;E&quot;</span>, real<span class="op">=</span><span class="va">True</span>)</a></code></pre></div>
 <p>When we find an <span class="math inline">\(E[X^m]\)</span> we’ll replace it with the symbolic function <code>E_fn</code>.</p>
 <p>If we focus on only one of the terms (one we know matches <code>E_pattern</code>), <code>r_1</code>, we should find that our pattern suffices:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> r_1.match(E_pattern)
-{n_w_: _n, z_2_w_: z_2, z_1_w_: z_1, a_w_: a, g_w_: g, b_w_: b}</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> r_1.match(E_pattern)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">{n_w_: _n, z_2_w_: z_2, z_1_w_: z_1, a_w_: a, g_w_: g, b_w_: b}</a></code></pre></div>
 <p>However, building up to the complexity of <code>expr</code>, we see that a simple product doesn’t:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).match(E_pattern)</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).match(E_pattern)</a></code></pre></div>
 <p>Basically, the product has introduced some problems that arise from associativity. Here are the details for the root expression tree:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).func
-<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;sympy.core.mul.Mul&#39;</span><span class="op">&gt;</span>
-<span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).args
-(a, <span class="dv">1</span><span class="op">/</span>HornPhi1(a, b, g, z_1, z_2), HornPhi1(a, b, _n <span class="op">+</span> g, z_1, z_2))</code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).func</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;sympy.core.mul.Mul&#39;</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).args</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">(a, <span class="dv">1</span><span class="op">/</span>HornPhi1(a, b, g, z_1, z_2), HornPhi1(a, b, _n <span class="op">+</span> g, z_1, z_2))</a></code></pre></div>
 <p>The root operation is multiplication and the operation’s arguments are all terms in the product/division.</p>
 <p>Any complete search for matches to <code>E_pattern</code> would have to consider all possible combinations of terms in <code>(a * r_1).args</code>, i.e. all possible groupings that arise due to associativity. The simple inclusion of another <code>Wild</code> term causes the match to succeed, since SymPy’s basic pattern matching does account for associativity in this case.</p>
 <p>Here are a few explicit ways to make the match work:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).match(C_w <span class="op">*</span> E_pattern)
-{a_w_: a, n_w_: _n, g_w_: g, z_2_w_: z_2, C_w_: a, b_w_: b, z_1_w_:
-z_1}</code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> (a <span class="op">*</span> r_1).match(C_w <span class="op">*</span> E_pattern)</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">{a_w_: a, n_w_: _n, g_w_: g, z_2_w_: z_2, C_w_: a, b_w_: b, z_1_w_:</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">z_1}</a></code></pre></div>
 <p>or as a replacement:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">res <span class="op">=</span> (a <span class="op">*</span> r_1).replace(C_w <span class="op">*</span> E_pattern, C_w <span class="op">*</span> E_fn(n_w,
-<span class="op">*</span>phi1_wild_args_n))
-<span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" data-line-number="1">res <span class="op">=</span> (a <span class="op">*</span> r_1).replace(C_w <span class="op">*</span> E_pattern, C_w <span class="op">*</span> E_fn(n_w,</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="op">*</span>phi1_wild_args_n))</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</a></code></pre></div>
 <p><span class="math display">\[\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )}
 \end{equation*}\]</span></p>
 <p>and via <code>rewriterule</code>:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> sympy.unify.rewrite <span class="im">import</span> rewriterule
-rl <span class="op">=</span> rewriterule(C_w <span class="op">*</span> E_pattern,
-                 C_w <span class="op">*</span> E_fn(n_w, <span class="op">*</span>phi1_wild_args_n),
-                 phi1_wild_args_n <span class="op">+</span> (n_w, C_w))
-res <span class="op">=</span> <span class="bu">list</span>(rl(a <span class="op">*</span> r_1))
-<span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="im">from</span> sympy.unify.rewrite <span class="im">import</span> rewriterule</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">rl <span class="op">=</span> rewriterule(C_w <span class="op">*</span> E_pattern,</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">                 C_w <span class="op">*</span> E_fn(n_w, <span class="op">*</span>phi1_wild_args_n),</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">                 phi1_wild_args_n <span class="op">+</span> (n_w, C_w))</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">res <span class="op">=</span> <span class="bu">list</span>(rl(a <span class="op">*</span> r_1))</a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</a></code></pre></div>
 <p><span class="math display">\[\begin{equation*}
 \left [ a E{\left (n,a,b,g,z_{1},z_{2} \right )}\right ]
 \end{equation*}\]</span></p>
 <p>The advantage in using <code>rewriterule</code> is that multiple matches will be returned. If we add another <span class="math inline">\(\Phi_1\)</span> in the numerator, so there are multiple possible <span class="math inline">\(E[X^m]\)</span>, we get</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">phi1_4 <span class="op">=</span> HornPhi1((a, b), (g <span class="op">+</span> n <span class="op">+</span> <span class="dv">1</span>,), z_1, z_2)
-
-res <span class="op">=</span> <span class="bu">list</span>(rl(a <span class="op">*</span> r_1 <span class="op">*</span> phi1_4))
-<span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" data-line-number="1">phi1_4 <span class="op">=</span> HornPhi1((a, b), (g <span class="op">+</span> n <span class="op">+</span> <span class="dv">1</span>,), z_1, z_2)</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3">res <span class="op">=</span> <span class="bu">list</span>(rl(a <span class="op">*</span> r_1 <span class="op">*</span> phi1_4))</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</a></code></pre></div>
 <p><span class="math display">\[\begin{equation*}
 \left [ a \operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n +
 g, \quad z_{1}, \quad z_{2}\right )\right)} E{\left (n +
@@ -299,9 +335,9 @@ z_{1}, \quad z_{2}\right )\right)} E{\left (n,a,b,g,z_{1},z_{2} \right
 \end{equation*}\]</span></p>
 <p>FYI: the associativity of terms inside the function arguments is causing the seemingly duplicate results.</p>
 <p>Naive use of <code>Expr.replace</code> doesn’t give all results; instead, it does something likely unexpected:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">res <span class="op">=</span> (a <span class="op">*</span> r_1 <span class="op">*</span> phi1_4).replace(C_w <span class="op">*</span> E_pattern,
-                                 C_w <span class="op">*</span> E_fn(n_w, <span class="op">*</span>phi1_wild_args_n))
-<span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1">res <span class="op">=</span> (a <span class="op">*</span> r_1 <span class="op">*</span> phi1_4).replace(C_w <span class="op">*</span> E_pattern,</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">                                 C_w <span class="op">*</span> E_fn(n_w, <span class="op">*</span>phi1_wild_args_n))</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</a></code></pre></div>
 <p><span class="math display">\[\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )} E{\left (n +
 1,a,b,g,z_{1},z_{2} \right )} \operatorname{\Phi_1}{\left(\left ( a,
@@ -309,9 +345,9 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )} E{\left (n +
 \end{equation*}\]</span></p>
 <p>Returning to our more complicated <code>expr</code>…Just because we can match products doesn’t mean we’re finished, since we still need a good way to traverse the entire expression tree and match the sub-trees. More importantly, adding the multiplicative <code>Wild</code> term <code>C_w</code> is more of a hack than a direct solution, since we don’t want the matched contents of <code>C_w</code>.</p>
 <p>Although <code>Expr.replace/xreplace</code> will match sub-expressions, we found above that it produces some odd results. Those results persist when applied to more complicated expressions:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">res <span class="op">=</span> expr.replace(C_w <span class="op">*</span> E_pattern, C_w <span class="op">*</span> E_fn(n_w,
-<span class="op">*</span>phi1_wild_args_n))
-<span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" data-line-number="1">res <span class="op">=</span> expr.replace(C_w <span class="op">*</span> E_pattern, C_w <span class="op">*</span> E_fn(n_w,</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="op">*</span>phi1_wild_args_n))</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</a></code></pre></div>
 <p><span class="math display">\[\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 (n,a,b,g,z_{1},z_{2} \right )} + \sum_{i=0}^{n} \left(\frac{z_{1}
@@ -326,10 +362,10 @@ b, \quad - i + g, \quad z_{1}, \quad z_{2}\right
 \quad z_{1}, \quad z_{2}\right )\right)}}\right)
 \end{equation*}\]</span></p>
 <p>Again, it looks like the matching was a little too liberal and introduced extra <code>E</code> and <code>HornPhi1</code> terms. This is to be expected from the <code>Wild</code> matching in SymPy; it needs us to specify what <em>not</em> to match, as well. Our “fix” that introduced <code>C_w</code> is the exact source of the problem, but we can tell it not to match <code>HornPhi1</code> terms and get better results:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">C_w <span class="op">=</span> sp.Wild(<span class="st">&#39;C_w&#39;</span>, exclude<span class="op">=</span>[sp.S.Zero, HornPhi1])
-res <span class="op">=</span> expr.replace(C_w <span class="op">*</span> E_pattern, C_w <span class="op">*</span> E_fn(n_w,
-<span class="op">*</span>phi1_wild_args_n))
-<span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" data-line-number="1">C_w <span class="op">=</span> sp.Wild(<span class="st">&#39;C_w&#39;</span>, exclude<span class="op">=</span>[sp.S.Zero, HornPhi1])</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">res <span class="op">=</span> expr.replace(C_w <span class="op">*</span> E_pattern, C_w <span class="op">*</span> E_fn(n_w,</a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="op">*</span>phi1_wild_args_n))</a>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</a></code></pre></div>
 <p><span class="math display">\[\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 (n,a,b,g,z_{1},z_{2} \right )} + \sum_{i=0}^{n} \left(\frac{z_{1}
@@ -343,20 +379,20 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 \quad z_{1}, \quad z_{2}\right )\right)}}\right)
 \end{equation*}\]</span></p>
 <p>We’ve stopped it from introducing those superfluous <code>E</code> terms, but we’re still not getting replacements for the <code>HornPhi1</code> ratios in the sums. Let’s single out those terms and see what’s going on:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">res <span class="op">=</span> r_2.find(C_w <span class="op">*</span> E_pattern)
-<span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" data-line-number="1">res <span class="op">=</span> r_2.find(C_w <span class="op">*</span> E_pattern)</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="bu">print</span>(sp.latex(res, mode<span class="op">=</span><span class="st">&#39;equation*&#39;</span>, itex<span class="op">=</span><span class="va">True</span>))</a></code></pre></div>
 <p><span class="math display">\[\begin{equation*}
 \left\{\right\}
 \end{equation*}\]</span></p>
 <p>The constrained integer <code>Wild</code> term, <code>n_w</code>, probably isn’t matching. Given the form of our pattern, <code>n_w</code> should match <code>n - i</code>, but <code>n - i</code> isn’t strictly positive, as required:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> (n <span class="op">-</span> i).is_positive <span class="op">==</span> <span class="va">True</span>
-<span class="va">False</span>
-<span class="op">&gt;&gt;&gt;</span> sp.ask(sp.Q.positive(n <span class="op">-</span> i)) <span class="op">==</span> <span class="va">True</span>
-<span class="va">False</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> (n <span class="op">-</span> i).is_positive <span class="op">==</span> <span class="va">True</span></a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="va">False</span></a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="op">&gt;&gt;&gt;</span> sp.ask(sp.Q.positive(n <span class="op">-</span> i)) <span class="op">==</span> <span class="va">True</span></a>
+<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="va">False</span></a></code></pre></div>
 <p>Since <span class="math inline">\(n &gt; 0\)</span> and <span class="math inline">\(i &gt;= 0\)</span>, the only missing piece is that <span class="math inline">\(n &gt; i\)</span>. The most relevant mechanism in SymPy to assess this information is the <a href="http://docs.sympy.org/dev/modules/assumptions/index.html"><code>sympy.assumptions</code></a> interface. We could add and retrieve the assumption <code>sympy.Q.is_true(n &gt; i)</code> via <code>sympy.assume.global_assumptions</code>, or perform these operations inside of a Python <code>with</code> block, etc. This context management, via <code>sympy.assumptions.assume.AssumptionsContext</code>, would have to be performed manually, since I am not aware of any such mechanism offered by <code>Sum</code> and/or <code>Basic.replace</code>.</p>
 <p>Unfortunately, these ideas sound good, but aren’t implemented:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> sp.ask(sp.Q.positive(n <span class="op">-</span> i), sp.Q.is_true(n <span class="op">&gt;</span> i)) <span class="op">==</span> <span class="va">True</span>
-<span class="va">False</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> sp.ask(sp.Q.positive(n <span class="op">-</span> i), sp.Q.is_true(n <span class="op">&gt;</span> i)) <span class="op">==</span> <span class="va">True</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="va">False</span></a></code></pre></div>
 <p>See the documentation for <code>sympy.assumptions.ask.ask</code>; it explicitely states that inequalities aren’t handled, yet.</p>
 <p>We could probably perform a manual reworking of <code>sympy.Q.is_true(n &gt; i)</code> to <code>sympy.Q.is_true(n - i &gt; 0)</code>, which is of course equivalent to <code>sympy.Q.positive(n - i)</code>: the result we want.</p>
 <p>If one were to provide this functionality, there’s still the question of how the relevant <code>AssumptionsContext</code>s would be created and passed around/nested during the subexpression replacements. There is no apparent means of adding this sort of functionality through the <code>Basic.replace</code> interface, so this path looks less appealing. However, nesting <code>with</code> blocks from strategies in <code>sympy.strategies</code> does seem quite possible. For example, in <code>sympy.strategies.traverse.sall</code>, one could possibly wrap the <code>return</code> statement after the <code>map(rule, ...)</code> call in a <code>with sympy.assuming(...):</code> block that contains the assumptions for any variables arising as, say, the index of a <code>Sum</code>–like in our case. In this scenario, code in the subexpressions would be able to ask questions like <code>sympy.Q.is_true(n &gt; i)</code> without altering the global assumptions context or the objects involved.</p>
@@ -412,47 +448,46 @@ MathJax.Hub.Config({
             <aside>
 <div id="aboutme">
         <p>
-            <img width="100%" class="img-thumbnail" src="/images/profile-pic.png"/>
+            <img width="100%" class="img-thumbnail" src="https://brandonwillard.github.io//images/profile-pic.png"/>
         </p>
     <p>
-        <strong>About Brandon T. Willard</strong><br/>
+      <strong>About Brandon T. Willard</strong><br/>
         applied math/stats person
     </p>
-</div>
+</div><!-- Sidebar -->
 <section class="well well-sm">
-    <ul class="list-group list-group-flush">
-            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
-              <ul class="list-group" id="social">
-                <li class="list-group-item"><a href="http://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
-                <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar-square ai-lg"></i> google scholar</a></li>
-                <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
-                <li class="list-group-item"><a href="https://bitbucket.org/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
-                <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> github</a></li>
-              </ul>
-            </li>
+  <ul class="list-group list-group-flush">
 
-
-
-            <li class="list-group-item"><a href="https://brandonwillard.github.io/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
-                <ul class="list-group " id="tags">
-                </ul>
-            </li>
-    </ul>
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar ai-lg"></i> google scholar</a></li>
+    <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
+    <li class="list-group-item"><a href="https://bitbucket.io/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
+    <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+  </ul>
 </section>
-            </aside>
+<!-- End Sidebar -->            </aside>
         </div>
     </div>
 </div>
+<!-- End Content Container -->
+
 <footer>
    <div class="container">
       <hr>
       <div class="row">
          <div class="col-xs-10">&copy; 2017 Brandon T. Willard
-            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
-            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>              <p><small>  <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>                <p><small>  <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
     Content
-  licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution 4.0 International License</a>, except where indicated otherwise.
+  licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en">Creative Commons Attribution-NonCommercial 4.0 International License</a>, except where indicated otherwise.
 </small></p>
          </div>
          <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
@@ -466,6 +501,7 @@ MathJax.Hub.Config({
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
 <script src="https://brandonwillard.github.io/theme/js/respond.min.js"></script>
+
 
     <!-- Disqus -->
     <script type="text/javascript">
@@ -493,6 +529,7 @@ MathJax.Hub.Config({
         ga('send', 'pageview');
     </script>
     <!-- End Google Analytics Universal Code -->
+
 
 </body>
 </html>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"
->
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
     <title>Projects - Brandon T. Willard</title>
     <!-- Using the latest rendering mode for IE -->
@@ -13,13 +12,14 @@
 <link rel="canonical" href="https://brandonwillard.github.io/pages/projects.html">
 
         <meta name="author" content="Brandon T. Willard" />
-        <meta name="description" content="Projects code{white-space: pre;} Check Github and Bitbucket to see what I’ve been up to. Otherwise, here’s a quick roundup… python-code R-code hsplus is a Python library (with R bindings) that provides estimates for quantities involving the Horseshoe and Horseshoe+ shrinkage priors. It also contains general numerical ..." />
+        <meta name="description" content="Projects code{white-space: pre;} Check Github and Bitbucket to see what I’ve been up to. Otherwise, here’s a quick roundup… python-code R-code hsplus is a Python library (with R bindings) that provides estimates for quantities involving the Horseshoe and Horseshoe+ shrinkage priors. It also contains general numerical estimation …" />
 
     <meta property="og:site_name" content="Brandon T. Willard" />
     <meta property="og:type" content="article"/>
     <meta property="og:title" content="Projects"/>
     <meta property="og:url" content="https://brandonwillard.github.io/pages/projects.html"/>
-    <meta property="og:description" content="Projects code{white-space: pre;} Check Github and Bitbucket to see what I’ve been up to. Otherwise, here’s a quick roundup… python-code R-code hsplus is a Python library (with R bindings) that provides estimates for quantities involving the Horseshoe and Horseshoe+ shrinkage priors. It also contains general numerical ..." />
+    <meta property="og:description" content="Projects code{white-space: pre;} Check Github and Bitbucket to see what I’ve been up to. Otherwise, here’s a quick roundup… python-code R-code hsplus is a Python library (with R bindings) that provides estimates for quantities involving the Horseshoe and Horseshoe+ shrinkage priors. It also contains general numerical estimation …" />
+
 
 
     <!-- Bootstrap -->
@@ -33,14 +33,17 @@
 
         <link href="https://brandonwillard.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
               title="Brandon T. Willard ATOM Feed"/>
+
         <link href="https://brandonwillard.github.io/feeds/all.rss.xml" type="application/rss+xml" rel="alternate"
               title="Brandon T. Willard RSS Feed"/>
+
+
 
 </head>
 <body>
 
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-	<div class="container">
+    <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
                 <span class="sr-only">Toggle navigation</span>
@@ -67,18 +70,19 @@ Brandon T. Willard            </a>
                         </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li><a href="https://brandonwillard.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
     </div>
 </div> <!-- /.navbar -->
+
 <!-- Banner -->
 <!-- End Banner -->
+
+<!-- Content Container -->
 <div class="container">
     <div class="row">
         <div class="col-sm-9">
-
     <section id="content" class="body">
         <h1 class="entry-title">Projects</h1>
         
@@ -91,7 +95,7 @@ Brandon T. Willard            </a>
   <meta name="generator" content="pandoc" />
   <title>Projects</title>
   <style type="text/css">code{white-space: pre;}</style>
-  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
 </head>
 <body>
 <!--  -->
@@ -102,8 +106,8 @@ Brandon T. Willard            </a>
 <!--  -->
 <!-- </div> -->
 <!--  -->
-<p>Check <a href="https://github.com/brandonwillard">Github</a> and <a href="https://bitbucket.org/brandonwillard">Bitbucket</a> to see what I’ve been up to. Otherwise, here’s a quick roundup…</p>
-<div class="project" name="hsplus" markdown="">
+<p>Check <a href="https://github.com/brandonwillard">Github</a> and <a href="https://bitbucket.io/brandonwillard">Bitbucket</a> to see what I’ve been up to. Otherwise, here’s a quick roundup…</p>
+<div class="project" name="hsplus" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg">python-code</a>
@@ -112,13 +116,12 @@ Brandon T. Willard            </a>
 <a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-r-pkg">R-code</a>
 </li>
 </ul>
-<p><code>hsplus</code> is a Python library (with R bindings) that provides estimates for quantities involving the Horseshoe and Horseshoe+ shrinkage priors.<br />
-It also contains general numerical estimation procedures for bivariate confluent hypergeometric functions, as well as symbolic SymPy implementations.</p>
+<p><code>hsplus</code> is a Python library (with R bindings) that provides estimates for quantities involving the Horseshoe and Horseshoe+ shrinkage priors. It also contains general numerical estimation procedures for bivariate confluent hypergeometric functions, as well as symbolic SymPy implementations.</p>
 </div>
-<div class="project" name="amimodels" markdown="">
+<div class="project" name="amimodels" data-markdown="">
 <ul class="project-links">
 <li>
-<a href="https://github.com/openeemeter/amimodels">code</a>
+<a href="https://github.com/brandonwillard/amimodels">code</a>
 </li>
 <li>
 <a href="https://amimodels.readthedocs.io/en/latest/methodology.html">docs</a>
@@ -126,7 +129,7 @@ It also contains general numerical estimation procedures for bivariate confluent
 </ul>
 <p><code>amimodels</code> is a Python library that provides core implementations of models designed for use with Advanced Metering Infrastructure (AMI) data in <a href="http://www.openeemeter.org/"><code>eemeter</code></a>. The implementations are fundamentally Bayesian state-space and mixture models that automatically account for the systematic changes, missing data and varied observation frequencies. The models and custom MCMC estimation methods are written in <a href="https://pymc-devs.github.io/pymc/">PyMC2</a> and—as such—are easily extensible.</p>
 </div>
-<div class="project" name="estimation examples" markdown="">
+<div class="project" name="estimation examples" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="http://andrewgelman.com/2015/02/17/bayesian-survival-analysis-horseshoe-priors/">news</a>
@@ -167,7 +170,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 </ul>
 <p><a href="https://brandonwillard.bitbucket.io/bayes-optimization/bayes-opt-rosenbrock.html">Simple, custom slice sampler</a> for the <a href="https://en.wikipedia.org/wiki/Rosenbrock_function">Rosenbrock function</a>.</p>
 </div>
-<div class="project" name="MTA Bus Time" markdown="">
+<div class="project" name="MTA Bus Time" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="http://bustime.mta.info/">site</a>
@@ -182,10 +185,10 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 <a href="https://github.com/camsys/onebusaway-nyc/commits?author=brandonwillard">code</a>
 </li>
 </ul>
-<p>Bus Time is the open source Java suite that provides real-time bus tracking to NYC. I designed and developed the <a href="https://github.com/camsys/onebusaway-nyc/wiki/Inference-Engine">statistical inference capabilities</a> and helped build the production service components. The model handles free and constrained location tracking along street networks, inference for unobserved operational states (e.g. in layover, at a stop, in progress) and path-based states (e.g. current trip, route, run), as well as inference for faulty operator input (e.g. operator ids, sign codes).</p>
+<p>Bus Time is the open source Java suite that provides real-time bus tracking to NYC. I designed and developed the <a href="https://github.com/camsys/onebusaway-nyc/wiki/Inference-Engine">statistical inference capabilities</a> and helped build the production service components. The model handles free and constrained location tracking along street networks, inference for unobserved operational states (e.g. in layover, at a stop, in progress) and path-based states (e.g. current trip, route, run), as well as inference for faulty operator input (e.g. operator ids, sign codes).</p>
 <p>In production the model handles real-time updates at ~30 second intervals for hundreds of routes and thousands of buses simultaneously. Its statistical specification is Bayesian and its estimation is performed by a custom particle filter.</p>
 </div>
-<div class="project" name="prox-methods" markdown="">
+<div class="project" name="prox-methods" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="https://bitbucket.org/prox-methods-in-stats/prox-methods-rpkg">code</a>
@@ -193,7 +196,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 </ul>
 <p><code>prox-methods</code> is a very experimental R package with C++ implementations (via Rcpp) for some of the proximal optimization methods from the paper <a href="https://projecteuclid.org/euclid.ss/1449670858">“Proximal Algorithms in Statistics and Machine Learning”</a>.</p>
 </div>
-<div class="project" name="open-tracking-tools" markdown="">
+<div class="project" name="open-tracking-tools" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="https://github.com/brandonwillard/open-tracking-tools">code</a>
@@ -201,7 +204,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 </ul>
 <p><code>open-tracking-tools</code> is an open-source vehicle tracking library that implements custom Particle Filters to infer locations, paths and on/off-road states. Given a transit graph, <code>open-tracking-tools</code> provides robust real-time Bayesian inference for noisy GPS data. <a href="http://www.opentripplanner.org/uses">OpenTripPlanner</a> graph support is built in, so street information encoded in <a href="https://www.openstreetmap.org/">OpenStreetMap</a> can be used with fairly minimal effort.</p>
 </div>
-<div class="project" name="StatsLibExtensions" markdown="">
+<div class="project" name="StatsLibExtensions" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="https://bitbucket.org/brandonwillard/statslibextensions">code</a>
@@ -209,7 +212,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 </ul>
 <p>Extensions to the <a href="https://github.com/algorithmfoundry/Foundry">Cognitive Foundry API</a> including, but not limited to, specialized distributions, sampling techniques, and numerically stable computations for Dynamic Linear Models.</p>
 </div>
-<div class="project" name="ParticleBayes" markdown="">
+<div class="project" name="ParticleBayes" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="https://bitbucket.org/brandonwillard/particlebayes">code</a>
@@ -217,7 +220,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 </ul>
 <p><code>ParticleBayes</code> is an R package implementing a collection of particle filters for hierarchical Bayesian models that perform sequential parameter estimation.</p>
 </div>
-<div class="project" name="ParticleLearningModels" markdown="">
+<div class="project" name="ParticleLearningModels" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="https://bitbucket.org/brandonwillard/particlelearningmodels">code</a>
@@ -225,7 +228,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 </ul>
 <p>Java code for Bayesian models that are estimated by Particle Filters and implement parameter learning.</p>
 </div>
-<div class="project" name="CTA-sim" markdown="">
+<div class="project" name="CTA-sim" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="https://dssg.uchicago.edu/cta-why-bus-crowding-happens-and-how-data-can-help">description</a>
@@ -239,7 +242,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 </ul>
 <p>Big data simulation of Chicago’s public transportation to improve transit planning and reduce bus crowding.</p>
 </div>
-<div class="project" name="energywise" markdown="">
+<div class="project" name="energywise" data-markdown="">
 <ul class="project-links">
 <li>
 <a href="https://github.com/dssg/energywise/wiki/Problem">description</a>
@@ -271,47 +274,46 @@ MathJax.Hub.Config({
             <aside>
 <div id="aboutme">
         <p>
-            <img width="100%" class="img-thumbnail" src="/images/profile-pic.png"/>
+            <img width="100%" class="img-thumbnail" src="https://brandonwillard.github.io//images/profile-pic.png"/>
         </p>
     <p>
-        <strong>About Brandon T. Willard</strong><br/>
+      <strong>About Brandon T. Willard</strong><br/>
         applied math/stats person
     </p>
-</div>
+</div><!-- Sidebar -->
 <section class="well well-sm">
-    <ul class="list-group list-group-flush">
-            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
-              <ul class="list-group" id="social">
-                <li class="list-group-item"><a href="http://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
-                <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar-square ai-lg"></i> google scholar</a></li>
-                <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
-                <li class="list-group-item"><a href="https://bitbucket.org/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
-                <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> github</a></li>
-              </ul>
-            </li>
+  <ul class="list-group list-group-flush">
 
-
-
-            <li class="list-group-item"><a href="https://brandonwillard.github.io/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
-                <ul class="list-group " id="tags">
-                </ul>
-            </li>
-    </ul>
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar ai-lg"></i> google scholar</a></li>
+    <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
+    <li class="list-group-item"><a href="https://bitbucket.io/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
+    <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+  </ul>
 </section>
-            </aside>
+<!-- End Sidebar -->            </aside>
         </div>
     </div>
 </div>
+<!-- End Content Container -->
+
 <footer>
    <div class="container">
       <hr>
       <div class="row">
          <div class="col-xs-10">&copy; 2017 Brandon T. Willard
-            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
-            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>              <p><small>  <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>                <p><small>  <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
     Content
-  licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution 4.0 International License</a>, except where indicated otherwise.
+  licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en">Creative Commons Attribution-NonCommercial 4.0 International License</a>, except where indicated otherwise.
 </small></p>
          </div>
          <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
@@ -325,6 +327,7 @@ MathJax.Hub.Config({
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
 <script src="https://brandonwillard.github.io/theme/js/respond.min.js"></script>
+
 
     <!-- Disqus -->
     <script type="text/javascript">
@@ -352,6 +355,7 @@ MathJax.Hub.Config({
         ga('send', 'pageview');
     </script>
     <!-- End Google Analytics Universal Code -->
+
 
 </body>
 </html>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"
->
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
     <title>A Role for Symbolic Computation in the General Estimation of Statistical Models - Brandon T. Willard</title>
     <!-- Using the latest rendering mode for IE -->
@@ -13,16 +12,17 @@
 <link rel="canonical" href="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html">
 
         <meta name="author" content="Brandon T. Willard" />
-        <meta name="description" content="A Role for Symbolic Computation in the General Estimation of Statistical Models code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; background-color: #ffffff; color: #1f1c1b; } td.lineNumbers { text-align: right; padding-right ..." />
+        <meta name="description" content="A Role for Symbolic Computation in the General Estimation of Statistical Models code{white-space: pre;} a.sourceLine { display: inline-block; line-height: 1.25; } a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; } a.sourceLine:empty { height: 1.2em; position: absolute; } .sourceCode { overflow: visible; } code.sourceCode { white-space: pre; position: relative; } div.sourceCode { margin …" />
 
         <meta property="og:site_name" content="Brandon T. Willard" />
         <meta property="og:type" content="article"/>
         <meta property="og:title" content="A Role for Symbolic Computation in the General Estimation of Statistical Models"/>
         <meta property="og:url" content="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html"/>
-        <meta property="og:description" content="A Role for Symbolic Computation in the General Estimation of Statistical Models code{white-space: pre;} div.sourceCode { overflow-x: auto; } table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode { margin: 0; padding: 0; vertical-align: baseline; border: none; } table.sourceCode { width: 100%; line-height: 100%; background-color: #ffffff; color: #1f1c1b; } td.lineNumbers { text-align: right; padding-right ..."/>
+        <meta property="og:description" content="A Role for Symbolic Computation in the General Estimation of Statistical Models code{white-space: pre;} a.sourceLine { display: inline-block; line-height: 1.25; } a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; } a.sourceLine:empty { height: 1.2em; position: absolute; } .sourceCode { overflow: visible; } code.sourceCode { white-space: pre; position: relative; } div.sourceCode { margin …"/>
         <meta property="article:published_time" content="2017-01-18" />
             <meta property="article:section" content="articles" />
             <meta property="article:author" content="Brandon T. Willard" />
+
 
 
     <!-- Bootstrap -->
@@ -36,14 +36,19 @@
 
         <link href="https://brandonwillard.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
               title="Brandon T. Willard ATOM Feed"/>
+
         <link href="https://brandonwillard.github.io/feeds/all.rss.xml" type="application/rss+xml" rel="alternate"
               title="Brandon T. Willard RSS Feed"/>
+
+
+        <link href="https://brandonwillard.github.io/feeds/articles.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Brandon T. Willard articles ATOM Feed"/>
 
 </head>
 <body>
 
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-	<div class="container">
+    <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
                 <span class="sr-only">Toggle navigation</span>
@@ -70,18 +75,19 @@ Brandon T. Willard            </a>
                         </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li><a href="https://brandonwillard.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
     </div>
 </div> <!-- /.navbar -->
+
 <!-- Banner -->
 <!-- End Banner -->
+
+<!-- Content Container -->
 <div class="container">
     <div class="row">
         <div class="col-sm-9">
-
     <section id="content">
         <article>
             <header class="page-header">
@@ -104,6 +110,8 @@ Brandon T. Willard            </a>
 
 
 
+
+
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
@@ -117,46 +125,74 @@ Brandon T. Willard            </a>
   <title>A Role for Symbolic Computation in the General Estimation of Statistical Models</title>
   <style type="text/css">code{white-space: pre;}</style>
   <style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; background-color: #ffffff; color: #1f1c1b; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; background-color: #ffffff; color: #a0a0a0; border-right: 1px solid #a0a0a0; }
-td.sourceCode { padding-left: 5px; }
-pre, code { color: #1f1c1b; background-color: #ffffff; }
-code > span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
-code > span.dt { color: #0057ae; } /* DataType */
-code > span.dv { color: #b08000; } /* DecVal */
-code > span.bn { color: #b08000; } /* BaseN */
-code > span.fl { color: #b08000; } /* Float */
-code > span.cn { color: #aa5500; } /* Constant */
-code > span.ch { color: #924c9d; } /* Char */
-code > span.sc { color: #3daee9; } /* SpecialChar */
-code > span.st { color: #bf0303; } /* String */
-code > span.vs { color: #bf0303; } /* VerbatimString */
-code > span.ss { color: #ff5500; } /* SpecialString */
-code > span.im { color: #ff5500; } /* Import */
-code > span.co { color: #898887; } /* Comment */
-code > span.do { color: #607880; } /* Documentation */
-code > span.an { color: #ca60ca; } /* Annotation */
-code > span.cv { color: #0095ff; } /* CommentVar */
-code > span.ot { color: #006e28; } /* Other */
-code > span.fu { color: #644a9b; } /* Function */
-code > span.va { color: #0057ae; } /* Variable */
-code > span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #1f1c1b; } /* Operator */
-code > span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
-code > span.ex { color: #0095ff; font-weight: bold; } /* Extension */
-code > span.pp { color: #006e28; } /* Preprocessor */
-code > span.at { color: #0057ae; } /* Attribute */
-code > span.re { color: #0057ae; } /* RegionMarker */
-code > span.in { color: #b08000; } /* Information */
-code > span.wa { color: #bf0303; } /* Warning */
-code > span.al { color: #bf0303; font-weight: bold; } /* Alert */
-code > span.er { color: #bf0303; text-decoration: underline; } /* Error */
-code > span. { color: #1f1c1b; } /* Normal */
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #a0a0a0;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+div.sourceCode
+  { color: #1f1c1b; background-color: #ffffff; }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span. { color: #1f1c1b; } /* Normal */
+code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
+code span.an { color: #ca60ca; } /* Annotation */
+code span.at { color: #0057ae; } /* Attribute */
+code span.bn { color: #b08000; } /* BaseN */
+code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
+code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #924c9d; } /* Char */
+code span.cn { color: #aa5500; } /* Constant */
+code span.co { color: #898887; } /* Comment */
+code span.cv { color: #0095ff; } /* CommentVar */
+code span.do { color: #607880; } /* Documentation */
+code span.dt { color: #0057ae; } /* DataType */
+code span.dv { color: #b08000; } /* DecVal */
+code span.er { color: #bf0303; text-decoration: underline; } /* Error */
+code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
+code span.fl { color: #b08000; } /* Float */
+code span.fu { color: #644a9b; } /* Function */
+code span.im { color: #ff5500; } /* Import */
+code span.in { color: #b08000; } /* Information */
+code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
+code span.op { color: #1f1c1b; } /* Operator */
+code span.ot { color: #006e28; } /* Other */
+code span.pp { color: #006e28; } /* Preprocessor */
+code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #ff5500; } /* SpecialString */
+code span.st { color: #bf0303; } /* String */
+code span.va { color: #0057ae; } /* Variable */
+code span.vs { color: #bf0303; } /* VerbatimString */
+code span.wa { color: #bf0303; } /* Warning */
   </style>
-  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
 </head>
 <body>
 <!--  -->
@@ -183,59 +219,59 @@ code > span. { color: #1f1c1b; } /* Normal */
 <p>Much recent work in statistical modeling and estimation has had the goal of producing sparse results and/or efficient, near automatic model selection. This objective is shared with other related practices–such as Deep Learning and Compressed Sensing. In the former case, we can point to Dropout <span class="citation" data-cites="srivastava_dropout_2014">(Srivastava et al. 2014)</span> and–in the latter–<span class="math inline">\(\ell_p\)</span> regularization <span class="citation" data-cites="donoho_compressed_2006">(Donoho 2006)</span> as basic examples.</p>
 <p>Here we’ll simply assume that a practitioner intends to produce sparse estimates using the well-known LASSO–or <span class="math inline">\(\ell_1\)</span> penalty.</p>
 <p>In PyMC3 <span class="citation" data-cites="salvatier_probabilistic_2016">(Salvatier, Wiecki, and Fonnesbeck 2016)</span>, the Bayes version of LASSO <span class="citation" data-cites="park_bayesian_2008">(Park and Casella 2008)</span> is easily specified.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> numpy <span class="im">as</span> np
-<span class="im">import</span> scipy <span class="im">as</span> sc
-
-<span class="im">import</span> pymc3 <span class="im">as</span> pm
-<span class="im">import</span> theano
-<span class="im">import</span> theano.tensor <span class="im">as</span> tt
-<span class="im">from</span> theano <span class="im">import</span> shared <span class="im">as</span> tt_shared
-
-theano.config.mode <span class="op">=</span> <span class="st">&#39;FAST_COMPILE&#39;</span>
-
-mu_true <span class="op">=</span> np.zeros(<span class="dv">100</span>)
-mu_true[:<span class="dv">20</span>] <span class="op">=</span> np.exp(<span class="op">-</span>np.arange(<span class="dv">20</span>)) <span class="op">*</span> <span class="dv">100</span>
-
-X <span class="op">=</span> np.random.randn(<span class="bu">int</span>(np.alen(mu_true) <span class="op">*</span> <span class="fl">0.7</span>), np.alen(mu_true))
-y <span class="op">=</span> sc.stats.norm.rvs(loc<span class="op">=</span>X.dot(mu_true), scale<span class="op">=</span><span class="dv">10</span>)
-
-X_tt <span class="op">=</span> tt_shared(X, name<span class="op">=</span><span class="st">&#39;X&#39;</span>, borrow<span class="op">=</span><span class="va">True</span>)
-y_tt <span class="op">=</span> tt_shared(y, name<span class="op">=</span><span class="st">&#39;y&#39;</span>, borrow<span class="op">=</span><span class="va">True</span>)
-
-<span class="cf">with</span> pm.Model() <span class="im">as</span> lasso_model:
-    <span class="co"># Would be nice if we could pass the symbolic y_tt.shape, so</span>
-    <span class="co"># that our model would automatically conform to changes in</span>
-    <span class="co"># the shared variables X_tt.</span>
-    <span class="co"># See https://github.com/pymc-devs/pymc3/pull/1125</span>
-    beta_rv <span class="op">=</span> pm.Laplace(<span class="st">&#39;beta&#39;</span>, mu<span class="op">=</span><span class="dv">0</span>, b<span class="op">=</span><span class="dv">1</span>, shape<span class="op">=</span>X.shape[<span class="dv">1</span>])
-    y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;y&#39;</span>, mu<span class="op">=</span>X_tt.dot(beta_rv), sd<span class="op">=</span><span class="dv">1</span>,
-                     shape<span class="op">=</span>y.shape[<span class="dv">0</span>], observed<span class="op">=</span>y_tt)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="im">import</span> scipy <span class="im">as</span> sc</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="im">import</span> pymc3 <span class="im">as</span> pm</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="im">import</span> theano</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="im">import</span> theano.tensor <span class="im">as</span> tt</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="im">from</span> theano <span class="im">import</span> shared <span class="im">as</span> tt_shared</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">theano.config.mode <span class="op">=</span> <span class="st">&#39;FAST_COMPILE&#39;</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">mu_true <span class="op">=</span> np.zeros(<span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">mu_true[:<span class="dv">20</span>] <span class="op">=</span> np.exp(<span class="op">-</span>np.arange(<span class="dv">20</span>)) <span class="op">*</span> <span class="dv">100</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">X <span class="op">=</span> np.random.randn(<span class="bu">int</span>(np.alen(mu_true) <span class="op">*</span> <span class="fl">0.7</span>), np.alen(mu_true))</a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">y <span class="op">=</span> sc.stats.norm.rvs(loc<span class="op">=</span>X.dot(mu_true), scale<span class="op">=</span><span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17">X_tt <span class="op">=</span> tt_shared(X, name<span class="op">=</span><span class="st">&#39;X&#39;</span>, borrow<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb1-18" data-line-number="18">y_tt <span class="op">=</span> tt_shared(y, name<span class="op">=</span><span class="st">&#39;y&#39;</span>, borrow<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="cf">with</span> pm.Model() <span class="im">as</span> lasso_model:</a>
+<a class="sourceLine" id="cb1-21" data-line-number="21">    <span class="co"># Would be nice if we could pass the symbolic y_tt.shape, so</span></a>
+<a class="sourceLine" id="cb1-22" data-line-number="22">    <span class="co"># that our model would automatically conform to changes in</span></a>
+<a class="sourceLine" id="cb1-23" data-line-number="23">    <span class="co"># the shared variables X_tt.</span></a>
+<a class="sourceLine" id="cb1-24" data-line-number="24">    <span class="co"># See https://github.com/pymc-devs/pymc3/pull/1125</span></a>
+<a class="sourceLine" id="cb1-25" data-line-number="25">    beta_rv <span class="op">=</span> pm.Laplace(<span class="st">&#39;beta&#39;</span>, mu<span class="op">=</span><span class="dv">0</span>, b<span class="op">=</span><span class="dv">1</span>, shape<span class="op">=</span>X.shape[<span class="dv">1</span>])</a>
+<a class="sourceLine" id="cb1-26" data-line-number="26">    y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;y&#39;</span>, mu<span class="op">=</span>X_tt.dot(beta_rv), sd<span class="op">=</span><span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb1-27" data-line-number="27">                     shape<span class="op">=</span>y.shape[<span class="dv">0</span>], observed<span class="op">=</span>y_tt)</a></code></pre></div>
 <p>Again, the negative total log likelihood in our example has a non-smooth <span class="math inline">\(\ell_1\)</span> term. Keeping this in mind, let’s say we wanted to produce a MAP estimate using PyMC3. A function is already provided for this task: <code>find_MAP</code>.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">with</span> lasso_model:
-    params_0 <span class="op">=</span> pm.find_MAP(<span class="bu">vars</span><span class="op">=</span>[beta_rv])</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="cf">with</span> lasso_model:</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">    params_0 <span class="op">=</span> pm.find_MAP(<span class="bu">vars</span><span class="op">=</span>[beta_rv])</a></code></pre></div>
 <p>In our run of the above, an exception was thrown due to <code>nan</code> values within the gradient evaluation. We can inspect the gradient at <span class="math inline">\(\beta = 0, 1\)</span> and reproduce the result.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">start <span class="op">=</span> pm.Point({<span class="st">&#39;beta&#39;</span>: np.zeros(X.shape[<span class="dv">1</span>])}, model<span class="op">=</span>lasso_model)
-bij <span class="op">=</span> pm.DictToArrayBijection(pm.ArrayOrdering(lasso_model.<span class="bu">vars</span>),
-start)
-logp <span class="op">=</span> bij.mapf(lasso_model.fastlogp)
-dlogp <span class="op">=</span> bij.mapf(lasso_model.fastdlogp(lasso_model.<span class="bu">vars</span>))
-
-<span class="co"># Could also inspect the log likelihood of the prior:</span>
-<span class="co"># beta_rv.dlogp().f(np.zeros_like(start[&#39;beta&#39;]))</span>
-
-grad_at_0 <span class="op">=</span> dlogp(np.zeros_like(start[<span class="st">&#39;beta&#39;</span>]))
-grad_at_1 <span class="op">=</span> dlogp(np.ones_like(start[<span class="st">&#39;beta&#39;</span>]))</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(np.<span class="bu">sum</span>(np.isnan(grad_at_0)))
-<span class="dv">100</span>
-<span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(np.<span class="bu">sum</span>(np.isnan(grad_at_1)))
-<span class="dv">0</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">start <span class="op">=</span> pm.Point({<span class="st">&#39;beta&#39;</span>: np.zeros(X.shape[<span class="dv">1</span>])}, model<span class="op">=</span>lasso_model)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">bij <span class="op">=</span> pm.DictToArrayBijection(pm.ArrayOrdering(lasso_model.<span class="bu">vars</span>),</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">start)</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">logp <span class="op">=</span> bij.mapf(lasso_model.fastlogp)</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">dlogp <span class="op">=</span> bij.mapf(lasso_model.fastdlogp(lasso_model.<span class="bu">vars</span>))</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co"># Could also inspect the log likelihood of the prior:</span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co"># beta_rv.dlogp().f(np.zeros_like(start[&#39;beta&#39;]))</span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">grad_at_0 <span class="op">=</span> dlogp(np.zeros_like(start[<span class="st">&#39;beta&#39;</span>]))</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11">grad_at_1 <span class="op">=</span> dlogp(np.ones_like(start[<span class="st">&#39;beta&#39;</span>]))</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(np.<span class="bu">sum</span>(np.isnan(grad_at_0)))</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="dv">100</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(np.<span class="bu">sum</span>(np.isnan(grad_at_1)))</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="dv">0</span></a></code></pre></div>
 <p>The s are not due to any short-coming of PyMC3; they only demonstrate a suitable place for our ideas and improvements. Additionally, by working within PyMC3, we can readily apply certain mathematical results. For instance, theorems that apply only to distributions. This idea is more relevant to the graph optimizations we consider later, but is still very important.</p>
 </section>
 </section>
 <section id="the-proximal-context" class="level1">
 <h1>The Proximal Context</h1>
 <p>We start with the essential ingredient: the proximal operator.</p>
-<div class="Def" markdown="" env-number="1" title-name="[Proximal Operator]">
+<div class="Def" data-markdown="" data-env-number="1" data-title-name="[Proximal Operator]">
 <p><span class="math display">\[\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
     \operatorname*{argmin}_{z} \left\{
@@ -252,17 +288,17 @@ grad_at_1 <span class="op">=</span> dlogp(np.ones_like(start[<span class="st">&#
 \end{equation}\]</span> where functions <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> are commonly referred to as likelihood and prior terms (or loss and penalty), respectively. The proximal framework usually assumes <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> are at least lower semi-continuous and convex–although quite a few useful results still hold for non-convex functions.</p>
 <p>Notice that Equation <span class="math inline">\(\eqref{eq:prox_problem}\)</span> takes the form of a proximal operator when <span class="math inline">\(l(\beta) = \frac{1}{2} (y - \beta)^2\)</span>. Otherwise, in regression problems, we have <span class="math inline">\(l(\beta) = \frac{1}{2} \|y - X \beta\|^2\)</span>. In this case, properties of the proximal operator can be used to produce independent proximal operators in each dimension of <span class="math inline">\(\beta\)</span>. Since more than one property of the proximal operator can accomplish this–and result in distinct approaches–one might begin to see here a reason for the breadth of proximal methods.</p>
 <p>The proximal operator relevant to our example, <span class="math inline">\(\operatorname*{prox}_{|\cdot|}\)</span>, is equivalent to the soft-thresholding operator. Its implementation in Theano is somewhat trivial, but–for the sake of exposition–we provide an example.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">beta_tt <span class="op">=</span> tt.vector(<span class="st">&#39;beta&#39;</span>, dtype<span class="op">=</span>tt.config.floatX)
-beta_tt.tag.test_value <span class="op">=</span> np.r_[<span class="op">-</span><span class="dv">10</span>, <span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="dv">0</span>, <span class="fl">0.2</span>, <span class="dv">1</span>,
-<span class="dv">10</span>].astype(tt.config.floatX)
-
-lambda_tt <span class="op">=</span> tt.scalar(<span class="st">&#39;lambda&#39;</span>, dtype<span class="op">=</span>tt.config.floatX)
-lambda_tt.tag.test_value <span class="op">=</span> np.array(<span class="fl">0.5</span>).astype(tt.config.floatX)
-
-<span class="kw">def</span> soft_threshold(beta_, lambda_):
-    <span class="cf">return</span> tt.sgn(beta_) <span class="op">*</span> tt.maximum(tt.abs_(beta_) <span class="op">-</span> lambda_, <span class="dv">0</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(soft_threshold(beta_tt, lambda_tt).tag.test_value)
-[<span class="op">-</span><span class="fl">9.5</span> <span class="op">-</span><span class="fl">0.5</span> <span class="op">-</span><span class="dv">0</span>.   <span class="dv">0</span>.   <span class="dv">0</span>.   <span class="fl">0.5</span>  <span class="fl">9.5</span>]</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1">beta_tt <span class="op">=</span> tt.vector(<span class="st">&#39;beta&#39;</span>, dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">beta_tt.tag.test_value <span class="op">=</span> np.r_[<span class="op">-</span><span class="dv">10</span>, <span class="dv">-1</span>, <span class="fl">-0.2</span>, <span class="dv">0</span>, <span class="fl">0.2</span>, <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="dv">10</span>].astype(tt.config.floatX)</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">lambda_tt <span class="op">=</span> tt.scalar(<span class="st">&#39;lambda&#39;</span>, dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">lambda_tt.tag.test_value <span class="op">=</span> np.array(<span class="fl">0.5</span>).astype(tt.config.floatX)</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw">def</span> soft_threshold(beta_, lambda_):</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">    <span class="cf">return</span> tt.sgn(beta_) <span class="op">*</span> tt.maximum(tt.abs_(beta_) <span class="op">-</span> lambda_, <span class="dv">0</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(soft_threshold(beta_tt, lambda_tt).tag.test_value)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">[<span class="op">-</span><span class="fl">9.5</span> <span class="fl">-0.5</span> <span class="fl">-0.</span>   <span class="fl">0.</span>   <span class="fl">0.</span>   <span class="fl">0.5</span>  <span class="fl">9.5</span>]</a></code></pre></div>
 <p>Proximal operators can be composed with a gradient step to produce the <em>proximal gradient</em> algorithm: <span class="math display">\[\begin{equation}
 \beta = \operatorname*{prox}_{\alpha \lambda \phi}(\beta - \alpha \nabla l(\beta))
   \;.
@@ -274,218 +310,218 @@ lambda_tt.tag.test_value <span class="op">=</span> np.array(<span class="fl">0.5
 <h1>The Symbolic Operations</h1>
 <p>In order to identify a relevant, non-smooth problem, check that a given proximal method’s conditions are satisfied (e.g. convexity), and potentially solve the resulting proximal operators in closed-form, we need to obtain expressions for <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span>.</p>
 <p>In some cases, we’re able to tease apart <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> using only the interface provided by PyMC3. Specifically, the <em>observed</em> and <em>unobserved</em> random variable fields in PyMC3 models.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> theano <span class="im">import</span> clone <span class="im">as</span> tt_clone
-
-logl <span class="op">=</span> tt_clone(lasso_model.observed_RVs[<span class="dv">0</span>].logpt,
-                {beta_rv: beta_tt})
-logl.name <span class="op">=</span> <span class="st">&quot;logl&quot;</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="im">from</span> theano <span class="im">import</span> clone <span class="im">as</span> tt_clone</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">logl <span class="op">=</span> tt_clone(lasso_model.observed_RVs[<span class="dv">0</span>].logpt,</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">                {beta_rv: beta_tt})</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">logl.name <span class="op">=</span> <span class="st">&quot;logl&quot;</span></a></code></pre></div>
 <p>Instead, let’s assume we’re extending <code>find_MAP</code> with even more generality, so that we can’t determine <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> in this way. This situation can occur when a user specifies custom distributions or potential functions. Regardless, we need to operate at a more symbolic level.</p>
-<div class="remark" markdown="" env-number="1" title-name="">
+<div class="remark" data-markdown="" data-env-number="1" data-title-name="">
 <p>At this point, it is extremely worthwhile to browse the <a href="http://deeplearning.net/software/theano/extending/graphstructures.html">Theano documentation</a> regarding graphs and their constituent objects.</p>
 </div>
 <p>The total log-likelihood is a good place to start. Let’s look at the symbolic graph for the log-likelihood of our model.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> theano <span class="im">import</span> pp <span class="im">as</span> tt_pp
-<span class="im">from</span> theano <span class="im">import</span> pprint <span class="im">as</span> tt_pprint</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(tt_pp(lasso_model.logpt))
-(Sum{acc_dtype<span class="op">=</span>float64}(Sum{acc_dtype<span class="op">=</span>float64}(((<span class="op">-</span>log(TensorConstant{<span class="dv">2</span>}))
-<span class="op">-</span> (<span class="op">|</span>(<span class="op">\</span>beta <span class="op">-</span> TensorConstant{<span class="dv">0</span>})<span class="op">|</span> <span class="op">/</span> TensorConstant{<span class="dv">1</span>})))) <span class="op">+</span>
-Sum{acc_dtype<span class="op">=</span>float64}(Sum{acc_dtype<span class="op">=</span>float64}(switch(TensorConstant{<span class="dv">1</span>},
-(((TensorConstant{<span class="op">-</span><span class="fl">1.0</span>} <span class="op">*</span> ((y <span class="op">-</span> (X <span class="op">\</span>dot <span class="op">\</span>beta)) <span class="op">**</span> TensorConstant{<span class="dv">2</span>}))
-<span class="op">+</span> log(TensorConstant{<span class="fl">0.159154943092</span>})) <span class="op">/</span> TensorConstant{<span class="fl">2.0</span>}),
-TensorConstant{<span class="op">-</span>inf}))))</code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="im">from</span> theano <span class="im">import</span> pp <span class="im">as</span> tt_pp</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="im">from</span> theano <span class="im">import</span> pprint <span class="im">as</span> tt_pprint</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(tt_pp(lasso_model.logpt))</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">(Sum{acc_dtype<span class="op">=</span>float64}(Sum{acc_dtype<span class="op">=</span>float64}(((<span class="op">-</span>log(TensorConstant{<span class="dv">2</span>}))</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="op">-</span> (<span class="op">|</span>(<span class="op">\</span>beta <span class="op">-</span> TensorConstant{<span class="dv">0</span>})<span class="op">|</span> <span class="op">/</span> TensorConstant{<span class="dv">1</span>})))) <span class="op">+</span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">Sum{acc_dtype<span class="op">=</span>float64}(Sum{acc_dtype<span class="op">=</span>float64}(switch(TensorConstant{<span class="dv">1</span>},</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">(((TensorConstant{<span class="op">-</span><span class="fl">1.0</span>} <span class="op">*</span> ((y <span class="op">-</span> (X <span class="op">\</span>dot <span class="op">\</span>beta)) <span class="op">**</span> TensorConstant{<span class="dv">2</span>}))</a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="op">+</span> log(TensorConstant{<span class="fl">0.159154943092</span>})) <span class="op">/</span> TensorConstant{<span class="fl">2.0</span>}),</a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">TensorConstant{<span class="op">-</span>inf}))))</a></code></pre></div>
 <p>The <a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#pretty-printing">pretty printed</a> Theano graph tells us–among other things–that we indeed have a sum of <span class="math inline">\(\ell_2\)</span> and <span class="math inline">\(\ell_1\)</span> terms, although they are found among other confusing results (such as a <code>switch</code> statement).</p>
 <p>As with most graphs produced by symbolic algebra systems, we need to understand how operations and objects are expressed in a graph and exactly which ones are relevant to us. After doing so, we can develop a means of finding what we want. The <a href="http://deeplearning.net/software/theano/tutorial/printing_drawing.html#debug-print">debug printout</a> is often a better visual summary of graphs, since it expresses branches clearly.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(lasso_model.logpt)
-Elemwise{add,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> B] <span class="st">&#39;&#39;</span>
- <span class="op">|</span> <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> C] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>     <span class="op">|</span> <span class="op">|</span>Elemwise{neg,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>     <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>     <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> H]
- <span class="op">|</span>     <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>       <span class="op">|</span>Elemwise{abs_,no_inplace} [<span class="bu">id</span> J] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>       <span class="op">|</span> <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>       <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> L]
- <span class="op">|</span>       <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> M] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>       <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">0</span>} [<span class="bu">id</span> N]
- <span class="op">|</span>       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> O] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>         <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> P]
- <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> Q] <span class="st">&#39;&#39;</span>
-   <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> R] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span>Elemwise{switch,no_inplace} [<span class="bu">id</span> S] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> T] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> P]
-       <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> U] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> V] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> W] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> X] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="op">-</span><span class="fl">1.0</span>} [<span class="bu">id</span> Y]
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{<span class="bu">pow</span>,no_inplace} [<span class="bu">id</span> Z] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> BA] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>y [<span class="bu">id</span> BB]
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>dot [<span class="bu">id</span> BC] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>X [<span class="bu">id</span> BD]
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> L]
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BE] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> H]
-       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BF] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> BG] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="fl">0.159154943092</span>} [<span class="bu">id</span> BH]
-       <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BI] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span>   <span class="op">|</span>TensorConstant{<span class="fl">2.0</span>} [<span class="bu">id</span> BJ]
-       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BK] <span class="st">&#39;&#39;</span>
-         <span class="op">|</span>TensorConstant{<span class="op">-</span>inf} [<span class="bu">id</span> BL]</code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(lasso_model.logpt)</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">Elemwise{add,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"> <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> B] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"> <span class="op">|</span> <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> C] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"> <span class="op">|</span>   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"> <span class="op">|</span>     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"> <span class="op">|</span>     <span class="op">|</span> <span class="op">|</span>Elemwise{neg,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8"> <span class="op">|</span>     <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-9" data-line-number="9"> <span class="op">|</span>     <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> H]</a>
+<a class="sourceLine" id="cb10-10" data-line-number="10"> <span class="op">|</span>     <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-11" data-line-number="11"> <span class="op">|</span>       <span class="op">|</span>Elemwise{abs_,no_inplace} [<span class="bu">id</span> J] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-12" data-line-number="12"> <span class="op">|</span>       <span class="op">|</span> <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-13" data-line-number="13"> <span class="op">|</span>       <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> L]</a>
+<a class="sourceLine" id="cb10-14" data-line-number="14"> <span class="op">|</span>       <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> M] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-15" data-line-number="15"> <span class="op">|</span>       <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">0</span>} [<span class="bu">id</span> N]</a>
+<a class="sourceLine" id="cb10-16" data-line-number="16"> <span class="op">|</span>       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> O] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-17" data-line-number="17"> <span class="op">|</span>         <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> P]</a>
+<a class="sourceLine" id="cb10-18" data-line-number="18"> <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> Q] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-19" data-line-number="19">   <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> R] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-20" data-line-number="20">     <span class="op">|</span>Elemwise{switch,no_inplace} [<span class="bu">id</span> S] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-21" data-line-number="21">       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> T] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-22" data-line-number="22">       <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> P]</a>
+<a class="sourceLine" id="cb10-23" data-line-number="23">       <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> U] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-24" data-line-number="24">       <span class="op">|</span> <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> V] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-25" data-line-number="25">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> W] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-26" data-line-number="26">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> X] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-27" data-line-number="27">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="op">-</span><span class="fl">1.0</span>} [<span class="bu">id</span> Y]</a>
+<a class="sourceLine" id="cb10-28" data-line-number="28">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{<span class="bu">pow</span>,no_inplace} [<span class="bu">id</span> Z] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-29" data-line-number="29">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> BA] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-30" data-line-number="30">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>y [<span class="bu">id</span> BB]</a>
+<a class="sourceLine" id="cb10-31" data-line-number="31">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>dot [<span class="bu">id</span> BC] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-32" data-line-number="32">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>X [<span class="bu">id</span> BD]</a>
+<a class="sourceLine" id="cb10-33" data-line-number="33">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> L]</a>
+<a class="sourceLine" id="cb10-34" data-line-number="34">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BE] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-35" data-line-number="35">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> H]</a>
+<a class="sourceLine" id="cb10-36" data-line-number="36">       <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BF] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-37" data-line-number="37">       <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> BG] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-38" data-line-number="38">       <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="fl">0.159154943092</span>} [<span class="bu">id</span> BH]</a>
+<a class="sourceLine" id="cb10-39" data-line-number="39">       <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BI] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-40" data-line-number="40">       <span class="op">|</span>   <span class="op">|</span>TensorConstant{<span class="fl">2.0</span>} [<span class="bu">id</span> BJ]</a>
+<a class="sourceLine" id="cb10-41" data-line-number="41">       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> BK] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb10-42" data-line-number="42">         <span class="op">|</span>TensorConstant{<span class="op">-</span>inf} [<span class="bu">id</span> BL]</a></code></pre></div>
 <p>We see that the top-most operator is an <code>Elemwise</code> that applies the scalar <code>add</code> operation. This is the “<span class="math inline">\(+\)</span>” in <span class="math inline">\(l + \phi\)</span>. If we were to consider the inputs of this operator as candidates for <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span>, then we could do the following:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(lasso_model.logpt.owner.inputs)
-[Sum{acc_dtype<span class="op">=</span>float64}.<span class="dv">0</span>, Sum{acc_dtype<span class="op">=</span>float64}.<span class="dv">0</span>]</code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(lasso_model.logpt.owner.inputs)</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">[Sum{acc_dtype<span class="op">=</span>float64}.<span class="dv">0</span>, Sum{acc_dtype<span class="op">=</span>float64}.<span class="dv">0</span>]</a></code></pre></div>
 <p>Starting from the sub-graphs of each term, we could then search for any non-smooth functions that have known closed-form proximal operators. In our case, we only consider the absolute value function.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_abs_between(input_node):
-    <span class="co">&quot;&quot;&quot; Search for `abs` in the operations between our input and the</span>
-<span class="co">    log-likelihood output node.</span>
-<span class="co">    &quot;&quot;&quot;</span>
-    term_ops <span class="op">=</span> <span class="bu">list</span>(tt.gof.graph.ops([input_node],
-[lasso_model.logpt]))
-
-    <span class="co"># Is there an absolute value in there?</span>
-    <span class="cf">return</span> <span class="bu">filter</span>(<span class="kw">lambda</span> x: x.op <span class="kw">is</span> tt.abs_, term_ops)
-
-abs_res <span class="op">=</span> [(get_abs_between(in_), in_)
-           <span class="cf">for</span> in_ <span class="kw">in</span> lasso_model.logpt.owner.inputs]
-
-<span class="cf">for</span> r_ <span class="kw">in</span> abs_res:
-    <span class="cf">if</span> <span class="bu">len</span>(r_[<span class="dv">0</span>]) <span class="op">==</span> <span class="dv">0</span>:
-        phi <span class="op">=</span> r_[<span class="dv">1</span>]
-    <span class="cf">else</span>:
-        logp <span class="op">=</span> r_[<span class="dv">1</span>]</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(logp)
-Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> B] <span class="st">&#39;&#39;</span>
-   <span class="op">|</span>Elemwise{switch,no_inplace} [<span class="bu">id</span> C] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> E]
-     <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="op">-</span><span class="fl">1.0</span>} [<span class="bu">id</span> J]
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{<span class="bu">pow</span>,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>y [<span class="bu">id</span> M]
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>dot [<span class="bu">id</span> N] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>X [<span class="bu">id</span> O]
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> P]
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> Q] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> R]
-     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> S] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> T] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="fl">0.159154943092</span>} [<span class="bu">id</span> U]
-     <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> V] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span>   <span class="op">|</span>TensorConstant{<span class="fl">2.0</span>} [<span class="bu">id</span> W]
-     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> X] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span>TensorConstant{<span class="op">-</span>inf} [<span class="bu">id</span> Y]
-<span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(phi)
-Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>
- <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> B] <span class="st">&#39;&#39;</span>
-   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> C] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span> <span class="op">|</span>Elemwise{neg,no_inplace} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>
-     <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> G]
-     <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span>Elemwise{abs_,no_inplace} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span> <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> J] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> K]
-       <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span>
-       <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">0</span>} [<span class="bu">id</span> M]
-       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> N] <span class="st">&#39;&#39;</span>
-         <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> O]</code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">def</span> get_abs_between(input_node):</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2">    <span class="co">&quot;&quot;&quot; Search for `abs` in the operations between our input and the</span></a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="co">    log-likelihood output node.</span></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co">    &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5">    term_ops <span class="op">=</span> <span class="bu">list</span>(tt.gof.graph.ops([input_node],</a>
+<a class="sourceLine" id="cb12-6" data-line-number="6">[lasso_model.logpt]))</a>
+<a class="sourceLine" id="cb12-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8">    <span class="co"># Is there an absolute value in there?</span></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9">    <span class="cf">return</span> <span class="bu">filter</span>(<span class="kw">lambda</span> x: x.op <span class="kw">is</span> tt.abs_, term_ops)</a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb12-11" data-line-number="11">abs_res <span class="op">=</span> [(get_abs_between(in_), in_)</a>
+<a class="sourceLine" id="cb12-12" data-line-number="12">           <span class="cf">for</span> in_ <span class="kw">in</span> lasso_model.logpt.owner.inputs]</a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="cf">for</span> r_ <span class="kw">in</span> abs_res:</a>
+<a class="sourceLine" id="cb12-15" data-line-number="15">    <span class="cf">if</span> <span class="bu">len</span>(r_[<span class="dv">0</span>]) <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb12-16" data-line-number="16">        phi <span class="op">=</span> r_[<span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb12-17" data-line-number="17">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb12-18" data-line-number="18">        logp <span class="op">=</span> r_[<span class="dv">1</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(logp)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"> <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> B] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">   <span class="op">|</span>Elemwise{switch,no_inplace} [<span class="bu">id</span> C] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5">     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6">     <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> E]</a>
+<a class="sourceLine" id="cb13-7" data-line-number="7">     <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8">     <span class="op">|</span> <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-11" data-line-number="11">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="op">-</span><span class="fl">1.0</span>} [<span class="bu">id</span> J]</a>
+<a class="sourceLine" id="cb13-12" data-line-number="12">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>Elemwise{<span class="bu">pow</span>,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-13" data-line-number="13">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-14" data-line-number="14">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>y [<span class="bu">id</span> M]</a>
+<a class="sourceLine" id="cb13-15" data-line-number="15">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span> <span class="op">|</span>dot [<span class="bu">id</span> N] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-16" data-line-number="16">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>X [<span class="bu">id</span> O]</a>
+<a class="sourceLine" id="cb13-17" data-line-number="17">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> P]</a>
+<a class="sourceLine" id="cb13-18" data-line-number="18">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> Q] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-19" data-line-number="19">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> R]</a>
+<a class="sourceLine" id="cb13-20" data-line-number="20">     <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> S] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-21" data-line-number="21">     <span class="op">|</span> <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> T] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-22" data-line-number="22">     <span class="op">|</span> <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="fl">0.159154943092</span>} [<span class="bu">id</span> U]</a>
+<a class="sourceLine" id="cb13-23" data-line-number="23">     <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> V] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-24" data-line-number="24">     <span class="op">|</span>   <span class="op">|</span>TensorConstant{<span class="fl">2.0</span>} [<span class="bu">id</span> W]</a>
+<a class="sourceLine" id="cb13-25" data-line-number="25">     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> X] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-26" data-line-number="26">       <span class="op">|</span>TensorConstant{<span class="op">-</span>inf} [<span class="bu">id</span> Y]</a>
+<a class="sourceLine" id="cb13-27" data-line-number="27"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(phi)</a>
+<a class="sourceLine" id="cb13-28" data-line-number="28">Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-29" data-line-number="29"> <span class="op">|</span>Sum{acc_dtype<span class="op">=</span>float64} [<span class="bu">id</span> B] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-30" data-line-number="30">   <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> C] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-31" data-line-number="31">     <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-32" data-line-number="32">     <span class="op">|</span> <span class="op">|</span>Elemwise{neg,no_inplace} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-33" data-line-number="33">     <span class="op">|</span>   <span class="op">|</span>Elemwise{log,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-34" data-line-number="34">     <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> G]</a>
+<a class="sourceLine" id="cb13-35" data-line-number="35">     <span class="op">|</span>Elemwise{true_div,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-36" data-line-number="36">       <span class="op">|</span>Elemwise{abs_,no_inplace} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-37" data-line-number="37">       <span class="op">|</span> <span class="op">|</span>Elemwise{sub,no_inplace} [<span class="bu">id</span> J] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-38" data-line-number="38">       <span class="op">|</span>   <span class="op">|</span>beta [<span class="bu">id</span> K]</a>
+<a class="sourceLine" id="cb13-39" data-line-number="39">       <span class="op">|</span>   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-40" data-line-number="40">       <span class="op">|</span>     <span class="op">|</span>TensorConstant{<span class="dv">0</span>} [<span class="bu">id</span> M]</a>
+<a class="sourceLine" id="cb13-41" data-line-number="41">       <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> N] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb13-42" data-line-number="42">         <span class="op">|</span>TensorConstant{<span class="dv">1</span>} [<span class="bu">id</span> O]</a></code></pre></div>
 <p>The above approach is still too limiting; we need something more robust. For instance, our logic could fail on graphs that are expressed as <span class="math inline">\(\eta (l + \phi) + 1\)</span>–although a graph for the equivalent expression <span class="math inline">\(\eta l + \eta \phi + \eta\)</span> might succeed. These are types of weaknesses inherent to naive approaches like ours. Furthermore, sufficient logic that uses a similar approach is likely to result in complicated and less approachable code.</p>
 <p>The appropriate computational tools are found in the subjects of graph unification and term rewriting, as well as the areas of functional and logic programming. Luckily, Theano provides some basic unification capabilities through its <code>PatternSub</code> class.</p>
 <p><code>PatternSub</code> works within the context of Theano <a href="http://deeplearning.net/software/theano/optimizations.html">graph optimization</a>. Graph optimizations perform the common symbolic operations of reduction/simplification and rewriting. Consider the <code>phi</code> variable; the print-outs show an unnecessary subtraction with <span class="math inline">\(0\)</span>. Clearly this step is unnecessary, so–in a basic way–we can see that the graph hasn’t been simplified, yet.</p>
 <p>Many standard algebraic simplifications are already present in Theano, and, by creating our own graph optimizations, we can provide the advanced functionality we’ve been alluding to.</p>
-<div class="example" markdown="" env-number="1" title-name="[Algebraic Graph Optimization]">
+<div class="example" data-markdown="" data-env-number="1" data-title-name="[Algebraic Graph Optimization]">
 <p>As a quick demonstration, we’ll make replacement patterns for multiplicative distribution across two forms of addition: <code>sum</code> and <code>add</code>.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">test_a_tt <span class="op">=</span> tt.as_tensor_variable(<span class="dv">5</span>, name<span class="op">=</span><span class="st">&#39;a&#39;</span>)
-test_b_tt <span class="op">=</span> tt.as_tensor_variable(<span class="dv">2</span>, name<span class="op">=</span><span class="st">&#39;b&#39;</span>)
-test_c_tt <span class="op">=</span> tt.as_tensor_variable(np.r_[<span class="dv">1</span>, <span class="dv">2</span>], name<span class="op">=</span><span class="st">&#39;c&#39;</span>)
-
-test_exprs_tt <span class="op">=</span> (test_a_tt <span class="op">*</span> test_b_tt,)
-test_exprs_tt <span class="op">+=</span> (test_a_tt <span class="op">*</span> (test_b_tt <span class="op">+</span> test_a_tt),)
-test_exprs_tt <span class="op">+=</span> (test_a_tt <span class="op">*</span> (test_c_tt <span class="op">+</span> test_a_tt),)
-test_exprs_tt <span class="op">+=</span> (test_a_tt <span class="op">*</span> (test_c_tt <span class="op">+</span> test_c_tt),)
-
-mul_dist_pat_tt <span class="op">=</span> (tt.gof.opt.PatternSub(
-    (tt.mul, <span class="st">&#39;x&#39;</span>, (tt.<span class="bu">sum</span>, <span class="st">&#39;y&#39;</span>, <span class="st">&#39;z&#39;</span>)),
-    (tt.<span class="bu">sum</span>, (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>), (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;z&#39;</span>))
-),)
-mul_dist_pat_tt <span class="op">+=</span> (tt.gof.opt.PatternSub(
-    (tt.mul, <span class="st">&#39;x&#39;</span>, (tt.add, <span class="st">&#39;y&#39;</span>, <span class="st">&#39;z&#39;</span>)),
-    (tt.add, (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>), (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;z&#39;</span>))
-),)</code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" data-line-number="1">test_a_tt <span class="op">=</span> tt.as_tensor_variable(<span class="dv">5</span>, name<span class="op">=</span><span class="st">&#39;a&#39;</span>)</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">test_b_tt <span class="op">=</span> tt.as_tensor_variable(<span class="dv">2</span>, name<span class="op">=</span><span class="st">&#39;b&#39;</span>)</a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">test_c_tt <span class="op">=</span> tt.as_tensor_variable(np.r_[<span class="dv">1</span>, <span class="dv">2</span>], name<span class="op">=</span><span class="st">&#39;c&#39;</span>)</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb14-5" data-line-number="5">test_exprs_tt <span class="op">=</span> (test_a_tt <span class="op">*</span> test_b_tt,)</a>
+<a class="sourceLine" id="cb14-6" data-line-number="6">test_exprs_tt <span class="op">+=</span> (test_a_tt <span class="op">*</span> (test_b_tt <span class="op">+</span> test_a_tt),)</a>
+<a class="sourceLine" id="cb14-7" data-line-number="7">test_exprs_tt <span class="op">+=</span> (test_a_tt <span class="op">*</span> (test_c_tt <span class="op">+</span> test_a_tt),)</a>
+<a class="sourceLine" id="cb14-8" data-line-number="8">test_exprs_tt <span class="op">+=</span> (test_a_tt <span class="op">*</span> (test_c_tt <span class="op">+</span> test_c_tt),)</a>
+<a class="sourceLine" id="cb14-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb14-10" data-line-number="10">mul_dist_pat_tt <span class="op">=</span> (tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="cb14-11" data-line-number="11">    (tt.mul, <span class="st">&#39;x&#39;</span>, (tt.<span class="bu">sum</span>, <span class="st">&#39;y&#39;</span>, <span class="st">&#39;z&#39;</span>)),</a>
+<a class="sourceLine" id="cb14-12" data-line-number="12">    (tt.<span class="bu">sum</span>, (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>), (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;z&#39;</span>))</a>
+<a class="sourceLine" id="cb14-13" data-line-number="13">),)</a>
+<a class="sourceLine" id="cb14-14" data-line-number="14">mul_dist_pat_tt <span class="op">+=</span> (tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="cb14-15" data-line-number="15">    (tt.mul, <span class="st">&#39;x&#39;</span>, (tt.add, <span class="st">&#39;y&#39;</span>, <span class="st">&#39;z&#39;</span>)),</a>
+<a class="sourceLine" id="cb14-16" data-line-number="16">    (tt.add, (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>), (tt.mul, <span class="st">&#39;x&#39;</span>, <span class="st">&#39;z&#39;</span>))</a>
+<a class="sourceLine" id="cb14-17" data-line-number="17">),)</a></code></pre></div>
 <p>Substitutions can be applied to an objective function until it is in a fully-reduced form: <code>EquilibriumOptimizer</code> provides this functionality.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">test_sub_eqz_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(
-    mul_dist_pat_tt, max_use_ratio<span class="op">=</span><span class="dv">10</span>)
-
-test_fgraph_tt <span class="op">=</span> tt.gof.fg.FunctionGraph(
-    tt.gof.graph.inputs(test_exprs_tt), test_exprs_tt)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(test_fgraph_tt)
-Elemwise{mul,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>   <span class="dv">5</span>
- <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
- <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> C]
-Elemwise{mul,no_inplace} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>   <span class="dv">8</span>
- <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
- <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span>   <span class="dv">4</span>
-   <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> C]
-   <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
-Elemwise{mul,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>   <span class="dv">9</span>
- <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span>   <span class="dv">3</span>
- <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
- <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span>   <span class="dv">7</span>
-   <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> I]
-   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> J] <span class="st">&#39;&#39;</span>   <span class="dv">2</span>
-     <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
-Elemwise{mul,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span>   <span class="dv">6</span>
- <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span>   <span class="dv">1</span>
- <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
- <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> M] <span class="st">&#39;&#39;</span>   <span class="dv">0</span>
-   <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> I]
-   <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> I]</code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" data-line-number="1">test_sub_eqz_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2">    mul_dist_pat_tt, max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb15-4" data-line-number="4">test_fgraph_tt <span class="op">=</span> tt.gof.fg.FunctionGraph(</a>
+<a class="sourceLine" id="cb15-5" data-line-number="5">    tt.gof.graph.inputs(test_exprs_tt), test_exprs_tt)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(test_fgraph_tt)</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">Elemwise{mul,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>   <span class="dv">5</span></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"> <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> C]</a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">Elemwise{mul,no_inplace} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>   <span class="dv">8</span></a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb16-7" data-line-number="7"> <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span>   <span class="dv">4</span></a>
+<a class="sourceLine" id="cb16-8" data-line-number="8">   <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> C]</a>
+<a class="sourceLine" id="cb16-9" data-line-number="9">   <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb16-10" data-line-number="10">Elemwise{mul,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>   <span class="dv">9</span></a>
+<a class="sourceLine" id="cb16-11" data-line-number="11"> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span>   <span class="dv">3</span></a>
+<a class="sourceLine" id="cb16-12" data-line-number="12"> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb16-13" data-line-number="13"> <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span>   <span class="dv">7</span></a>
+<a class="sourceLine" id="cb16-14" data-line-number="14">   <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> I]</a>
+<a class="sourceLine" id="cb16-15" data-line-number="15">   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> J] <span class="st">&#39;&#39;</span>   <span class="dv">2</span></a>
+<a class="sourceLine" id="cb16-16" data-line-number="16">     <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb16-17" data-line-number="17">Elemwise{mul,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span>   <span class="dv">6</span></a>
+<a class="sourceLine" id="cb16-18" data-line-number="18"> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span>   <span class="dv">1</span></a>
+<a class="sourceLine" id="cb16-19" data-line-number="19"> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb16-20" data-line-number="20"> <span class="op">|</span>Elemwise{add,no_inplace} [<span class="bu">id</span> M] <span class="st">&#39;&#39;</span>   <span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-21" data-line-number="21">   <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> I]</a>
+<a class="sourceLine" id="cb16-22" data-line-number="22">   <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> I]</a></code></pre></div>
 <p>Now, when we apply the optimization, the <code>FunctionGraph</code> should contain the replacements.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">test_fgraph_opt <span class="op">=</span> test_sub_eqz_opt_tt.optimize(test_fgraph_tt)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(test_fgraph_tt)
-Elemwise{mul,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>   <span class="dv">5</span>
- <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
- <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> C]
-Elemwise{add,no_inplace} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>   <span class="dv">10</span>
- <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span>   <span class="dv">4</span>
- <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
- <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> C]
- <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>   <span class="dv">3</span>
-   <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
-   <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
-Elemwise{add,no_inplace} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span>   <span class="dv">12</span>
- <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span>   <span class="dv">9</span>
- <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>   <span class="dv">2</span>
- <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
- <span class="op">|</span> <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> J]
- <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span>   <span class="dv">8</span>
-   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>   <span class="dv">2</span>
-   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span>   <span class="dv">1</span>
-     <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
-Elemwise{add,no_inplace} [<span class="bu">id</span> M] <span class="st">&#39;&#39;</span>   <span class="dv">11</span>
- <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> N] <span class="st">&#39;&#39;</span>   <span class="dv">7</span>
- <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> O] <span class="st">&#39;&#39;</span>   <span class="dv">0</span>
- <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]
- <span class="op">|</span> <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> J]
- <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> P] <span class="st">&#39;&#39;</span>   <span class="dv">6</span>
-   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> O] <span class="st">&#39;&#39;</span>   <span class="dv">0</span>
-   <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> J]</code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" data-line-number="1">test_fgraph_opt <span class="op">=</span> test_sub_eqz_opt_tt.optimize(test_fgraph_tt)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(test_fgraph_tt)</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">Elemwise{mul,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span>   <span class="dv">5</span></a>
+<a class="sourceLine" id="cb18-3" data-line-number="3"> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb18-4" data-line-number="4"> <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> C]</a>
+<a class="sourceLine" id="cb18-5" data-line-number="5">Elemwise{add,no_inplace} [<span class="bu">id</span> D] <span class="st">&#39;&#39;</span>   <span class="dv">10</span></a>
+<a class="sourceLine" id="cb18-6" data-line-number="6"> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> E] <span class="st">&#39;&#39;</span>   <span class="dv">4</span></a>
+<a class="sourceLine" id="cb18-7" data-line-number="7"> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb18-8" data-line-number="8"> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">2</span>} [<span class="bu">id</span> C]</a>
+<a class="sourceLine" id="cb18-9" data-line-number="9"> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> F] <span class="st">&#39;&#39;</span>   <span class="dv">3</span></a>
+<a class="sourceLine" id="cb18-10" data-line-number="10">   <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb18-11" data-line-number="11">   <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb18-12" data-line-number="12">Elemwise{add,no_inplace} [<span class="bu">id</span> G] <span class="st">&#39;&#39;</span>   <span class="dv">12</span></a>
+<a class="sourceLine" id="cb18-13" data-line-number="13"> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> H] <span class="st">&#39;&#39;</span>   <span class="dv">9</span></a>
+<a class="sourceLine" id="cb18-14" data-line-number="14"> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>   <span class="dv">2</span></a>
+<a class="sourceLine" id="cb18-15" data-line-number="15"> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb18-16" data-line-number="16"> <span class="op">|</span> <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> J]</a>
+<a class="sourceLine" id="cb18-17" data-line-number="17"> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> K] <span class="st">&#39;&#39;</span>   <span class="dv">8</span></a>
+<a class="sourceLine" id="cb18-18" data-line-number="18">   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> I] <span class="st">&#39;&#39;</span>   <span class="dv">2</span></a>
+<a class="sourceLine" id="cb18-19" data-line-number="19">   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> L] <span class="st">&#39;&#39;</span>   <span class="dv">1</span></a>
+<a class="sourceLine" id="cb18-20" data-line-number="20">     <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb18-21" data-line-number="21">Elemwise{add,no_inplace} [<span class="bu">id</span> M] <span class="st">&#39;&#39;</span>   <span class="dv">11</span></a>
+<a class="sourceLine" id="cb18-22" data-line-number="22"> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> N] <span class="st">&#39;&#39;</span>   <span class="dv">7</span></a>
+<a class="sourceLine" id="cb18-23" data-line-number="23"> <span class="op">|</span> <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> O] <span class="st">&#39;&#39;</span>   <span class="dv">0</span></a>
+<a class="sourceLine" id="cb18-24" data-line-number="24"> <span class="op">|</span> <span class="op">|</span> <span class="op">|</span>TensorConstant{<span class="dv">5</span>} [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb18-25" data-line-number="25"> <span class="op">|</span> <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> J]</a>
+<a class="sourceLine" id="cb18-26" data-line-number="26"> <span class="op">|</span>Elemwise{mul,no_inplace} [<span class="bu">id</span> P] <span class="st">&#39;&#39;</span>   <span class="dv">6</span></a>
+<a class="sourceLine" id="cb18-27" data-line-number="27">   <span class="op">|</span>DimShuffle{x} [<span class="bu">id</span> O] <span class="st">&#39;&#39;</span>   <span class="dv">0</span></a>
+<a class="sourceLine" id="cb18-28" data-line-number="28">   <span class="op">|</span>TensorConstant{[<span class="dv">1</span> <span class="dv">2</span>]} [<span class="bu">id</span> J]</a></code></pre></div>
 </div>
 <p>Even more symbolic capabilities might be needed to [efficiently] achieve the functionality we desire. Standalone libraries like SymPy and <a href="https://github.com/logpy/logpy/">LogPy</a> can be adapted to Theano graphs and provide these capabilities–although direct implementation in Theano may be better.</p>
 <p>Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the <code>hessian</code> function, and within <code>theano.sandbox.linalg</code> are <code>Optimizer</code> hints for matrix positivity and other properties relevant to determining convexity.</p>
-<div class="remark" markdown="" env-number="2" title-name="">
+<div class="remark" data-markdown="" data-env-number="2" data-title-name="">
 <p>Other great examples of linear algebra themed optimizations are in <code>theano.sandbox.linalg</code>: for instance, <code>no_transpose_symmetric</code>. Some of these demonstrate exactly how straight-forward adding algebraic features can be.</p>
 </div>
 <p>Although our convexity testing idea is far too simple for some functions, the point is that the basic tools necessary for work in this direction are already in place. With the logic programming and symbolic libraries mentioned earlier, a robust implementation of the convex function calculus could be very much in reach.</p>
@@ -496,80 +532,80 @@ Elemwise{add,no_inplace} [<span class="bu">id</span> M] <span class="st">&#39;&#
 <p>Some key steps may require the integration of a fully featured symbolic algebra system. Along these lines, connections between Theano, SymPy and LogPy have been explored in <span class="citation" data-cites="rocklin_mathematically_2013">Rocklin (2013)</span>–as well as many other important aspects of the topics discussed here.</p>
 <p>Besides the automation of proximal algorithms themselves, there are areas of application involving very large and complex models–perhaps the ones arising in Deep Learning. How might we consider the operator splitting of ADMM within deeply layered or hierarchical models <span class="citation" data-cites="polson_statistical_2015">(Polson, Willard, and Heidari 2015)</span>? At which levels and on which terms should the splitting be performed? Beyond trying to solve the potentially unwieldy mathematics arising from such questions, by imbuing these symbolic tools with more mathematical awareness, we can at least experiment in these directions and quickly offer numerical solutions. This is–in part–the edge from which statistics hasn’t been benefiting and modern machine learning has.</p>
 <p>Before closing, a very related–and interesting–set of ideas is worth mentioning: the possibility of encoding more symbolic knowledge into probabilistic programming platforms like PyMC3. Using the same optimization mechanisms as the examples here, simple distributional relationships can be encoded. For instance, the convolution of normally distributed random variables:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)
-mu_X.tag.test_value <span class="op">=</span> np.array([<span class="dv">1</span>.], dtype<span class="op">=</span>tt.config.floatX)
-sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)
-sd_X.tag.test_value <span class="op">=</span> np.array([<span class="dv">2</span>.], dtype<span class="op">=</span>tt.config.floatX)
-
-mu_Y <span class="op">=</span> tt.vector(<span class="st">&#39;mu_Y&#39;</span>)
-mu_Y.tag.test_value <span class="op">=</span> np.array([<span class="dv">1</span>.], dtype<span class="op">=</span>tt.config.floatX)
-sd_Y <span class="op">=</span> tt.vector(<span class="st">&#39;sd_Y&#39;</span>)
-sd_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.5</span>], dtype<span class="op">=</span>tt.config.floatX)
-
-<span class="cf">with</span> pm.Model() <span class="im">as</span> conv_model:
-    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))
-    Y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;Y&#39;</span>, mu_Y, sd<span class="op">=</span>sd_Y, shape<span class="op">=</span>(<span class="dv">1</span>,))
-    Z_rv <span class="op">=</span> X_rv <span class="op">+</span> Y_rv</code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" data-line-number="1">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2">mu_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)</a>
+<a class="sourceLine" id="cb19-4" data-line-number="4">sd_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">2.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb19-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb19-6" data-line-number="6">mu_Y <span class="op">=</span> tt.vector(<span class="st">&#39;mu_Y&#39;</span>)</a>
+<a class="sourceLine" id="cb19-7" data-line-number="7">mu_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb19-8" data-line-number="8">sd_Y <span class="op">=</span> tt.vector(<span class="st">&#39;sd_Y&#39;</span>)</a>
+<a class="sourceLine" id="cb19-9" data-line-number="9">sd_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.5</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb19-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb19-11" data-line-number="11"><span class="cf">with</span> pm.Model() <span class="im">as</span> conv_model:</a>
+<a class="sourceLine" id="cb19-12" data-line-number="12">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
+<a class="sourceLine" id="cb19-13" data-line-number="13">    Y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;Y&#39;</span>, mu_Y, sd<span class="op">=</span>sd_Y, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
+<a class="sourceLine" id="cb19-14" data-line-number="14">    Z_rv <span class="op">=</span> X_rv <span class="op">+</span> Y_rv</a></code></pre></div>
 <p>We create a Theano <code>Op</code> to handle the convolution.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> NormConvOp(tt.Op):
-    __props__ <span class="op">=</span> ()
-
-    <span class="kw">def</span> make_node(<span class="va">self</span>, <span class="op">*</span>inputs):
-        name_new <span class="op">=</span> <span class="bu">str</span>.join(<span class="st">&#39;+&#39;</span>, [<span class="bu">getattr</span>(in_, <span class="st">&#39;name&#39;</span>, <span class="st">&#39;&#39;</span>) <span class="cf">for</span> in_ <span class="kw">in</span>
-inputs])
-        mu_new <span class="op">=</span> tt.add(<span class="op">*</span>[in_.distribution.mu <span class="cf">for</span> in_ <span class="kw">in</span> inputs])
-        sd_new <span class="op">=</span> tt.sqrt(tt.add(<span class="op">*</span>[in_.distribution.sd<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> in_ <span class="kw">in</span>
-inputs]))
-        conv_rv <span class="op">=</span> pm.Normal(name_new, mu<span class="op">=</span>mu_new, sd<span class="op">=</span>sd_new,
-                            <span class="co"># Is this another place where</span>
-automatically<span class="op">/</span>Theano managed
-                            <span class="co"># shapes are really needed.  For now, we</span>
-hack it.
-                            shape<span class="op">=</span>(<span class="dv">1</span>,))
-
-        <span class="cf">return</span> tt.Apply(<span class="va">self</span>, inputs, [conv_rv])
-
-    <span class="kw">def</span> perform(<span class="va">self</span>, node, inputs, output_storage):
-        z <span class="op">=</span> output_storage[<span class="dv">0</span>]
-        z[<span class="dv">0</span>] <span class="op">=</span> np.add(<span class="op">*</span>inputs)</code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw">class</span> NormConvOp(tt.Op):</a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">    __props__ <span class="op">=</span> ()</a>
+<a class="sourceLine" id="cb20-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb20-4" data-line-number="4">    <span class="kw">def</span> make_node(<span class="va">self</span>, <span class="op">*</span>inputs):</a>
+<a class="sourceLine" id="cb20-5" data-line-number="5">        name_new <span class="op">=</span> <span class="bu">str</span>.join(<span class="st">&#39;+&#39;</span>, [<span class="bu">getattr</span>(in_, <span class="st">&#39;name&#39;</span>, <span class="st">&#39;&#39;</span>) <span class="cf">for</span> in_ <span class="kw">in</span></a>
+<a class="sourceLine" id="cb20-6" data-line-number="6">inputs])</a>
+<a class="sourceLine" id="cb20-7" data-line-number="7">        mu_new <span class="op">=</span> tt.add(<span class="op">*</span>[in_.distribution.mu <span class="cf">for</span> in_ <span class="kw">in</span> inputs])</a>
+<a class="sourceLine" id="cb20-8" data-line-number="8">        sd_new <span class="op">=</span> tt.sqrt(tt.add(<span class="op">*</span>[in_.distribution.sd<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> in_ <span class="kw">in</span></a>
+<a class="sourceLine" id="cb20-9" data-line-number="9">inputs]))</a>
+<a class="sourceLine" id="cb20-10" data-line-number="10">        conv_rv <span class="op">=</span> pm.Normal(name_new, mu<span class="op">=</span>mu_new, sd<span class="op">=</span>sd_new,</a>
+<a class="sourceLine" id="cb20-11" data-line-number="11">                            <span class="co"># Is this another place where</span></a>
+<a class="sourceLine" id="cb20-12" data-line-number="12">automatically<span class="op">/</span>Theano managed</a>
+<a class="sourceLine" id="cb20-13" data-line-number="13">                            <span class="co"># shapes are really needed.  For now, we</span></a>
+<a class="sourceLine" id="cb20-14" data-line-number="14">hack it.</a>
+<a class="sourceLine" id="cb20-15" data-line-number="15">                            shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
+<a class="sourceLine" id="cb20-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb20-17" data-line-number="17">        <span class="cf">return</span> tt.Apply(<span class="va">self</span>, inputs, [conv_rv])</a>
+<a class="sourceLine" id="cb20-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb20-19" data-line-number="19">    <span class="kw">def</span> perform(<span class="va">self</span>, node, inputs, output_storage):</a>
+<a class="sourceLine" id="cb20-20" data-line-number="20">        z <span class="op">=</span> output_storage[<span class="dv">0</span>]</a>
+<a class="sourceLine" id="cb20-21" data-line-number="21">        z[<span class="dv">0</span>] <span class="op">=</span> np.add(<span class="op">*</span>inputs)</a></code></pre></div>
 <p>Now, all that’s needed is a <code>PatternSub</code> like before.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> is_normal_dist(x):
-    <span class="cf">return</span> <span class="bu">hasattr</span>(x, <span class="st">&#39;distribution&#39;</span>) <span class="kw">and</span> <span class="bu">isinstance</span>(x.distribution,
-pm.Normal)
-
-norm_conv_pat_tt <span class="op">=</span> (tt.gof.opt.PatternSub(
-    (tt.add,
-     {<span class="st">&#39;pattern&#39;</span>: <span class="st">&#39;x&#39;</span>,
-      <span class="st">&#39;constraint&#39;</span>: <span class="kw">lambda</span> x: is_normal_dist(x)},
-     {<span class="st">&#39;pattern&#39;</span>: <span class="st">&#39;y&#39;</span>,
-      <span class="st">&#39;constraint&#39;</span>: <span class="kw">lambda</span> x: is_normal_dist(x)}
-     ),
-    (NormConvOp(), <span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>)),)
-
-norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(norm_conv_pat_tt,
-                                                   max_use_ratio<span class="op">=</span><span class="dv">10</span>)
-
-Z_fgraph_tt <span class="op">=</span> tt.gof.fg.FunctionGraph([X_rv, Y_rv], [Z_rv])
-
-<span class="co"># We lose the `FreeRV.distribution` attribute when cloning the graph</span>
-<span class="co"># with `theano.gof.graph.clone_get_equiv` in `FunctionGraph`, so this</span>
-<span class="co"># hackishly reattaches that information:</span>
-_ <span class="op">=</span> [<span class="bu">setattr</span>(g_in, <span class="st">&#39;distribution&#39;</span>, s_in.distribution)
-     <span class="cf">for</span> s_in, g_in <span class="kw">in</span> <span class="bu">zip</span>([X_rv, Y_rv], Z_fgraph_tt.inputs)]</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">with</span> conv_model:
-    _ <span class="op">=</span> norm_conv_opt_tt.optimize(Z_fgraph_tt)
-
-norm_conv_var_dist <span class="op">=</span> Z_fgraph_tt.outputs[<span class="dv">0</span>].distribution</code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw">def</span> is_normal_dist(x):</a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">    <span class="cf">return</span> <span class="bu">hasattr</span>(x, <span class="st">&#39;distribution&#39;</span>) <span class="kw">and</span> <span class="bu">isinstance</span>(x.distribution,</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3">pm.Normal)</a>
+<a class="sourceLine" id="cb21-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb21-5" data-line-number="5">norm_conv_pat_tt <span class="op">=</span> (tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="cb21-6" data-line-number="6">    (tt.add,</a>
+<a class="sourceLine" id="cb21-7" data-line-number="7">     {<span class="st">&#39;pattern&#39;</span>: <span class="st">&#39;x&#39;</span>,</a>
+<a class="sourceLine" id="cb21-8" data-line-number="8">      <span class="st">&#39;constraint&#39;</span>: <span class="kw">lambda</span> x: is_normal_dist(x)},</a>
+<a class="sourceLine" id="cb21-9" data-line-number="9">     {<span class="st">&#39;pattern&#39;</span>: <span class="st">&#39;y&#39;</span>,</a>
+<a class="sourceLine" id="cb21-10" data-line-number="10">      <span class="st">&#39;constraint&#39;</span>: <span class="kw">lambda</span> x: is_normal_dist(x)}</a>
+<a class="sourceLine" id="cb21-11" data-line-number="11">     ),</a>
+<a class="sourceLine" id="cb21-12" data-line-number="12">    (NormConvOp(), <span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>)),)</a>
+<a class="sourceLine" id="cb21-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb21-14" data-line-number="14">norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(norm_conv_pat_tt,</a>
+<a class="sourceLine" id="cb21-15" data-line-number="15">                                                   max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb21-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb21-17" data-line-number="17">Z_fgraph_tt <span class="op">=</span> tt.gof.fg.FunctionGraph([X_rv, Y_rv], [Z_rv])</a>
+<a class="sourceLine" id="cb21-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb21-19" data-line-number="19"><span class="co"># We lose the `FreeRV.distribution` attribute when cloning the graph</span></a>
+<a class="sourceLine" id="cb21-20" data-line-number="20"><span class="co"># with `theano.gof.graph.clone_get_equiv` in `FunctionGraph`, so this</span></a>
+<a class="sourceLine" id="cb21-21" data-line-number="21"><span class="co"># hackishly reattaches that information:</span></a>
+<a class="sourceLine" id="cb21-22" data-line-number="22">_ <span class="op">=</span> [<span class="bu">setattr</span>(g_in, <span class="st">&#39;distribution&#39;</span>, s_in.distribution)</a>
+<a class="sourceLine" id="cb21-23" data-line-number="23">     <span class="cf">for</span> s_in, g_in <span class="kw">in</span> <span class="bu">zip</span>([X_rv, Y_rv], Z_fgraph_tt.inputs)]</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="cf">with</span> conv_model:</a>
+<a class="sourceLine" id="cb22-2" data-line-number="2">    _ <span class="op">=</span> norm_conv_opt_tt.optimize(Z_fgraph_tt)</a>
+<a class="sourceLine" id="cb22-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb22-4" data-line-number="4">norm_conv_var_dist <span class="op">=</span> Z_fgraph_tt.outputs[<span class="dv">0</span>].distribution</a></code></pre></div>
 <p>The resulting graph:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(Z_fgraph_tt)
-NormConvOp [<span class="bu">id</span> A] <span class="st">&#39;X+Y&#39;</span>   <span class="dv">0</span>
- <span class="op">|</span>X [<span class="bu">id</span> B]
- <span class="op">|</span>Y [<span class="bu">id</span> C]</code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> tt.printing.debugprint(Z_fgraph_tt)</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">NormConvOp [<span class="bu">id</span> A] <span class="st">&#39;X+Y&#39;</span>   <span class="dv">0</span></a>
+<a class="sourceLine" id="cb23-3" data-line-number="3"> <span class="op">|</span>X [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"> <span class="op">|</span>Y [<span class="bu">id</span> C]</a></code></pre></div>
 <p>and the convolution’s parameters (for the test values):</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(norm_conv_var_dist.mu.tag.test_value)
-[ <span class="dv">2</span>.]
-<span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(norm_conv_var_dist.sd.tag.test_value)
-[ <span class="fl">2.06155281</span>]</code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(norm_conv_var_dist.mu.tag.test_value)</a>
+<a class="sourceLine" id="cb24-2" data-line-number="2">[ <span class="fl">2.</span>]</a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(norm_conv_var_dist.sd.tag.test_value)</a>
+<a class="sourceLine" id="cb24-4" data-line-number="4">[ <span class="fl">2.06155281</span>]</a></code></pre></div>
 <p>More sophisticated routines–like the example above–could implement parameter expansions, efficient re-parameterizations and equivalent scale mixture forms in an effort to optimize a graph for sampling or point evaluation. Objectives for these optimizations could be straightforward and computationally based (e.g. reducing the number of operations in computations of the log likelihood and other quantities) or more statistically focused (e.g. highly efficient sampling, improve mixing). These ideas are most definitely not new–one example is given by <span class="citation" data-cites="mohasel_afshar_probabilistic_2016">Mohasel Afshar (2016)</span> for symbolic Gibbs sampling, but we hope the examples given here make the point that the tools are readily available and quite accessible.</p>
 <p>We’ll end on a much more spacey consideration. Namely, that this is a context in which we can start experimenting rapidly with objectives over the space of estimation routines. This space is generated by–but not limited to–the variety of symbolic representations, re-parameterizations, etc., mentioned above. It does not necessarily require the complete estimation of a model at each step, nor even the numeric value of quantities like the gradient or Hessian. It may involve them, but not their evaluation; perhaps, instead, symbolic comparisons of competing gradients and Hessians arising from different representations. What we’re describing lies somewhere between the completely numeric assessments common today, and the entirely symbolic work found within the theorems and manipulations of the mathematics we use to derive methods.</p>
 </section>
@@ -586,7 +622,7 @@ NormConvOp [<span class="bu">id</span> A] <span class="st">&#39;X+Y&#39;</span> 
 <p>Mohasel Afshar, Hadi. 2016. “Probabilistic Inference in Piecewise Graphical Models.” <a href="https://digitalcollections.anu.edu.au/handle/1885/107386" class="uri">https://digitalcollections.anu.edu.au/handle/1885/107386</a>.</p>
 </div>
 <div id="ref-parikh_proximal_2014">
-<p>Parikh, Neal, and Stephen Boyd. 2014. “Proximal Algorithms.” <em>Foundations and Trends in Optimization</em> 1 (3): 123–231. doi:<a href="https://doi.org/10.1561/2400000003">10.1561/2400000003</a>.</p>
+<p>Parikh, Neal, and Stephen Boyd. 2014. “Proximal Algorithms.” <em>Foundations and Trends in Optimization</em> 1 (3): 123–231. <a href="https://doi.org/10.1561/2400000003" class="uri">https://doi.org/10.1561/2400000003</a>.</p>
 </div>
 <div id="ref-park_bayesian_2008">
 <p>Park, Trevor, and George Casella. 2008. “The Bayesian Lasso.” <em>Journal of the American Statistical Association</em> 103 (482): 681–86. <a href="http://amstat.tandfonline.com/doi/abs/10.1198/016214508000000337" class="uri">http://amstat.tandfonline.com/doi/abs/10.1198/016214508000000337</a>.</p>
@@ -659,47 +695,46 @@ MathJax.Hub.Config({
             <aside>
 <div id="aboutme">
         <p>
-            <img width="100%" class="img-thumbnail" src="/images/profile-pic.png"/>
+            <img width="100%" class="img-thumbnail" src="https://brandonwillard.github.io//images/profile-pic.png"/>
         </p>
     <p>
-        <strong>About Brandon T. Willard</strong><br/>
+      <strong>About Brandon T. Willard</strong><br/>
         applied math/stats person
     </p>
-</div>
+</div><!-- Sidebar -->
 <section class="well well-sm">
-    <ul class="list-group list-group-flush">
-            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
-              <ul class="list-group" id="social">
-                <li class="list-group-item"><a href="http://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
-                <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar-square ai-lg"></i> google scholar</a></li>
-                <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
-                <li class="list-group-item"><a href="https://bitbucket.org/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
-                <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> github</a></li>
-              </ul>
-            </li>
+  <ul class="list-group list-group-flush">
 
-
-
-            <li class="list-group-item"><a href="https://brandonwillard.github.io/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
-                <ul class="list-group " id="tags">
-                </ul>
-            </li>
-    </ul>
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar ai-lg"></i> google scholar</a></li>
+    <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
+    <li class="list-group-item"><a href="https://bitbucket.io/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
+    <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+  </ul>
 </section>
-            </aside>
+<!-- End Sidebar -->            </aside>
         </div>
     </div>
 </div>
+<!-- End Content Container -->
+
 <footer>
    <div class="container">
       <hr>
       <div class="row">
          <div class="col-xs-10">&copy; 2017 Brandon T. Willard
-            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
-            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>              <p><small>  <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>                <p><small>  <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
     Content
-  licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution 4.0 International License</a>, except where indicated otherwise.
+  licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en">Creative Commons Attribution-NonCommercial 4.0 International License</a>, except where indicated otherwise.
 </small></p>
          </div>
          <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
@@ -713,6 +748,7 @@ MathJax.Hub.Config({
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
 <script src="https://brandonwillard.github.io/theme/js/respond.min.js"></script>
+
 
     <!-- Disqus -->
     <script type="text/javascript">
@@ -740,6 +776,7 @@ MathJax.Hub.Config({
         ga('send', 'pageview');
     </script>
     <!-- End Google Analytics Universal Code -->
+
 
 </body>
 </html>
