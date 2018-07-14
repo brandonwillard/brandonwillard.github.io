@@ -115,9 +115,15 @@ dependencies:
     - latexcodec==1.0.5
     - markdown==2.6.11
     - pelican==3.7.1
+    - pweave==0.30.2.dev0
     - pybtex==0.21
+    - pynoweb-tools==0.0.1
     - pypandoc==1.4
     - python-frontmatter==0.4.2
     - pytz==2016.7
     - pyyaml==3.12
     - unidecode==1.0.22
+    # - -e git+git@github.com:brandonwillard/Pweave.git#egg=pweave
+    # - -e git+git@github.com:brandonwillard/pynoweb_tools.git#egg=pynoweb_tools
+    # - -e git+git@bitbucket.org:bayes-horseshoe-plus/hsplus-python-pkg.git@b247210c6e6cd8fe8a815b502356d26a3eb9348b#egg=hsplus
+    # - sympy>=1.0

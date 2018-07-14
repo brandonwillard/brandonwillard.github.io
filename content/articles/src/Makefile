@@ -12,37 +12,37 @@ MD_DEST_DIR = $(abspath ../)
 PDF_DEST_DIR = $(abspath ./output)
 
 PDFLATEX = "pdflatex -shell-escape -file-line-error -interaction=nonstopmode -synctex=1"
- 
-PANDOC_MD_OUT_EXTS = +markdown_in_html_blocks+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures+citations+yaml_metadata_block+link_attributes
+
+PANDOC_MD_OUT_EXTS = +markdown_in_html_blocks+mmd_title_block+tex_math_dollars+tex_math_double_backslash+implicit_figures+citations+yaml_metadata_block+link_attributes+old_dashes+raw_html+raw_tex
 
 # Add citations with: +citations
 
 # FYI: pandoc's -R option will stop the reader from discarding things like \eqref from
 # tex input.
-PANDOC_MD_OPTS = -s -R --mathjax --old-dashes
+PANDOC_MD_OPTS = -s --mathjax
 PANDOC_MD_OPTS += --metadata=figure_dir={attach}/articles/figures/
 PANDOC_MD_OPTS += --metadata=figure_ext=png
 
 # Add citations with extra options like these:
-# 	--biblio file.bib --csl chicago-author-date.csl 
+# 	--biblio file.bib --csl chicago-author-date.csl
 # and possibly this:
 # 	--filter pandoc-citeproc
 
-all: md 
+all: md
 
 md: ${MD_FILES}
 
 %.md: %.pnw
-	Pweave -c -F $(MD_DEST_DIR)/figures -f pandoc -o $(MD_DEST_DIR)/$@ $< 
+	Pweave -c -F $(MD_DEST_DIR)/figures -f pandoc -o $(MD_DEST_DIR)/$@ $<
 
 %.md: %.tex
-	pandoc $(PANDOC_MD_OPTS) -f latex -t json --filter pandoc-citeproc $<|\
+	pandoc $(PANDOC_MD_OPTS) -f latex -t json --filter pandoc-citeproc $< |\
 		PynowebFilter | pandoc $(PANDOC_MD_OPTS) -f json \
-		-t markdown_github$(PANDOC_MD_OUT_EXTS)+raw_html+raw_tex \
-		-o $(MD_DEST_DIR)/$@  
+		-t markdown_github$(PANDOC_MD_OUT_EXTS) \
+		-o $(MD_DEST_DIR)/$@
 
 %.tex: %.texw
-	PynowebWeave -c -d -F $(MD_DEST_DIR)/figures $<
+	PynowebWeave -c -d -F $(MD_DEST_DIR)/figures -o $(MD_DEST_DIR)/$@ $<
 
 #
 # the *_line variables will (hopefully) stop unnecessary linebreaks in
