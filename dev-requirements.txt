@@ -34,6 +34,7 @@ six>=1.10.0
 traitlets>=4.3.1
 Unidecode>=0.4.19
 wcwidth>=0.1.7
+-e git+git@github.com:brandonwillard/Pweave.git#egg=pweave
 -e git+git@github.com:brandonwillard/pynoweb_tools.git#egg=pynoweb_tools
 # -e git+git@bitbucket.org:bayes-horseshoe-plus/hsplus-python-pkg.git@b247210c6e6cd8fe8a815b502356d26a3eb9348b#egg=hsplus
 # sympy>=1.0
