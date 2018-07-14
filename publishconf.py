@@ -14,7 +14,7 @@ from pelicanconf import *  # noqa
 # explicitly specify it as your config file.
 
 SITEURL = 'https://brandonwillard.github.io'
-# RELATIVE_URLS = False
+RELATIVE_URLS = False
 
 FEED_DOMAIN = SITEURL
 FEED_ALL_ATOM = 'feeds/all.atom.xml'

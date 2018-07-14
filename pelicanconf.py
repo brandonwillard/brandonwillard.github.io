@@ -15,6 +15,7 @@ PUBLICATIONS_SRC = 'content/pages/publications.bib'
 
 AUTHOR = u'Brandon T. Willard'
 SITENAME = u'Brandon T. Willard'
+RELATIVE_URLS = True
 SITEURL = ''
 
 CC_LICENSE = "CC-BY-NC"
