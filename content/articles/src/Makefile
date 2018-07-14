@@ -36,10 +36,11 @@ md: ${MD_FILES}
 	Pweave -c -F $(MD_DEST_DIR)/figures -f pandoc -o $(MD_DEST_DIR)/$@ $<
 
 %.md: %.tex
-	pandoc $(PANDOC_MD_OPTS) -f latex -t json --filter pandoc-citeproc $< |\
-		PynowebFilter | pandoc $(PANDOC_MD_OPTS) -f json \
-		-t markdown_github$(PANDOC_MD_OUT_EXTS) \
-		-o $(MD_DEST_DIR)/$@
+	pandoc $(PANDOC_MD_OPTS) -f latex+raw_html+raw_tex+old_dashes -t json $<
+# |\
+# 		PynowebFilter | pandoc $(PANDOC_MD_OPTS) -f json \
+# 		-t markdown_github$(PANDOC_MD_OUT_EXTS) \
+# 		-o $(MD_DEST_DIR)/$@
 
 %.tex: %.texw
 	PynowebWeave -c -d -F $(MD_DEST_DIR)/figures -o $(MD_DEST_DIR)/$@ $<
