@@ -118,7 +118,6 @@ cf_upload: publish
 	cd $(OUTPUTDIR) && swift -v -A https://auth.api.rackspacecloud.com/v1.0 -U $(CLOUDFILES_USERNAME) -K $(CLOUDFILES_API_KEY) upload -c $(CLOUDFILES_CONTAINER) .
 
 github: publish
-	ghp-import -m "Generate Pelican site" $(OUTPUTDIR)
-	git push origin gh-pages:$(GITHUB_PAGES_BRANCH)
+	ghp-import -p -b master -m "Generate Pelican site" $(OUTPUTDIR)
 
 .PHONY: html help clean regenerate serve serve-global devserver publish ssh_upload rsync_upload dropbox_upload ftp_upload s3_upload cf_upload github

@@ -123,6 +123,7 @@ dependencies:
     - pytz==2016.7
     - pyyaml==3.12
     - unidecode==1.0.22
+    - ghp-import>=0.5.5
     # - -e git+git@github.com:brandonwillard/Pweave.git#egg=pweave
     # - -e git+git@github.com:brandonwillard/pynoweb_tools.git#egg=pynoweb_tools
     # - -e git+git@bitbucket.org:bayes-horseshoe-plus/hsplus-python-pkg.git@b247210c6e6cd8fe8a815b502356d26a3eb9348b#egg=hsplus
