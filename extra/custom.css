@@ -1,4 +1,8 @@
-.project{ 
+a.sourceLine{
+    border-bottom-style: none !important
+}
+
+.project{
     display: block;
     margin: 12px 0;
     font-style: italic;
@@ -25,21 +29,21 @@ ul.project-links li {
   padding: 3px;
 }
 
-/* 
+/*
  *
- * The following was originally inspired by 
- * http://drz.ac/2013/01/17/latex-theorem-like-environments-for-the-web/ 
+ * The following was originally inspired by
+ * http://drz.ac/2013/01/17/latex-theorem-like-environments-for-the-web/
  *
  */
-.theorem { 
+.theorem {
     display: block;
     margin: 12px 0;
     font-style: italic;
 }
 .theorem:before {
-    env-number: "";
-    title-name: "";
-    content: "Theorem " attr(env-number) ". " attr(title-name);
+    data-env-number: "";
+    data-title-name: "";
+    content: "Theorem " attr(data-env-number) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -49,9 +53,9 @@ ul.project-links li {
     font-style: italic;
 }
 .lemma:before {
-    env-number: "";
-    title-name: "";
-    content: "Lemma " attr(env-number) ". " attr(title-name);
+    data-env-number: "";
+    data-title-name: "";
+    content: "Lemma " attr(data-env-number) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -61,9 +65,9 @@ ul.project-links li {
     font-style: italic;
 }
 .corollary:before {
-    env-number: "";
-    title-name: "";
-    content: "Corollary " attr(env-number) ". " attr(title-name);
+    data-env-number: "";
+    data-title-name: "";
+    content: "Corollary " attr(data-env-number) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -74,9 +78,9 @@ ul.project-links li {
     overflow: auto;
 }
 .proof:before {
-    env-number: "";
-    title-name: "";
-    content: "Proof " attr(env-number) ". " attr(title-name);
+    data-env-number: "";
+    data-title-name: "";
+    content: "Proof " attr(data-env-number) ". " attr(data-title-name);
     font-style: italic;
 }
 .proof:after {
@@ -91,9 +95,9 @@ ul.project-links li {
     font-style: normal;
 }
 .definition:before {
-    env-number: "";
-    title-name: "";
-    content: "Definition " attr(env-number) ". " attr(title-name);
+    data-env-number: "";
+    data-title-name: "";
+    content: "Definition " attr(data-env-number) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -103,9 +107,9 @@ ul.project-links li {
     font-style: italic;
 }
 .example:before {
-    env-number: "";
-    title-name: "";
-    content: "Example " attr(env-number) ". " attr(title-name);
+    data-env-number: "";
+    data-title-name: "";
+    content: "Example " attr(data-env-number) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -115,9 +119,9 @@ ul.project-links li {
     font-style: italic;
 }
 .proposition:before {
-    env-number: "";
-    title-name: "";
-    content: "Proposition " attr(env-number) ". " attr(title-name);
+    data-env-number: "";
+    data-title-name: "";
+    content: "Proposition " attr(data-env-number) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -127,9 +131,9 @@ ul.project-links li {
     font-style: italic;
 }
 .remark:before {
-    env-number: "";
-    title-name: "";
-    content: "Remark " attr(env-number) ". " attr(title-name);
+    data-env-number: "";
+    data-title-name: "";
+    content: "Remark " attr(data-env-number) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -139,4 +143,3 @@ ul.project-links li {
 /*   margin: 12px 0; */
 /*   font-style: italic; */
 /* } */
-

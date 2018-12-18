@@ -1,23 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/all-en.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2017-03-06T00:00:00-06:00</updated><entry><title>More Proximal Estimation</title><link href="https://brandonwillard.github.io/more-proximal-estimation.html" rel="alternate"></link><published>2017-03-06T00:00:00-06:00</published><updated>2017-03-06T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2017-03-06:/more-proximal-estimation.html</id><summary type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/all-en.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2018-12-18T00:00:00-06:00</updated><entry><title>Data Science at Citybase</title><link href="https://brandonwillard.github.io/data-science-at-citybase.html" rel="alternate"></link><published>2018-12-18T00:00:00-06:00</published><updated>2018-12-18T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-18:/data-science-at-citybase.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
   &lt;meta http-equiv="Content-Style-Type" content="text/css" /&gt;
   &lt;meta name="generator" content="pandoc" /&gt;
   &lt;meta name="author" content="Brandon T. Willard" /&gt;
-  &lt;title&gt;More Proximal Estimation&lt;/title&gt;
+  &lt;title&gt;Data Science at Citybase&lt;/title&gt;
   &lt;style type="text/css"&gt;code{white-space: pre;}&lt;/style&gt;
-  &lt;style type="text/css"&gt;
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div …&lt;/style&gt;&lt;/head&gt;&lt;/html&gt;</summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;div id="header"&gt; --&gt;
+&lt;!-- &lt;h1 class="title"&gt;Data Science at Citybase&lt;/h1&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;h2 class="author"&gt;Brandon T. Willard&lt;/h2&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;h3 class="date"&gt;2018–12–18&lt;/h3&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;/div&gt; --&gt;
+&lt;!--  --&gt;
+&lt;p&gt;I recently wrote about data science at CityBase on the CityBase blog: &lt;sup id="c26e94c1b0b80ac3545371089d4f9936"&gt;&lt;a href="#WillardProgrammingIntelligentCity2018a"&gt;Programming an Intelligent City: The Role of Data Science&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h1 class="org-ref-bib-h1"&gt;
+Bibliography
+&lt;/h1&gt;
+&lt;ul class="org-ref-bib"&gt;
+&lt;li&gt;
+&lt;a id="WillardProgrammingIntelligentCity2018a"&gt;[WillardProgrammingIntelligentCity2018a]&lt;/a&gt; &lt;a name="WillardProgrammingIntelligentCity2018a"&gt;&lt;/a&gt;Willard, Programming an Intelligent City: The Role of Data Science, &lt;i&gt;CityBase&lt;/i&gt;, (2018). &lt;a href="https://thecitybase.com/programming-an-intelligent-city-the-role-of-data-science/"&gt;link&lt;/a&gt;.
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;script type="text/x-mathjax-config"&gt;
+MathJax.Hub.Config({
+  CommonHTML: { linebreaks: { automatic: true } },
+  "HTML-CSS": { linebreaks: { automatic: true } },
+  SVG: { linebreaks: { automatic: true } },
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</content></entry><entry><title>More Proximal Estimation</title><link href="https://brandonwillard.github.io/more-proximal-estimation.html" rel="alternate"></link><published>2017-03-06T00:00:00-06:00</published><updated>2017-03-06T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2017-03-06:/more-proximal-estimation.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -53,46 +77,43 @@ pre.numberSource a.sourceLine::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #a0a0a0;
+    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  { color: #1f1c1b; background-color: #ffffff; }
+  {  }
 @media screen {
 a.sourceLine::before { text-decoration: underline; }
 }
-code span. { color: #1f1c1b; } /* Normal */
-code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
-code span.an { color: #ca60ca; } /* Annotation */
-code span.at { color: #0057ae; } /* Attribute */
-code span.bn { color: #b08000; } /* BaseN */
-code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
-code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #924c9d; } /* Char */
-code span.cn { color: #aa5500; } /* Constant */
-code span.co { color: #898887; } /* Comment */
-code span.cv { color: #0095ff; } /* CommentVar */
-code span.do { color: #607880; } /* Documentation */
-code span.dt { color: #0057ae; } /* DataType */
-code span.dv { color: #b08000; } /* DecVal */
-code span.er { color: #bf0303; text-decoration: underline; } /* Error */
-code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
-code span.fl { color: #b08000; } /* Float */
-code span.fu { color: #644a9b; } /* Function */
-code span.im { color: #ff5500; } /* Import */
-code span.in { color: #b08000; } /* Information */
-code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
-code span.op { color: #1f1c1b; } /* Operator */
-code span.ot { color: #006e28; } /* Other */
-code span.pp { color: #006e28; } /* Preprocessor */
-code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
-code span.sc { color: #3daee9; } /* SpecialChar */
-code span.ss { color: #ff5500; } /* SpecialString */
-code span.st { color: #bf0303; } /* String */
-code span.va { color: #0057ae; } /* Variable */
-code span.vs { color: #bf0303; } /* VerbatimString */
-code span.wa { color: #bf0303; } /* Warning */
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   &lt;/style&gt;
   &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"&gt;&lt;/script&gt;
 &lt;/head&gt;
@@ -118,12 +139,12 @@ code span.wa { color: #bf0303; } /* Warning */
   \right\}
   \;.
   \label{eq:lasso}
-\end{equation}\]&lt;/span&gt; We continue our discussion on topics concerning automation and symbolic computation in Theano &lt;span class="citation" data-cites="bergstra_theano_2010"&gt;(&lt;span class="citeproc-not-found" data-reference-id="bergstra_theano_2010"&gt;&lt;strong&gt;???&lt;/strong&gt;&lt;/span&gt;)&lt;/span&gt;, as well as the mathematical methodology we believe is suitable for such implementations. Again, our framing of the problem is in terms of “proximal methods” &lt;span class="citation" data-cites="parikh_proximal_2014 combettes_proximal_2011"&gt;(Parikh and Boyd 2014; Combettes and Pesquet 2011)&lt;/span&gt;. Along the way we propose one simple means of placing the well-known technique of coordinate descent within the scope of proximal methods via a general property of proximal operators. These efforts are a continued outgrowth of our work in &lt;span class="citation" data-cites="polson_proximal_2015"&gt;Polson, Scott, and Willard (2015)&lt;/span&gt;.&lt;/p&gt;
+\end{equation}\]&lt;/span&gt; We continue our discussion on topics concerning automation and symbolic computation in Theano &lt;span class="citation" data-cites="bergstra_theano_2010"&gt;(Bergstra et al. 2010)&lt;/span&gt;, as well as the mathematical methodology we believe is suitable for such implementations. Again, our framing of the problem is in terms of “proximal methods” &lt;span class="citation" data-cites="parikh_proximal_2014 combettes_proximal_2011"&gt;(Parikh and Boyd 2014; Combettes and Pesquet 2011)&lt;/span&gt;. Along the way we propose one simple means of placing the well-known technique of coordinate descent within the scope of proximal methods via a general property of proximal operators. These efforts are a continued outgrowth of our work in &lt;span class="citation" data-cites="polson_proximal_2015"&gt;Polson, Scott, and Willard (2015)&lt;/span&gt;.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="proximal-and-computational-components" class="level1"&gt;
 &lt;h1&gt;Proximal and Computational Components&lt;/h1&gt;
 &lt;p&gt;First, we [re]-introduce the workhorse of proximal methods: the &lt;em&gt;proximal operator&lt;/em&gt;.&lt;/p&gt;
-&lt;div class="Def" data-markdown="" data-env-number="1" data-title-name="[Proximal Operator]"&gt;
+&lt;div class="definition" data-markdown="" data-env-number="1" data-title-name="[Proximal Operator]"&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
     \operatorname*{argmin}_{z} \left\{
@@ -629,6 +650,9 @@ code span.wa { color: #bf0303; } /* Warning */
 &lt;div id="ref-beeson_meaning_2005"&gt;
 &lt;p&gt;Beeson, Michael, and Freek Wiedijk. 2005. “The Meaning of Infinity in Calculus and Computer Algebra Systems.” &lt;em&gt;Journal of Symbolic Computation&lt;/em&gt;, Automated reasoning and computer algebra systems (ar-ca)AR-ca, 39 (5): 523–38. &lt;a href="https://www.sciencedirect.com/science/article/pii/S074771710500026X" class="uri"&gt;https://www.sciencedirect.com/science/article/pii/S074771710500026X&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
+&lt;div id="ref-bergstra_theano_2010"&gt;
+&lt;p&gt;Bergstra, James, Olivier Breuleux, Frédéric Bastien, Pascal Lamblin, Razvan Pascanu, Guillaume Desjardins, Joseph Turian, David Warde-Farley, and Yoshua Bengio. 2010. “Theano: A CPU and GPU Math Expression Compiler.” In &lt;em&gt;Proceedings of the Python for Scientific Computing Conference (SciPy)&lt;/em&gt;. Austin, TX.&lt;/p&gt;
+&lt;/div&gt;
 &lt;div id="ref-bertsekas_incremental_2010"&gt;
 &lt;p&gt;Bertsekas, Dimitri P. 2010. “Incremental Gradient, Subgradient, and Proximal Methods for Convex Optimization: A Survey.” &lt;a href="http://web.mit.edu/dimitrib/www/Incremental_Survey_LIDS.pdf" class="uri"&gt;http://web.mit.edu/dimitrib/www/Incremental_Survey_LIDS.pdf&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
@@ -683,22 +707,7 @@ MathJax.Hub.Config({
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</content></entry><entry><title>A Role for Symbolic Computation in the General Estimation of Statistical Models</title><link href="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html" rel="alternate"></link><published>2017-01-18T00:00:00-06:00</published><updated>2017-01-18T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2017-01-18:/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html</id><summary type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-  &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-  &lt;meta http-equiv="Content-Style-Type" content="text/css" /&gt;
-  &lt;meta name="generator" content="pandoc" /&gt;
-  &lt;meta name="author" content="Brandon T. Willard" /&gt;
-  &lt;title&gt;A Role for Symbolic Computation in the General Estimation of Statistical Models&lt;/title&gt;
-  &lt;style type="text/css"&gt;code{white-space: pre;}&lt;/style&gt;
-  &lt;style type="text/css"&gt;
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin …&lt;/style&gt;&lt;/head&gt;&lt;/html&gt;</summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+</content></entry><entry><title>A Role for Symbolic Computation in the General Estimation of Statistical Models</title><link href="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html" rel="alternate"></link><published>2017-01-18T00:00:00-06:00</published><updated>2017-01-18T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2017-01-18:/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -734,46 +743,43 @@ pre.numberSource a.sourceLine::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #a0a0a0;
+    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  { color: #1f1c1b; background-color: #ffffff; }
+  {  }
 @media screen {
 a.sourceLine::before { text-decoration: underline; }
 }
-code span. { color: #1f1c1b; } /* Normal */
-code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
-code span.an { color: #ca60ca; } /* Annotation */
-code span.at { color: #0057ae; } /* Attribute */
-code span.bn { color: #b08000; } /* BaseN */
-code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
-code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #924c9d; } /* Char */
-code span.cn { color: #aa5500; } /* Constant */
-code span.co { color: #898887; } /* Comment */
-code span.cv { color: #0095ff; } /* CommentVar */
-code span.do { color: #607880; } /* Documentation */
-code span.dt { color: #0057ae; } /* DataType */
-code span.dv { color: #b08000; } /* DecVal */
-code span.er { color: #bf0303; text-decoration: underline; } /* Error */
-code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
-code span.fl { color: #b08000; } /* Float */
-code span.fu { color: #644a9b; } /* Function */
-code span.im { color: #ff5500; } /* Import */
-code span.in { color: #b08000; } /* Information */
-code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
-code span.op { color: #1f1c1b; } /* Operator */
-code span.ot { color: #006e28; } /* Other */
-code span.pp { color: #006e28; } /* Preprocessor */
-code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
-code span.sc { color: #3daee9; } /* SpecialChar */
-code span.ss { color: #ff5500; } /* SpecialString */
-code span.st { color: #bf0303; } /* String */
-code span.va { color: #0057ae; } /* Variable */
-code span.vs { color: #bf0303; } /* VerbatimString */
-code span.wa { color: #bf0303; } /* Warning */
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   &lt;/style&gt;
   &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"&gt;&lt;/script&gt;
 &lt;/head&gt;
@@ -1237,23 +1243,7 @@ MathJax.Hub.Config({
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</content></entry><entry><title>Regarding Statistical Model Specification and Sample Results</title><link href="https://brandonwillard.github.io/regarding-statistical-model-specification-and-sample-results.html" rel="alternate"></link><published>2016-11-01T00:00:00-05:00</published><updated>2016-11-01T00:00:00-05:00</updated><author><name>Brandon Willard</name></author><id>tag:brandonwillard.github.io,2016-11-01:/regarding-statistical-model-specification-and-sample-results.html</id><summary type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-  &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-  &lt;meta http-equiv="Content-Style-Type" content="text/css" /&gt;
-  &lt;meta name="generator" content="pandoc" /&gt;
-  &lt;meta name="author" content="Brandon Willard" /&gt;
-  &lt;title&gt;Regarding Statistical Model Specification and Sample Results&lt;/title&gt;
-  &lt;style type="text/css"&gt;code{white-space: pre;}&lt;/style&gt;
-  &lt;style type="text/css"&gt;
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin …&lt;/style&gt;&lt;/head&gt;&lt;/html&gt;</summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+</content></entry><entry><title>Regarding Statistical Model Specification and Sample Results</title><link href="https://brandonwillard.github.io/regarding-statistical-model-specification-and-sample-results.html" rel="alternate"></link><published>2016-11-01T00:00:00-05:00</published><updated>2016-11-01T00:00:00-05:00</updated><author><name>Brandon Willard</name></author><id>tag:brandonwillard.github.io,2016-11-01:/regarding-statistical-model-specification-and-sample-results.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -1289,46 +1279,43 @@ pre.numberSource a.sourceLine::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #a0a0a0;
+    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  { color: #1f1c1b; background-color: #ffffff; }
+  {  }
 @media screen {
 a.sourceLine::before { text-decoration: underline; }
 }
-code span. { color: #1f1c1b; } /* Normal */
-code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
-code span.an { color: #ca60ca; } /* Annotation */
-code span.at { color: #0057ae; } /* Attribute */
-code span.bn { color: #b08000; } /* BaseN */
-code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
-code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #924c9d; } /* Char */
-code span.cn { color: #aa5500; } /* Constant */
-code span.co { color: #898887; } /* Comment */
-code span.cv { color: #0095ff; } /* CommentVar */
-code span.do { color: #607880; } /* Documentation */
-code span.dt { color: #0057ae; } /* DataType */
-code span.dv { color: #b08000; } /* DecVal */
-code span.er { color: #bf0303; text-decoration: underline; } /* Error */
-code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
-code span.fl { color: #b08000; } /* Float */
-code span.fu { color: #644a9b; } /* Function */
-code span.im { color: #ff5500; } /* Import */
-code span.in { color: #b08000; } /* Information */
-code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
-code span.op { color: #1f1c1b; } /* Operator */
-code span.ot { color: #006e28; } /* Other */
-code span.pp { color: #006e28; } /* Preprocessor */
-code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
-code span.sc { color: #3daee9; } /* SpecialChar */
-code span.ss { color: #ff5500; } /* SpecialString */
-code span.st { color: #bf0303; } /* String */
-code span.va { color: #0057ae; } /* Variable */
-code span.vs { color: #bf0303; } /* VerbatimString */
-code span.wa { color: #bf0303; } /* Warning */
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   &lt;/style&gt;
   &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"&gt;&lt;/script&gt;
 &lt;/head&gt;
@@ -1719,24 +1706,7 @@ MathJax.Hub.Config({
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</content></entry><entry><title>SymPy Expression Tree Manipulation</title><link href="https://brandonwillard.github.io/sympy-expression-tree-manipulation.html" rel="alternate"></link><published>2016-10-27T00:00:00-05:00</published><updated>2016-10-27T00:00:00-05:00</updated><author><name>Brandon Willard</name></author><id>tag:brandonwillard.github.io,2016-10-27:/sympy-expression-tree-manipulation.html</id><summary type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-  &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-  &lt;meta http-equiv="Content-Style-Type" content="text/css" /&gt;
-  &lt;meta name="generator" content="pandoc" /&gt;
-  &lt;meta name="author" content="Brandon Willard" /&gt;
-  &lt;title&gt;SymPy Expression Tree Manipulation&lt;/title&gt;
-  &lt;style type="text/css"&gt;code{white-space: pre;}&lt;/style&gt;
-  &lt;style type="text/css"&gt;
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen …&lt;/style&gt;&lt;/head&gt;&lt;/html&gt;</summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+</content></entry><entry><title>SymPy Expression Tree Manipulation</title><link href="https://brandonwillard.github.io/sympy-expression-tree-manipulation.html" rel="alternate"></link><published>2016-10-27T00:00:00-05:00</published><updated>2016-10-27T00:00:00-05:00</updated><author><name>Brandon Willard</name></author><id>tag:brandonwillard.github.io,2016-10-27:/sympy-expression-tree-manipulation.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -1772,46 +1742,43 @@ pre.numberSource a.sourceLine::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #a0a0a0;
+    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  { color: #1f1c1b; background-color: #ffffff; }
+  {  }
 @media screen {
 a.sourceLine::before { text-decoration: underline; }
 }
-code span. { color: #1f1c1b; } /* Normal */
-code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
-code span.an { color: #ca60ca; } /* Annotation */
-code span.at { color: #0057ae; } /* Attribute */
-code span.bn { color: #b08000; } /* BaseN */
-code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
-code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #924c9d; } /* Char */
-code span.cn { color: #aa5500; } /* Constant */
-code span.co { color: #898887; } /* Comment */
-code span.cv { color: #0095ff; } /* CommentVar */
-code span.do { color: #607880; } /* Documentation */
-code span.dt { color: #0057ae; } /* DataType */
-code span.dv { color: #b08000; } /* DecVal */
-code span.er { color: #bf0303; text-decoration: underline; } /* Error */
-code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
-code span.fl { color: #b08000; } /* Float */
-code span.fu { color: #644a9b; } /* Function */
-code span.im { color: #ff5500; } /* Import */
-code span.in { color: #b08000; } /* Information */
-code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
-code span.op { color: #1f1c1b; } /* Operator */
-code span.ot { color: #006e28; } /* Other */
-code span.pp { color: #006e28; } /* Preprocessor */
-code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
-code span.sc { color: #3daee9; } /* SpecialChar */
-code span.ss { color: #ff5500; } /* SpecialString */
-code span.st { color: #bf0303; } /* String */
-code span.va { color: #0057ae; } /* Variable */
-code span.vs { color: #bf0303; } /* VerbatimString */
-code span.wa { color: #bf0303; } /* Warning */
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   &lt;/style&gt;
   &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"&gt;&lt;/script&gt;
 &lt;/head&gt;
