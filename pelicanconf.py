@@ -34,6 +34,7 @@ EXTRA_PATH_METADATA = {
 PAGE_PATHS = ['pages']
 ARTICLE_PATHS = ['articles']
 ARTICLE_EXCLUDES = ['articles/src']
+SUMMARY_MAX_LENGTH = 0
 
 TIMEZONE = 'America/Chicago'
 
@@ -84,7 +85,7 @@ DEFAULT_PAGINATION = 10
 PANDOC_BIBHEADER = 'References'
 PANDOC_BIBDIR = './content/articles/src'
 PANDOC_ARGS = ['-s', '--mathjax', '--section-divs',
-               '--highlight-style=kate',
+               '--highlight-style=pygments',
                '--include-after-body=./content/articles/src/after_body.html',
                '--template=pelican_template.html'
                ]

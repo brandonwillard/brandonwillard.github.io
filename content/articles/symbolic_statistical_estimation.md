@@ -2,7 +2,7 @@
 author:
 - 'Brandon T. Willard'
 bibliography:
-- 'symbolic.bib'
+- 'tex/symbolic.bib'
 date: '2017-01-18'
 figure_dir: '{attach}/articles/figures/'
 figure_ext: png

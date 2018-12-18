@@ -1,0 +1,122 @@
+#+TITLE: Data Science at Citybase
+#+AUTHOR: Brandon T. Willard
+#+DATE: 2018-12-18
+#+EMAIL: brandonwillard@gmail.com
+
+#+STARTUP: showall indent hidestars
+#+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:results html-preamble:t
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+
+#+BIND:
+
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+#+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+
+#+BEGIN_SRC elisp :eval export-only :exports results :results value raw
+;;
+;; Run `org-publish-current-file' to write the .md file.
+;;
+(setq org-ref-bibliography-entry-format
+          (add-to-list 'org-ref-bibliography-entry-format
+                       '("misc" . "%a, %t, <i>%j</i>, %p (%y). <a href=\"%U\">link</a>.")))
+
+(defmacro create-org-ref-generic-format-function (link-type)
+  (pcase (macroexpand-1 `(org-ref-make-format-function ,link-type))
+    (`(defun ,name ,args ,doc . ,body)
+     `(cl-defgeneric ,name ,args ,@body))))
+
+(create-org-ref-generic-format-function "citet")
+
+(defun btw--create-md-link (key)
+     (format "<sup id=\"%s\"><a href=\"#%s\">%s</a></sup>"
+             (md5 key)
+             key
+             (let ((org-ref-bibliography-files (org-ref-find-bibliography))
+                   (file)
+                   (entry)
+                   (bibtex-entry))
+               (setq file (catch 'result
+                            (cl-loop for
+                                     file
+                                     in
+                                     org-ref-bibliography-files
+                                     do
+                                     (if (org-ref-key-in-file-p key
+                                                                (file-truename file))
+                                         (throw 'result file)
+                                       (message "%s not found in %s"
+                                                key
+                                                (file-truename file))))))
+
+               (with-temp-buffer
+                 (insert-file-contents file)
+                 (bibtex-set-dialect (parsebib-find-bibtex-dialect)
+                                     t)
+                 (bibtex-search-entry key nil 0)
+                 (setq bibtex-entry (bibtex-parse-entry))
+                 (dolist (cons-cell bibtex-entry)
+                   (setf (car cons-cell) (downcase (car cons-cell))))
+                 ;; or "shorttitle"
+                 (setq entry (cdr (assoc "title" bibtex-entry))))
+               (replace-regexp-in-string "[\"\{\}]"
+                                         ""
+                                         (htmlize-escape-or-link entry)))))
+
+(cl-defmethod org-ref-format-citet (keyword desc (format (eql md)))
+  (mapconcat #'btw--create-md-link
+             (s-split "," keyword)
+             "<sup>,</sup>"))
+
+;; Test 'em out.
+;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'html)
+;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'md)
+
+(let* ((org-env (org-export-get-environment))
+       (bib-loc
+        (apply #'f-join
+               (cdr (f-split (car (plist-get org-env ':bibliography)))))))
+  (print (format (s-join "\n"
+                         '("#+BEGIN_EXPORT html"
+                           "---"
+                           "author: '%s'"
+                           "bibliography:"
+                           "- '%s'"
+                           "date: '%s'"
+                           "figure_dir: '{attach}/articles/figures/'"
+                           "figure_ext: png"
+                           "title: %s"
+                           "---"
+                           "#+END_EXPORT"))
+                 (car (plist-get org-env ':author))
+                 bib-loc
+                 (car (plist-get org-env ':date))
+                 (car (plist-get org-env ':title)))))
+#+END_SRC
+
+#+PROPERTY: header-args :eval never-export :exports both :results output drawer replace
+#+PROPERTY: header-args+ :session
+
+#+SETUPFILE: latex-setup.org
+
+# #+BEGIN_abstract
+# An abstract here.
+# #+END_abstract
+
+# * Introduction
+#
+# An introduction.
+#
+# #+ATTR_HTML: :title-name A Definition :markdown 1 :env-number 1
+# #+BEGIN_definition
+# Here's a definition with math:
+# \begin{equation*}
+#   \int x^s dx\;.
+# \end{equation*}
+# #+END_definition
+
+I recently wrote about data science at CityBase on the CityBase
+blog: [[citet:WillardProgrammingIntelligentCity2018a]].
+
+#+BIBLIOGRAPHY: ../tex/citybase-data-science.bib
+#+BIBLIOGRAPHYSTYLE: plainnat

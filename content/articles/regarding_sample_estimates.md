@@ -2,7 +2,7 @@
 author:
 - Brandon Willard
 bibliography:
-- 'bayes.bib'
+- 'tex/bayes.bib'
 date: '2016-11-01'
 figure_dir: '{attach}/articles/figures/'
 figure_ext: png

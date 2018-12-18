@@ -8,7 +8,7 @@ TEX_FILES = $(addsuffix .tex, $(basename $(PNW_FILES) $(TEXW_FILES)))
 PDF_FILES	= $(TEX_FILES:%.tex=%.pdf)
 
 SRC_DIR = $(abspath ./)
-MD_DEST_DIR = $(abspath ../)
+MD_DEST_DIR = $(abspath ../../)
 PDF_DEST_DIR = $(abspath ./output)
 
 PDFLATEX = "pdflatex -shell-escape -file-line-error -interaction=nonstopmode -synctex=1"

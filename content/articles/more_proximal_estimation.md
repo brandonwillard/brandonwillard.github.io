@@ -2,7 +2,7 @@
 author:
 - 'Brandon T. Willard'
 bibliography:
-- 'more-proximal-estimation.bib'
+- 'tex/more-proximal-estimation.bib'
 date: '2017-03-06'
 figure_dir: '{attach}/articles/figures/'
 figure_ext: png
@@ -26,7 +26,7 @@ Proximal and Computational Components
 
 First, we \[re\]-introduce the workhorse of proximal methods: the *proximal operator*.
 
-<div class="Def" markdown="" env-number="1" title-name="[Proximal Operator]">
+<div class="definition" markdown="" env-number="1" title-name="[Proximal Operator]">
 
 $$\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
