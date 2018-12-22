@@ -151,10 +151,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;pre class="hy"&gt;&lt;code&gt;(import ast)
 (import builtins)
 
+(import [hy.contrib.hy-repr [hy-repr :as -hy-repr]])
 
-(defn ast-funcall-to-hy [ast-obj &amp;amp;optional
-                         [repr1 (fn [x &amp;amp;rest y] (repr x))]
-                         [level 1]]
+(defn ast-funcall-to-hy [ast-obj repr1
+                         &amp;amp;optional [level 1]]
   &amp;quot;Turn Python `ast.Call` expressions into Hy `repr` strings.
 
 XXX: Only a very minimal subset of Python-to-Hy AST is implemented.
@@ -176,11 +176,11 @@ This can be used to turn a \&amp;quot;readable\&amp;quot; `repr` result, via an 
 
 
 (setv test-ast (ast.parse &amp;quot;range(x, y, blah=1, bloh=\&amp;quot;ok\&amp;quot;)&amp;quot; :mode &amp;quot;eval&amp;quot;))
-(print (ast-funcall-to-hy test-ast))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="hy"&gt;&lt;code&gt;(range x y :blah 1 :bloh &amp;#39;ok&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+(print (ast-funcall-to-hy test-ast (fn [x &amp;amp;rest y] (-hy-repr x))))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="hy"&gt;&lt;code&gt;(range x y :blah 1 :bloh &amp;quot;ok&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Naturally, &lt;code&gt;ast-funcall-to-hy&lt;/code&gt; only handles readable function call forms represented by &lt;code&gt;ast.Call&lt;/code&gt; nodes, but even this covers a decent amount of ground.&lt;/p&gt;
 &lt;p&gt;This function can be used in a &lt;code&gt;repr&lt;/code&gt; as follows:&lt;/p&gt;
-&lt;pre class="hy"&gt;&lt;code&gt;(defn hy-repr [x &amp;amp;optional [level 1]]
+&lt;pre class="hy"&gt;&lt;code&gt;(defn hy-repr [x &amp;amp;optional [level 1] [-repr (fn [x &amp;amp;rest y] (-hy-repr x))]]
   &amp;quot;Use `builtin.repr` results to generate readable Hy `repr` strings for cases
 we haven&amp;#39;t covered explicitly.
 &amp;quot;
@@ -189,7 +189,7 @@ we haven&amp;#39;t covered explicitly.
     (when (not (.startswith s &amp;quot;&amp;lt;&amp;quot;))
       (do
         (setv repr-ast (ast.parse s :mode &amp;quot;eval&amp;quot;))
-        (setv s (ast-funcall-to-hy repr-ast))))
+        (setv s (ast-funcall-to-hy repr-ast -repr))))
     s
     (except [Exception]
       (.format &amp;quot;&amp;lt;{} instance at {}&amp;gt;&amp;quot; x.__class__.__name__ (id x)))))&lt;/code&gt;&lt;/pre&gt;
@@ -199,7 +199,7 @@ we haven&amp;#39;t covered explicitly.
                 (repr test-ast)
                 (hy-repr test-ast)))&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="text"&gt;&lt;code&gt;before: TestClass(1, {&amp;#39;a&amp;#39;: 2, &amp;#39;b&amp;#39;: 3}, kwarg1=1, kwarg2=&amp;#39;ok&amp;#39;)
-after: (TestClass 1 {&amp;#39;a&amp;#39;: 2, &amp;#39;b&amp;#39;: 3} :kwarg1 1 :kwarg2 &amp;#39;ok&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+after: (TestClass 1 {&amp;quot;a&amp;quot; 2  &amp;quot;b&amp;quot; 3} :kwarg1 1 :kwarg2 &amp;quot;ok&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/section&gt;
 &lt;section id="a-use-for-relational-programming" class="level1"&gt;

@@ -266,10 +266,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre class="hy"><code>(import ast)
 (import builtins)
 
+(import [hy.contrib.hy-repr [hy-repr :as -hy-repr]])
 
-(defn ast-funcall-to-hy [ast-obj &amp;optional
-                         [repr1 (fn [x &amp;rest y] (repr x))]
-                         [level 1]]
+(defn ast-funcall-to-hy [ast-obj repr1
+                         &amp;optional [level 1]]
   &quot;Turn Python `ast.Call` expressions into Hy `repr` strings.
 
 XXX: Only a very minimal subset of Python-to-Hy AST is implemented.
@@ -291,11 +291,11 @@ This can be used to turn a \&quot;readable\&quot; `repr` result, via an actual \
 
 
 (setv test-ast (ast.parse &quot;range(x, y, blah=1, bloh=\&quot;ok\&quot;)&quot; :mode &quot;eval&quot;))
-(print (ast-funcall-to-hy test-ast))</code></pre>
-<pre class="hy"><code>(range x y :blah 1 :bloh &#39;ok&#39;)</code></pre>
+(print (ast-funcall-to-hy test-ast (fn [x &amp;rest y] (-hy-repr x))))</code></pre>
+<pre class="hy"><code>(range x y :blah 1 :bloh &quot;ok&quot;)</code></pre>
 <p>Naturally, <code>ast-funcall-to-hy</code> only handles readable function call forms represented by <code>ast.Call</code> nodes, but even this covers a decent amount of ground.</p>
 <p>This function can be used in a <code>repr</code> as follows:</p>
-<pre class="hy"><code>(defn hy-repr [x &amp;optional [level 1]]
+<pre class="hy"><code>(defn hy-repr [x &amp;optional [level 1] [-repr (fn [x &amp;rest y] (-hy-repr x))]]
   &quot;Use `builtin.repr` results to generate readable Hy `repr` strings for cases
 we haven&#39;t covered explicitly.
 &quot;
@@ -304,7 +304,7 @@ we haven&#39;t covered explicitly.
     (when (not (.startswith s &quot;&lt;&quot;))
       (do
         (setv repr-ast (ast.parse s :mode &quot;eval&quot;))
-        (setv s (ast-funcall-to-hy repr-ast))))
+        (setv s (ast-funcall-to-hy repr-ast -repr))))
     s
     (except [Exception]
       (.format &quot;&lt;{} instance at {}&gt;&quot; x.__class__.__name__ (id x)))))</code></pre>
@@ -314,7 +314,7 @@ we haven&#39;t covered explicitly.
                 (repr test-ast)
                 (hy-repr test-ast)))</code></pre>
 <pre class="text"><code>before: TestClass(1, {&#39;a&#39;: 2, &#39;b&#39;: 3}, kwarg1=1, kwarg2=&#39;ok&#39;)
-after: (TestClass 1 {&#39;a&#39;: 2, &#39;b&#39;: 3} :kwarg1 1 :kwarg2 &#39;ok&#39;)</code></pre>
+after: (TestClass 1 {&quot;a&quot; 2  &quot;b&quot; 3} :kwarg1 1 :kwarg2 &quot;ok&quot;)</code></pre>
 </div>
 </section>
 <section id="a-use-for-relational-programming" class="level1">
