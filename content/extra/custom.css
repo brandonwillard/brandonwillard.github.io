@@ -1,6 +1,9 @@
 a.sourceLine{
     border-bottom-style: none !important
 }
+a.sourceCode{
+    border-bottom-style: none !important
+}
 
 .project{
     display: block;

@@ -1,0 +1,489 @@
+#+TITLE: Readable Strings and Relational Programming in Hy
+#+AUTHOR: Brandon T. Willard
+#+DATE: 2018-12-20
+#+EMAIL: brandonwillard@gmail.com
+
+#+STARTUP: hideblocks indent hidestars
+#+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:results html-preamble:t
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+
+#+BIND:
+
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+#+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+
+#+BEGIN_SRC elisp :eval export-only :exports results :results value raw
+;;
+;; Run `org-publish-current-file' to write the .md file.
+;;
+(setq org-ref-bibliography-entry-format
+          (add-to-list 'org-ref-bibliography-entry-format
+                       '("misc" . "%a, %t, <i>%j</i>, %p (%y). <a href=\"%U\">link</a>.")))
+
+(defmacro create-org-ref-generic-format-function (link-type)
+  (pcase (macroexpand-1 `(org-ref-make-format-function ,link-type))
+    (`(defun ,name ,args ,doc . ,body)
+     `(cl-defgeneric ,name ,args ,@body))))
+
+(create-org-ref-generic-format-function "citet")
+
+(defun btw--create-md-link (key)
+     (format "<sup id=\"%s\"><a href=\"#%s\">%s</a></sup>"
+             (md5 key)
+             key
+             (let ((org-ref-bibliography-files (org-ref-find-bibliography))
+                   (file)
+                   (entry)
+                   (bibtex-entry))
+               (setq file (catch 'result
+                            (cl-loop for
+                                     file
+                                     in
+                                     org-ref-bibliography-files
+                                     do
+                                     (if (org-ref-key-in-file-p key
+                                                                (file-truename file))
+                                         (throw 'result file)
+                                       (message "%s not found in %s"
+                                                key
+                                                (file-truename file))))))
+
+               (with-temp-buffer
+                 (insert-file-contents file)
+                 (bibtex-set-dialect (parsebib-find-bibtex-dialect)
+                                     t)
+                 (bibtex-search-entry key nil 0)
+                 (setq bibtex-entry (bibtex-parse-entry))
+                 (dolist (cons-cell bibtex-entry)
+                   (setf (car cons-cell) (downcase (car cons-cell))))
+                 ;; or "shorttitle"
+                 (setq entry (cdr (assoc "title" bibtex-entry))))
+               (replace-regexp-in-string "[\"\{\}]"
+                                         ""
+                                         (htmlize-escape-or-link entry)))))
+
+(cl-defmethod org-ref-format-citet (keyword desc (format (eql md)))
+  (mapconcat #'btw--create-md-link
+             (s-split "," keyword)
+             "<sup>,</sup>"))
+
+;; Test 'em out.
+;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'html)
+;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'md)
+
+;;
+;; An override that transcodes paragraphs/sections as custom divs.
+;;
+(defun btw--org-md-section (old-fun paragraph contents info)
+  ;; TODO: Set `:type' in `info' to th
+  (let ((block-type (org-element-property :type paragraph)))
+    (if block-type
+        (org-html-special-block paragraph contents info)
+      (funcall old-fun paragraph contents info))))
+
+(advice-add #'org-md-section :around #'btw--org-md-section)
+
+;;
+;; Set the YAML preamble.
+;;
+
+(let* ((org-env (org-export-get-environment))
+       (bib-val (plist-get org-env ':bibliography))
+       (bib-loc (and bib-val
+                     (apply #'f-join
+                            (cdr (f-split (car bib-val))))))
+       (bib-str (if bib-loc
+                    (format "bibliography:\n- '%s'" bib-loc)
+                  "")))
+  (print (format (s-join "\n"
+                         '("#+BEGIN_EXPORT html"
+                           "---"
+                           "author: '%s'"
+                           "%s"
+                           "date: '%s'"
+                           "figure_dir: '{attach}/articles/figures/'"
+                           "figure_ext: png"
+                           "title: %s"
+                           "---"
+                           "#+END_EXPORT"))
+                 (car (plist-get org-env ':author))
+                 bib-str
+                 (car (plist-get org-env ':date))
+                 (car (plist-get org-env ':title)))))
+#+END_SRC
+
+#+PROPERTY: header-args :eval never :exports both :results output drawer replace
+#+PROPERTY: header-args+ :session eval-thoughts
+
+#+SETUPFILE: latex-setup.org
+
+#+BEGIN_abstract
+Just some thoughts on a generalized src_python[:eval never]{repr} for Hy and
+some connections with relational programming.
+#+END_abstract
+
+* Introduction
+In the past few months, I've been working on [[https://github.com/hylang/hy][Hy]] a lot.  It's been great
+for translating symbolic computation ideas originating in the Lisp community
+or simply performing the generic meta-programming inherent to the subject.
+
+One feature I've been missing the most is "readable" print-outs from the REPL.
+In this case, "readable" means "a string that can be src_python{eval}'ed to
+[re-]produce the object it's meant to represent".
+[[https://docs.python.org/3/library/functions.html#repr][Python calls the function(s) that produce these strings "src_python{repr}"s]] and
+provides a generic src_python[:eval never]{repr} function--with limited Python
+"readability" guarantees--and a src_python[:eval never]{__repr__} property for
+object/class-level customization.
+
+#+HTML: <div class="example" markdown="" env-number="1">
+#+NAME: repr-demo
+#+BEGIN_SRC python :eval never-export :results output :wrap "SRC python :eval never"
+test_obj = {"a": 1, "b": [2, 3]}
+
+# Produce a readable string using `repr`
+obj_repr_str = repr(test_obj)
+print(obj_repr_str)
+
+# Re-create the object from its readable string form
+obj_from_repr = eval(obj_repr_str)
+print(obj_from_repr)
+
+print(test_obj == obj_from_repr)
+#+END_SRC
+
+#+RESULTS: repr-demo
+#+BEGIN_SRC python :eval never
+{'a': 1, 'b': [2, 3]}
+{'a': 1, 'b': [2, 3]}
+True
+
+
+#+END_SRC
+
+#+HTML: </div>
+
+There's already a src_hy[:eval never]{hy.contrib.hy-repr} module that gets most
+of the way there, but it doesn't implement the Python standard
+library's src_python[:eval never]{reprlib.Repr}.  The
+class src_python[:eval never]{reprlib.Repr} implements limits for the display
+lengths of the strings it produces, and its source code provides a few standard
+library implementations of primitive
+object src_python[:eval never]{repr}s--which require only trivial changes to
+produce the desired Hy syntax.
+
+For these reasons--and an overall interest in using and translating more of the
+Python standard library to Hy--I decided to try a quick refactoring
+of src_hy[:eval never]{hy.contrib.hy-repr} that implements
+src_python[:eval never]{reprlib.Repr}.
+
+** The Problem(s)
+The translation of Hy AST to string form is fairly straight-forward.  In most cases,
+one only needs to change the src_python{repr}s for Python primitives and basic function
+calls (e.g. from src_python[:eval never]{func(1)} to src_hy[:eval never]{(func 1)});
+however, changing just a couple lines
+in src_python[:eval never]{repr}/src_python[:eval never]{__repr__} functions for
+all the Python builtins is very annoying.
+
+Furthermore, what about those custom object src_python[:eval never]{__repr__} methods?
+While one might be able to manually patch most--if not all--of the (Python-implemented)
+standard library objects, there are far too many 3rd-party
+library src_python[:eval never]{__repr__}s with exactly the same trivial
+function-call form that can't reasonably be patched.
+
+** Some approaches
+The first few things that come to mind when considering a more general approach to
+Python-to-Hy src_python[:eval never]{__repr__} translation involve some use of the
+existing src_python[:eval never]{repr} code.  That might come in the form of
+string manipulation of src_python[:eval never]{repr} output,
+which src_hy[:eval never]{hy.contrib.hy-repr} already does in some cases, or
+quite possibly some use of a src_python[:eval never]{repr} function's
+source or code object.
+
+The latter seems like it has the potential to be more thorough and far-reaching,
+but also considerably more involved and computationally inefficient.
+Unfortunately, similar things can be said about the regex approach.  Although it
+does seem a little easier to implement and--for limited cases--efficient enough
+for most purposes, it also comes across as much more brittle.
+
+Fortunately, the latter is unnecessary, because, when the
+existing src_python[:eval never]{repr} output is Python readable, it can be
+parsed by src_python[:eval never]{ast.parse}.  The
+function src_python[:eval never]{ast.parse} effectively handles the regex work
+and yields the bulk of information needed for a Hy src_python[:eval never]{repr}
+string: the function name and its (positional and keyword) arguments.
+
+#+HTML: <div class="example" markdown="" env-number="2">
+Let's say we implement our own object and src_python[:eval never]{repr}.
+#+NAME: test-obj
+#+BEGIN_SRC hy :eval never-export :results output :wrap "SRC python :eval never"
+(defclass TestClass [object]
+  (defn --init-- [self arg1 arg2 &optional kwarg1 kwarg2]
+    (setv self.arg1 arg1
+          self.arg2 arg2
+          self.kwarg1 kwarg1
+          self.kwarg2 kwarg2))
+  (defn --repr-- [self]
+    (.format "TestClass({}, {}, kwarg1={}, kwarg2={})"
+             #* (lfor a [self.arg1 self.arg2
+                         self.kwarg1 self.kwarg2]
+                      (repr a)))))
+
+(setv test-obj (TestClass 1 {"a" 1 "b" 2} :kwarg1 1 :kwarg2 "ok"))
+(print (repr test-obj))
+#+END_SRC
+
+#+RESULTS: test-obj
+#+BEGIN_SRC python :eval never
+TestClass(1, {'a': 1, 'b': 2}, kwarg1=1, kwarg2='ok')
+#+END_SRC
+
+Since the results are readable, we can do the following:
+#+NAME: test-obj-ast
+#+BEGIN_SRC hy :eval never-export :results output :wrap "SRC python :eval never"
+(import ast astor)
+(setv repr-ast (ast.parse (repr test-obj) :mode "eval"))
+(print (astor.dump repr-ast))
+#+END_SRC
+
+#+RESULTS: test-obj-ast
+#+BEGIN_SRC python :eval never
+Expression(
+    body=Call(func=Name(id='TestClass'),
+              args=[Num(n=1),
+                    Dict(keys=[Str(s='a'), Str(s='b')],
+                         values=[Num(n=1), Num(n=2)])],
+              keywords=[keyword(arg='kwarg1', value=Num(n=1)),
+                        keyword(arg='kwarg2', value=Str(s='ok'))]))
+#+END_SRC
+
+#+HTML: </div>
+
+* An Implemented Partial Solution
+
+With existing src_python{repr} output converted to Python AST by Python itself
+(using src_python{ast.parse}), we can produce readable Hy strings from the
+resulting AST objects.
+
+In this scenario, we need only be concerned with the conversion of Python AST
+into readable Hy strings.  This works like an inverse to the Hy compiler: in other
+words, a Hy decompiler.  For src_python{repr} purposes, only function call
+statements and their arguments need to be decompiled.  Unfortunately, function
+arguments can consist of arbitrary Python/Hy objects, and that's
+how the decompilation responsibilities start to expand.  If we limit our scope
+to a reasonable subset of Python builtins/primitives, the results can still be
+quite effective, and won't require a complete decompiler.
+
+On the down-side, if a Hy src_python{repr} implementation overrides the
+built-in src_python{repr}, then arguments in existing src_python{repr}/src_python{__repr__}s
+might already be converted by the overridden src_python{repr}; however, the results
+from src_python{ast.parse} will undo/discard those results.  Even so, custom
+class src_python{__repr__}s aren't guaranteed to use the
+built-in src_python{repr} on their arguments, so attempts to salvage
+already-converted src_python{repr} output are undeniably fraught with
+complications.
+
+#+HTML: <div class="example" markdown="" env-number="3">
+Working from the src_python[:eval never]{repr}-produced AST above, I mocked-up a
+quick prototype for a generic Python-to-Hy conversion function.
+
+#+NAME: ast-funcall-to-hy
+#+BEGIN_SRC hy :eval never-export :results output :wrap "SRC hy :eval never"
+(import ast)
+(import builtins)
+
+(import [hy.contrib.hy-repr [hy-repr :as -hy-repr]])
+
+(defn ast-funcall-to-hy [ast-obj repr1
+                         &optional [level 1]]
+  "Turn Python `ast.Call` expressions into Hy `repr` strings.
+
+XXX: Only a very minimal subset of Python-to-Hy AST is implemented.
+
+This can be used to turn a \"readable\" `repr` result, via an actual \"read\" by
+`ast.parse`, to Python AST then Hy AST.
+"
+  (assert (and (instance? ast.Expression ast-obj)
+               (instance? ast.Call ast-obj.body)))
+  (setv func-name (. ast-obj body func id))
+  (setv eval-fn (fn [o]
+                  (if (instance? ast.Name o)
+                      o.id
+                      (repr1 (ast.literal-eval o) (dec level)))))
+  (setv func-args (lfor a (. ast-obj body args) (eval-fn a)))
+  (setv func-kwargs (lfor k (. ast-obj body keywords)
+                          (.format ":{} {}" k.arg (eval-fn k.value))))
+  (.format "({})" (.join " " (+ [func-name] func-args func-kwargs))))
+
+
+(setv test-ast (ast.parse "range(x, y, blah=1, bloh=\"ok\")" :mode "eval"))
+(print (ast-funcall-to-hy test-ast (fn [x &rest y] (-hy-repr x))))
+#+END_SRC
+
+#+RESULTS: ast-funcall-to-hy
+#+BEGIN_SRC hy :eval never
+(range x y :blah 1 :bloh "ok")
+#+END_SRC
+
+src_python{ast-funcall-to-hy} is an extremely narrow decompiler that only
+handles readable function calls (represented by src_python{ast.Call} nodes),
+but, as part of a fallback sequence in a Hy src_hy{repr} implementation, it's
+still pretty useful.
+
+A function like src_python{ast-funcall-to-hy} can be used in src_python{repr}
+logic as follows:
+#+NAME: hy-repr
+#+BEGIN_SRC hy :eval t :results none
+(defn hy-repr [x &optional [level 1] [-repr (fn [x &rest y] (-hy-repr x))]]
+  "Use `builtin.repr` results to generate readable Hy `repr` strings for cases
+we haven't covered explicitly.
+"
+  (try
+    (setv s (builtins.repr x))
+    (when (not (.startswith s "<"))
+      (do
+        (setv repr-ast (ast.parse s :mode "eval"))
+        (setv s (ast-funcall-to-hy repr-ast -repr))))
+    s
+    (except [Exception]
+      (.format "<{} instance at {}>" x.__class__.__name__ (id x)))))
+#+END_SRC
+
+Now, for the example class, src_python{TestClass}, we can demonstrate automatic
+conversion of its Python src_python{__repr__} implementation.
+#+NAME: hy-repr-exa
+#+BEGIN_SRC hy :eval never-export :results output :wrap "SRC text :eval never"
+(setv test-ast (TestClass 1 {"a" 2 "b" 3} :kwarg1 1 :kwarg2 "ok"))
+(print (.format "before: {}\nafter: {}"
+                (repr test-ast)
+                (hy-repr test-ast)))
+#+END_SRC
+
+#+RESULTS: hy-repr-exa
+#+BEGIN_SRC text :eval never
+before: TestClass(1, {'a': 2, 'b': 3}, kwarg1=1, kwarg2='ok')
+after: (TestClass 1 {"a" 2  "b" 3} :kwarg1 1 :kwarg2 "ok")
+#+END_SRC
+
+#+HTML: </div>
+* A use for relational programming
+While considering all this, I kept thinking about how nice it would be to have
+a "bijective" compiler; in other words, the existing Hy compiler, which translates
+Hy-to-Python, *and* a Python-to-Hy (de)compiler.  With a Python-to-Hy AST
+compiler, we could more broadly convert Python AST output--like the kind in our
+example above--to a src_python[:eval never]{repr}/readable string in Hy.
+
+The idea isn't too crazy, especially since one can easily work backward from a
+lot of the logic in the existing Hy compiler.  There will be some
+edge cases that result in non-bijective translations (i.e. some round-trip
+Hy/Python translations might only be *equal* and not exactly *equivalent*), but
+this isn't necessarily a blocking issue.  Decisions regarding "canonical" or
+reduced forms of Hy/Python AST might be necessary, especially if the resulting AST
+is intended to be more human readable than not.
+
+Perhaps what's more discouraging is the effort it would take to ensure that the
+compilation processes going both ways are--and stay--coherent during the course
+of development.  For instance, when changes are made to the standard compilation
+process (i.e. Hy-to-Python), it's likely that changes and tests would also be
+needed for the other direction.
+
+This is where a paradigm like relational programming is particularly appealing:
+it provides a language for defining--and means for computing--the maps
+# \newcommand{\ra}[1]{\kern-1.5ex\xrightarrow{\ \ #1\ \ }\phantom{}\kern-1.5ex}
+# \newcommand{\ras}[1]{\kern-1.5ex\xrightarrow{\ \ \smash{#1}\ \ }\phantom{}\kern-1.5ex}
+# \newcommand{\da}[1]{\bigg\downarrow\raise.5ex\rlap{\scriptstyle#1}}
+# \begin{array}{ccc}
+# \text{Hy Syntax} & \ra{\text{astor}} & \text{Python} \\
+# \searrow & \text{Python AST} & \nearrow
+# \end{array}
+\begin{equation*}
+  \text{Hy Syntax}
+  \longleftrightarrow \text{Python AST}
+  \longleftrightarrow \text{Python Syntax}
+  \;
+\end{equation*}
+in a cohesive way.
+
+My relational programming DSL of choice, [[http://minikanren.org][miniKanren]], already has an
+implementation in Hy: [[https://github.com/algernon/adderall][=loghyc= (and to be formally known as =adderall=)]].  We've
+been using it to perform static code analysis and refactoring in the project
+[[https://github.com/hylang/hydiomatic][=hydiomatic=]], so there's also a precedent for parsing Hy syntax in a relational
+context.
+
+The missing/next step would be to output Python AST (instead of more Hy forms, like
+=hydiomatic= produces, for example).
+
+Perhaps, in a follow-up, I'll illustrate how this can be done.
+
+# #+HTML: <div class="example" markdown="" env-number="3">
+
+#+BEGIN_SRC hy :eval never-export :exports none :results none
+(import ast)
+(import [collections [Callable]])
+(import types)
+(import [hy.compiler [asty hy-eval hy-compile]])
+
+(import [adderall.dsl [*]])
+(import [adderall.extra.misc [typeo]])
+(require [adderall.dsl [*]])
+
+
+(defn typeo [u v]
+  (defn -type-or-self [x]
+    (if (= type (type x))
+        x
+        (type x)))
+  (condᵉ
+    [(project [u] (if (instance? LVar u)
+                      fail
+                      (≡ v (-type-or-self u))))]
+    [(project [v] (if (instance? LVar v)
+                      fail
+                      (≡ u (-type-or-self v))))]
+    (else (project [u v]
+                   (≡ (-type-or-self u) (-type-or-self v))))))
+
+(ast.dump (ast.parse "if x:\n\ty\n\tz" :mode "single"))
+;; Interactive(body=[If(test=Name(id='x', ctx=Load()), body=[Expr(value=Name(id='y', ctx=Load())), Expr(value=Name(id='z', ctx=Load()))], orelse=[])])
+
+(ast.dump (ast.parse "func(x, y=z)" :mode "single"))
+;; Expression(body=Call(func=Name(id='func', ctx=Load()), args=[Name(id='x', ctx=Load())], keywords=[keyword(arg='y', value=Name(id='z', ctx=Load()))]))
+
+;; (asty.Call :func
+;;            (asty.Name :id "func"
+;;                       :args [...]
+;;                       :keywords [(asty.keyword :arg "kwarg" :value (asty.Name :id "y"))]))
+
+(quote (> 5 (+ 1 x)))
+
+;; function calls
+(defn hy-callo [hy-form hy-ast]
+  (fresh [op args]
+         (== (cons op args) hy-form)
+         (typeo op types.FunctionType)
+         (== hy-ast `(ast.Expression :body
+                                     (ast.Call :func (ast.Name :id (name ~op))
+                                               ;; TODO
+                                               :args []
+                                               :kwargs [])))))
+
+(run* [op] (== 1 op) (typeo op types.FunctionType))
+
+(setv hy-exa `(+ 1 2))
+(setv ast-exa (. (ast.parse "hyx_Xplus_signX(1, 2)" :mode "single") body [0]))
+
+(setv ast-res (eval (first (run* [out] (hy-callo hy-exa out)))))
+(ast.dump ast-res)
+
+
+;; `if` statement
+(setv hy-exa `(if (> 5 (+ 1 x)) (print x) False))
+(run* [out] (fresh [c s f]
+                 (== `(if ~c ~s ~f) hy-exa)
+                 (== out `(asty.If :test ~c))))
+#+END_SRC
+# #+HTML: </div>
+# [[citet:someref]].
+#
+# #+BIBLIOGRAPHY: ../tex/post.bib
+# #+BIBLIOGRAPHYSTYLE: plainnat

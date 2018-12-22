@@ -68,7 +68,7 @@ AVATAR = '/images/profile-pic.png'
 GITHUB_URL = 'https://github.com/brandonwillard'
 
 # Social widget
-SOCIAL = (('linkedin', 'http://linkedin.com/pub/brandon-willard/10/bb4/468/'),
+SOCIAL = (('linkedin', 'https://linkedin.com/pub/brandon-willard/10/bb4/468/'),
           ('google scholar', 'https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en'),
           ('google+', 'https://plus.google.com/+brandonwillard'),
           ('bitbucket', 'https://bitbucket.io/brandonwillard'),
