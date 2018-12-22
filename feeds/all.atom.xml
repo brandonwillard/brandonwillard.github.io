@@ -1,5 +1,234 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/all.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2018-12-18T00:00:00-06:00</updated><entry><title>Data Science at Citybase</title><link href="https://brandonwillard.github.io/data-science-at-citybase.html" rel="alternate"></link><published>2018-12-18T00:00:00-06:00</published><updated>2018-12-18T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-18:/data-science-at-citybase.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/all.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2018-12-20T00:00:00-06:00</updated><entry><title>Readable Strings and Relational Programming in Hy</title><link href="https://brandonwillard.github.io/readable-strings-and-relational-programming-in-hy.html" rel="alternate"></link><published>2018-12-20T00:00:00-06:00</published><updated>2018-12-20T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-20:/readable-strings-and-relational-programming-in-hy.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+  &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
+  &lt;meta http-equiv="Content-Style-Type" content="text/css" /&gt;
+  &lt;meta name="generator" content="pandoc" /&gt;
+  &lt;meta name="author" content="Brandon T. Willard" /&gt;
+  &lt;title&gt;Readable Strings and Relational Programming in Hy&lt;/title&gt;
+  &lt;style type="text/css"&gt;code{white-space: pre;}&lt;/style&gt;
+  &lt;style type="text/css"&gt;
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  &lt;/style&gt;
+  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;div id="header"&gt; --&gt;
+&lt;!-- &lt;h1 class="title"&gt;Readable Strings and Relational Programming in Hy&lt;/h1&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;h2 class="author"&gt;Brandon T. Willard&lt;/h2&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;h3 class="date"&gt;2018–12–20&lt;/h3&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;/div&gt; --&gt;
+&lt;!--  --&gt;
+&lt;div class="abstract"&gt;
+&lt;p&gt;Just some thoughts on a generalized &lt;code&gt;repr&lt;/code&gt; for Hy and some connections with relational programming.&lt;/p&gt;
+&lt;/div&gt;
+&lt;section id="introduction" class="level1"&gt;
+&lt;h1&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;In the past few months, I’ve been working on [[][Hy]] a lot. It’s been great for translating symbolic computation ideas originating in the Lisp community, or simply performing the generic meta-programming inherent to the subject.&lt;/p&gt;
+&lt;p&gt;One feature I’ve been missing the most is “readable” print-outs from the REPL. In this case, “readable” means “a string that can be eval’ed in Hy”. Python calls the function(s) that produce these strings “repr”s, and there’s a single built-in &lt;code&gt;repr&lt;/code&gt; that works for all types that don’t implement their own &lt;code&gt;__repr__&lt;/code&gt; method.&lt;/p&gt;
+&lt;p&gt;There’s already a &lt;code&gt;hy.contrib.hy-repr&lt;/code&gt; module that gets most of the way there, but it doesn’t implement the Python standard library’s &lt;code&gt;reprlib.Repr&lt;/code&gt;. &lt;code&gt;reprlib.Repr&lt;/code&gt; has logic that handles limits on the display lengths of the strings it produces. It’s source demonstrates a few standard library-accepted implementations of primitive object &lt;code&gt;repr&lt;/code&gt;s, as well. These implementations require only trivial changes to produce Hy syntax. For these reasons, and an overall interest in using and translating more of the Python standard library to Hy, I decided to do a quick refactoring of &lt;code&gt;hy.contrib.hy-repr&lt;/code&gt; to make use of &lt;code&gt;reprlib.Repr&lt;/code&gt;.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="repr__s-for-all" class="level1"&gt;
+&lt;h1&gt;&lt;code&gt;__repr__&lt;/code&gt;s for all?&lt;/h1&gt;
+&lt;p&gt;The translation of Hy AST to string form is fairly straight-forward. Things get more complicated when one attempts to go outside of the most basic Python primitive objects. In quite a few cases, the only changes needed might involve a transforming a basic function call from &lt;code&gt;func(1)&lt;/code&gt; to &lt;code&gt;(func 1)&lt;/code&gt;; however, rewriting an entire &lt;code&gt;repr&lt;/code&gt; or &lt;code&gt;__repr__&lt;/code&gt; function just to change one simple line like &lt;code&gt;&amp;quot;{}({})&amp;quot;.format(self.class.__name__, x)&lt;/code&gt; can be very annoying.&lt;/p&gt;
+&lt;p&gt;Furthermore, what about those custom object &lt;code&gt;__repr__&lt;/code&gt; methods? While one might be able to patch most–if not all–of the (Python-implemented) standard library objects, there are 3rd-party library &lt;code&gt;__repr__&lt;/code&gt;s with exactly the same trivial function-call forms that won’t match Hy’s syntax (but easily could).&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="hijack-existing-__repr__s" class="level1"&gt;
+&lt;h1&gt;Hijack existing &lt;code&gt;__repr__&lt;/code&gt;s!&lt;/h1&gt;
+&lt;p&gt;The first few things that come to mind when considering a more general approach to Python-to-Hy &lt;code&gt;__repr__&lt;/code&gt; translation involve some use of the existing &lt;code&gt;repr&lt;/code&gt; code. That might come in the form of string manipulation of &lt;code&gt;repr&lt;/code&gt; output, which &lt;code&gt;hy.contrib.hy-repr&lt;/code&gt; already does in some cases, or quite possibly some parsing of the actual &lt;code&gt;repr&lt;/code&gt; function’s source or code object.&lt;/p&gt;
+&lt;p&gt;Naturally, the latter has the potential to be more thorough and/or correct, but also seems considerably more involved, error-prone and potentially inefficient. Unfortunately, almost the same can be said about simple regex manipulation, although it does seem a little easier to implement and, for limited cases, efficient enough for most purposes.&lt;/p&gt;
+&lt;p&gt;Actually, the latter is essentially unnecessary, because, if the existing &lt;code&gt;repr&lt;/code&gt; output is (Python) readable, then we know it can at least be parsed by Python (e.g. &lt;code&gt;ast.parse&lt;/code&gt;), which will essentially handle the regex work and yield some of the information we need for a Hy &lt;code&gt;repr&lt;/code&gt; string: the function name and its (positional and keyword) arguments.&lt;/p&gt;
+&lt;div class="example" data-markdown="" data-env-number="1"&gt;
+&lt;p&gt;Let’s say we implement our own object and &lt;code&gt;repr&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class="hy"&gt;&lt;code&gt;(defclass TestClass [object]
+  (defn --init-- [self arg1 arg2 &amp;amp;optional kwarg1 kwarg2]
+    (setv self.arg1 arg1
+          self.arg2 arg2
+          self.kwarg1 kwarg1
+          self.kwarg2 kwarg2))
+  (defn --repr-- [self]
+    (.format &amp;quot;TestClass({}, {}, kwarg1={}, kwarg2={})&amp;quot;
+             #* (lfor a [self.arg1 self.arg2
+                         self.kwarg1 self.kwarg2]
+                      (repr a)))))
+
+;; The arguments to this one aren&amp;#39;t primitive enough for reverse-engineering,
+;; so use the fallback.
+(setv test-obj (TestClass 1 {&amp;quot;a&amp;quot; 1 &amp;quot;b&amp;quot; 2} :kwarg1 1 :kwarg2 &amp;quot;ok&amp;quot;))
+
+(print (repr test-obj))&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="sourceCode" id="cb2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb2-1" data-line-number="1"&gt;TestClass(&lt;span class="dv"&gt;1&lt;/span&gt;, {&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;2&lt;/span&gt;}, kwarg1&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;, kwarg2&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;ok&amp;#39;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Since the results are readable, we can do the following:&lt;/p&gt;
+&lt;pre class="hy"&gt;&lt;code&gt;(import ast astor)
+(setv repr-ast (ast.parse (repr test-obj) :mode &amp;quot;eval&amp;quot;))
+(print (astor.dump repr-ast))&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="sourceCode" id="cb4"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb4-1" data-line-number="1"&gt;Expression(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-2" data-line-number="2"&gt;    body&lt;span class="op"&gt;=&lt;/span&gt;Call(func&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;TestClass&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-3" data-line-number="3"&gt;              args&lt;span class="op"&gt;=&lt;/span&gt;[Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-4" data-line-number="4"&gt;                    Dict(keys&lt;span class="op"&gt;=&lt;/span&gt;[Str(s&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;), Str(s&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;)],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-5" data-line-number="5"&gt;                         values&lt;span class="op"&gt;=&lt;/span&gt;[Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;), Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt;)])],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-6" data-line-number="6"&gt;              keywords&lt;span class="op"&gt;=&lt;/span&gt;[keyword(arg&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;kwarg1&amp;#39;&lt;/span&gt;, value&lt;span class="op"&gt;=&lt;/span&gt;Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;)),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-7" data-line-number="7"&gt;                        keyword(arg&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;kwarg2&amp;#39;&lt;/span&gt;, value&lt;span class="op"&gt;=&lt;/span&gt;Str(s&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;ok&amp;#39;&lt;/span&gt;))]))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/section&gt;
+&lt;section id="an-interim-solution" class="level1"&gt;
+&lt;h1&gt;An interim solution&lt;/h1&gt;
+&lt;p&gt;With the parsing handled by Python itself (&lt;code&gt;ast.parse&lt;/code&gt;, specifically), we can attempt to produce readable Hy strings from the resulting Python AST.&lt;/p&gt;
+&lt;p&gt;In this scenario, we only need to be concerned with the conversion of Python AST into readable Hy strings. This is the inverse to the Hy compiler; in other words, a sort of Hy decompiler. For these purposes, only function call statements and their arguments need to be decompiled. Those arguments are where the decompilation responsibilities start to expand, but, if we limit our scope to a reasonable subset of primitive forms, the results can still be quite effective.&lt;/p&gt;
+&lt;p&gt;As a side note, if a Hy &lt;code&gt;repr&lt;/code&gt; implementation overrides the built-in &lt;code&gt;repr&lt;/code&gt;, then those arguments might already be in the desired Hy form; however, the results from &lt;code&gt;ast.parse&lt;/code&gt; will effectively undo that effort. Even so, custom class &lt;code&gt;__repr__&lt;/code&gt;s aren’t guaranteed to use the &lt;code&gt;repr&lt;/code&gt;, so attempts to preserve any potentially salvageable &lt;code&gt;repr&lt;/code&gt; output are undeniably fraught with complications.&lt;/p&gt;
+&lt;div class="example" data-markdown="" data-env-number="2"&gt;
+&lt;p&gt;Working from the &lt;code&gt;repr&lt;/code&gt;-produced AST above, I mocked-up a quick prototype for a generic Python-to-Hy &lt;code&gt;repr&lt;/code&gt; conversion.&lt;/p&gt;
+&lt;pre class="hy"&gt;&lt;code&gt;(import ast)
+(import builtins)
+
+
+(defn ast-funcall-to-hy [ast-obj &amp;amp;optional
+                         [repr1 (fn [x &amp;amp;rest y] (repr x))]
+                         [level 1]]
+  &amp;quot;Turn Python `ast.Call` expressions into Hy `repr` strings.
+
+XXX: Only a very minimal subset of Python-to-Hy AST is implemented.
+
+This can be used to turn a \&amp;quot;readable\&amp;quot; `repr` result, via an actual \&amp;quot;read\&amp;quot; by
+`ast.parse`, to Python AST then Hy AST.
+&amp;quot;
+  (assert (and (instance? ast.Expression ast-obj)
+               (instance? ast.Call ast-obj.body)))
+  (setv func-name (. ast-obj body func id))
+  (setv eval-fn (fn [o]
+                  (if (instance? ast.Name o)
+                      o.id
+                      (repr1 (ast.literal-eval o) (dec level)))))
+  (setv func-args (lfor a (. ast-obj body args) (eval-fn a)))
+  (setv func-kwargs (lfor k (. ast-obj body keywords)
+                          (.format &amp;quot;:{} {}&amp;quot; k.arg (eval-fn k.value))))
+  (.format &amp;quot;({})&amp;quot; (.join &amp;quot; &amp;quot; (+ [func-name] func-args func-kwargs))))
+
+
+(setv test-ast (ast.parse &amp;quot;range(x, y, blah=1, bloh=\&amp;quot;ok\&amp;quot;)&amp;quot; :mode &amp;quot;eval&amp;quot;))
+(print (ast-funcall-to-hy test-ast))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="hy"&gt;&lt;code&gt;(range x y :blah 1 :bloh &amp;#39;ok&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Naturally, &lt;code&gt;ast-funcall-to-hy&lt;/code&gt; only handles readable function call forms represented by &lt;code&gt;ast.Call&lt;/code&gt; nodes, but even this covers a decent amount of ground.&lt;/p&gt;
+&lt;p&gt;This function can be used in a &lt;code&gt;repr&lt;/code&gt; as follows:&lt;/p&gt;
+&lt;pre class="hy"&gt;&lt;code&gt;(defn hy-repr [x &amp;amp;optional [level 1]]
+  &amp;quot;Use `builtin.repr` results to generate readable Hy `repr` strings for cases
+we haven&amp;#39;t covered explicitly.
+&amp;quot;
+  (try
+    (setv s (builtins.repr x))
+    (when (not (.startswith s &amp;quot;&amp;lt;&amp;quot;))
+      (do
+        (setv repr-ast (ast.parse s :mode &amp;quot;eval&amp;quot;))
+        (setv s (ast-funcall-to-hy repr-ast))))
+    s
+    (except [Exception]
+      (.format &amp;quot;&amp;lt;{} instance at {}&amp;gt;&amp;quot; x.__class__.__name__ (id x)))))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now, for the example class, &lt;code&gt;TestClass&lt;/code&gt;, we can demonstrate automatic conversion of its Python &lt;code&gt;__repr__&lt;/code&gt; implementation.&lt;/p&gt;
+&lt;pre class="hy"&gt;&lt;code&gt;(setv test-ast (TestClass 1 {&amp;quot;a&amp;quot; 2 &amp;quot;b&amp;quot; 3} :kwarg1 1 :kwarg2 &amp;quot;ok&amp;quot;))
+(print (.format &amp;quot;before: {}\nafter: {}&amp;quot;
+                (repr test-ast)
+                (hy-repr test-ast)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="text"&gt;&lt;code&gt;before: TestClass(1, {&amp;#39;a&amp;#39;: 2, &amp;#39;b&amp;#39;: 3}, kwarg1=1, kwarg2=&amp;#39;ok&amp;#39;)
+after: (TestClass 1 {&amp;#39;a&amp;#39;: 2, &amp;#39;b&amp;#39;: 3} :kwarg1 1 :kwarg2 &amp;#39;ok&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/section&gt;
+&lt;section id="a-use-for-relational-programming" class="level1"&gt;
+&lt;h1&gt;A use for relational programming&lt;/h1&gt;
+&lt;p&gt;While considering all this, I kept thinking about how nice it would be to have a “bijective” compiler; in other words, the existing Hy compiler, which translates Hy-to-Python, &lt;strong&gt;and&lt;/strong&gt; a Python-to-Hy (de)compiler. With a Python-to-Hy AST compiler, we could more broadly convert Python AST output–like the kind in our example above–to a &lt;code&gt;repr&lt;/code&gt;/readable string in Hy.&lt;/p&gt;
+&lt;p&gt;The idea isn’t too crazy, especially since one can easily work backward from a lot of the logic in the existing Hy compiler. There will be some edge cases that result in non-bijective translations (i.e. some round-trip Hy/Python translations might only be &lt;strong&gt;equal&lt;/strong&gt; and not exactly &lt;strong&gt;equivalent&lt;/strong&gt;), but this isn’t necessarily a blocking issue. Decisions regarding “canonical” or reduced forms of Hy/Python AST might be necessary, especially if the resulting AST is intended to be more human readable than not.&lt;/p&gt;
+&lt;p&gt;An easily more discouraging issue revolves around the effort it takes to ensure that the compilation processes going both ways are–and stay–coherent–in the course of development in either direction. For instance, when changes are made to the standard compilation process (i.e. Hy-to-Python), it’s likely that changes and tests would be needed for the other direction, as well.&lt;/p&gt;
+&lt;p&gt;This is where a paradigm like relational programming is particularly appealing: it provides a language for defining–and means for computing–the maps&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
+  \text{Hy Syntax}
+  \longleftrightarrow \text{Python AST}
+  \longleftrightarrow \text{Python Syntax}
+  \;
+\end{equation*}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;in a cohesive way.&lt;/p&gt;
+&lt;p&gt;My relational programming DSL of choice, &lt;a href="http://minikanren.org"&gt;miniKanren&lt;/a&gt;, already has an implementation in Hy: &lt;a href="https://github.com/algernon/adderall"&gt;&lt;code&gt;loghyc&lt;/code&gt; (and to be formally known as &lt;code&gt;adderall&lt;/code&gt;)&lt;/a&gt;. We’ve been using it to perform static code analysis and refactoring in the project &lt;a href="https://github.com/hylang/hydiomatic"&gt;&lt;code&gt;hydiomatic&lt;/code&gt;&lt;/a&gt;, so there’s also a precedent for parsing Hy syntax in a relational context.&lt;/p&gt;
+&lt;p&gt;The missing/next step would be to output Python AST (instead of more Hy forms, like &lt;code&gt;hydiomatic&lt;/code&gt; produces, for example).&lt;/p&gt;
+&lt;p&gt;Perhaps, in a follow-up, I’ll illustrate how this can be done.&lt;/p&gt;
+&lt;/section&gt;
+&lt;script type="text/x-mathjax-config"&gt;
+MathJax.Hub.Config({
+  CommonHTML: { linebreaks: { automatic: true } },
+  "HTML-CSS": { linebreaks: { automatic: true } },
+  SVG: { linebreaks: { automatic: true } },
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</content></entry><entry><title>Data Science at Citybase</title><link href="https://brandonwillard.github.io/data-science-at-citybase.html" rel="alternate"></link><published>2018-12-18T00:00:00-06:00</published><updated>2018-12-18T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-18:/data-science-at-citybase.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
