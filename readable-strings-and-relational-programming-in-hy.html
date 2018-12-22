@@ -208,7 +208,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>In the past few months, I’ve been working on [[][Hy]] a lot. It’s been great for translating symbolic computation ideas originating in the Lisp community, or simply performing the generic meta-programming inherent to the subject.</p>
+<p>In the past few months, I’ve been working on <a href="https://github.com/hylang/hy">Hy</a> a lot. It’s been great for translating symbolic computation ideas originating in the Lisp community, or simply performing the generic meta-programming inherent to the subject.</p>
 <p>One feature I’ve been missing the most is “readable” print-outs from the REPL. In this case, “readable” means “a string that can be eval’ed in Hy”. Python calls the function(s) that produce these strings “repr”s, and there’s a single built-in <code>repr</code> that works for all types that don’t implement their own <code>__repr__</code> method.</p>
 <p>There’s already a <code>hy.contrib.hy-repr</code> module that gets most of the way there, but it doesn’t implement the Python standard library’s <code>reprlib.Repr</code>. <code>reprlib.Repr</code> has logic that handles limits on the display lengths of the strings it produces. It’s source demonstrates a few standard library-accepted implementations of primitive object <code>repr</code>s, as well. These implementations require only trivial changes to produce Hy syntax. For these reasons, and an overall interest in using and translating more of the Python standard library to Hy, I decided to do a quick refactoring of <code>hy.contrib.hy-repr</code> to make use of <code>reprlib.Repr</code>.</p>
 </section>
