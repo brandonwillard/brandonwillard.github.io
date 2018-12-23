@@ -1,0 +1,127 @@
+#+NAME: org-ref-adjustments
+#+BEGIN_SRC elisp :eval export-only :exports none :results none
+;;
+;; Run `org-publish-current-file' to write the .md file.
+;;
+(setq org-ref-bibliography-entry-format
+          (add-to-list 'org-ref-bibliography-entry-format
+                       '("misc" . "%a, %t, <i>%j</i>, %p (%y). <a href=\"%U\">link</a>.")))
+
+(defmacro create-org-ref-generic-format-function (link-type)
+  (pcase (macroexpand-1 `(org-ref-make-format-function ,link-type))
+    (`(defun ,name ,args ,doc . ,body)
+     `(cl-defgeneric ,name ,args ,@body))))
+
+(create-org-ref-generic-format-function "citet")
+
+(defun btw--create-md-link (key)
+     (format "<sup id=\"%s\"><a href=\"#%s\">%s</a></sup>"
+             (md5 key)
+             key
+             (let ((org-ref-bibliography-files (org-ref-find-bibliography))
+                   (file)
+                   (entry)
+                   (bibtex-entry))
+               (setq file (catch 'result
+                            (cl-loop for
+                                     file
+                                     in
+                                     org-ref-bibliography-files
+                                     do
+                                     (if (org-ref-key-in-file-p key
+                                                                (file-truename file))
+                                         (throw 'result file)
+                                       (message "%s not found in %s"
+                                                key
+                                                (file-truename file))))))
+
+               (with-temp-buffer
+                 (insert-file-contents file)
+                 (bibtex-set-dialect (parsebib-find-bibtex-dialect)
+                                     t)
+                 (bibtex-search-entry key nil 0)
+                 (setq bibtex-entry (bibtex-parse-entry))
+                 (dolist (cons-cell bibtex-entry)
+                   (setf (car cons-cell) (downcase (car cons-cell))))
+                 ;; or "shorttitle"
+                 (setq entry (cdr (assoc "title" bibtex-entry))))
+               (replace-regexp-in-string "[\"\{\}]"
+                                         ""
+                                         (htmlize-escape-or-link entry)))))
+
+(cl-defmethod org-ref-format-citet (keyword desc (format (eql md)))
+  (mapconcat #'btw--create-md-link
+             (s-split "," keyword)
+             "<sup>,</sup>"))
+
+;; Test 'em out.
+;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'html)
+;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'md)
+#+END_SRC
+
+#+NAME: org-md-export-adjustments
+#+BEGIN_SRC elisp :eval export-only :exports none :results none
+;;
+;; An override that transcodes paragraphs/sections as custom divs.
+;;
+(defun btw--org-md-section (old-fun paragraph contents info)
+  ;; TODO: Set `:type' in `info' to th
+  (let ((block-type (org-element-property :type paragraph)))
+    (if block-type
+        (org-html-special-block paragraph contents info)
+      (funcall old-fun paragraph contents info))))
+
+(advice-add #'org-md-section :around #'btw--org-md-section)
+#+END_SRC
+
+#+NAME: pelican-preamble
+#+BEGIN_SRC elisp :eval export-only :exports results :results value raw
+;;
+;; Set the YAML preamble.
+;;
+(let* ((org-env (org-export-get-environment))
+       (res '())
+       (author-str
+        (format "author: '%s'"
+                (car (plist-get org-env ':author))))
+       (res (cons author-str res))
+       (date-str
+        (format "date: '%s'"
+                (car (plist-get org-env ':date))))
+       (res (cons date-str res))
+       (title-str
+        (format "title: %s"
+                (car (plist-get org-env ':title))))
+       (res (cons title-str res))
+       (tags-str (s-join "," (plist-get org-env ':filetags)))
+       (tags-str (and (not (s-blank? tags-str))
+                      (format "tags: '%s'" tags-str)))
+       (res (or (and tags-str
+                     (cons tags-str res))
+                res))
+       (mdate-str (calendar-current-date))
+       (mdate-str (format "modified: '%s-%s-%s'"
+                          (nth 2 mdate-str)
+                          (nth 0 mdate-str)
+                          (nth 1 mdate-str)))
+       (res (or (and mdate-str
+                     (cons mdate-str res))
+                res))
+       (bib-str (plist-get org-env ':bibliography))
+       (bib-str (and bib-str
+                     (format "bibliography:\n- '%s'"
+                             (apply #'f-join
+                                      (cdr (f-split (car bib-str)))))))
+       (res (or (and bib-str
+                     (cons bib-str res))
+                res)))
+  (print (s-join "\n"
+                 (append
+                  '("#+BEGIN_EXPORT html"
+                    "---")
+                   res
+                  '("figure_dir: '{attach}/articles/figures/'"
+                    "figure_ext: png"
+                    "---"
+                    "#+END_EXPORT")))))
+#+END_SRC

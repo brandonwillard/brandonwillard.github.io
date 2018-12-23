@@ -2,121 +2,20 @@
 #+AUTHOR: Brandon T. Willard
 #+DATE: 2018-12-20
 #+EMAIL: brandonwillard@gmail.com
+#+FILETAGS: :hy:relational programming:python:
 
 #+STARTUP: hideblocks indent hidestars
 #+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:results html-preamble:t
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
 
-#+BIND:
-
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 #+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 
-#+BEGIN_SRC elisp :eval export-only :exports results :results value raw
-;;
-;; Run `org-publish-current-file' to write the .md file.
-;;
-(setq org-ref-bibliography-entry-format
-          (add-to-list 'org-ref-bibliography-entry-format
-                       '("misc" . "%a, %t, <i>%j</i>, %p (%y). <a href=\"%U\">link</a>.")))
-
-(defmacro create-org-ref-generic-format-function (link-type)
-  (pcase (macroexpand-1 `(org-ref-make-format-function ,link-type))
-    (`(defun ,name ,args ,doc . ,body)
-     `(cl-defgeneric ,name ,args ,@body))))
-
-(create-org-ref-generic-format-function "citet")
-
-(defun btw--create-md-link (key)
-     (format "<sup id=\"%s\"><a href=\"#%s\">%s</a></sup>"
-             (md5 key)
-             key
-             (let ((org-ref-bibliography-files (org-ref-find-bibliography))
-                   (file)
-                   (entry)
-                   (bibtex-entry))
-               (setq file (catch 'result
-                            (cl-loop for
-                                     file
-                                     in
-                                     org-ref-bibliography-files
-                                     do
-                                     (if (org-ref-key-in-file-p key
-                                                                (file-truename file))
-                                         (throw 'result file)
-                                       (message "%s not found in %s"
-                                                key
-                                                (file-truename file))))))
-
-               (with-temp-buffer
-                 (insert-file-contents file)
-                 (bibtex-set-dialect (parsebib-find-bibtex-dialect)
-                                     t)
-                 (bibtex-search-entry key nil 0)
-                 (setq bibtex-entry (bibtex-parse-entry))
-                 (dolist (cons-cell bibtex-entry)
-                   (setf (car cons-cell) (downcase (car cons-cell))))
-                 ;; or "shorttitle"
-                 (setq entry (cdr (assoc "title" bibtex-entry))))
-               (replace-regexp-in-string "[\"\{\}]"
-                                         ""
-                                         (htmlize-escape-or-link entry)))))
-
-(cl-defmethod org-ref-format-citet (keyword desc (format (eql md)))
-  (mapconcat #'btw--create-md-link
-             (s-split "," keyword)
-             "<sup>,</sup>"))
-
-;; Test 'em out.
-;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'html)
-;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'md)
-
-;;
-;; An override that transcodes paragraphs/sections as custom divs.
-;;
-(defun btw--org-md-section (old-fun paragraph contents info)
-  ;; TODO: Set `:type' in `info' to th
-  (let ((block-type (org-element-property :type paragraph)))
-    (if block-type
-        (org-html-special-block paragraph contents info)
-      (funcall old-fun paragraph contents info))))
-
-(advice-add #'org-md-section :around #'btw--org-md-section)
-
-;;
-;; Set the YAML preamble.
-;;
-
-(let* ((org-env (org-export-get-environment))
-       (bib-val (plist-get org-env ':bibliography))
-       (bib-loc (and bib-val
-                     (apply #'f-join
-                            (cdr (f-split (car bib-val))))))
-       (bib-str (if bib-loc
-                    (format "bibliography:\n- '%s'" bib-loc)
-                  "")))
-  (print (format (s-join "\n"
-                         '("#+BEGIN_EXPORT html"
-                           "---"
-                           "author: '%s'"
-                           "%s"
-                           "date: '%s'"
-                           "figure_dir: '{attach}/articles/figures/'"
-                           "figure_ext: png"
-                           "title: %s"
-                           "---"
-                           "#+END_EXPORT"))
-                 (car (plist-get org-env ':author))
-                 bib-str
-                 (car (plist-get org-env ':date))
-                 (car (plist-get org-env ':title)))))
-#+END_SRC
+#+INCLUDE: org-setup.org
 
 #+PROPERTY: header-args :eval never :exports both :results output drawer replace
 #+PROPERTY: header-args+ :session eval-thoughts
-
-#+SETUPFILE: latex-setup.org
 
 #+BEGIN_abstract
 Just some thoughts on a generalized src_python[:eval never]{repr} for Hy and
@@ -124,9 +23,9 @@ some connections with relational programming.
 #+END_abstract
 
 * Introduction
-In the past few months, I've been working on [[https://github.com/hylang/hy][Hy]] a lot.  It's been great
-for translating symbolic computation ideas originating in the Lisp community
-or simply performing the generic meta-programming inherent to the subject.
+In the past few months, I've been working on [[https://github.com/hylang/hy][Hy]] a lot.  It's been great for
+translating symbolic computation ideas originating in the Lisp community or
+simply performing the generic meta-programming inherent to the subject.
 
 One feature I've been missing the most is "readable" print-outs from the REPL.
 In this case, "readable" means "a string that can be src_python{eval}'ed to

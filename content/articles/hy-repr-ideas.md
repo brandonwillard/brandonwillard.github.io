@@ -1,10 +1,11 @@
 ---
-author: 'Brandon T. Willard'
-
+modified: '2018-12-23'
+tags: 'hy,relational programming,python'
+title: Readable Strings and Relational Programming in Hy
 date: '2018-12-20'
+author: 'Brandon T. Willard'
 figure_dir: '{attach}/articles/figures/'
 figure_ext: png
-title: Readable Strings and Relational Programming in Hy
 ---
 
 <div class="abstract">
@@ -45,7 +46,7 @@ True
 
 </div>
 
-There's already a `hy.contrib.hy-repr` module that gets most of the way there, but it doesn't implement the Python standard library's `reprlib.Repr`. The class `reprlib.Repr` implements limits for the display lengths of the strings it produces, and it's source code provides a few standard library implementations of primitive object `repr`s&#x2013;which require only trivial changes to produce the desired Hy syntax.
+There's already a `hy.contrib.hy-repr` module that gets most of the way there, but it doesn't implement the Python standard library's `reprlib.Repr`. The class `reprlib.Repr` implements limits for the display lengths of the strings it produces, and its source code provides a few standard library implementations of primitive object `repr`s&#x2013;which require only trivial changes to produce the desired Hy syntax.
 
 For these reasons&#x2013;and an overall interest in using and translating more of the Python standard library to Hy&#x2013;I decided to try a quick refactoring of `hy.contrib.hy-repr` that implements `reprlib.Repr`.
 
