@@ -209,21 +209,37 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
 <p>In the past few months, I’ve been working on <a href="https://github.com/hylang/hy">Hy</a> a lot. It’s been great for translating symbolic computation ideas originating in the Lisp community or simply performing the generic meta-programming inherent to the subject.</p>
-<p>One feature I’ve been missing the most is “readable” print-outs from the REPL. In this case, “readable” means “a string that can be <code>eval</code>’ed to [re-]produce the object it’s meant to represent”. Python calls the function(s) that produce these strings <a href="https://docs.python.org/3/library/functions.html#repr">“<code>repr</code>”s</a> and provides a generic <code>repr</code> function–with no Python “readability” guarantees–and a <code>__repr__</code> property for object/class-level customization.</p>
-<p>There’s already a <code>hy.contrib.hy-repr</code> module that gets most of the way there, but it doesn’t implement the Python standard library’s <code>reprlib.Repr</code>. The class <code>reprlib.Repr</code> implements limits for the display lengths of the strings it produces, and it’s source code provides a few standard library implementations of primitive object <code>repr</code>s–which require only trivial changes to produce the desired Hy syntax.</p>
-<p>For these reasons, and an overall interest in using and translating more of the Python standard library to Hy, I decided to do a quick refactoring of <code>hy.contrib.hy-repr</code> to make use of <code>reprlib.Repr</code>.</p>
-</section>
-<section id="repr__s-for-all" class="level1">
-<h1><code>__repr__</code>s for all?</h1>
-<p>The translation of Hy AST to string form is fairly straight-forward. Things get more complicated when one attempts to go outside of the most basic Python primitive objects. In quite a few cases, the only changes needed might involve transforming a basic function call from <code>func(1)</code> to <code>(func 1)</code>; however, rewriting an entire <code>repr</code> or <code>__repr__</code> function just to change one simple line can be very annoying.</p>
-<p>Furthermore, what about those custom object <code>__repr__</code> methods? While one might be able to patch most–if not all–of the (Python-implemented) standard library objects, there are 3rd-party library <code>__repr__</code>s with exactly the same trivial function-call forms that won’t match Hy’s syntax (but easily could).</p>
-</section>
-<section id="hijack-existing-__repr__s" class="level1">
-<h1>Hijack existing <code>__repr__</code>s!</h1>
-<p>The first few things that come to mind when considering a more general approach to Python-to-Hy <code>__repr__</code> translation involve some use of the existing <code>repr</code> code. That might come in the form of string manipulation of <code>repr</code> output, which <code>hy.contrib.hy-repr</code> already does in some cases, or quite possibly some parsing of the actual <code>repr</code> function’s source or code object.</p>
-<p>Naturally, the latter has the potential to be more thorough and/or correct, but also seems considerably more involved, error-prone and potentially inefficient. Unfortunately, almost the same can be said about simple regex manipulation, although it does seem a little easier to implement and, for limited cases, efficient enough for most purposes.</p>
-<p>Actually, the latter is essentially unnecessary, because, if the existing <code>repr</code> output is (Python) readable, then we know it can at least be parsed by Python (e.g. <code>ast.parse</code>), which will essentially handle the regex work and yield some of the information we need for a Hy <code>repr</code> string: the function name and its (positional and keyword) arguments.</p>
+<p>One feature I’ve been missing the most is “readable” print-outs from the REPL. In this case, “readable” means “a string that can be <code>eval</code>’ed to [re-]produce the object it’s meant to represent”. <a href="https://docs.python.org/3/library/functions.html#repr">Python calls the function(s) that produce these strings “<code>repr</code>”s</a> and provides a generic <code>repr</code> function–with limited Python “readability” guarantees–and a <code>__repr__</code> property for object/class-level customization.</p>
 <div class="example" data-markdown="" data-env-number="1">
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1">test_obj <span class="op">=</span> {<span class="st">&quot;a&quot;</span>: <span class="dv">1</span>, <span class="st">&quot;b&quot;</span>: [<span class="dv">2</span>, <span class="dv">3</span>]}</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># Produce a readable string using `repr`</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">obj_repr_str <span class="op">=</span> <span class="bu">repr</span>(test_obj)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="bu">print</span>(obj_repr_str)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># Re-create the object from its readable string form</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">obj_from_repr <span class="op">=</span> <span class="bu">eval</span>(obj_repr_str)</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="bu">print</span>(obj_from_repr)</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="bu">print</span>(test_obj <span class="op">==</span> obj_from_repr)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1">{<span class="st">&#39;a&#39;</span>: <span class="dv">1</span>, <span class="st">&#39;b&#39;</span>: [<span class="dv">2</span>, <span class="dv">3</span>]}</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">{<span class="st">&#39;a&#39;</span>: <span class="dv">1</span>, <span class="st">&#39;b&#39;</span>: [<span class="dv">2</span>, <span class="dv">3</span>]}</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="va">True</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"></a></code></pre></div>
+</div>
+<p>There’s already a <code>hy.contrib.hy-repr</code> module that gets most of the way there, but it doesn’t implement the Python standard library’s <code>reprlib.Repr</code>. The class <code>reprlib.Repr</code> implements limits for the display lengths of the strings it produces, and it’s source code provides a few standard library implementations of primitive object <code>repr</code>s–which require only trivial changes to produce the desired Hy syntax.</p>
+<p>For these reasons–and an overall interest in using and translating more of the Python standard library to Hy–I decided to try a quick refactoring of <code>hy.contrib.hy-repr</code> that implements <code>reprlib.Repr</code>.</p>
+<section id="the-problems" class="level2">
+<h2>The Problem(s)</h2>
+<p>The translation of Hy AST to string form is fairly straight-forward. In most cases, one only needs to change the <code>repr</code>s for Python primitives and basic function calls (e.g. from <code>func(1)</code> to <code>(func 1)</code>); however, changing just a couple lines in <code>repr</code>/<code>__repr__</code> functions for all the Python builtins is very annoying.</p>
+<p>Furthermore, what about those custom object <code>__repr__</code> methods? While one might be able to manually patch most–if not all–of the (Python-implemented) standard library objects, there are far too many 3rd-party library <code>__repr__</code>s with exactly the same trivial function-call form that can’t reasonably be patched.</p>
+</section>
+<section id="some-approaches" class="level2">
+<h2>Some approaches</h2>
+<p>The first few things that come to mind when considering a more general approach to Python-to-Hy <code>__repr__</code> translation involve some use of the existing <code>repr</code> code. That might come in the form of string manipulation of <code>repr</code> output, which <code>hy.contrib.hy-repr</code> already does in some cases, or quite possibly some use of a <code>repr</code> function’s source or code object.</p>
+<p>The latter seems like it has the potential to be more thorough and far-reaching, but also considerably more involved and computationally inefficient. Unfortunately, similar things can be said about the regex approach. Although it does seem a little easier to implement and–for limited cases–efficient enough for most purposes, it also comes across as much more brittle.</p>
+<p>Fortunately, the latter is unnecessary, because, when the existing <code>repr</code> output is Python readable, it can be parsed by <code>ast.parse</code>. The function <code>ast.parse</code> effectively handles the regex work and yields the bulk of information needed for a Hy <code>repr</code> string: the function name and its (positional and keyword) arguments.</p>
+<div class="example" data-markdown="" data-env-number="2">
 <p>Let’s say we implement our own object and <code>repr</code>.</p>
 <pre class="hy"><code>(defclass TestClass [object]
   (defn --init-- [self arg1 arg2 &amp;optional kwarg1 kwarg2]
@@ -237,32 +253,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
                          self.kwarg1 self.kwarg2]
                       (repr a)))))
 
-;; The arguments to this one aren&#39;t primitive enough for reverse-engineering,
-;; so use the fallback.
 (setv test-obj (TestClass 1 {&quot;a&quot; 1 &quot;b&quot; 2} :kwarg1 1 :kwarg2 &quot;ok&quot;))
-
 (print (repr test-obj))</code></pre>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1">TestClass(<span class="dv">1</span>, {<span class="st">&#39;a&#39;</span>: <span class="dv">1</span>, <span class="st">&#39;b&#39;</span>: <span class="dv">2</span>}, kwarg1<span class="op">=</span><span class="dv">1</span>, kwarg2<span class="op">=</span><span class="st">&#39;ok&#39;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1">TestClass(<span class="dv">1</span>, {<span class="st">&#39;a&#39;</span>: <span class="dv">1</span>, <span class="st">&#39;b&#39;</span>: <span class="dv">2</span>}, kwarg1<span class="op">=</span><span class="dv">1</span>, kwarg2<span class="op">=</span><span class="st">&#39;ok&#39;</span>)</a></code></pre></div>
 <p>Since the results are readable, we can do the following:</p>
 <pre class="hy"><code>(import ast astor)
 (setv repr-ast (ast.parse (repr test-obj) :mode &quot;eval&quot;))
 (print (astor.dump repr-ast))</code></pre>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1">Expression(</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">    body<span class="op">=</span>Call(func<span class="op">=</span>Name(<span class="bu">id</span><span class="op">=</span><span class="st">&#39;TestClass&#39;</span>),</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">              args<span class="op">=</span>[Num(n<span class="op">=</span><span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">                    Dict(keys<span class="op">=</span>[Str(s<span class="op">=</span><span class="st">&#39;a&#39;</span>), Str(s<span class="op">=</span><span class="st">&#39;b&#39;</span>)],</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">                         values<span class="op">=</span>[Num(n<span class="op">=</span><span class="dv">1</span>), Num(n<span class="op">=</span><span class="dv">2</span>)])],</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">              keywords<span class="op">=</span>[keyword(arg<span class="op">=</span><span class="st">&#39;kwarg1&#39;</span>, value<span class="op">=</span>Num(n<span class="op">=</span><span class="dv">1</span>)),</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7">                        keyword(arg<span class="op">=</span><span class="st">&#39;kwarg2&#39;</span>, value<span class="op">=</span>Str(s<span class="op">=</span><span class="st">&#39;ok&#39;</span>))]))</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1">Expression(</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">    body<span class="op">=</span>Call(func<span class="op">=</span>Name(<span class="bu">id</span><span class="op">=</span><span class="st">&#39;TestClass&#39;</span>),</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">              args<span class="op">=</span>[Num(n<span class="op">=</span><span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">                    Dict(keys<span class="op">=</span>[Str(s<span class="op">=</span><span class="st">&#39;a&#39;</span>), Str(s<span class="op">=</span><span class="st">&#39;b&#39;</span>)],</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">                         values<span class="op">=</span>[Num(n<span class="op">=</span><span class="dv">1</span>), Num(n<span class="op">=</span><span class="dv">2</span>)])],</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">              keywords<span class="op">=</span>[keyword(arg<span class="op">=</span><span class="st">&#39;kwarg1&#39;</span>, value<span class="op">=</span>Num(n<span class="op">=</span><span class="dv">1</span>)),</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">                        keyword(arg<span class="op">=</span><span class="st">&#39;kwarg2&#39;</span>, value<span class="op">=</span>Str(s<span class="op">=</span><span class="st">&#39;ok&#39;</span>))]))</a></code></pre></div>
 </div>
 </section>
-<section id="an-interim-solution" class="level1">
-<h1>An interim solution</h1>
-<p>With the parsing handled by Python itself (<code>ast.parse</code>, specifically), we can attempt to produce readable Hy strings from the resulting Python AST.</p>
-<p>In this scenario, we only need to be concerned with the conversion of Python AST into readable Hy strings. This is the inverse to the Hy compiler; in other words, a sort of Hy decompiler. For these purposes, only function call statements and their arguments need to be decompiled. Those arguments are where the decompilation responsibilities start to expand, but, if we limit our scope to a reasonable subset of primitive forms, the results can still be quite effective.</p>
-<p>As a side note, if a Hy <code>repr</code> implementation overrides the built-in <code>repr</code>, then those arguments might already be in the desired Hy form; however, the results from <code>ast.parse</code> will effectively undo that effort. Even so, custom class <code>__repr__</code>s aren’t guaranteed to use the <code>repr</code>, so attempts to preserve any potentially salvageable <code>repr</code> output are undeniably fraught with complications.</p>
-<div class="example" data-markdown="" data-env-number="2">
-<p>Working from the <code>repr</code>-produced AST above, I mocked-up a quick prototype for a generic Python-to-Hy <code>repr</code> conversion.</p>
+</section>
+<section id="an-implemented-partial-solution" class="level1">
+<h1>An Implemented Partial Solution</h1>
+<p>With existing <code>repr</code> output converted to Python AST by Python itself (using <code>ast.parse</code>), we can produce readable Hy strings from the resulting AST objects.</p>
+<p>In this scenario, we need only be concerned with the conversion of Python AST into readable Hy strings. This works like an inverse to the Hy compiler: in other words, a Hy decompiler. For <code>repr</code> purposes, only function call statements and their arguments need to be decompiled. Unfortunately, function arguments can consist of arbitrary Python/Hy objects, and that’s how the decompilation responsibilities start to expand. If we limit our scope to a reasonable subset of Python builtins/primitives, the results can still be quite effective, and won’t require a complete decompiler.</p>
+<p>On the down-side, if a Hy <code>repr</code> implementation overrides the built-in <code>repr</code>, then arguments in existing <code>repr</code>/<code>__repr__</code>s might already be converted by the overridden <code>repr</code>; however, the results from <code>ast.parse</code> will undo/discard those results. Even so, custom class <code>__repr__</code>s aren’t guaranteed to use the built-in <code>repr</code> on their arguments, so attempts to salvage already-converted <code>repr</code> output are undeniably fraught with complications.</p>
+<div class="example" data-markdown="" data-env-number="3">
+<p>Working from the <code>repr</code>-produced AST above, I mocked-up a quick prototype for a generic Python-to-Hy conversion function.</p>
 <pre class="hy"><code>(import ast)
 (import builtins)
 
@@ -293,8 +307,8 @@ This can be used to turn a \&quot;readable\&quot; `repr` result, via an actual \
 (setv test-ast (ast.parse &quot;range(x, y, blah=1, bloh=\&quot;ok\&quot;)&quot; :mode &quot;eval&quot;))
 (print (ast-funcall-to-hy test-ast (fn [x &amp;rest y] (-hy-repr x))))</code></pre>
 <pre class="hy"><code>(range x y :blah 1 :bloh &quot;ok&quot;)</code></pre>
-<p>Naturally, <code>ast-funcall-to-hy</code> only handles readable function call forms represented by <code>ast.Call</code> nodes, but even this covers a decent amount of ground.</p>
-<p>This function can be used in a <code>repr</code> as follows:</p>
+<p><code>ast-funcall-to-hy</code> is an extremely narrow decompiler that only handles readable function calls (represented by <code>ast.Call</code> nodes), but, as part of a fallback sequence in a Hy <code>repr</code> implementation, it’s still pretty useful.</p>
+<p>A function like <code>ast-funcall-to-hy</code> can be used in <code>repr</code> logic as follows:</p>
 <pre class="hy"><code>(defn hy-repr [x &amp;optional [level 1] [-repr (fn [x &amp;rest y] (-hy-repr x))]]
   &quot;Use `builtin.repr` results to generate readable Hy `repr` strings for cases
 we haven&#39;t covered explicitly.
@@ -321,7 +335,7 @@ after: (TestClass 1 {&quot;a&quot; 2  &quot;b&quot; 3} :kwarg1 1 :kwarg2 &quot;o
 <h1>A use for relational programming</h1>
 <p>While considering all this, I kept thinking about how nice it would be to have a “bijective” compiler; in other words, the existing Hy compiler, which translates Hy-to-Python, <strong>and</strong> a Python-to-Hy (de)compiler. With a Python-to-Hy AST compiler, we could more broadly convert Python AST output–like the kind in our example above–to a <code>repr</code>/readable string in Hy.</p>
 <p>The idea isn’t too crazy, especially since one can easily work backward from a lot of the logic in the existing Hy compiler. There will be some edge cases that result in non-bijective translations (i.e. some round-trip Hy/Python translations might only be <strong>equal</strong> and not exactly <strong>equivalent</strong>), but this isn’t necessarily a blocking issue. Decisions regarding “canonical” or reduced forms of Hy/Python AST might be necessary, especially if the resulting AST is intended to be more human readable than not.</p>
-<p>An easily more discouraging issue revolves around the effort it takes to ensure that the compilation processes going both ways are–and stay–coherent–in the course of development in either direction. For instance, when changes are made to the standard compilation process (i.e. Hy-to-Python), it’s likely that changes and tests would be needed for the other direction, as well.</p>
+<p>Perhaps what’s more discouraging is the effort it would take to ensure that the compilation processes going both ways are–and stay–coherent during the course of development. For instance, when changes are made to the standard compilation process (i.e. Hy-to-Python), it’s likely that changes and tests would also be needed for the other direction.</p>
 <p>This is where a paradigm like relational programming is particularly appealing: it provides a language for defining–and means for computing–the maps</p>
 <p><span class="math display">\[\begin{equation*}
   \text{Hy Syntax}
@@ -399,7 +413,7 @@ MathJax.Hub.Config({
 <li class="list-group-item">
   <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
   <ul class="list-group" id="social">
-    <li class="list-group-item"><a href="http://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="https://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
     <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar ai-lg"></i> google scholar</a></li>
     <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
     <li class="list-group-item"><a href="https://bitbucket.io/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
