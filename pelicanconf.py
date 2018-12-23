@@ -93,7 +93,7 @@ PANDOC_ARGS = ['-s', '--mathjax', '--section-divs',
                '--template=pelican_template.html'
                ]
 PANDOC_EXTENSIONS = ['+old_dashes', '+yaml_metadata_block', '+raw_tex',
-                     '+auto_identifiers']
+                     '+auto_identifiers', '+tex_math_single_backslash']
 PANDOC_FILTERS = ['pandoc-citeproc']
 
 DELETE_OUTPUT_DIRECTORY = True
