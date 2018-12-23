@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/brandon-t-willard.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2018-12-20T00:00:00-06:00</updated><entry><title>Readable Strings and Relational Programming in Hy</title><link href="https://brandonwillard.github.io/readable-strings-and-relational-programming-in-hy.html" rel="alternate"></link><published>2018-12-20T00:00:00-06:00</published><updated>2018-12-20T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-20:/readable-strings-and-relational-programming-in-hy.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/brandon-t-willard.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2018-12-23T00:00:00-06:00</updated><entry><title>Readable Strings and Relational Programming in Hy</title><link href="https://brandonwillard.github.io/readable-strings-and-relational-programming-in-hy.html" rel="alternate"></link><published>2018-12-20T00:00:00-06:00</published><updated>2018-12-23T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-20:/readable-strings-and-relational-programming-in-hy.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -243,7 +243,7 @@ MathJax.Hub.Config({
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</content></entry><entry><title>Data Science at Citybase</title><link href="https://brandonwillard.github.io/data-science-at-citybase.html" rel="alternate"></link><published>2018-12-18T00:00:00-06:00</published><updated>2018-12-18T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-18:/data-science-at-citybase.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+</content><category term="hy"></category><category term="relational programming"></category><category term="python"></category></entry><entry><title>Data Science at Citybase</title><link href="https://brandonwillard.github.io/data-science-at-citybase.html" rel="alternate"></link><published>2018-12-18T00:00:00-06:00</published><updated>2018-12-23T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-18:/data-science-at-citybase.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -267,14 +267,10 @@ MathJax.Hub.Config({
 &lt;!-- &lt;/div&gt; --&gt;
 &lt;!--  --&gt;
 &lt;p&gt;I recently wrote about data science at CityBase on the CityBase blog: &lt;sup id="c26e94c1b0b80ac3545371089d4f9936"&gt;&lt;a href="#WillardProgrammingIntelligentCity2018a"&gt;Programming an Intelligent City: The Role of Data Science&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
-&lt;h1 class="org-ref-bib-h1"&gt;
-Bibliography
-&lt;/h1&gt;
-&lt;ul class="org-ref-bib"&gt;
-&lt;li&gt;
-&lt;a id="WillardProgrammingIntelligentCity2018a"&gt;[WillardProgrammingIntelligentCity2018a]&lt;/a&gt; &lt;a name="WillardProgrammingIntelligentCity2018a"&gt;&lt;/a&gt;Willard, Programming an Intelligent City: The Role of Data Science, &lt;i&gt;CityBase&lt;/i&gt;, (2018). &lt;a href="https://thecitybase.com/programming-an-intelligent-city-the-role-of-data-science/"&gt;link&lt;/a&gt;.
-&lt;/li&gt;
-&lt;/ul&gt;
+&lt;section id="bibliography" class="level1"&gt;
+&lt;h1&gt;Bibliography&lt;/h1&gt;
+&lt;p&gt;&lt;a id="WillardProgrammingIntelligentCity2018a"&gt;&lt;/a&gt;[WillardProgrammingIntelligentCity2018a] Willard, Programming an Intelligent City: The Role of Data Science, &lt;i&gt;CityBase&lt;/i&gt;, (2018). &lt;a href="https://thecitybase.com/programming-an-intelligent-city-the-role-of-data-science/"&gt;link&lt;/a&gt;. &lt;a href="#c26e94c1b0b80ac3545371089d4f9936"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/section&gt;
 &lt;script type="text/x-mathjax-config"&gt;
 MathJax.Hub.Config({
   CommonHTML: { linebreaks: { automatic: true } },
@@ -285,7 +281,7 @@ MathJax.Hub.Config({
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</content></entry><entry><title>More Proximal Estimation</title><link href="https://brandonwillard.github.io/more-proximal-estimation.html" rel="alternate"></link><published>2017-03-06T00:00:00-06:00</published><updated>2017-03-06T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2017-03-06:/more-proximal-estimation.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+</content><category term="statistics"></category><category term="symbolic computation"></category><category term="citybase"></category></entry><entry><title>More Proximal Estimation</title><link href="https://brandonwillard.github.io/more-proximal-estimation.html" rel="alternate"></link><published>2017-03-06T00:00:00-06:00</published><updated>2017-03-06T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2017-03-06:/more-proximal-estimation.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
