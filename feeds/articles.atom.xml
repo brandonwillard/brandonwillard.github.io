@@ -112,7 +112,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;a class="sourceLine" id="cb2-3" data-line-number="3"&gt;&lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb2-4" data-line-number="4"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;p&gt;There’s already a &lt;code&gt;hy.contrib.hy-repr&lt;/code&gt; module that gets most of the way there, but it doesn’t implement the Python standard library’s &lt;code&gt;reprlib.Repr&lt;/code&gt;. The class &lt;code&gt;reprlib.Repr&lt;/code&gt; implements limits for the display lengths of the strings it produces, and it’s source code provides a few standard library implementations of primitive object &lt;code&gt;repr&lt;/code&gt;s–which require only trivial changes to produce the desired Hy syntax.&lt;/p&gt;
+&lt;p&gt;There’s already a &lt;code&gt;hy.contrib.hy-repr&lt;/code&gt; module that gets most of the way there, but it doesn’t implement the Python standard library’s &lt;code&gt;reprlib.Repr&lt;/code&gt;. The class &lt;code&gt;reprlib.Repr&lt;/code&gt; implements limits for the display lengths of the strings it produces, and its source code provides a few standard library implementations of primitive object &lt;code&gt;repr&lt;/code&gt;s–which require only trivial changes to produce the desired Hy syntax.&lt;/p&gt;
 &lt;p&gt;For these reasons–and an overall interest in using and translating more of the Python standard library to Hy–I decided to try a quick refactoring of &lt;code&gt;hy.contrib.hy-repr&lt;/code&gt; that implements &lt;code&gt;reprlib.Repr&lt;/code&gt;.&lt;/p&gt;
 &lt;section id="the-problems" class="level2"&gt;
 &lt;h2&gt;The Problem(s)&lt;/h2&gt;

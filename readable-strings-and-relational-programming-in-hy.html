@@ -227,7 +227,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb2-3" data-line-number="3"><span class="va">True</span></a>
 <a class="sourceLine" id="cb2-4" data-line-number="4"></a></code></pre></div>
 </div>
-<p>There’s already a <code>hy.contrib.hy-repr</code> module that gets most of the way there, but it doesn’t implement the Python standard library’s <code>reprlib.Repr</code>. The class <code>reprlib.Repr</code> implements limits for the display lengths of the strings it produces, and it’s source code provides a few standard library implementations of primitive object <code>repr</code>s–which require only trivial changes to produce the desired Hy syntax.</p>
+<p>There’s already a <code>hy.contrib.hy-repr</code> module that gets most of the way there, but it doesn’t implement the Python standard library’s <code>reprlib.Repr</code>. The class <code>reprlib.Repr</code> implements limits for the display lengths of the strings it produces, and its source code provides a few standard library implementations of primitive object <code>repr</code>s–which require only trivial changes to produce the desired Hy syntax.</p>
 <p>For these reasons–and an overall interest in using and translating more of the Python standard library to Hy–I decided to try a quick refactoring of <code>hy.contrib.hy-repr</code> that implements <code>reprlib.Repr</code>.</p>
 <section id="the-problems" class="level2">
 <h2>The Problem(s)</h2>
