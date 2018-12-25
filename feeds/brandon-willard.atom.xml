@@ -11,7 +11,7 @@
   &lt;style type="text/css"&gt;
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -24,13 +24,11 @@ code.sourceCode { white-space: pre-wrap; }
 a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
 pre.numberSource a.sourceLine
-  { position: relative; }
-pre.numberSource a.sourceLine:empty
-  { position: absolute; }
+  { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
-    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all;
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -92,16 +90,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;h1&gt;Introduction&lt;/h1&gt;
 &lt;p&gt;In this post I want to address some concepts regarding statistical model specification within the Bayesian paradigm, motivation for its use, and the utility of sample results (e.g. empirical posterior distributions). This write-up isn’t intended to be thorough or self-contained, especially since numerous quality introductions already exist for Bayesian modeling and MCMC &lt;span class="citation" data-cites="gelman_bayesian_2013"&gt;(Gelman et al. 2013)&lt;/span&gt;. Instead, its purpose is to illustrate some specific points in the context of a simple, evolving problem that mirrors some real-life objectives. Also, what’s advocated here is in large part just &lt;em&gt;statistical&lt;/em&gt; modeling and not exclusively &lt;em&gt;Bayesian&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;The generality, applicability and relative simplicity of the core concepts within Bayesian modeling are sadly overlooked in practice. Bayes is too often conflated with MCMC and its associated computational costs, or is seen as needlessly “mathy” and technical. I argue that there is an oft unacknowledged trade-off in the efforts of mathematical modeling, and that Bayesian modeling helps navigate that complexity. In doing so, one can save on expended efforts in the long run.&lt;/p&gt;
-&lt;p&gt;When a model is [fully] specified in a statistical or Bayesian way, the modeler has at their disposal distributions for the unknown quantities of interest; these distributions are often the primary interest. The desired estimates are found “within” the distributions. For instance, as a distribution’s moments (e.g. mean, mode, variance, etc.), which may correspond to certain “best” estimates or measures of parameter uncertainty. The same goes for functions of these distributions (e.g. rolling sums and averages).&lt;/p&gt;
+&lt;p&gt;When a model is &lt;span class="math display"&gt;\[fully\]&lt;/span&gt; specified in a statistical or Bayesian way, the modeler has at their disposal distributions for the unknown quantities of interest; these distributions are often the primary interest. The desired estimates are found “within” the distributions. For instance, as a distribution’s moments (e.g. mean, mode, variance, etc.), which may correspond to certain “best” estimates or measures of parameter uncertainty. The same goes for functions of these distributions (e.g. rolling sums and averages).&lt;/p&gt;
 &lt;p&gt;Normally, modeling objectives are specified in terms of &lt;em&gt;point-estimates&lt;/em&gt; instead of distributions: like the aforementioned “best” parameter estimates. This situation is also covered by the Bayesian paradigm, especially when the corresponding distributions have a closed-form and are fully specified by a finite number of parameters. However, when this isn’t the case, point-estimates provide only part of the picture. It’s usually these missing parts that make model assessment and prediction largely separate and difficult endeavours down the road.&lt;/p&gt;
 &lt;p&gt;Even so, modeling and estimation often proceeds without much statistical consideration or context, making these distributions–and the results they can provide–more and more inaccessible. In a situation where modeling started with common machine learning/statistical software and resulted in non-statistical extensions, the work needed for something like &lt;em&gt;uncertainty quantification or propagation&lt;/em&gt; broadly equates to retrofitting and/or defining the altered or missing statistical context of the problem. This sort of work necessarily requires a much rarer expertise, which is usually too difficult for outsiders to vet. Considerations like this might be reason enough to–at least minimally–maintain clear statistical assumptions throughout the life of a non-trivial project. The Bayesian approach can be a more accessible means of providing this type of statistical coherency.&lt;/p&gt;
 &lt;p&gt;As a starting point, one can find quite a few non-Bayes models with Bayesian interpretations and counterparts. Even finding a Bayesian interpretation for an existing non-Bayes model can itself advance one’s understanding of the statistical assumptions and properties of the model. In some cases this understanding can inspire new forms of estimation or new non-Bayes variants of a model. Multiple examples arise from models defined by objective or loss functions with forms equivalent to the total log-likelihoods of Bayesian models. This, for instance, is one way that general point-wise estimates can be related to maximum a posteriori (MAP) estimates in the Bayesian context.&lt;/p&gt;
 &lt;section id="notation" class="level3"&gt;
 &lt;h3&gt;Notation&lt;/h3&gt;
 &lt;p&gt;Before getting into the details, let’s cover some preliminaries regarding notation.&lt;/p&gt;
-&lt;p&gt;The symbol &lt;span class="math inline"&gt;\(\sim\)&lt;/span&gt; is overloaded to mean a couple things. First, a statement like &lt;span class="math inline"&gt;\(X \sim \operatorname{P}\)&lt;/span&gt; means “&lt;span class="math inline"&gt;\(X\)&lt;/span&gt; is distributed according to &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt;”, when &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; is understood to be a random variable (generally denoted by capital letter variables). Second, for a non-random variable &lt;span class="math inline"&gt;\(x\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(x \sim \operatorname{P}\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(x \sim X\)&lt;/span&gt; means “&lt;span class="math inline"&gt;\(x\)&lt;/span&gt; is a sample from distribution &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt;”. When &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt; is not meant to signify a distribution, but instead a generic function–like a probability density function &lt;span class="math inline"&gt;\(p(X=x) \equiv p(x)\)&lt;/span&gt;, then the distribution in question is [the] one arising from the function (interpreted as a probability density and/or measure)–when possible. See &lt;a href="https://en.wikipedia.org/wiki/Notation_in_probability_and_statistics"&gt;here&lt;/a&gt; for a similar notation. Also, whenever indices are dropped, the resulting symbol is assumed to be a stacked matrix containing each entry, e.g. &lt;span class="math display"&gt;\[\begin{equation*}
+&lt;p&gt;The symbol &lt;span class="math inline"&gt;\(\sim\)&lt;/span&gt; is overloaded to mean a couple things. First, a statement like &lt;span class="math inline"&gt;\(X \sim \operatorname{P}\)&lt;/span&gt; means “&lt;span class="math inline"&gt;\(X\)&lt;/span&gt; is distributed according to &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt;”, when &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; is understood to be a random variable (generally denoted by capital letter variables). Second, for a non-random variable &lt;span class="math inline"&gt;\(x\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(x \sim \operatorname{P}\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(x \sim X\)&lt;/span&gt; means “&lt;span class="math inline"&gt;\(x\)&lt;/span&gt; is a sample from distribution &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt;”. When &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt; is not meant to signify a distribution, but instead a generic function–like a probability density function &lt;span class="math inline"&gt;\(p(X=x) \equiv p(x)\)&lt;/span&gt;, then the distribution in question is &lt;span class="math display"&gt;\[the\]&lt;/span&gt; one arising from the function (interpreted as a probability density and/or measure)–when possible. See &lt;a href="https://en.wikipedia.org/wiki/Notation_in_probability_and_statistics"&gt;here&lt;/a&gt; for a similar notation. Also, whenever indices are dropped, the resulting symbol is assumed to be a stacked matrix containing each entry, e.g. &lt;span class="math display"&gt;\[\begin{equation*}
 X^\top = \begin{pmatrix} X_1 &amp;amp; \dots &amp;amp; X_N \end{pmatrix} \;.
-\end{equation*}\]&lt;/span&gt; When the indexed symbol is a vector, then it is customary to denote the row stacked matrix of each vector with the symbol’s capital letter. E.g., for [column] vectors &lt;span class="math inline"&gt;\(z_i\)&lt;/span&gt; over &lt;span class="math inline"&gt;\(i \in \{1, \dots, N\}\)&lt;/span&gt;, &lt;span class="math display"&gt;\[\begin{equation*}
+\end{equation*}\]&lt;/span&gt; When the indexed symbol is a vector, then it is customary to denote the row stacked matrix of each vector with the symbol’s capital letter. E.g., for &lt;span class="math display"&gt;\[column\]&lt;/span&gt; vectors &lt;span class="math inline"&gt;\(z_i\)&lt;/span&gt; over &lt;span class="math inline"&gt;\(i \in \{1, \dots, N\}\)&lt;/span&gt;, &lt;span class="math display"&gt;\[\begin{equation*}
 Z = \begin{pmatrix} z_1 \\ \vdots \\ z_N \end{pmatrix} \;.
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;/section&gt;
@@ -128,31 +126,31 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;/section&gt;
 &lt;section id="estimation-via-mcmc" class="level1"&gt;
 &lt;h1&gt;Estimation (via MCMC)&lt;/h1&gt;
-&lt;p&gt;From here on let’s assume we do not have the closed-form result in Equation &lt;span class="math inline"&gt;\(\eqref{eq:theta-posterior}\)&lt;/span&gt;. Instead, we’ll estimate the posterior numerically with &lt;a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo"&gt;MCMC&lt;/a&gt;. Again, MCMC is covered to varying degrees of detail all over the place (e.g. &lt;a href="https://goo.gl/JNwfuo"&gt;here&lt;/a&gt;), so we’ll skip most of those details. Let’s say we’ve decided to use &lt;a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm"&gt;Metropolis-Hastings&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;From here on let’s assume we do not have the closed-form result in Equation &lt;span class="math inline"&gt;\(\eqref{eq:theta-posterior}\)&lt;/span&gt;. Instead, we’ll estimate the posterior numerically with &lt;a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo"&gt;MCMC&lt;/a&gt;. Again, MCMC is covered to varying degrees of detail all over the place (e.g. &lt;a href="https://goo.gl/JNwfuo"&gt;here&lt;/a&gt;), so we’ll skip most of those details. Let’s say we’ve decided to use &lt;a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm"&gt;Metropolis-Hastings&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;For demonstration purposes, we produce a simulation of some data we might observe and for which we would consider applying the model in Equation &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt;.&lt;/p&gt;
-&lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb1-1" data-line-number="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; numpy &lt;span class="im"&gt;as&lt;/span&gt; np&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-2" data-line-number="2"&gt;&lt;span class="im"&gt;import&lt;/span&gt; scipy.stats &lt;span class="im"&gt;as&lt;/span&gt; scs&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-3" data-line-number="3"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-4" data-line-number="4"&gt;&lt;span class="co"&gt;# Unknown parameter&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-5" data-line-number="5"&gt;mu_true &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1.5&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-6" data-line-number="6"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-7" data-line-number="7"&gt;&lt;span class="co"&gt;# [Assumed] known parameter&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-8" data-line-number="8"&gt;sigma2 &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;0.05&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-9" data-line-number="9"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-10" data-line-number="10"&gt;&lt;span class="co"&gt;# Prior parameters&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-11" data-line-number="11"&gt;tau2 &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1e2&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-12" data-line-number="12"&gt;mu &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="dv"&gt;1&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-13" data-line-number="13"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-14" data-line-number="14"&gt;&lt;span class="im"&gt;import&lt;/span&gt; pandas &lt;span class="im"&gt;as&lt;/span&gt; pd&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-15" data-line-number="15"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-16" data-line-number="16"&gt;start_datetime &lt;span class="op"&gt;=&lt;/span&gt; pd.tslib.Timestamp(pd.datetime.now())&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-17" data-line-number="17"&gt;sim_index &lt;span class="op"&gt;=&lt;/span&gt; pd.date_range(start&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;2016-01-01 12:00:00&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-18" data-line-number="18"&gt;                          end&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;2016-01-08 12:00:00&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-19" data-line-number="19"&gt;                          freq&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;H&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-20" data-line-number="20"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-21" data-line-number="21"&gt;&lt;span class="co"&gt;# Simulated observations&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-22" data-line-number="22"&gt;X &lt;span class="op"&gt;=&lt;/span&gt; np.sin(np.linspace(&lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;&lt;span class="op"&gt;*&lt;/span&gt;np.pi, np.alen(sim_index)))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-23" data-line-number="23"&gt;y_obs &lt;span class="op"&gt;=&lt;/span&gt; scs.norm.rvs(loc&lt;span class="op"&gt;=&lt;/span&gt;X &lt;span class="op"&gt;*&lt;/span&gt; mu_true, scale&lt;span class="op"&gt;=&lt;/span&gt;np.sqrt(sigma2))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb1-1" title="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; numpy &lt;span class="im"&gt;as&lt;/span&gt; np&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-2" title="2"&gt;&lt;span class="im"&gt;import&lt;/span&gt; scipy.stats &lt;span class="im"&gt;as&lt;/span&gt; scs&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-3" title="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-4" title="4"&gt;&lt;span class="co"&gt;# Unknown parameter&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-5" title="5"&gt;mu_true &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1.5&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-6" title="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-7" title="7"&gt;&lt;span class="co"&gt;# [Assumed] known parameter&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-8" title="8"&gt;sigma2 &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;0.05&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-9" title="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-10" title="10"&gt;&lt;span class="co"&gt;# Prior parameters&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-11" title="11"&gt;tau2 &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1e2&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-12" title="12"&gt;mu &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="dv"&gt;1&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-13" title="13"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-14" title="14"&gt;&lt;span class="im"&gt;import&lt;/span&gt; pandas &lt;span class="im"&gt;as&lt;/span&gt; pd&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-15" title="15"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-16" title="16"&gt;start_datetime &lt;span class="op"&gt;=&lt;/span&gt; pd.tslib.Timestamp(pd.datetime.now())&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-17" title="17"&gt;sim_index &lt;span class="op"&gt;=&lt;/span&gt; pd.date_range(start&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;2016-01-01 12:00:00&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-18" title="18"&gt;                          end&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;2016-01-08 12:00:00&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-19" title="19"&gt;                          freq&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;H&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-20" title="20"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-21" title="21"&gt;&lt;span class="co"&gt;# Simulated observations&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-22" title="22"&gt;X &lt;span class="op"&gt;=&lt;/span&gt; np.sin(np.linspace(&lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;&lt;span class="op"&gt;*&lt;/span&gt;np.pi, np.alen(sim_index)))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-23" title="23"&gt;y_obs &lt;span class="op"&gt;=&lt;/span&gt; scs.norm.rvs(loc&lt;span class="op"&gt;=&lt;/span&gt;X &lt;span class="op"&gt;*&lt;/span&gt; mu_true, scale&lt;span class="op"&gt;=&lt;/span&gt;np.sqrt(sigma2))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;A Metropolis-Hastings sampler would perform a simple loop that accepts or rejects samples from a proposal distribution, &lt;span class="math inline"&gt;\(\theta_i \sim p(\theta_i \mid \theta_{i-1})\)&lt;/span&gt;, according to the probability &lt;span class="math display"&gt;\[\begin{equation*}
 \min\left\{1,
   \frac{p(Y = y \mid X, \theta_i)}{p(Y = y \mid X, \theta_{i-1})}
@@ -161,36 +159,36 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
   \;.
 \end{equation*}\]&lt;/span&gt; Let’s say our proposal is a normal distribution with a mean equal to the previous sample and a variance given by &lt;span class="math inline"&gt;\(\lambda^2\)&lt;/span&gt;. The resulting sampling scheme is a random walk Metropolis-Hastings sampler, and since the proposal is a symmetric distribution, &lt;span class="math inline"&gt;\(\frac{p(\theta_i \mid \theta_{i-1})}{p(\theta_{i-1} \mid \theta_i)} = 1\)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;In code, this could look like&lt;/p&gt;
-&lt;div class="sourceCode" id="cb2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb2-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; functools &lt;span class="im"&gt;import&lt;/span&gt; partial&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-2" data-line-number="2"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-3" data-line-number="3"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; model_logpdf(theta_):&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-4" data-line-number="4"&gt;    res &lt;span class="op"&gt;=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(scs.norm.logpdf(y_obs, loc&lt;span class="op"&gt;=&lt;/span&gt;X &lt;span class="op"&gt;*&lt;/span&gt; theta_,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-5" data-line-number="5"&gt;                                 scale&lt;span class="op"&gt;=&lt;/span&gt;np.sqrt(sigma2)))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-6" data-line-number="6"&gt;    res &lt;span class="op"&gt;+=&lt;/span&gt; scs.norm.logpdf(theta_, loc&lt;span class="op"&gt;=&lt;/span&gt;mu,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-7" data-line-number="7"&gt;                           scale&lt;span class="op"&gt;=&lt;/span&gt;np.sqrt(tau2))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-8" data-line-number="8"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; res&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-9" data-line-number="9"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-10" data-line-number="10"&gt;N_samples &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="dv"&gt;2000&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-11" data-line-number="11"&gt;theta_samples &lt;span class="op"&gt;=&lt;/span&gt; []&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-12" data-line-number="12"&gt;lam &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1.&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-13" data-line-number="13"&gt;current_sample &lt;span class="op"&gt;=&lt;/span&gt; np.random.normal(loc&lt;span class="op"&gt;=&lt;/span&gt;mu, scale&lt;span class="op"&gt;=&lt;/span&gt;lam)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-14" data-line-number="14"&gt;proposal_logpdf &lt;span class="op"&gt;=&lt;/span&gt; partial(scs.norm.logpdf, scale&lt;span class="op"&gt;=&lt;/span&gt;lam)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-15" data-line-number="15"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-16" data-line-number="16"&gt;&lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; &lt;span class="bu"&gt;xrange&lt;/span&gt;(N_samples):&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-17" data-line-number="17"&gt;    proposal_sample &lt;span class="op"&gt;=&lt;/span&gt; np.random.normal(loc&lt;span class="op"&gt;=&lt;/span&gt;current_sample,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-18" data-line-number="18"&gt;                                       scale&lt;span class="op"&gt;=&lt;/span&gt;lam, size&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-19" data-line-number="19"&gt;    l_ratio &lt;span class="op"&gt;=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(model_logpdf(proposal_sample))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-20" data-line-number="20"&gt;    l_ratio &lt;span class="op"&gt;-=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(model_logpdf(current_sample))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-21" data-line-number="21"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-22" data-line-number="22"&gt;    p_ratio &lt;span class="op"&gt;=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(proposal_logpdf(current_sample,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-23" data-line-number="23"&gt;                                     loc&lt;span class="op"&gt;=&lt;/span&gt;proposal_sample))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-24" data-line-number="24"&gt;    p_ratio &lt;span class="op"&gt;-=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(proposal_logpdf(proposal_sample,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-25" data-line-number="25"&gt;                                      loc&lt;span class="op"&gt;=&lt;/span&gt;current_sample))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-26" data-line-number="26"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-27" data-line-number="27"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; np.log(np.random.uniform()) &lt;span class="op"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="bu"&gt;min&lt;/span&gt;(&lt;span class="dv"&gt;0&lt;/span&gt;, l_ratio &lt;span class="op"&gt;+&lt;/span&gt; p_ratio):&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-28" data-line-number="28"&gt;        current_sample &lt;span class="op"&gt;=&lt;/span&gt; proposal_sample&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-29" data-line-number="29"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb2-30" data-line-number="30"&gt;    theta_samples &lt;span class="op"&gt;+=&lt;/span&gt; [current_sample]&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb2-1" title="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; functools &lt;span class="im"&gt;import&lt;/span&gt; partial&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-2" title="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-3" title="3"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; model_logpdf(theta_):&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-4" title="4"&gt;    res &lt;span class="op"&gt;=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(scs.norm.logpdf(y_obs, loc&lt;span class="op"&gt;=&lt;/span&gt;X &lt;span class="op"&gt;*&lt;/span&gt; theta_,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-5" title="5"&gt;                                 scale&lt;span class="op"&gt;=&lt;/span&gt;np.sqrt(sigma2)))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-6" title="6"&gt;    res &lt;span class="op"&gt;+=&lt;/span&gt; scs.norm.logpdf(theta_, loc&lt;span class="op"&gt;=&lt;/span&gt;mu,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-7" title="7"&gt;                           scale&lt;span class="op"&gt;=&lt;/span&gt;np.sqrt(tau2))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-8" title="8"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; res&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-9" title="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-10" title="10"&gt;N_samples &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="dv"&gt;2000&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-11" title="11"&gt;theta_samples &lt;span class="op"&gt;=&lt;/span&gt; []&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-12" title="12"&gt;lam &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-13" title="13"&gt;current_sample &lt;span class="op"&gt;=&lt;/span&gt; np.random.normal(loc&lt;span class="op"&gt;=&lt;/span&gt;mu, scale&lt;span class="op"&gt;=&lt;/span&gt;lam)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-14" title="14"&gt;proposal_logpdf &lt;span class="op"&gt;=&lt;/span&gt; partial(scs.norm.logpdf, scale&lt;span class="op"&gt;=&lt;/span&gt;lam)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-15" title="15"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-16" title="16"&gt;&lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; &lt;span class="bu"&gt;xrange&lt;/span&gt;(N_samples):&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-17" title="17"&gt;    proposal_sample &lt;span class="op"&gt;=&lt;/span&gt; np.random.normal(loc&lt;span class="op"&gt;=&lt;/span&gt;current_sample,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-18" title="18"&gt;                                       scale&lt;span class="op"&gt;=&lt;/span&gt;lam, size&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-19" title="19"&gt;    l_ratio &lt;span class="op"&gt;=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(model_logpdf(proposal_sample))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-20" title="20"&gt;    l_ratio &lt;span class="op"&gt;-=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(model_logpdf(current_sample))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-21" title="21"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-22" title="22"&gt;    p_ratio &lt;span class="op"&gt;=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(proposal_logpdf(current_sample,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-23" title="23"&gt;                                     loc&lt;span class="op"&gt;=&lt;/span&gt;proposal_sample))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-24" title="24"&gt;    p_ratio &lt;span class="op"&gt;-=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(proposal_logpdf(proposal_sample,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-25" title="25"&gt;                                      loc&lt;span class="op"&gt;=&lt;/span&gt;current_sample))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-26" title="26"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-27" title="27"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; np.log(np.random.uniform()) &lt;span class="op"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="bu"&gt;min&lt;/span&gt;(&lt;span class="dv"&gt;0&lt;/span&gt;, l_ratio &lt;span class="op"&gt;+&lt;/span&gt; p_ratio):&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-28" title="28"&gt;        current_sample &lt;span class="op"&gt;=&lt;/span&gt; proposal_sample&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-29" title="29"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-30" title="30"&gt;    theta_samples &lt;span class="op"&gt;+=&lt;/span&gt; [current_sample]&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The Metropolis-Hastings sampler does not rely on any prior information or Bayesian formulations. Although the prior is implicitly involved, via the total probability, the concepts behind the sampler itself are still valid without it. Basically, Metropolis-Hastings–like many other MCMC sampling routines–is not specifically Bayesian. It’s better to simply consider MCMC as just another estimation approach (or perhaps a type of stochastic optimization).&lt;/p&gt;
 &lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Gibbs_sampling"&gt;Gibbs sampling&lt;/a&gt; is arguably the other most ubiquitous MCMC technique. Since a model specified in a Bayesian way usually provides a clear joint distribution (or at least something proportional to it) and conditional probabilities, Gibbs sampling is well facilitated.&lt;/p&gt;
 &lt;p&gt;The context of Bayesian modeling is, however, a good source of direction and motivation for improvements to a sampling procedure (and estimation in general). Under Bayesian assumptions, decompositions and reformulations for broad classes of distributions are often immediately available. Guiding generalities, like the &lt;a href="https://en.wikipedia.org/wiki/Rao%E2%80%93Blackwell_theorem"&gt;Rao-Blackwell&lt;/a&gt; theorem, are also applicable, and–more generally–the same principles, tools and results that guide the model creation and assessment process can also feed into the estimation process.&lt;/p&gt;
@@ -198,76 +196,76 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;h2&gt;The Situation on Implementation&lt;/h2&gt;
 &lt;p&gt;MCMC sampling schemes like the above are fairly general and easily abstracted, giving rise to some generic frameworks that put more focus on model specification and attempt to automate the choice of estimation (or implement one robust technique). Some of the more common frameworks are Bayesian in nature: &lt;a href="http://www.openbugs.net/w/FrontPage"&gt;OpenBUGS&lt;/a&gt;, &lt;a href="http://mcmc-jags.sourceforge.net/"&gt;JAGS&lt;/a&gt;, &lt;a href="http://mc-stan.org/"&gt;Stan&lt;/a&gt;, and &lt;a href="https://pymc-devs.github.io/pymc/"&gt;PyMC2&lt;/a&gt; / &lt;a href="https://pymc-devs.github.io/pymc3/"&gt;PyMC3&lt;/a&gt;. These libraries provide a sort of meta-language that facilitates the specification of a Bayesian model and mirrors the mathematical language of probability. They also implicitly implement the &lt;a href="https://en.wikipedia.org/wiki/Algebra_of_random_variables"&gt;algebra of random variables&lt;/a&gt; and automatically handle the mechanics of variable transforms.&lt;/p&gt;
 &lt;p&gt;Our model, estimated with a Metropolis-Hastings sampler, can be expressed in PyMC3 with the following code:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb3-1" data-line-number="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; pymc3 &lt;span class="im"&gt;as&lt;/span&gt; pm&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-2" data-line-number="2"&gt;&lt;span class="im"&gt;import&lt;/span&gt; theano&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-3" data-line-number="3"&gt;theano.config.mode &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;FAST_COMPILE&amp;#39;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-4" data-line-number="4"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-5" data-line-number="5"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; pm.Model() &lt;span class="im"&gt;as&lt;/span&gt; model:&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-6" data-line-number="6"&gt;    &lt;span class="co"&gt;# Model definition&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-7" data-line-number="7"&gt;    theta &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;theta&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;mu, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;tau2)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-8" data-line-number="8"&gt;    Y &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;X &lt;span class="op"&gt;*&lt;/span&gt; theta, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;sigma2, observed&lt;span class="op"&gt;=&lt;/span&gt;y_obs)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-9" data-line-number="9"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-10" data-line-number="10"&gt;    &lt;span class="co"&gt;# Posterior sampling&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-11" data-line-number="11"&gt;    sample_steps &lt;span class="op"&gt;=&lt;/span&gt; pm.Metropolis()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-12" data-line-number="12"&gt;    sample_traces &lt;span class="op"&gt;=&lt;/span&gt; pm.sample(&lt;span class="dv"&gt;2000&lt;/span&gt;, sample_steps)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb3-1" title="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; pymc3 &lt;span class="im"&gt;as&lt;/span&gt; pm&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-2" title="2"&gt;&lt;span class="im"&gt;import&lt;/span&gt; theano&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-3" title="3"&gt;theano.config.mode &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;FAST_COMPILE&amp;#39;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-4" title="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-5" title="5"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; pm.Model() &lt;span class="im"&gt;as&lt;/span&gt; model:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-6" title="6"&gt;    &lt;span class="co"&gt;# Model definition&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-7" title="7"&gt;    theta &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;theta&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;mu, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;tau2)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-8" title="8"&gt;    Y &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;X &lt;span class="op"&gt;*&lt;/span&gt; theta, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;sigma2, observed&lt;span class="op"&gt;=&lt;/span&gt;y_obs)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-9" title="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-10" title="10"&gt;    &lt;span class="co"&gt;# Posterior sampling&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-11" title="11"&gt;    sample_steps &lt;span class="op"&gt;=&lt;/span&gt; pm.Metropolis()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-12" title="12"&gt;    sample_traces &lt;span class="op"&gt;=&lt;/span&gt; pm.sample(&lt;span class="dv"&gt;2000&lt;/span&gt;, sample_steps)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;pre class="text"&gt;&lt;code&gt;Couldn&amp;#39;t import dot_parser, loading of dot files will not be possible.&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;As per the basic examples in the &lt;a href="https://goo.gl/WW3TO8"&gt;PyMC3 notebooks&lt;/a&gt;, the posterior samples are plotted below using the following code:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb5"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb5-1" data-line-number="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; matplotlib.pyplot &lt;span class="im"&gt;as&lt;/span&gt; plt&lt;/a&gt;
-&lt;a class="sourceLine" id="cb5-2" data-line-number="2"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb5-3" data-line-number="3"&gt;plt.style.use(&lt;span class="st"&gt;&amp;#39;ggplot&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb5-4" data-line-number="4"&gt;plt.rc(&lt;span class="st"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;, usetex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb5-5" data-line-number="5"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb5-6" data-line-number="6"&gt;tp_axes &lt;span class="op"&gt;=&lt;/span&gt; pm.traceplot(sample_traces)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb5"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb5-1" title="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; matplotlib.pyplot &lt;span class="im"&gt;as&lt;/span&gt; plt&lt;/a&gt;
+&lt;a class="sourceLine" id="cb5-2" title="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb5-3" title="3"&gt;plt.style.use(&lt;span class="st"&gt;&amp;#39;ggplot&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb5-4" title="4"&gt;plt.rc(&lt;span class="st"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;, usetex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb5-5" title="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb5-6" title="6"&gt;tp_axes &lt;span class="op"&gt;=&lt;/span&gt; pm.traceplot(sample_traces)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;We can also superimpose the true posterior density given by Equation &lt;span class="math inline"&gt;\(\eqref{eq:theta-posterior}\)&lt;/span&gt; with the following:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb6"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb6-1" data-line-number="1"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; [a_.set_title(&lt;span class="vs"&gt;r&amp;#39;Posterior $(\theta \mid y)$ Samples&amp;#39;&lt;/span&gt;) &lt;span class="cf"&gt;for&lt;/span&gt; a_ &lt;span class="kw"&gt;in&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-2" data-line-number="2"&gt;tp_axes.ravel()]&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-3" data-line-number="3"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-4" data-line-number="4"&gt;freq_axis &lt;span class="op"&gt;=&lt;/span&gt; tp_axes[&lt;span class="dv"&gt;0&lt;/span&gt;][&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-5" data-line-number="5"&gt;freq_axis.set_xlabel(&lt;span class="vs"&gt;r&amp;#39;$\theta$&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-6" data-line-number="6"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-7" data-line-number="7"&gt;sample_axis &lt;span class="op"&gt;=&lt;/span&gt; tp_axes[&lt;span class="dv"&gt;0&lt;/span&gt;][&lt;span class="dv"&gt;1&lt;/span&gt;]&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-8" data-line-number="8"&gt;sample_axis.set_xlabel(&lt;span class="vs"&gt;r&amp;#39;$i$&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-9" data-line-number="9"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-10" data-line-number="10"&gt;rhs &lt;span class="op"&gt;=&lt;/span&gt; np.dot(&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;tau2, mu) &lt;span class="op"&gt;+&lt;/span&gt; np.dot(X.T &lt;span class="op"&gt;/&lt;/span&gt; sigma2, y_obs)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-11" data-line-number="11"&gt;tau_post &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;tau2 &lt;span class="op"&gt;+&lt;/span&gt; np.dot(X.T &lt;span class="op"&gt;/&lt;/span&gt; sigma2, X)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-12" data-line-number="12"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-13" data-line-number="13"&gt;post_mean &lt;span class="op"&gt;=&lt;/span&gt; rhs&lt;span class="op"&gt;/&lt;/span&gt;tau_post&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-14" data-line-number="14"&gt;post_var_inv &lt;span class="op"&gt;=&lt;/span&gt; tau_post&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-15" data-line-number="15"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-16" data-line-number="16"&gt;post_pdf &lt;span class="op"&gt;=&lt;/span&gt; partial(scs.norm.pdf,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-17" data-line-number="17"&gt;                   loc&lt;span class="op"&gt;=&lt;/span&gt;post_mean,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-18" data-line-number="18"&gt;                   scale&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;np.sqrt(post_var_inv))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-19" data-line-number="19"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-20" data-line-number="20"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-21" data-line-number="21"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; add_function_plot(func, ax, num&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1e2&lt;/span&gt;, label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;None&lt;/span&gt;):&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-22" data-line-number="22"&gt;    post_range &lt;span class="op"&gt;=&lt;/span&gt; np.linspace(&lt;span class="op"&gt;*&lt;/span&gt;ax.get_xlim(),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-23" data-line-number="23"&gt;                             num&lt;span class="op"&gt;=&lt;/span&gt;num, endpoint&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-24" data-line-number="24"&gt;    post_data &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;map&lt;/span&gt;(post_pdf, post_range)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-25" data-line-number="25"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-26" data-line-number="26"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; ax.plot(post_range, post_data,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-27" data-line-number="27"&gt;                   label&lt;span class="op"&gt;=&lt;/span&gt;label)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-28" data-line-number="28"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-29" data-line-number="29"&gt;&lt;span class="co"&gt;# Add true posterior pdf to the plot&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-30" data-line-number="30"&gt;add_function_plot(post_pdf, freq_axis,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-31" data-line-number="31"&gt;                  label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;Exact&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-32" data-line-number="32"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-33" data-line-number="33"&gt;&lt;span class="co"&gt;# Add manually produced MH samples to the plot&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-34" data-line-number="34"&gt;&lt;span class="im"&gt;import&lt;/span&gt; seaborn &lt;span class="im"&gt;as&lt;/span&gt; sns&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-35" data-line-number="35"&gt;sns.distplot(theta_samples[:&lt;span class="dv"&gt;2000&lt;/span&gt;], ax&lt;span class="op"&gt;=&lt;/span&gt;freq_axis, hist&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;False&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-36" data-line-number="36"&gt;                label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;Manual MH&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-37" data-line-number="37"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-38" data-line-number="38"&gt;sample_axis.plot(theta_samples[:&lt;span class="dv"&gt;2000&lt;/span&gt;],&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-39" data-line-number="39"&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;Manual MH&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-40" data-line-number="40"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-41" data-line-number="41"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-42" data-line-number="42"&gt;freq_axis.legend()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-43" data-line-number="43"&gt;sample_axis.legend()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-44" data-line-number="44"&gt;plt.show()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb6"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb6-1" title="1"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; [a_.set_title(&lt;span class="vs"&gt;r&amp;#39;Posterior $(\theta \mid y)$ Samples&amp;#39;&lt;/span&gt;) &lt;span class="cf"&gt;for&lt;/span&gt; a_ &lt;span class="kw"&gt;in&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-2" title="2"&gt;tp_axes.ravel()]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-3" title="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-4" title="4"&gt;freq_axis &lt;span class="op"&gt;=&lt;/span&gt; tp_axes[&lt;span class="dv"&gt;0&lt;/span&gt;][&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-5" title="5"&gt;freq_axis.set_xlabel(&lt;span class="vs"&gt;r&amp;#39;$\theta$&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-6" title="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-7" title="7"&gt;sample_axis &lt;span class="op"&gt;=&lt;/span&gt; tp_axes[&lt;span class="dv"&gt;0&lt;/span&gt;][&lt;span class="dv"&gt;1&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-8" title="8"&gt;sample_axis.set_xlabel(&lt;span class="vs"&gt;r&amp;#39;$i$&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-9" title="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-10" title="10"&gt;rhs &lt;span class="op"&gt;=&lt;/span&gt; np.dot(&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;tau2, mu) &lt;span class="op"&gt;+&lt;/span&gt; np.dot(X.T &lt;span class="op"&gt;/&lt;/span&gt; sigma2, y_obs)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-11" title="11"&gt;tau_post &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;tau2 &lt;span class="op"&gt;+&lt;/span&gt; np.dot(X.T &lt;span class="op"&gt;/&lt;/span&gt; sigma2, X)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-12" title="12"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-13" title="13"&gt;post_mean &lt;span class="op"&gt;=&lt;/span&gt; rhs&lt;span class="op"&gt;/&lt;/span&gt;tau_post&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-14" title="14"&gt;post_var_inv &lt;span class="op"&gt;=&lt;/span&gt; tau_post&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-15" title="15"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-16" title="16"&gt;post_pdf &lt;span class="op"&gt;=&lt;/span&gt; partial(scs.norm.pdf,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-17" title="17"&gt;                   loc&lt;span class="op"&gt;=&lt;/span&gt;post_mean,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-18" title="18"&gt;                   scale&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;np.sqrt(post_var_inv))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-19" title="19"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-20" title="20"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-21" title="21"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; add_function_plot(func, ax, num&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1e2&lt;/span&gt;, label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;None&lt;/span&gt;):&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-22" title="22"&gt;    post_range &lt;span class="op"&gt;=&lt;/span&gt; np.linspace(&lt;span class="op"&gt;*&lt;/span&gt;ax.get_xlim(),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-23" title="23"&gt;                             num&lt;span class="op"&gt;=&lt;/span&gt;num, endpoint&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-24" title="24"&gt;    post_data &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;map&lt;/span&gt;(post_pdf, post_range)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-25" title="25"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-26" title="26"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; ax.plot(post_range, post_data,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-27" title="27"&gt;                   label&lt;span class="op"&gt;=&lt;/span&gt;label)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-28" title="28"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-29" title="29"&gt;&lt;span class="co"&gt;# Add true posterior pdf to the plot&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-30" title="30"&gt;add_function_plot(post_pdf, freq_axis,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-31" title="31"&gt;                  label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;Exact&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-32" title="32"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-33" title="33"&gt;&lt;span class="co"&gt;# Add manually produced MH samples to the plot&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-34" title="34"&gt;&lt;span class="im"&gt;import&lt;/span&gt; seaborn &lt;span class="im"&gt;as&lt;/span&gt; sns&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-35" title="35"&gt;sns.distplot(theta_samples[:&lt;span class="dv"&gt;2000&lt;/span&gt;], ax&lt;span class="op"&gt;=&lt;/span&gt;freq_axis, hist&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;False&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-36" title="36"&gt;                label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;Manual MH&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-37" title="37"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-38" title="38"&gt;sample_axis.plot(theta_samples[:&lt;span class="dv"&gt;2000&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-39" title="39"&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;Manual MH&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-40" title="40"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-41" title="41"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-42" title="42"&gt;freq_axis.legend()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-43" title="43"&gt;sample_axis.legend()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-44" title="44"&gt;plt.show()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:theta_post_plot"&gt;&lt;span id="fig:theta_post_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{1}\label{fig:theta_post_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_theta_post_plot_1.png" title="fig:" alt="Posterior samples" /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="the-costs" class="level2"&gt;
 &lt;h2&gt;The Costs&lt;/h2&gt;
-&lt;p&gt;MCMC, and specifically the Metropolis-Hastings approach used above, can look very simple and universally applicable, but–of course–there’s a trade-off occurring somewhere. The trade-offs most often appear in relation to the complexity and cost of [intermediate] sampling steps and convergence rates. To over simplify, the standard &lt;span class="math inline"&gt;\(O(N^{-1/2})\)&lt;/span&gt; error rate–from the &lt;a href="https://en.wikipedia.org/wiki/Central_limit_theorem"&gt;Central Limit Theorem&lt;/a&gt;–is the MCMC baseline, which isn’t all that competitive with some of the standard deterministic optimization methods.&lt;/p&gt;
+&lt;p&gt;MCMC, and specifically the Metropolis-Hastings approach used above, can look very simple and universally applicable, but–of course–there’s a trade-off occurring somewhere. The trade-offs most often appear in relation to the complexity and cost of &lt;span class="math display"&gt;\[intermediate\]&lt;/span&gt; sampling steps and convergence rates. To over simplify, the standard &lt;span class="math inline"&gt;\(O(N^{-1/2})\)&lt;/span&gt; error rate–from the &lt;a href="https://en.wikipedia.org/wiki/Central_limit_theorem"&gt;Central Limit Theorem&lt;/a&gt;–is the MCMC baseline, which isn’t all that competitive with some of the standard deterministic optimization methods.&lt;/p&gt;
 &lt;p&gt;Even for conceptually simple models, the proposal distribution (and its parameters) are not always easy to choose or cheap to tune. The upfront computational costs can be quite high for the more generic MCMC approaches, but there are almost always paths toward efficient samplers–in the context of a specific problem, at least.&lt;/p&gt;
 &lt;p&gt;In practice, the generality and relative simplicity of the Bayes approach, combined with MCMC, can be somewhat misleading to newcomers. After some immediate success with simpler and/or scaled down problems, one is soon led to believe that the cost of direct computations and the effort and skill required to derive efficient methods is not worth the potential parsimony and extra information provided by sample results.&lt;/p&gt;
 &lt;p&gt;The unfortunate outcome of this situation is sometimes an effective rejection of Bayes and MCMC altogether. Although the point hasn’t been illustrated here, MCMC isn’t the only option. &lt;strong&gt;Bayesian models are just as amenable to deterministic estimation as non-Bayesian ones&lt;/strong&gt;, and a wide array of efficient deterministic estimation techniques are available–albeit not so common in standard practice &lt;span class="citation" data-cites="polson_proximal_2015"&gt;(Polson, Scott, and Willard 2015)&lt;/span&gt;.&lt;/p&gt;
@@ -291,47 +289,47 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The posterior predictive sample in Equation &lt;span class="math inline"&gt;\(\eqref{eq:post_predict_samples}\)&lt;/span&gt; contains much of the information a modeler desires. Take the variance of this sample and one has a common measure of prediction error; produce quantiles of the sample and one has &lt;a href="https://en.wikipedia.org/wiki/Credible_interval"&gt;“credible”&lt;/a&gt; prediction intervals. The sample produced by mapping an arbitrary function to each posterior predictive sample is itself amenable to the aforementioned summaries, allowing one to easily produce errors for complicated uses of predicted quantities. We illustrate these use cases below.&lt;/p&gt;
 &lt;p&gt;Using our previous simulation and PyMC3, the posterior predictive samples are obtained with&lt;/p&gt;
-&lt;div class="sourceCode" id="cb7"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb7-1" data-line-number="1"&gt;ppc_samples &lt;span class="op"&gt;=&lt;/span&gt; pm.sample_ppc(sample_traces, model&lt;span class="op"&gt;=&lt;/span&gt;model)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb7"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb7-1" title="1"&gt;ppc_samples &lt;span class="op"&gt;=&lt;/span&gt; pm.sample_ppc(sample_traces, model&lt;span class="op"&gt;=&lt;/span&gt;model)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;and plotted with&lt;/p&gt;
-&lt;div class="sourceCode" id="cb8"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb8-1" data-line-number="1"&gt;plt.clf()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-2" data-line-number="2"&gt;ppc_hpd &lt;span class="op"&gt;=&lt;/span&gt; pm.hpd(ppc_samples[&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;], &lt;span class="fl"&gt;0.05&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-3" data-line-number="3"&gt;plt.fill_between(np.arange(np.alen(y_obs)),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-4" data-line-number="4"&gt;                 ppc_hpd[:, &lt;span class="dv"&gt;0&lt;/span&gt;],&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-5" data-line-number="5"&gt;                 ppc_hpd[:, &lt;span class="dv"&gt;1&lt;/span&gt;],&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-6" data-line-number="6"&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$(Y \mid X, y)$ 95\&lt;/span&gt;&lt;span class="sc"&gt;% i&lt;/span&gt;&lt;span class="vs"&gt;nterval&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-7" data-line-number="7"&gt;                 alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-8" data-line-number="8"&gt;plt.plot(y_obs, label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;$y$&amp;#39;&lt;/span&gt;, color&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;black&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-9" data-line-number="9"&gt;plt.plot(ppc_samples[&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;].mean(axis&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-10" data-line-number="10"&gt;         label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$E[Y \mid X, y]$&amp;#39;&lt;/span&gt;, alpha&lt;span class="op"&gt;=&lt;/span&gt;.&lt;span class="dv"&gt;7&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-11" data-line-number="11"&gt;plt.legend()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-12" data-line-number="12"&gt;plt.show()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb8"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb8-1" title="1"&gt;plt.clf()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-2" title="2"&gt;ppc_hpd &lt;span class="op"&gt;=&lt;/span&gt; pm.hpd(ppc_samples[&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;], &lt;span class="fl"&gt;0.05&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-3" title="3"&gt;plt.fill_between(np.arange(np.alen(y_obs)),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-4" title="4"&gt;                 ppc_hpd[:, &lt;span class="dv"&gt;0&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-5" title="5"&gt;                 ppc_hpd[:, &lt;span class="dv"&gt;1&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-6" title="6"&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$(Y \mid X, y)$ 95\&lt;/span&gt;&lt;span class="sc"&gt;% i&lt;/span&gt;&lt;span class="vs"&gt;nterval&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-7" title="7"&gt;                 alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-8" title="8"&gt;plt.plot(y_obs, label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;$y$&amp;#39;&lt;/span&gt;, color&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;black&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-9" title="9"&gt;plt.plot(ppc_samples[&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;].mean(axis&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-10" title="10"&gt;         label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$E[Y \mid X, y]$&amp;#39;&lt;/span&gt;, alpha&lt;span class="op"&gt;=&lt;/span&gt;.&lt;span class="dv"&gt;7&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-11" title="11"&gt;plt.legend()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-12" title="12"&gt;plt.show()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:hourly_ppc_plot"&gt;&lt;span id="fig:hourly_ppc_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{2}\label{fig:hourly_ppc_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_hourly_ppc_plot_1.png" title="fig:" alt="Posterior predictive samples" /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;div class="example" data-markdown="" data-env-number="1" data-title-name=""&gt;
 &lt;p&gt;Let’s say we’re interested in daily, monthly, or yearly averages for &lt;span class="math inline"&gt;\(Y_t\)&lt;/span&gt; at a lower frequency–like minutes or hours. Similarly, we might want to consider functions of differences between the outputs of different models, &lt;span class="math inline"&gt;\(f(Y^{(j)} - Y^{(k)})\)&lt;/span&gt; for &lt;span class="math inline"&gt;\(j, k \in \{1, 2\}\)&lt;/span&gt;, or more generally &lt;span class="math inline"&gt;\(f(Y^{(j)}, Y^{(k)})\)&lt;/span&gt;. These quantities derived from simple manipulations of &lt;code&gt;ppc_hpd&lt;/code&gt;.&lt;/p&gt;
 &lt;/div&gt;
-&lt;p&gt;Next, we produce predictions for daily averages–along with [credible] intervals.&lt;/p&gt;
-&lt;div class="sourceCode" id="cb9"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb9-1" data-line-number="1"&gt;y_obs_h &lt;span class="op"&gt;=&lt;/span&gt; pd.Series(y_obs, index&lt;span class="op"&gt;=&lt;/span&gt;sim_index)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-2" data-line-number="2"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-3" data-line-number="3"&gt;ppc_samples_h &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(ppc_samples[&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;].T, index&lt;span class="op"&gt;=&lt;/span&gt;sim_index)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-4" data-line-number="4"&gt;ppc_samples_h &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples_h.stack()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-5" data-line-number="5"&gt;ppc_samples_h &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples_h[:,&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-6" data-line-number="6"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-7" data-line-number="7"&gt;ppc_quantiles_d &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples_h.resample(&lt;span class="st"&gt;&amp;#39;D&amp;#39;&lt;/span&gt;).&lt;span class="bu"&gt;apply&lt;/span&gt;(&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-8" data-line-number="8"&gt;    &lt;span class="kw"&gt;lambda&lt;/span&gt; x: x.quantile(q&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="fl"&gt;0.05&lt;/span&gt;, &lt;span class="fl"&gt;0.5&lt;/span&gt;, &lt;span class="fl"&gt;0.95&lt;/span&gt;]))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-9" data-line-number="9"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-10" data-line-number="10"&gt;ppc_quantiles_d &lt;span class="op"&gt;=&lt;/span&gt; ppc_quantiles_d.unstack()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-11" data-line-number="11"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-12" data-line-number="12"&gt;y_obs_d &lt;span class="op"&gt;=&lt;/span&gt; y_obs_h.resample(&lt;span class="st"&gt;&amp;#39;D&amp;#39;&lt;/span&gt;).mean()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class="sourceCode" id="cb10"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb10-1" data-line-number="1"&gt;plt.clf()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-2" data-line-number="2"&gt;y_obs_d.plot(label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;$f(y)$&amp;#39;&lt;/span&gt;, color&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;black&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-3" data-line-number="3"&gt;plt.fill_between(ppc_quantiles_d.index,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-4" data-line-number="4"&gt;                 ppc_quantiles_d[&lt;span class="fl"&gt;0.05&lt;/span&gt;],&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-5" data-line-number="5"&gt;                 ppc_quantiles_d[&lt;span class="fl"&gt;0.95&lt;/span&gt;],&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-6" data-line-number="6"&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$(f(Y) \mid X, y)$ 95\&lt;/span&gt;&lt;span class="sc"&gt;% i&lt;/span&gt;&lt;span class="vs"&gt;nterval&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-7" data-line-number="7"&gt;                 alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-8" data-line-number="8"&gt;ppc_quantiles_d[&lt;span class="fl"&gt;0.5&lt;/span&gt;].plot(label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$E[f(Y) \mid X, y]$&amp;#39;&lt;/span&gt;, alpha&lt;span class="op"&gt;=&lt;/span&gt;.&lt;span class="dv"&gt;7&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-9" data-line-number="9"&gt;plt.legend()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-10" data-line-number="10"&gt;plt.show()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Next, we produce predictions for daily averages–along with &lt;span class="math display"&gt;\[credible\]&lt;/span&gt; intervals.&lt;/p&gt;
+&lt;div class="sourceCode" id="cb9"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb9-1" title="1"&gt;y_obs_h &lt;span class="op"&gt;=&lt;/span&gt; pd.Series(y_obs, index&lt;span class="op"&gt;=&lt;/span&gt;sim_index)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-2" title="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-3" title="3"&gt;ppc_samples_h &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(ppc_samples[&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;].T, index&lt;span class="op"&gt;=&lt;/span&gt;sim_index)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-4" title="4"&gt;ppc_samples_h &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples_h.stack()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-5" title="5"&gt;ppc_samples_h &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples_h[:,&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-6" title="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-7" title="7"&gt;ppc_quantiles_d &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples_h.resample(&lt;span class="st"&gt;&amp;#39;D&amp;#39;&lt;/span&gt;).&lt;span class="bu"&gt;apply&lt;/span&gt;(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-8" title="8"&gt;    &lt;span class="kw"&gt;lambda&lt;/span&gt; x: x.quantile(q&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="fl"&gt;0.05&lt;/span&gt;, &lt;span class="fl"&gt;0.5&lt;/span&gt;, &lt;span class="fl"&gt;0.95&lt;/span&gt;]))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-9" title="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-10" title="10"&gt;ppc_quantiles_d &lt;span class="op"&gt;=&lt;/span&gt; ppc_quantiles_d.unstack()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-11" title="11"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-12" title="12"&gt;y_obs_d &lt;span class="op"&gt;=&lt;/span&gt; y_obs_h.resample(&lt;span class="st"&gt;&amp;#39;D&amp;#39;&lt;/span&gt;).mean()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb10"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb10-1" title="1"&gt;plt.clf()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-2" title="2"&gt;y_obs_d.plot(label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;$f(y)$&amp;#39;&lt;/span&gt;, color&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;black&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-3" title="3"&gt;plt.fill_between(ppc_quantiles_d.index,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-4" title="4"&gt;                 ppc_quantiles_d[&lt;span class="fl"&gt;0.05&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-5" title="5"&gt;                 ppc_quantiles_d[&lt;span class="fl"&gt;0.95&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-6" title="6"&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$(f(Y) \mid X, y)$ 95\&lt;/span&gt;&lt;span class="sc"&gt;% i&lt;/span&gt;&lt;span class="vs"&gt;nterval&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-7" title="7"&gt;                 alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-8" title="8"&gt;ppc_quantiles_d[&lt;span class="fl"&gt;0.5&lt;/span&gt;].plot(label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$E[f(Y) \mid X, y]$&amp;#39;&lt;/span&gt;, alpha&lt;span class="op"&gt;=&lt;/span&gt;.&lt;span class="dv"&gt;7&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-9" title="9"&gt;plt.legend()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-10" title="10"&gt;plt.show()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:daily_ppc_plot"&gt;&lt;span id="fig:daily_ppc_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{3}\label{fig:daily_ppc_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_daily_ppc_plot_1.png" title="fig:" alt="Daily posterior predictive results from the hourly posterior." /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="hierarchical-extensions" class="level1"&gt;
@@ -349,7 +347,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;p&gt;In contrast, we can model the &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; values directly and have a very clear cut path toward out-of-sample predictions and their distributional properties. Even if we hold to the belief that the previous average values are a reasonable imputation, then a number of simple models can account for that assumption.&lt;/p&gt;
 &lt;div id="ex:prior_extension" class="example" data-markdown="" data-env-number="3" data-title-name=""&gt;
 &lt;p&gt;&lt;span id="ex:prior_extension_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{3}\label{ex:prior_extension}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Let’s consider a normal regression model for &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; with seasonal factors, i.e. &lt;span class="math display"&gt;\[\begin{equation}
+&lt;p&gt;Let’s consider a normal regression model for &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; with seasonal factors, i.e. &lt;span class="math display"&gt;\[\begin{equation}
 X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
     \label{eq:exogenous_model}
 \end{equation}\]&lt;/span&gt; where &lt;span class="math inline"&gt;\(d(t)\)&lt;/span&gt; is an indicator vector containing the seasonal factors and &lt;span class="math inline"&gt;\(I\)&lt;/span&gt; is an identity matrix.&lt;/p&gt;
@@ -376,79 +374,79 @@ X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
 &lt;p&gt;Adherence to established models or industry standards is not uncommon. Outside of hierarchical model development, it can be very difficult to make these connections and coherently propagate statistical assumptions.&lt;/p&gt;
 &lt;p&gt;This model development process expands in complexity and applicability through natural and compartmental extensions of existing terms. Simpler, “base” models are found as marginalizations of the new terms, and all the same estimation techniques apply.&lt;/p&gt;
 &lt;p&gt;We’ll close with an illustration of the piecewise exogenous variable model described in Example &lt;span class="math inline"&gt;\(\ref{ex:prior_extension}\)&lt;/span&gt;. A few days are added to demonstrate out-of-sample predictions and the design matrix, &lt;span class="math inline"&gt;\(D\)&lt;/span&gt;, for Equation &lt;span class="math inline"&gt;\(\eqref{eq:exogenous_model}\)&lt;/span&gt; is produced using &lt;a href="https://patsy.readthedocs.io/en/latest/"&gt;Patsy&lt;/a&gt;.&lt;/p&gt;
-&lt;div class="sourceCode" id="cb11"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb11-1" data-line-number="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; patsy&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-2" data-line-number="2"&gt;&lt;span class="im"&gt;import&lt;/span&gt; theano.tensor &lt;span class="im"&gt;as&lt;/span&gt; T&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-3" data-line-number="3"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-4" data-line-number="4"&gt;ext_sim_index &lt;span class="op"&gt;=&lt;/span&gt; pd.date_range(start&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;2016-01-01 12:00:00&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-5" data-line-number="5"&gt;                              end&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;2016-01-16 12:00:00&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-6" data-line-number="6"&gt;                              freq&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;H&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-7" data-line-number="7"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-8" data-line-number="8"&gt;y_obs_df &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(y_obs, index&lt;span class="op"&gt;=&lt;/span&gt;sim_index,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-9" data-line-number="9"&gt;                        columns&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="vs"&gt;r&amp;#39;y&amp;#39;&lt;/span&gt;])&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-10" data-line-number="10"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-11" data-line-number="11"&gt;&lt;span class="co"&gt;# The extra out-of-sample days are set to NaN&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-12" data-line-number="12"&gt;y_obs_df &lt;span class="op"&gt;=&lt;/span&gt; y_obs_df.reindex(ext_sim_index)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-13" data-line-number="13"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-14" data-line-number="14"&gt;&lt;span class="co"&gt;# Create some missing in-sample days&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-15" data-line-number="15"&gt;missing_days_idx &lt;span class="op"&gt;=&lt;/span&gt; np.random.randint(&lt;span class="dv"&gt;0&lt;/span&gt;, np.alen(y_obs), &lt;span class="dv"&gt;10&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-16" data-line-number="16"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-17" data-line-number="17"&gt;y_obs_df[missing_days_idx] &lt;span class="op"&gt;=&lt;/span&gt; np.nan&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-18" data-line-number="18"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-19" data-line-number="19"&gt;_, D_df &lt;span class="op"&gt;=&lt;/span&gt; patsy.dmatrices(&lt;span class="st"&gt;&amp;quot;y ~ C(y.index.weekday)&amp;quot;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-20" data-line-number="20"&gt;                          y_obs_df.notnull(),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-21" data-line-number="21"&gt;                          return_type&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;dataframe&amp;#39;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb11"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb11-1" title="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; patsy&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-2" title="2"&gt;&lt;span class="im"&gt;import&lt;/span&gt; theano.tensor &lt;span class="im"&gt;as&lt;/span&gt; T&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-3" title="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-4" title="4"&gt;ext_sim_index &lt;span class="op"&gt;=&lt;/span&gt; pd.date_range(start&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;2016-01-01 12:00:00&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-5" title="5"&gt;                              end&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;2016-01-16 12:00:00&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-6" title="6"&gt;                              freq&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;H&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-7" title="7"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-8" title="8"&gt;y_obs_df &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(y_obs, index&lt;span class="op"&gt;=&lt;/span&gt;sim_index,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-9" title="9"&gt;                        columns&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="vs"&gt;r&amp;#39;y&amp;#39;&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-10" title="10"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-11" title="11"&gt;&lt;span class="co"&gt;# The extra out-of-sample days are set to NaN&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-12" title="12"&gt;y_obs_df &lt;span class="op"&gt;=&lt;/span&gt; y_obs_df.reindex(ext_sim_index)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-13" title="13"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-14" title="14"&gt;&lt;span class="co"&gt;# Create some missing in-sample days&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-15" title="15"&gt;missing_days_idx &lt;span class="op"&gt;=&lt;/span&gt; np.random.randint(&lt;span class="dv"&gt;0&lt;/span&gt;, np.alen(y_obs), &lt;span class="dv"&gt;10&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-16" title="16"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-17" title="17"&gt;y_obs_df[missing_days_idx] &lt;span class="op"&gt;=&lt;/span&gt; np.nan&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-18" title="18"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-19" title="19"&gt;_, D_df &lt;span class="op"&gt;=&lt;/span&gt; patsy.dmatrices(&lt;span class="st"&gt;&amp;quot;y ~ C(y.index.weekday)&amp;quot;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-20" title="20"&gt;                          y_obs_df.notnull(),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-21" title="21"&gt;                          return_type&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;dataframe&amp;#39;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Again, with PyMC3 our model and its extension are easily expressed, and the missing observations will be sampled automatically.&lt;/p&gt;
-&lt;div class="sourceCode" id="cb12"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb12-1" data-line-number="1"&gt;theano.config.mode &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;quot;FAST_RUN&amp;quot;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-2" data-line-number="2"&gt;&lt;span class="kw"&gt;del&lt;/span&gt; model&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-3" data-line-number="3"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; pm.Model() &lt;span class="im"&gt;as&lt;/span&gt; model:&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-4" data-line-number="4"&gt;    theta &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;theta&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;mu, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;tau2)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-5" data-line-number="5"&gt;    beta &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;beta&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;, sd&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1e1&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-6" data-line-number="6"&gt;                     shape&lt;span class="op"&gt;=&lt;/span&gt;(D_df.shape[&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;],))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-7" data-line-number="7"&gt;    mu_y &lt;span class="op"&gt;=&lt;/span&gt; T.transpose(T.dot(D_df, beta)) &lt;span class="op"&gt;*&lt;/span&gt; theta&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-8" data-line-number="8"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-9" data-line-number="9"&gt;    Y &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;mu_y, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;sigma2,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-10" data-line-number="10"&gt;                  observed&lt;span class="op"&gt;=&lt;/span&gt;y_obs_df.icol(&lt;span class="dv"&gt;0&lt;/span&gt;))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-11" data-line-number="11"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-12" data-line-number="12"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; model:&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-13" data-line-number="13"&gt;    sample_steps &lt;span class="op"&gt;=&lt;/span&gt; [pm.Metropolis([theta]),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-14" data-line-number="14"&gt;                    pm.Metropolis([beta])]&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-15" data-line-number="15"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; Y.missing_values &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-16" data-line-number="16"&gt;        sample_steps &lt;span class="op"&gt;+=&lt;/span&gt; [pm.Metropolis(Y.missing_values)]&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-17" data-line-number="17"&gt;    sample_traces &lt;span class="op"&gt;=&lt;/span&gt; pm.sample(&lt;span class="dv"&gt;2000&lt;/span&gt;, sample_steps)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb12"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb12-1" title="1"&gt;theano.config.mode &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;quot;FAST_RUN&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-2" title="2"&gt;&lt;span class="kw"&gt;del&lt;/span&gt; model&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-3" title="3"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; pm.Model() &lt;span class="im"&gt;as&lt;/span&gt; model:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-4" title="4"&gt;    theta &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;theta&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;mu, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;tau2)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-5" title="5"&gt;    beta &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;beta&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;, sd&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1e1&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-6" title="6"&gt;                     shape&lt;span class="op"&gt;=&lt;/span&gt;(D_df.shape[&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;],))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-7" title="7"&gt;    mu_y &lt;span class="op"&gt;=&lt;/span&gt; T.transpose(T.dot(D_df, beta)) &lt;span class="op"&gt;*&lt;/span&gt; theta&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-8" title="8"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-9" title="9"&gt;    Y &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;mu_y, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;sigma2,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-10" title="10"&gt;                  observed&lt;span class="op"&gt;=&lt;/span&gt;y_obs_df.icol(&lt;span class="dv"&gt;0&lt;/span&gt;))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-11" title="11"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-12" title="12"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; model:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-13" title="13"&gt;    sample_steps &lt;span class="op"&gt;=&lt;/span&gt; [pm.Metropolis([theta]),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-14" title="14"&gt;                    pm.Metropolis([beta])]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-15" title="15"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; Y.missing_values &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-16" title="16"&gt;        sample_steps &lt;span class="op"&gt;+=&lt;/span&gt; [pm.Metropolis(Y.missing_values)]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-17" title="17"&gt;    sample_traces &lt;span class="op"&gt;=&lt;/span&gt; pm.sample(&lt;span class="dv"&gt;2000&lt;/span&gt;, sample_steps)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The posterior predictive results are plotted below.&lt;/p&gt;
-&lt;div class="sourceCode" id="cb13"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb13-1" data-line-number="1"&gt;ppc_samples &lt;span class="op"&gt;=&lt;/span&gt; pm.sample_ppc(sample_traces, model&lt;span class="op"&gt;=&lt;/span&gt;model)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-2" data-line-number="2"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-3" data-line-number="3"&gt;ppc_y_samples &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples[&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;]&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-4" data-line-number="4"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-5" data-line-number="5"&gt;ppc_mean_df &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(ppc_y_samples.mean(axis&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-6" data-line-number="6"&gt;                           index&lt;span class="op"&gt;=&lt;/span&gt;ext_sim_index,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-7" data-line-number="7"&gt;                           columns&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="vs"&gt;r&amp;#39;$E[Y \mid y]$&amp;#39;&lt;/span&gt;])&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-8" data-line-number="8"&gt;ppc_hpd &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pm.hpd(ppc_y_samples, &lt;span class="fl"&gt;0.05&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-9" data-line-number="9"&gt;                       index&lt;span class="op"&gt;=&lt;/span&gt;ext_sim_index)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-10" data-line-number="10"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-11" data-line-number="11"&gt;y_obs_df.plot(color&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;black&amp;#39;&lt;/span&gt;, subplots&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-12" data-line-number="12"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-13" data-line-number="13"&gt;plt.vlines(y_obs_df.index[missing_days_idx], &lt;span class="op"&gt;*&lt;/span&gt;plt.axes().get_ybound(),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-14" data-line-number="14"&gt;           linestyle&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;dashed&amp;#39;&lt;/span&gt;, alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.1&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-15" data-line-number="15"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-16" data-line-number="16"&gt;plt.fill_between(y_obs_df.index,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-17" data-line-number="17"&gt;                 ppc_hpd[&lt;span class="dv"&gt;0&lt;/span&gt;].values,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-18" data-line-number="18"&gt;                 ppc_hpd[&lt;span class="dv"&gt;1&lt;/span&gt;].values,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-19" data-line-number="19"&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$(Y \mid y)$ 95\&lt;/span&gt;&lt;span class="sc"&gt;% i&lt;/span&gt;&lt;span class="vs"&gt;nterval&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-20" data-line-number="20"&gt;                 alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-21" data-line-number="21"&gt;ppc_mean_df.plot(ax&lt;span class="op"&gt;=&lt;/span&gt;plt.axes(), alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.7&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-22" data-line-number="22"&gt;plt.legend()&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-23" data-line-number="23"&gt;plt.show()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb13"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb13-1" title="1"&gt;ppc_samples &lt;span class="op"&gt;=&lt;/span&gt; pm.sample_ppc(sample_traces, model&lt;span class="op"&gt;=&lt;/span&gt;model)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-2" title="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-3" title="3"&gt;ppc_y_samples &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples[&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-4" title="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-5" title="5"&gt;ppc_mean_df &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(ppc_y_samples.mean(axis&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-6" title="6"&gt;                           index&lt;span class="op"&gt;=&lt;/span&gt;ext_sim_index,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-7" title="7"&gt;                           columns&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="vs"&gt;r&amp;#39;$E[Y \mid y]$&amp;#39;&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-8" title="8"&gt;ppc_hpd &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pm.hpd(ppc_y_samples, &lt;span class="fl"&gt;0.05&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-9" title="9"&gt;                       index&lt;span class="op"&gt;=&lt;/span&gt;ext_sim_index)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-10" title="10"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-11" title="11"&gt;y_obs_df.plot(color&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;black&amp;#39;&lt;/span&gt;, subplots&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-12" title="12"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-13" title="13"&gt;plt.vlines(y_obs_df.index[missing_days_idx], &lt;span class="op"&gt;*&lt;/span&gt;plt.axes().get_ybound(),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-14" title="14"&gt;           linestyle&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;dashed&amp;#39;&lt;/span&gt;, alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.1&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-15" title="15"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-16" title="16"&gt;plt.fill_between(y_obs_df.index,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-17" title="17"&gt;                 ppc_hpd[&lt;span class="dv"&gt;0&lt;/span&gt;].values,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-18" title="18"&gt;                 ppc_hpd[&lt;span class="dv"&gt;1&lt;/span&gt;].values,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-19" title="19"&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$(Y \mid y)$ 95\&lt;/span&gt;&lt;span class="sc"&gt;% i&lt;/span&gt;&lt;span class="vs"&gt;nterval&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-20" title="20"&gt;                 alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-21" title="21"&gt;ppc_mean_df.plot(ax&lt;span class="op"&gt;=&lt;/span&gt;plt.axes(), alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.7&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-22" title="22"&gt;plt.legend()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-23" title="23"&gt;plt.show()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:temp_ppc_plot"&gt;&lt;span id="fig:temp_ppc_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{4}\label{fig:temp_ppc_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_temp_ppc_plot_1.png" title="fig:" alt="Posterior predictive results for the stochastic X model" /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="bibliography" class="level1 unnumbered"&gt;
 &lt;h1&gt;References&lt;/h1&gt;
 &lt;div id="refs" class="references"&gt;
 &lt;div id="ref-gelman_bayesian_2013"&gt;
-&lt;p&gt;Gelman, Andrew, John B. Carlin, Hal S. Stern, David B. Dunson, Aki Vehtari, and Donald B. Rubin. 2013. &lt;em&gt;Bayesian Data Analysis&lt;/em&gt;. CRC Press. &lt;a href="https://books.google.com/books?hl=en\&amp;amp;lr=\&amp;amp;id=eSHSBQAAQBAJ\&amp;amp;oi=fnd\&amp;amp;pg=PP1\&amp;amp;ots=Ak-k71u_75\&amp;amp;sig=d_812jhJtAQ_hZ5PLmee4GeQ0jQ" class="uri"&gt;https://books.google.com/books?hl=en\&amp;amp;lr=\&amp;amp;id=eSHSBQAAQBAJ\&amp;amp;oi=fnd\&amp;amp;pg=PP1\&amp;amp;ots=Ak-k71u_75\&amp;amp;sig=d_812jhJtAQ_hZ5PLmee4GeQ0jQ&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Gelman, Andrew, John B. Carlin, Hal S. Stern, David B. Dunson, Aki Vehtari, and Donald B. Rubin. 2013. &lt;em&gt;Bayesian Data Analysis&lt;/em&gt;. CRC Press. &lt;a href="https://books.google.com/books?hl=en\&amp;amp;lr=\&amp;amp;id=eSHSBQAAQBAJ\&amp;amp;oi=fnd\&amp;amp;pg=PP1\&amp;amp;ots=Ak-k71u_75\&amp;amp;sig=d_812jhJtAQ_hZ5PLmee4GeQ0jQ"&gt;https://books.google.com/books?hl=en\&amp;amp;lr=\&amp;amp;id=eSHSBQAAQBAJ\&amp;amp;oi=fnd\&amp;amp;pg=PP1\&amp;amp;ots=Ak-k71u_75\&amp;amp;sig=d_812jhJtAQ_hZ5PLmee4GeQ0jQ&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id="ref-polson_proximal_2015"&gt;
-&lt;p&gt;Polson, Nicholas G., James G. Scott, and Brandon T. Willard. 2015. “Proximal Algorithms in Statistics and Machine Learning.” &lt;em&gt;Statistical Science&lt;/em&gt; 30 (4): 559–81. &lt;a href="http://projecteuclid.org/euclid.ss/1449670858" class="uri"&gt;http://projecteuclid.org/euclid.ss/1449670858&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Polson, Nicholas G., James G. Scott, and Brandon T. Willard. 2015. “Proximal Algorithms in Statistics and Machine Learning.” &lt;em&gt;Statistical Science&lt;/em&gt; 30 (4): 559–81. &lt;a href="http://projecteuclid.org/euclid.ss/1449670858"&gt;http://projecteuclid.org/euclid.ss/1449670858&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/section&gt;
@@ -474,7 +472,7 @@ MathJax.Hub.Config({
   &lt;style type="text/css"&gt;
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -487,13 +485,11 @@ code.sourceCode { white-space: pre-wrap; }
 a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
 pre.numberSource a.sourceLine
-  { position: relative; }
-pre.numberSource a.sourceLine:empty
-  { position: absolute; }
+  { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
-    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all;
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -560,26 +556,26 @@ E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \g
 \label{eq:expectation}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;As an example, let’s set up a situation in which &lt;code&gt;as_expectations&lt;/code&gt; would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match Equation &lt;span class="math inline"&gt;\(\eqref{eq:expectation}\)&lt;/span&gt;:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb1-1" data-line-number="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; sympy &lt;span class="im"&gt;as&lt;/span&gt; sp&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-2" data-line-number="2"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-3" data-line-number="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; hsplus.horn_symbolic &lt;span class="im"&gt;import&lt;/span&gt; HornPhi1&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-4" data-line-number="4"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-5" data-line-number="5"&gt;a, b, g, z_1, z_2 &lt;span class="op"&gt;=&lt;/span&gt; sp.symbols(&lt;span class="st"&gt;&amp;#39;a, b, g, z_1, z_2&amp;#39;&lt;/span&gt;, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-6" data-line-number="6"&gt;phi1_1 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g,), z_1, z_2)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-7" data-line-number="7"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-8" data-line-number="8"&gt;n &lt;span class="op"&gt;=&lt;/span&gt; sp.Dummy(&lt;span class="st"&gt;&amp;#39;n&amp;#39;&lt;/span&gt;, integer&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;, positive&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-9" data-line-number="9"&gt;i &lt;span class="op"&gt;=&lt;/span&gt; sp.Dummy(&lt;span class="st"&gt;&amp;#39;i&amp;#39;&lt;/span&gt;, integer&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;, nonnegative&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-10" data-line-number="10"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-11" data-line-number="11"&gt;phi1_2 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n,), z_1, z_2)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-12" data-line-number="12"&gt;phi1_3 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n &lt;span class="op"&gt;-&lt;/span&gt; i,), z_1, z_2)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-13" data-line-number="13"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-14" data-line-number="14"&gt;r_1 &lt;span class="op"&gt;=&lt;/span&gt; phi1_2&lt;span class="op"&gt;/&lt;/span&gt;phi1_1&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-15" data-line-number="15"&gt;r_2 &lt;span class="op"&gt;=&lt;/span&gt; phi1_3&lt;span class="op"&gt;/&lt;/span&gt;phi1_1&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-16" data-line-number="16"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-17" data-line-number="17"&gt;expr &lt;span class="op"&gt;=&lt;/span&gt; a &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;-&lt;/span&gt; b &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;/&lt;/span&gt; g &lt;span class="op"&gt;+&lt;/span&gt; sp.Sum(z_1&lt;span class="op"&gt;/&lt;/span&gt;z_2 &lt;span class="op"&gt;*&lt;/span&gt; r_2 &lt;span class="op"&gt;-&lt;/span&gt; &lt;span class="dv"&gt;3&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; r_2, (i, &lt;span class="dv"&gt;0&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-18" data-line-number="18"&gt;n))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb1-1" title="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; sympy &lt;span class="im"&gt;as&lt;/span&gt; sp&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-2" title="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-3" title="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; hsplus.horn_symbolic &lt;span class="im"&gt;import&lt;/span&gt; HornPhi1&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-4" title="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-5" title="5"&gt;a, b, g, z_1, z_2 &lt;span class="op"&gt;=&lt;/span&gt; sp.symbols(&lt;span class="st"&gt;&amp;#39;a, b, g, z_1, z_2&amp;#39;&lt;/span&gt;, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-6" title="6"&gt;phi1_1 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g,), z_1, z_2)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-7" title="7"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-8" title="8"&gt;n &lt;span class="op"&gt;=&lt;/span&gt; sp.Dummy(&lt;span class="st"&gt;&amp;#39;n&amp;#39;&lt;/span&gt;, integer&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;, positive&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-9" title="9"&gt;i &lt;span class="op"&gt;=&lt;/span&gt; sp.Dummy(&lt;span class="st"&gt;&amp;#39;i&amp;#39;&lt;/span&gt;, integer&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;, nonnegative&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-10" title="10"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-11" title="11"&gt;phi1_2 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n,), z_1, z_2)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-12" title="12"&gt;phi1_3 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n &lt;span class="op"&gt;-&lt;/span&gt; i,), z_1, z_2)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-13" title="13"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-14" title="14"&gt;r_1 &lt;span class="op"&gt;=&lt;/span&gt; phi1_2&lt;span class="op"&gt;/&lt;/span&gt;phi1_1&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-15" title="15"&gt;r_2 &lt;span class="op"&gt;=&lt;/span&gt; phi1_3&lt;span class="op"&gt;/&lt;/span&gt;phi1_1&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-16" title="16"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-17" title="17"&gt;expr &lt;span class="op"&gt;=&lt;/span&gt; a &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;-&lt;/span&gt; b &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;/&lt;/span&gt; g &lt;span class="op"&gt;+&lt;/span&gt; sp.Sum(z_1&lt;span class="op"&gt;/&lt;/span&gt;z_2 &lt;span class="op"&gt;*&lt;/span&gt; r_2 &lt;span class="op"&gt;-&lt;/span&gt; &lt;span class="dv"&gt;3&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; r_2, (i, &lt;span class="dv"&gt;0&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-18" title="18"&gt;n))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Our test expression &lt;code&gt;expr&lt;/code&gt; looks like this&lt;/p&gt;
-&lt;div class="sourceCode" id="cb2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb2-1" data-line-number="1"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(expr, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb2-1" title="1"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(expr, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 \frac{a \operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n + g,
 \quad z_{1}, \quad z_{2}\right
@@ -600,65 +596,65 @@ z_{1}, \quad z_{2}\right )\right)}}{g
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The ratios &lt;code&gt;r_1&lt;/code&gt; and &lt;code&gt;r_2&lt;/code&gt; should both be replaced by a symbol for &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt;, for &lt;span class="math inline"&gt;\(m = n\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(m = n - i\)&lt;/span&gt; when &lt;span class="math inline"&gt;\(i &amp;lt; n\)&lt;/span&gt; respectively. We could allow &lt;span class="math inline"&gt;\(E[X^0]\)&lt;/span&gt;, I suppose, but–for a more interesting discussion–let’s not.&lt;/p&gt;
 &lt;p&gt;We start by creating a SymPy pattern that expresses the mathematical form of &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt; in Equation &lt;span class="math inline"&gt;\(\eqref{eq:expectation}\)&lt;/span&gt;.&lt;/p&gt;
-&lt;div class="sourceCode" id="cb3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb3-1" data-line-number="1"&gt;pnames &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;g&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_1&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_2&amp;#39;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-2" data-line-number="2"&gt;phi1_wild_args_n &lt;span class="op"&gt;=&lt;/span&gt; sp.symbols(&lt;span class="st"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;.join(n_ &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;_w&amp;#39;&lt;/span&gt; &lt;span class="cf"&gt;for&lt;/span&gt; n_ &lt;span class="kw"&gt;in&lt;/span&gt; pnames),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-3" data-line-number="3"&gt;                              cls&lt;span class="op"&gt;=&lt;/span&gt;sp.Wild, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-4" data-line-number="4"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-5" data-line-number="5"&gt;n_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;n_w&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-6" data-line-number="6"&gt;              properties&lt;span class="op"&gt;=&lt;/span&gt;(&lt;span class="kw"&gt;lambda&lt;/span&gt; x: x.is_integer &lt;span class="kw"&gt;and&lt;/span&gt; x.is_positive,),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-7" data-line-number="7"&gt;              exclude&lt;span class="op"&gt;=&lt;/span&gt;(phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;],))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-8" data-line-number="8"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-9" data-line-number="9"&gt;phi1_wild_d &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1(phi1_wild_args_n[&lt;span class="dv"&gt;0&lt;/span&gt;:&lt;span class="dv"&gt;2&lt;/span&gt;],&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-10" data-line-number="10"&gt;                       phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;:&lt;span class="dv"&gt;3&lt;/span&gt;],&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-11" data-line-number="11"&gt;                       &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n[&lt;span class="dv"&gt;3&lt;/span&gt;:&lt;span class="dv"&gt;5&lt;/span&gt;])&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-12" data-line-number="12"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-13" data-line-number="13"&gt;phi1_wild_n &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1(phi1_wild_args_n[&lt;span class="dv"&gt;0&lt;/span&gt;:&lt;span class="dv"&gt;2&lt;/span&gt;],&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-14" data-line-number="14"&gt;                       (phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;] &lt;span class="op"&gt;+&lt;/span&gt; n_w,),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-15" data-line-number="15"&gt;                       &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n[&lt;span class="dv"&gt;3&lt;/span&gt;:&lt;span class="dv"&gt;5&lt;/span&gt;])&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-16" data-line-number="16"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-17" data-line-number="17"&gt;C_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;C_w&amp;#39;&lt;/span&gt;, exclude&lt;span class="op"&gt;=&lt;/span&gt;[sp.S.Zero])&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-18" data-line-number="18"&gt;E_pattern &lt;span class="op"&gt;=&lt;/span&gt; phi1_wild_n &lt;span class="op"&gt;/&lt;/span&gt; phi1_wild_d&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-19" data-line-number="19"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb3-20" data-line-number="20"&gt;E_fn &lt;span class="op"&gt;=&lt;/span&gt; sp.Function(&lt;span class="st"&gt;&amp;quot;E&amp;quot;&lt;/span&gt;, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb3-1" title="1"&gt;pnames &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;g&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_1&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_2&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-2" title="2"&gt;phi1_wild_args_n &lt;span class="op"&gt;=&lt;/span&gt; sp.symbols(&lt;span class="st"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;.join(n_ &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;_w&amp;#39;&lt;/span&gt; &lt;span class="cf"&gt;for&lt;/span&gt; n_ &lt;span class="kw"&gt;in&lt;/span&gt; pnames),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-3" title="3"&gt;                              cls&lt;span class="op"&gt;=&lt;/span&gt;sp.Wild, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-4" title="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-5" title="5"&gt;n_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;n_w&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-6" title="6"&gt;              properties&lt;span class="op"&gt;=&lt;/span&gt;(&lt;span class="kw"&gt;lambda&lt;/span&gt; x: x.is_integer &lt;span class="kw"&gt;and&lt;/span&gt; x.is_positive,),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-7" title="7"&gt;              exclude&lt;span class="op"&gt;=&lt;/span&gt;(phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;],))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-8" title="8"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-9" title="9"&gt;phi1_wild_d &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1(phi1_wild_args_n[&lt;span class="dv"&gt;0&lt;/span&gt;:&lt;span class="dv"&gt;2&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-10" title="10"&gt;                       phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;:&lt;span class="dv"&gt;3&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-11" title="11"&gt;                       &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n[&lt;span class="dv"&gt;3&lt;/span&gt;:&lt;span class="dv"&gt;5&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-12" title="12"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-13" title="13"&gt;phi1_wild_n &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1(phi1_wild_args_n[&lt;span class="dv"&gt;0&lt;/span&gt;:&lt;span class="dv"&gt;2&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-14" title="14"&gt;                       (phi1_wild_args_n[&lt;span class="dv"&gt;2&lt;/span&gt;] &lt;span class="op"&gt;+&lt;/span&gt; n_w,),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-15" title="15"&gt;                       &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n[&lt;span class="dv"&gt;3&lt;/span&gt;:&lt;span class="dv"&gt;5&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-16" title="16"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-17" title="17"&gt;C_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;C_w&amp;#39;&lt;/span&gt;, exclude&lt;span class="op"&gt;=&lt;/span&gt;[sp.S.Zero])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-18" title="18"&gt;E_pattern &lt;span class="op"&gt;=&lt;/span&gt; phi1_wild_n &lt;span class="op"&gt;/&lt;/span&gt; phi1_wild_d&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-19" title="19"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-20" title="20"&gt;E_fn &lt;span class="op"&gt;=&lt;/span&gt; sp.Function(&lt;span class="st"&gt;&amp;quot;E&amp;quot;&lt;/span&gt;, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;When we find an &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt; we’ll replace it with the symbolic function &lt;code&gt;E_fn&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;If we focus on only one of the terms (one we know matches &lt;code&gt;E_pattern&lt;/code&gt;), &lt;code&gt;r_1&lt;/code&gt;, we should find that our pattern suffices:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb4"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb4-1" data-line-number="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; r_1.match(E_pattern)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb4-2" data-line-number="2"&gt;{n_w_: _n, z_2_w_: z_2, z_1_w_: z_1, a_w_: a, g_w_: g, b_w_: b}&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb4"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb4-1" title="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; r_1.match(E_pattern)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-2" title="2"&gt;{n_w_: _n, z_2_w_: z_2, z_1_w_: z_1, a_w_: a, g_w_: g, b_w_: b}&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;However, building up to the complexity of &lt;code&gt;expr&lt;/code&gt;, we see that a simple product doesn’t:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb5"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb5-1" data-line-number="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).match(E_pattern)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb5"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb5-1" title="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).match(E_pattern)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Basically, the product has introduced some problems that arise from associativity. Here are the details for the root expression tree:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb6"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb6-1" data-line-number="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).func&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-2" data-line-number="2"&gt;&lt;span class="op"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kw"&gt;class&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;sympy.core.mul.Mul&amp;#39;&lt;/span&gt;&lt;span class="op"&gt;&amp;gt;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-3" data-line-number="3"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).args&lt;/a&gt;
-&lt;a class="sourceLine" id="cb6-4" data-line-number="4"&gt;(a, &lt;span class="dv"&gt;1&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;HornPhi1(a, b, g, z_1, z_2), HornPhi1(a, b, _n &lt;span class="op"&gt;+&lt;/span&gt; g, z_1, z_2))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb6"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb6-1" title="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).func&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-2" title="2"&gt;&lt;span class="op"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kw"&gt;class&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;sympy.core.mul.Mul&amp;#39;&lt;/span&gt;&lt;span class="op"&gt;&amp;gt;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-3" title="3"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).args&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-4" title="4"&gt;(a, &lt;span class="dv"&gt;1&lt;/span&gt;&lt;span class="op"&gt;/&lt;/span&gt;HornPhi1(a, b, g, z_1, z_2), HornPhi1(a, b, _n &lt;span class="op"&gt;+&lt;/span&gt; g, z_1, z_2))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The root operation is multiplication and the operation’s arguments are all terms in the product/division.&lt;/p&gt;
 &lt;p&gt;Any complete search for matches to &lt;code&gt;E_pattern&lt;/code&gt; would have to consider all possible combinations of terms in &lt;code&gt;(a * r_1).args&lt;/code&gt;, i.e. all possible groupings that arise due to associativity. The simple inclusion of another &lt;code&gt;Wild&lt;/code&gt; term causes the match to succeed, since SymPy’s basic pattern matching does account for associativity in this case.&lt;/p&gt;
 &lt;p&gt;Here are a few explicit ways to make the match work:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb7"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb7-1" data-line-number="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).match(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb7-2" data-line-number="2"&gt;{a_w_: a, n_w_: _n, g_w_: g, z_2_w_: z_2, C_w_: a, b_w_: b, z_1_w_:&lt;/a&gt;
-&lt;a class="sourceLine" id="cb7-3" data-line-number="3"&gt;z_1}&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb7"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb7-1" title="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).match(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb7-2" title="2"&gt;{a_w_: a, n_w_: _n, g_w_: g, z_2_w_: z_2, C_w_: a, b_w_: b, z_1_w_:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb7-3" title="3"&gt;z_1}&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;or as a replacement:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb8"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb8-1" data-line-number="1"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).replace(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern, C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-2" data-line-number="2"&gt;&lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb8-3" data-line-number="3"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb8"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb8-1" title="1"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1).replace(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern, C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-2" title="2"&gt;&lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-3" title="3"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )}
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;and via &lt;code&gt;rewriterule&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb9"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb9-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; sympy.unify.rewrite &lt;span class="im"&gt;import&lt;/span&gt; rewriterule&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-2" data-line-number="2"&gt;rl &lt;span class="op"&gt;=&lt;/span&gt; rewriterule(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-3" data-line-number="3"&gt;                 C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w, &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n),&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-4" data-line-number="4"&gt;                 phi1_wild_args_n &lt;span class="op"&gt;+&lt;/span&gt; (n_w, C_w))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-5" data-line-number="5"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;list&lt;/span&gt;(rl(a &lt;span class="op"&gt;*&lt;/span&gt; r_1))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb9-6" data-line-number="6"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb9"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb9-1" title="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; sympy.unify.rewrite &lt;span class="im"&gt;import&lt;/span&gt; rewriterule&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-2" title="2"&gt;rl &lt;span class="op"&gt;=&lt;/span&gt; rewriterule(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-3" title="3"&gt;                 C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w, &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-4" title="4"&gt;                 phi1_wild_args_n &lt;span class="op"&gt;+&lt;/span&gt; (n_w, C_w))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-5" title="5"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;list&lt;/span&gt;(rl(a &lt;span class="op"&gt;*&lt;/span&gt; r_1))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-6" title="6"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 \left [ a E{\left (n,a,b,g,z_{1},z_{2} \right )}\right ]
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The advantage in using &lt;code&gt;rewriterule&lt;/code&gt; is that multiple matches will be returned. If we add another &lt;span class="math inline"&gt;\(\Phi_1\)&lt;/span&gt; in the numerator, so there are multiple possible &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt;, we get&lt;/p&gt;
-&lt;div class="sourceCode" id="cb10"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb10-1" data-line-number="1"&gt;phi1_4 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="dv"&gt;1&lt;/span&gt;,), z_1, z_2)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-2" data-line-number="2"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-3" data-line-number="3"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;list&lt;/span&gt;(rl(a &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;*&lt;/span&gt; phi1_4))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb10-4" data-line-number="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb10"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb10-1" title="1"&gt;phi1_4 &lt;span class="op"&gt;=&lt;/span&gt; HornPhi1((a, b), (g &lt;span class="op"&gt;+&lt;/span&gt; n &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="dv"&gt;1&lt;/span&gt;,), z_1, z_2)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-2" title="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-3" title="3"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;list&lt;/span&gt;(rl(a &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;*&lt;/span&gt; phi1_4))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-4" title="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 \left [ a \operatorname{\Phi_1}{\left(\left ( a, \quad b, \quad n +
 g, \quad z_{1}, \quad z_{2}\right )\right)} E{\left (n +
@@ -679,9 +675,9 @@ z_{1}, \quad z_{2}\right )\right)} E{\left (n,a,b,g,z_{1},z_{2} \right
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;FYI: the associativity of terms inside the function arguments is causing the seemingly duplicate results.&lt;/p&gt;
 &lt;p&gt;Naive use of &lt;code&gt;Expr.replace&lt;/code&gt; doesn’t give all results; instead, it does something likely unexpected:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb11"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb11-1" data-line-number="1"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;*&lt;/span&gt; phi1_4).replace(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-2" data-line-number="2"&gt;                                 C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w, &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb11-3" data-line-number="3"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb11"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb11-1" title="1"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; (a &lt;span class="op"&gt;*&lt;/span&gt; r_1 &lt;span class="op"&gt;*&lt;/span&gt; phi1_4).replace(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-2" title="2"&gt;                                 C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w, &lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-3" title="3"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )} E{\left (n +
 1,a,b,g,z_{1},z_{2} \right )} \operatorname{\Phi_1}{\left(\left ( a,
@@ -689,9 +685,9 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )} E{\left (n +
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Returning to our more complicated &lt;code&gt;expr&lt;/code&gt;…Just because we can match products doesn’t mean we’re finished, since we still need a good way to traverse the entire expression tree and match the sub-trees. More importantly, adding the multiplicative &lt;code&gt;Wild&lt;/code&gt; term &lt;code&gt;C_w&lt;/code&gt; is more of a hack than a direct solution, since we don’t want the matched contents of &lt;code&gt;C_w&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;Although &lt;code&gt;Expr.replace/xreplace&lt;/code&gt; will match sub-expressions, we found above that it produces some odd results. Those results persist when applied to more complicated expressions:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb12"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb12-1" data-line-number="1"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; expr.replace(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern, C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-2" data-line-number="2"&gt;&lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb12-3" data-line-number="3"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb12"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb12-1" title="1"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; expr.replace(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern, C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-2" title="2"&gt;&lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-3" title="3"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 (n,a,b,g,z_{1},z_{2} \right )} + \sum_{i=0}^{n} \left(\frac{z_{1}
@@ -706,10 +702,10 @@ b, \quad - i + g, \quad z_{1}, \quad z_{2}\right
 \quad z_{1}, \quad z_{2}\right )\right)}}\right)
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Again, it looks like the matching was a little too liberal and introduced extra &lt;code&gt;E&lt;/code&gt; and &lt;code&gt;HornPhi1&lt;/code&gt; terms. This is to be expected from the &lt;code&gt;Wild&lt;/code&gt; matching in SymPy; it needs us to specify what &lt;em&gt;not&lt;/em&gt; to match, as well. Our “fix” that introduced &lt;code&gt;C_w&lt;/code&gt; is the exact source of the problem, but we can tell it not to match &lt;code&gt;HornPhi1&lt;/code&gt; terms and get better results:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb13"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb13-1" data-line-number="1"&gt;C_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;C_w&amp;#39;&lt;/span&gt;, exclude&lt;span class="op"&gt;=&lt;/span&gt;[sp.S.Zero, HornPhi1])&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-2" data-line-number="2"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; expr.replace(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern, C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w,&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-3" data-line-number="3"&gt;&lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n))&lt;/a&gt;
-&lt;a class="sourceLine" id="cb13-4" data-line-number="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb13"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb13-1" title="1"&gt;C_w &lt;span class="op"&gt;=&lt;/span&gt; sp.Wild(&lt;span class="st"&gt;&amp;#39;C_w&amp;#39;&lt;/span&gt;, exclude&lt;span class="op"&gt;=&lt;/span&gt;[sp.S.Zero, HornPhi1])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-2" title="2"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; expr.replace(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern, C_w &lt;span class="op"&gt;*&lt;/span&gt; E_fn(n_w,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-3" title="3"&gt;&lt;span class="op"&gt;*&lt;/span&gt;phi1_wild_args_n))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-4" title="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 (n,a,b,g,z_{1},z_{2} \right )} + \sum_{i=0}^{n} \left(\frac{z_{1}
@@ -723,20 +719,20 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 \quad z_{1}, \quad z_{2}\right )\right)}}\right)
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;We’ve stopped it from introducing those superfluous &lt;code&gt;E&lt;/code&gt; terms, but we’re still not getting replacements for the &lt;code&gt;HornPhi1&lt;/code&gt; ratios in the sums. Let’s single out those terms and see what’s going on:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb14"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb14-1" data-line-number="1"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; r_2.find(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb14-2" data-line-number="2"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb14"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb14-1" title="1"&gt;res &lt;span class="op"&gt;=&lt;/span&gt; r_2.find(C_w &lt;span class="op"&gt;*&lt;/span&gt; E_pattern)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-2" title="2"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(sp.latex(res, mode&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;equation*&amp;#39;&lt;/span&gt;, itex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 \left\{\right\}
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The constrained integer &lt;code&gt;Wild&lt;/code&gt; term, &lt;code&gt;n_w&lt;/code&gt;, probably isn’t matching. Given the form of our pattern, &lt;code&gt;n_w&lt;/code&gt; should match &lt;code&gt;n - i&lt;/code&gt;, but &lt;code&gt;n - i&lt;/code&gt; isn’t strictly positive, as required:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb15"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb15-1" data-line-number="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (n &lt;span class="op"&gt;-&lt;/span&gt; i).is_positive &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb15-2" data-line-number="2"&gt;&lt;span class="va"&gt;False&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb15-3" data-line-number="3"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; sp.ask(sp.Q.positive(n &lt;span class="op"&gt;-&lt;/span&gt; i)) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb15-4" data-line-number="4"&gt;&lt;span class="va"&gt;False&lt;/span&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb15"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb15-1" title="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; (n &lt;span class="op"&gt;-&lt;/span&gt; i).is_positive &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb15-2" title="2"&gt;&lt;span class="va"&gt;False&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb15-3" title="3"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; sp.ask(sp.Q.positive(n &lt;span class="op"&gt;-&lt;/span&gt; i)) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb15-4" title="4"&gt;&lt;span class="va"&gt;False&lt;/span&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Since &lt;span class="math inline"&gt;\(n &amp;gt; 0\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(i &amp;gt;= 0\)&lt;/span&gt;, the only missing piece is that &lt;span class="math inline"&gt;\(n &amp;gt; i\)&lt;/span&gt;. The most relevant mechanism in SymPy to assess this information is the &lt;a href="http://docs.sympy.org/dev/modules/assumptions/index.html"&gt;&lt;code&gt;sympy.assumptions&lt;/code&gt;&lt;/a&gt; interface. We could add and retrieve the assumption &lt;code&gt;sympy.Q.is_true(n &amp;gt; i)&lt;/code&gt; via &lt;code&gt;sympy.assume.global_assumptions&lt;/code&gt;, or perform these operations inside of a Python &lt;code&gt;with&lt;/code&gt; block, etc. This context management, via &lt;code&gt;sympy.assumptions.assume.AssumptionsContext&lt;/code&gt;, would have to be performed manually, since I am not aware of any such mechanism offered by &lt;code&gt;Sum&lt;/code&gt; and/or &lt;code&gt;Basic.replace&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;Unfortunately, these ideas sound good, but aren’t implemented:&lt;/p&gt;
-&lt;div class="sourceCode" id="cb16"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb16-1" data-line-number="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; sp.ask(sp.Q.positive(n &lt;span class="op"&gt;-&lt;/span&gt; i), sp.Q.is_true(n &lt;span class="op"&gt;&amp;gt;&lt;/span&gt; i)) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb16-2" data-line-number="2"&gt;&lt;span class="va"&gt;False&lt;/span&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb16"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb16-1" title="1"&gt;&lt;span class="op"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; sp.ask(sp.Q.positive(n &lt;span class="op"&gt;-&lt;/span&gt; i), sp.Q.is_true(n &lt;span class="op"&gt;&amp;gt;&lt;/span&gt; i)) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-2" title="2"&gt;&lt;span class="va"&gt;False&lt;/span&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;See the documentation for &lt;code&gt;sympy.assumptions.ask.ask&lt;/code&gt;; it explicitely states that inequalities aren’t handled, yet.&lt;/p&gt;
 &lt;p&gt;We could probably perform a manual reworking of &lt;code&gt;sympy.Q.is_true(n &amp;gt; i)&lt;/code&gt; to &lt;code&gt;sympy.Q.is_true(n - i &amp;gt; 0)&lt;/code&gt;, which is of course equivalent to &lt;code&gt;sympy.Q.positive(n - i)&lt;/code&gt;: the result we want.&lt;/p&gt;
 &lt;p&gt;If one were to provide this functionality, there’s still the question of how the relevant &lt;code&gt;AssumptionsContext&lt;/code&gt;s would be created and passed around/nested during the subexpression replacements. There is no apparent means of adding this sort of functionality through the &lt;code&gt;Basic.replace&lt;/code&gt; interface, so this path looks less appealing. However, nesting &lt;code&gt;with&lt;/code&gt; blocks from strategies in &lt;code&gt;sympy.strategies&lt;/code&gt; does seem quite possible. For example, in &lt;code&gt;sympy.strategies.traverse.sall&lt;/code&gt;, one could possibly wrap the &lt;code&gt;return&lt;/code&gt; statement after the &lt;code&gt;map(rule, ...)&lt;/code&gt; call in a &lt;code&gt;with sympy.assuming(...):&lt;/code&gt; block that contains the assumptions for any variables arising as, say, the index of a &lt;code&gt;Sum&lt;/code&gt;–like in our case. In this scenario, code in the subexpressions would be able to ask questions like &lt;code&gt;sympy.Q.is_true(n &amp;gt; i)&lt;/code&gt; without altering the global assumptions context or the objects involved.&lt;/p&gt;

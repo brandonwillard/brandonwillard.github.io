@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Symbolic Math in PyMC3 - Brandon T. Willard</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://brandonwillard.github.io/symbolic-math-in-pymc3.html">
+
+        <meta name="author" content="Brandon T. Willard" />
+        <meta name="keywords" content="pymc3,theano,statistics,symbolic computation,python,probability theory" />
+
+        <meta property="og:site_name" content="Brandon T. Willard" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Symbolic Math in PyMC3"/>
+        <meta property="og:url" content="https://brandonwillard.github.io/symbolic-math-in-pymc3.html"/>
+        <meta property="og:description" content=""/>
+        <meta property="article:published_time" content="2018-12-18" />
+            <meta property="article:section" content="articles" />
+            <meta property="article:tag" content="pymc3" />
+            <meta property="article:tag" content="theano" />
+            <meta property="article:tag" content="statistics" />
+            <meta property="article:tag" content="symbolic computation" />
+            <meta property="article:tag" content="python" />
+            <meta property="article:tag" content="probability theory" />
+            <meta property="article:author" content="Brandon T. Willard" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://brandonwillard.github.io/theme/css/bootstrap.readable.min.css" type="text/css"/>
+    <link href="https://brandonwillard.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://brandonwillard.github.io/theme/css/academicons.min.css" rel="stylesheet">
+
+    <link href="https://brandonwillard.github.io/theme/css/pygments/vim.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://brandonwillard.github.io/theme/css/style.css" type="text/css"/>
+        <link href="https://brandonwillard.github.io/extra/custom.css" rel="stylesheet">
+
+        <link href="https://brandonwillard.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Brandon T. Willard ATOM Feed"/>
+
+        <link href="https://brandonwillard.github.io/feeds/all.rss.xml" type="application/rss+xml" rel="alternate"
+              title="Brandon T. Willard RSS Feed"/>
+
+
+        <link href="https://brandonwillard.github.io/feeds/articles.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Brandon T. Willard articles ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://brandonwillard.github.io/" class="navbar-brand">
+Brandon T. Willard            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://brandonwillard.github.io/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://brandonwillard.github.io/pages/projects.html">
+                             Projects
+                          </a></li>
+                         <li><a href="https://brandonwillard.github.io/pages/publications.html">
+                             Publications
+                          </a></li>
+                        <li class="active">
+                            <a href="https://brandonwillard.github.io/category/articles.html">Articles</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://brandonwillard.github.io/symbolic-math-in-pymc3.html"
+                       rel="bookmark"
+                       title="Permalink to Symbolic Math in PyMC3">
+                        Symbolic Math in PyMC3
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2018-12-18T00:00:00-06:00"> Tue 18 December 2018</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://brandonwillard.github.io/tag/pymc3.html">pymc3</a>
+        /
+	<a href="https://brandonwillard.github.io/tag/theano.html">theano</a>
+        /
+	<a href="https://brandonwillard.github.io/tag/statistics.html">statistics</a>
+        /
+	<a href="https://brandonwillard.github.io/tag/symbolic-computation.html">symbolic computation</a>
+        /
+	<a href="https://brandonwillard.github.io/tag/python.html">python</a>
+        /
+	<a href="https://brandonwillard.github.io/tag/probability-theory.html">probability theory</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Brandon T. Willard" />
+  <title>Symbolic Math in PyMC3</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+</head>
+<body>
+<!--  -->
+<!-- <div id="header"> -->
+<!-- <h1 class="title">Symbolic Math in PyMC3</h1> -->
+<!--  -->
+<!--  -->
+<!-- <h2 class="author">Brandon T. Willard</h2> -->
+<!--  -->
+<!--  -->
+<!-- <h3 class="date">2018–12–18</h3> -->
+<!--  -->
+<!-- </div> -->
+<!--  -->
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>In <sup id="4407b21e48ab9ff17c017e8d62684725"><a href="#WillardRoleSymbolicComputation2017">A Role for Symbolic Computation in the General Estimation of Statistical Models</a></sup>, we described how symbolic computation is used by bayesian modeling software like PyMC3 and some directions it could be taken. We closed with an example of automatic normal-normal convolution using PyMC3 objects and Theano’s optimization framework. This article elaborates on the foundations for symbolic mathematics in Theano and PyMC3; specifically, its current state, some challenges, and potential improvements.</p>
+<p>Let’s start by reconsidering the simple normal-normal convolution model. Mathematically, we can represent the model as follows:</p>
+<p><span class="math display">\[\begin{equation}
+  X \sim N(0, 1), \quad
+  Y \sim N\left(1, \frac12\right), \quad
+  Z = X + Y \sim N\left(1, \frac32\right)
+  \label{eq:norm_conv_model}
+\end{equation}\]</span></p>
+<p>Using PyMC3, the model for Equation <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> is constructed as follows:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> sys</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">import</span> os</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="im">from</span> pprint <span class="im">import</span> pprint</a>
+<a class="sourceLine" id="cb1-5" title="5"></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8">os.environ[<span class="st">&#39;MKL_THREADING_LAYER&#39;</span>] <span class="op">=</span> <span class="st">&#39;GNU&#39;</span></a>
+<a class="sourceLine" id="cb1-9" title="9"></a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="im">import</span> theano</a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="im">import</span> theano.tensor <span class="im">as</span> tt</a>
+<a class="sourceLine" id="cb1-12" title="12"></a>
+<a class="sourceLine" id="cb1-13" title="13">theano.config.mode <span class="op">=</span> <span class="st">&#39;FAST_COMPILE&#39;</span></a>
+<a class="sourceLine" id="cb1-14" title="14">theano.config.exception_verbosity <span class="op">=</span> <span class="st">&#39;high&#39;</span></a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16"><span class="im">import</span> pymc3 <span class="im">as</span> pm</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)</a>
+<a class="sourceLine" id="cb2-2" title="2">mu_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb2-3" title="3">sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)</a>
+<a class="sourceLine" id="cb2-4" title="4">sd_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb2-5" title="5"></a>
+<a class="sourceLine" id="cb2-6" title="6">mu_Y <span class="op">=</span> tt.vector(<span class="st">&#39;mu_Y&#39;</span>)</a>
+<a class="sourceLine" id="cb2-7" title="7">mu_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb2-8" title="8">sd_Y <span class="op">=</span> tt.vector(<span class="st">&#39;sd_Y&#39;</span>)</a>
+<a class="sourceLine" id="cb2-9" title="9">sd_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.5</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb2-10" title="10"></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="cf">with</span> pm.Model() <span class="im">as</span> conv_model:</a>
+<a class="sourceLine" id="cb2-12" title="12">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
+<a class="sourceLine" id="cb2-13" title="13">    Y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;Y_rv&#39;</span>, mu_Y, sd<span class="op">=</span>sd_Y, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
+<a class="sourceLine" id="cb2-14" title="14">    Z_rv <span class="op">=</span> X_rv <span class="op">+</span> Y_rv</a></code></pre></div>
+<p>The Python objects representing terms in <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> are <code>X_rv</code>, <code>Y_rv</code>, and <code>Z_rv</code> in <a href="#pymc3_model">pymc3_model</a>. Those terms together form a Theano graph for the entirety of <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span>.</p>
+<p>Other aspects of the model are implicitly stored in the <a href="https://docs.python.org/3.6/reference/compound_stmts.html#with">Python context object</a> <code>conv_model</code>. For example, the context object tracks the model’s log likelihood function when some variables are designated as “observed”–i.e. associated with sample data. In this example, we haven’t specified an observed variable, so the context object won’t be immediately useful.</p>
+<p>The terms <code>X_rv</code>, <code>Y_rv</code> are derived from both a PyMC3 <a href="https://github.com/pymc-devs/pymc3/blob/v3.3/pymc3/model.py#L151"><code>Factor</code></a> class and the standard Theano <code>TensorVariable</code>, as illustrated in the output of <a href="#pymc3_mro">pymc3_mro</a>. However, the convolution term <code>Z_rv</code> is not a PyMC3 random variable; in other words, it does <strong>not</strong> implement the PyMC3 <code>Factor</code> class, but it <strong>is</strong> a Theano <code>TensorVariable</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1">pprint({<span class="st">&#39;Y_rv&#39;</span>: <span class="bu">type</span>(Y_rv).mro()})</a>
+<a class="sourceLine" id="cb3-2" title="2">pprint({<span class="st">&#39;Z_rv&#39;</span>: <span class="bu">type</span>(Z_rv).mro()})</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1">{<span class="st">&#39;Y_rv&#39;</span>: [<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;pymc3.model.FreeRV&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-2" title="2">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;pymc3.model.Factor&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-3" title="3">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var.TensorVariable&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-4" title="4">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var._tensor_py_operators&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-5" title="5">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Variable&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-6" title="6">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Node&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-7" title="7">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.utils.object2&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-8" title="8">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;object&#39;</span><span class="op">&gt;</span>]}</a>
+<a class="sourceLine" id="cb4-9" title="9">{<span class="st">&#39;Z_rv&#39;</span>: [<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var.TensorVariable&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-10" title="10">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var._tensor_py_operators&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-11" title="11">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Variable&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-12" title="12">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Node&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-13" title="13">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.utils.object2&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-14" title="14">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;object&#39;</span><span class="op">&gt;</span>]}</a>
+<a class="sourceLine" id="cb4-15" title="15"></a></code></pre></div>
+<p>While PyMC3 doesn’t <strong>need</strong> to support convolution, so much within Bayesian statistics, MCMC, and probabilistic programming rely on it in some way. It’s an intrinsic part of the algebra(s) implied by the use of probability theory and essential to the implementation of more sophisticated models and sampler optimizations–in at least the same way as symbolic differentiation. Here, the question isn’t whether these algebraic properties are explicitly supported, but how easily they can be implemented when necessary.</p>
+<p>As it appears, all work related to probability theory or the algebra of random variables is performed implicitly within the context of Theano and mostly detached from the model-level meta information provided by the PyMC3 abstractions. This means that the linear/tensor algebra supported by Theano is the primary level of abstraction.</p>
+<p>More specifically, one purpose of the PyMC3 probability theory abstractions (e.g. random variable classes—<code>FreeRV</code> and <code>ObservedRV</code>, distributions and their likelihoods, etc.) is to associate a PyMC3 <a href="https://github.com/pymc-devs/pymc3/blob/v3.3/pymc3/distributions/distribution.py#L18"><code>Distribution</code></a> object with a Theano <code>TensorVariable</code>. This connection is made through a <code>distribution</code> attribute</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1">pprint(Y_rv.distribution)</a>
+<a class="sourceLine" id="cb5-2" title="2">pprint(X_rv.distribution)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="op">&lt;</span>pymc3.distributions.continuous.Normal <span class="bu">object</span> at <span class="bn">0x7f5d1796e908</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="op">&lt;</span>pymc3.distributions.continuous.Normal <span class="bu">object</span> at <span class="bn">0x7f5d17b10208</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-3" title="3"></a></code></pre></div>
+<p><code>Distribution</code> objects loosely represents a measure, holding distribution parameters (e.g. mean and standard deviation <code>mu_X</code>, <code>sd_X</code>) and constructing the appropriate conditional log likelihoods–from which the model’s total log likelihood is later derived. The distribution parameters and log-likelihoods are Theano <code>TensorVariable</code>s–including other PyMC3-derived <code>TensorVariable</code>s corresponding to (the output of) random variables.</p>
+<p>Again, since objects derived via algebraic manipulation of random variables are not themselves random variables within the framework of PyMC3, objects like <code>Z_rv</code> do not have a <code>Distribution</code> attribute. The mechanics described here provide a means for supporting terms like <code>Z_rv</code> with the appropriate “derived” distribution.</p>
+<p>To start, we’ll have to dive deeper into the graph aspects of Theano.</p>
+</section>
+<section id="random-variables-in-graphs" class="level1">
+<h1>Random Variables in Graphs</h1>
+<p>The Theano graph representing <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> consists of linear/tensor algebra operations–under the interface of <code>theano.gof.op.Op</code>–on <code>TensorVariable</code>s. For our example in <a href="#pymc3_model">pymc3_model</a>, a textual representation is given in <a href="#Z_rv_debugprint">Z_rv_debugprint</a> and a graphical form in <a href="#fig:norm_sum_graph">fig:norm_sum_graph</a>. Likewise, <a href="#Z_rv_debugprint">Z_rv_debugprint</a> provides a more mathematical-expression-friendly output.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1">tt.printing.debugprint(Z_rv)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1">Elemwise{add,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb8-2" title="2"> <span class="op">|</span>X_rv [<span class="bu">id</span> B]</a>
+<a class="sourceLine" id="cb8-3" title="3"> <span class="op">|</span>Y_rv [<span class="bu">id</span> C]</a>
+<a class="sourceLine" id="cb8-4" title="4"></a></code></pre></div>
+<figure id="fig:norm_sum_graph">
+<img src="https://brandonwillard.github.io/figures/Z_rv.png" alt="Graph of Z_rv for the PyMC3 model in 2. " />
+<figcaption>
+Graph of <code>Z_rv</code> for the PyMC3 model in <a href="#org7c56540">2</a>.
+</figcaption>
+</figure>
+<p>At present, PyMC3 (version 3.3) does not make very consistent use of Theano’s graph objects. For instance, notice how the dependent parameters <code>mu_X</code> and <code>sd_X</code> are not present in the model’s graph (e.g. <a href="#fig:norm_sum_graph">fig:norm_sum_graph</a>). We know that <code>X_rv</code> and <code>Y_rv</code> are PyMC3 random variables, but what we’re seeing in the graph is only their representations as sampled values–in the form of Theano tensor variables. In other words, where <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> symbolize random variables and <span class="math inline">\(x \sim X\)</span>, <span class="math inline">\(y \sim Y\)</span> samples, we’re working with a graph expressing only <span class="math inline">\(z = x + y\)</span>.</p>
+<p>What we really need for higher-level work is a graph for <span class="math inline">\(Z = X + Y\)</span> that includes every term involved. This is true for graphs representing a model’s measure <strong>and</strong> its sampled values. The former is essentially covered by the log-likelihood graphs we can already produce using the model objects; it’s the latter that we’re building toward, since it enables the application of numerous techniques in statistics and probability theory.</p>
+<p>One way to produce graphs that represent the full probabilistic model is to formalize the notion of random variable in Theano. Basically, if we want to include the relationships between distribution parameters and sampled variables, we need an <code>Op</code> that represents random variables and/or the act of sampling. <code>theano.tensor.raw_random.RandomFunction</code> does exactly this; although it represents the concept of a sampling action and not exactly a random measure.</p>
+<p>Nonetheless, using <code>RandomFunction</code>, we can replace nodes corresponding to PyMC3 random variables with newly constructed <code>Op</code> nodes.</p>
+<div class="example" data-markdown="" data-env-number="1">
+<p>We can produce the types of graphs described above through conversion of existing PyMC3 models.</p>
+<p>In order to perform any manipulations on our model’s graph, we need to create a Theano <code>theano.gof.FunctionGraph</code> object. We create a utility function in <a href="#model_graph_fn">model_graph_fn</a> that constructs a <code>FunctionGraph</code> from a PyMC3 model.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="im">from</span> theano.gof <span class="im">import</span> FunctionGraph, Feature, NodeFinder</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="im">from</span> theano.gof.graph <span class="im">import</span> inputs <span class="im">as</span> tt_inputs, clone_get_equiv</a>
+<a class="sourceLine" id="cb9-3" title="3"></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="kw">def</span> model_graph(pymc_model, derived_vars<span class="op">=</span><span class="va">None</span>):</a>
+<a class="sourceLine" id="cb9-5" title="5"></a>
+<a class="sourceLine" id="cb9-6" title="6">    model <span class="op">=</span> pm.modelcontext(pymc_model)</a>
+<a class="sourceLine" id="cb9-7" title="7"></a>
+<a class="sourceLine" id="cb9-8" title="8">    <span class="cf">if</span> derived_vars <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb9-9" title="9">        model_outs <span class="op">=</span> derived_vars</a>
+<a class="sourceLine" id="cb9-10" title="10">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb9-11" title="11">        model_outs <span class="op">=</span> [o.logpt <span class="cf">for</span> o <span class="kw">in</span> model.observed_RVs]</a>
+<a class="sourceLine" id="cb9-12" title="12"></a>
+<a class="sourceLine" id="cb9-13" title="13">    model_inputs <span class="op">=</span> [inp <span class="cf">for</span> inp <span class="kw">in</span> tt_inputs(model_outs)]</a>
+<a class="sourceLine" id="cb9-14" title="14">    <span class="co"># if not isinstance(inp, theano.gof.graph.Constant)]</span></a>
+<a class="sourceLine" id="cb9-15" title="15"></a>
+<a class="sourceLine" id="cb9-16" title="16">    model_memo <span class="op">=</span> clone_get_equiv(model_inputs, model_outs,</a>
+<a class="sourceLine" id="cb9-17" title="17">                                 copy_orphans<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb9-18" title="18"></a>
+<a class="sourceLine" id="cb9-19" title="19">    fg_features <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb9-20" title="20">        NodeFinder(),</a>
+<a class="sourceLine" id="cb9-21" title="21">    ]</a>
+<a class="sourceLine" id="cb9-22" title="22">    model_fg <span class="op">=</span> FunctionGraph([model_memo[i] <span class="cf">for</span> i <span class="kw">in</span> model_inputs],</a>
+<a class="sourceLine" id="cb9-23" title="23">                             [model_memo[i] <span class="cf">for</span> i <span class="kw">in</span> model_outs],</a>
+<a class="sourceLine" id="cb9-24" title="24">                             clone<span class="op">=</span><span class="va">False</span>, features<span class="op">=</span>fg_features)</a>
+<a class="sourceLine" id="cb9-25" title="25">    model_fg.memo <span class="op">=</span> model_memo</a>
+<a class="sourceLine" id="cb9-26" title="26"></a>
+<a class="sourceLine" id="cb9-27" title="27">    <span class="cf">return</span> model_fg</a></code></pre></div>
+<p>When cloning the graph with <code>theano.gof.graph.clone_get_equiv</code> in <code>model_graph</code>, we lose the <code>FreeRV.distribution</code> attribute–among others. Since those attributes hold all the information required to construct our <code>RandomFunction</code> <code>Op</code>s, we’ll need to find a way to preserve it.</p>
+<p>This can be accomplished by overriding the default Theano <code>clone</code> function inherited by the PyMC3 random variable classes.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1"><span class="im">import</span> types</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="im">from</span> copy <span class="im">import</span> copy</a>
+<a class="sourceLine" id="cb10-3" title="3"></a>
+<a class="sourceLine" id="cb10-4" title="4">pymc_rv_types <span class="op">=</span> (pm.model.FreeRV, pm.model.ObservedRV, pm.model.TransformedRV)</a>
+<a class="sourceLine" id="cb10-5" title="5"></a>
+<a class="sourceLine" id="cb10-6" title="6">pymc_rv_attrs <span class="op">=</span> [<span class="st">&#39;dshape&#39;</span>, <span class="st">&#39;dsize&#39;</span>, <span class="st">&#39;distribution&#39;</span>, <span class="st">&#39;logp_elemwiset&#39;</span>,</a>
+<a class="sourceLine" id="cb10-7" title="7">                 <span class="st">&#39;logp_sum_unscaledt&#39;</span>, <span class="st">&#39;logp_nojac_unscaledt&#39;</span>, <span class="st">&#39;total_size&#39;</span>,</a>
+<a class="sourceLine" id="cb10-8" title="8">                 <span class="st">&#39;scaling&#39;</span>, <span class="st">&#39;missing_values&#39;</span>]</a>
+<a class="sourceLine" id="cb10-9" title="9"></a>
+<a class="sourceLine" id="cb10-10" title="10"><span class="cf">for</span> rv_type <span class="kw">in</span> pymc_rv_types:</a>
+<a class="sourceLine" id="cb10-11" title="11"></a>
+<a class="sourceLine" id="cb10-12" title="12">    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">hasattr</span>(rv_type, <span class="st">&#39;__clone&#39;</span>):</a>
+<a class="sourceLine" id="cb10-13" title="13">        rv_type.__clone <span class="op">=</span> rv_type.clone</a>
+<a class="sourceLine" id="cb10-14" title="14"></a>
+<a class="sourceLine" id="cb10-15" title="15">    <span class="kw">def</span> pymc_rv_clone(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb10-16" title="16">        cp <span class="op">=</span> rv_type.__clone(<span class="va">self</span>)</a>
+<a class="sourceLine" id="cb10-17" title="17">        <span class="cf">for</span> attr <span class="kw">in</span> pymc_rv_attrs:</a>
+<a class="sourceLine" id="cb10-18" title="18">            <span class="bu">setattr</span>(cp, attr, copy(<span class="bu">getattr</span>(<span class="va">self</span>, attr, <span class="va">None</span>)))</a>
+<a class="sourceLine" id="cb10-19" title="19"></a>
+<a class="sourceLine" id="cb10-20" title="20">        <span class="co"># Allow a cloned rv to inherit the context&#39;s model?</span></a>
+<a class="sourceLine" id="cb10-21" title="21">        <span class="co"># try:</span></a>
+<a class="sourceLine" id="cb10-22" title="22">        <span class="co">#     cp.model = pm.Model.get_context()</span></a>
+<a class="sourceLine" id="cb10-23" title="23">        <span class="co"># except TypeError:</span></a>
+<a class="sourceLine" id="cb10-24" title="24">        <span class="co">#     pass</span></a>
+<a class="sourceLine" id="cb10-25" title="25"></a>
+<a class="sourceLine" id="cb10-26" title="26">        <span class="cf">if</span> <span class="bu">getattr</span>(cp, <span class="st">&#39;model&#39;</span>, <span class="va">None</span>) <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb10-27" title="27">            cp.model <span class="op">=</span> <span class="bu">getattr</span>(<span class="va">self</span>, <span class="st">&#39;model&#39;</span>, <span class="va">None</span>)</a>
+<a class="sourceLine" id="cb10-28" title="28"></a>
+<a class="sourceLine" id="cb10-29" title="29">        <span class="cf">return</span> cp</a>
+<a class="sourceLine" id="cb10-30" title="30"></a>
+<a class="sourceLine" id="cb10-31" title="31">    rv_type.clone <span class="op">=</span> pymc_rv_clone</a></code></pre></div>
+<p>Now, we can produce a proper <code>FunctionGraph</code> from our PyMC3 model.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1">Z_fgraph_tt <span class="op">=</span> model_graph(conv_model, derived_vars<span class="op">=</span>[Z_rv])</a></code></pre></div>
+<p>With a <code>FunctionGraph</code> at our disposal, we can use the graph manipulation tools provided by Theano to replace the PyMC3 <code>TensorVariable</code>s used to represent random variables with corresponding Theano <code>RandomFunction</code>s that represent the <strong>act of sampling</strong> to produce said random variables.</p>
+<p>We can use a simple mapping between Pymc3 random variable nodes and <code>RandomFunction</code> to specify the desired replacements. Fortunately, this isn’t too difficult, since <code>RandomFunction</code> already supports numerous Numpy-provided random distributions–covering much of the same ground as the PyMC3 distributions. Otherwise, the rest of the work involves mapping distribution parameters.</p>
+<p>Also, <code>RandomFunction</code> requires a <code>RandomStream</code>, which it uses to track the sampler state. For our purely symbolic purposes, the stream object is not immediately useful, but it does–in the end–provide a sample-able graph as a nice side-effect. We demonstrate the PyMC3 random variable-to-<code>RandomFunction</code> translation in <a href="#random_op_mapping">random_op_mapping</a> using only a single mapping.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1"><span class="im">from</span> theano.tensor.raw_random <span class="im">import</span> RandomFunction</a>
+<a class="sourceLine" id="cb12-2" title="2"></a>
+<a class="sourceLine" id="cb12-3" title="3">pymc_theano_rv_equivs <span class="op">=</span> {</a>
+<a class="sourceLine" id="cb12-4" title="4">    pm.Normal:</a>
+<a class="sourceLine" id="cb12-5" title="5">    <span class="kw">lambda</span> dist, rand_state:</a>
+<a class="sourceLine" id="cb12-6" title="6">    tt.raw_random.normal(rand_state, dist.shape.tolist(), dist.mu, dist.sd),</a>
+<a class="sourceLine" id="cb12-7" title="7">}</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">def</span> create_theano_rvs(fgraph, clone<span class="op">=</span><span class="va">True</span>, rand_state<span class="op">=</span><span class="va">None</span>):</a>
+<a class="sourceLine" id="cb13-2" title="2">    <span class="co">&quot;&quot;&quot;Replace PyMC3 random variables with `RandomFunction` Ops.</span></a>
+<a class="sourceLine" id="cb13-3" title="3"></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="co">    </span><span class="al">TODO</span><span class="co">: Could use a Theano graph `Feature` to trace--or even</span></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="co">    replace--random variables.</span></a>
+<a class="sourceLine" id="cb13-6" title="6"></a>
+<a class="sourceLine" id="cb13-7" title="7"><span class="co">    Parameters</span></a>
+<a class="sourceLine" id="cb13-8" title="8"><span class="co">    ----------</span></a>
+<a class="sourceLine" id="cb13-9" title="9"><span class="co">    fgraph : FunctionGraph</span></a>
+<a class="sourceLine" id="cb13-10" title="10"><span class="co">    A graph containing PyMC3 random variables.</span></a>
+<a class="sourceLine" id="cb13-11" title="11"></a>
+<a class="sourceLine" id="cb13-12" title="12"><span class="co">    clone: bool, optional</span></a>
+<a class="sourceLine" id="cb13-13" title="13"><span class="co">    Clone the original graph.</span></a>
+<a class="sourceLine" id="cb13-14" title="14"></a>
+<a class="sourceLine" id="cb13-15" title="15"><span class="co">    rand_state : RandomStateType, optional</span></a>
+<a class="sourceLine" id="cb13-16" title="16"><span class="co">    The Theano random state.</span></a>
+<a class="sourceLine" id="cb13-17" title="17"></a>
+<a class="sourceLine" id="cb13-18" title="18"><span class="co">    Returns</span></a>
+<a class="sourceLine" id="cb13-19" title="19"><span class="co">    -------</span></a>
+<a class="sourceLine" id="cb13-20" title="20"><span class="co">    out : A cloned graph with random variables replaced and a `memo` attribute.</span></a>
+<a class="sourceLine" id="cb13-21" title="21"></a>
+<a class="sourceLine" id="cb13-22" title="22"><span class="co">    &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb13-23" title="23">    <span class="cf">if</span> clone:</a>
+<a class="sourceLine" id="cb13-24" title="24">        fgraph_, fgraph_memo_ <span class="op">=</span> fgraph.clone_get_equiv(attach_feature<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb13-25" title="25">        fgraph_.memo <span class="op">=</span> fgraph_memo_</a>
+<a class="sourceLine" id="cb13-26" title="26">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb13-27" title="27">        fgraph_ <span class="op">=</span> fgraph</a>
+<a class="sourceLine" id="cb13-28" title="28"></a>
+<a class="sourceLine" id="cb13-29" title="29">    <span class="cf">if</span> rand_state <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb13-30" title="30">        rand_state <span class="op">=</span> theano.shared(np.random.RandomState())</a>
+<a class="sourceLine" id="cb13-31" title="31"></a>
+<a class="sourceLine" id="cb13-32" title="32">    fgraph_replacements <span class="op">=</span> {}</a>
+<a class="sourceLine" id="cb13-33" title="33">    fgraph_new_inputs <span class="op">=</span> <span class="bu">set</span>()</a>
+<a class="sourceLine" id="cb13-34" title="34"></a>
+<a class="sourceLine" id="cb13-35" title="35">    <span class="cf">for</span> old_rv_i, old_rv <span class="kw">in</span> <span class="bu">enumerate</span>(fgraph_.inputs):</a>
+<a class="sourceLine" id="cb13-36" title="36">        <span class="cf">if</span> <span class="bu">isinstance</span>(old_rv, pymc_rv_types):</a>
+<a class="sourceLine" id="cb13-37" title="37">            dist <span class="op">=</span> old_rv.distribution</a>
+<a class="sourceLine" id="cb13-38" title="38">            theano_rv_op <span class="op">=</span> pymc_theano_rv_equivs.get(<span class="bu">type</span>(dist), <span class="va">None</span>)</a>
+<a class="sourceLine" id="cb13-39" title="39"></a>
+<a class="sourceLine" id="cb13-40" title="40">            <span class="cf">if</span> theano_rv_op <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb13-41" title="41">                rng_tt, new_rv <span class="op">=</span> theano_rv_op(dist, rand_state)</a>
+<a class="sourceLine" id="cb13-42" title="42"></a>
+<a class="sourceLine" id="cb13-43" title="43">                <span class="co"># Keep track of our replacements</span></a>
+<a class="sourceLine" id="cb13-44" title="44">                fgraph_replacements[old_rv] <span class="op">=</span> new_rv</a>
+<a class="sourceLine" id="cb13-45" title="45"></a>
+<a class="sourceLine" id="cb13-46" title="46">                new_rv.name <span class="op">=</span> <span class="st">&#39;~</span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(old_rv.name)</a>
+<a class="sourceLine" id="cb13-47" title="47"></a>
+<a class="sourceLine" id="cb13-48" title="48">                new_rv_inputs <span class="op">=</span> [i <span class="cf">for</span> i <span class="kw">in</span> tt_inputs([new_rv])]</a>
+<a class="sourceLine" id="cb13-49" title="49"></a>
+<a class="sourceLine" id="cb13-50" title="50">                fgraph_new_inputs.update(new_rv_inputs)</a>
+<a class="sourceLine" id="cb13-51" title="51">            <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb13-52" title="52">                <span class="bu">print</span>(<span class="st">&#39;</span><span class="sc">{}</span><span class="st"> could not be mapped to a random function&#39;</span>.<span class="bu">format</span>(old_rv))</a>
+<a class="sourceLine" id="cb13-53" title="53"></a>
+<a class="sourceLine" id="cb13-54" title="54">    fgraph_new_inputs_memo <span class="op">=</span> theano.gof.graph.clone_get_equiv(</a>
+<a class="sourceLine" id="cb13-55" title="55">        fgraph_new_inputs, <span class="bu">list</span>(fgraph_replacements.values()),</a>
+<a class="sourceLine" id="cb13-56" title="56">        copy_orphans<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb13-57" title="57"></a>
+<a class="sourceLine" id="cb13-58" title="58">    <span class="co"># Update our maps and new inputs to use the cloned objects</span></a>
+<a class="sourceLine" id="cb13-59" title="59">    fgraph_replacements <span class="op">=</span> {old_rv: fgraph_new_inputs_memo.pop(new_rv)</a>
+<a class="sourceLine" id="cb13-60" title="60">                           <span class="cf">for</span> old_rv, new_rv <span class="kw">in</span> fgraph_replacements.items()}</a>
+<a class="sourceLine" id="cb13-61" title="61">    fgraph_new_inputs <span class="op">=</span> <span class="bu">set</span>(<span class="bu">map</span>(fgraph_new_inputs_memo.pop, fgraph_new_inputs))</a>
+<a class="sourceLine" id="cb13-62" title="62"></a>
+<a class="sourceLine" id="cb13-63" title="63">    <span class="co"># What remains in `fgraph_new_inputs_memo` are the nodes between our desired</span></a>
+<a class="sourceLine" id="cb13-64" title="64">    <span class="co"># inputs (i.e. the random variables&#39; distribution parameters) and the old inputs</span></a>
+<a class="sourceLine" id="cb13-65" title="65">    <span class="co"># (i.e. Theano `Variable`s corresponding to a sample of said random variables).</span></a>
+<a class="sourceLine" id="cb13-66" title="66"></a>
+<a class="sourceLine" id="cb13-67" title="67">    _ <span class="op">=</span> [fgraph_.add_input(new_in) <span class="cf">for</span> new_in <span class="kw">in</span> fgraph_new_inputs</a>
+<a class="sourceLine" id="cb13-68" title="68">         <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(new_in, theano.gof.graph.Constant)]</a>
+<a class="sourceLine" id="cb13-69" title="69"></a>
+<a class="sourceLine" id="cb13-70" title="70">    <span class="co"># _ = [fgraph_.add_input(new_in) for new_in in fgraph_new_inputs_memo.values()]</span></a>
+<a class="sourceLine" id="cb13-71" title="71"></a>
+<a class="sourceLine" id="cb13-72" title="72">    fgraph_.replace_all(fgraph_replacements.items())</a>
+<a class="sourceLine" id="cb13-73" title="73"></a>
+<a class="sourceLine" id="cb13-74" title="74">    <span class="co"># The replace method apparently doesn&#39;t remove the old inputs...</span></a>
+<a class="sourceLine" id="cb13-75" title="75">    _ <span class="op">=</span> [fgraph_.inputs.remove(old_rv) <span class="cf">for</span> old_rv <span class="kw">in</span> fgraph_replacements.keys()]</a>
+<a class="sourceLine" id="cb13-76" title="76"></a>
+<a class="sourceLine" id="cb13-77" title="77">    <span class="cf">return</span> fgraph_</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1">Z_fgraph_rv_tt <span class="op">=</span> create_theano_rvs(Z_fgraph_tt)</a>
+<a class="sourceLine" id="cb14-2" title="2"></a>
+<a class="sourceLine" id="cb14-3" title="3">tt.printing.debugprint(Z_fgraph_rv_tt)</a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="co"># pprint(tt.pprint(Z_fgraph_rv_tt.outputs[0]))</span></a></code></pre></div>
+<pre class="text"><code>Elemwise{add,no_inplace} [id A] &#39;&#39;   10
+ |RandomFunction{normal}.1 [id B] &#39;~X_rv&#39;   9
+ | |&lt;RandomStateType&gt; [id C]
+ | |Elemwise{Cast{int64}} [id D] &#39;&#39;   8
+ | | |MakeVector{dtype=&#39;int8&#39;} [id E] &#39;&#39;   7
+ | |   |TensorConstant{1} [id F]
+ | |mu_X [id G]
+ | |Elemwise{mul,no_inplace} [id H] &#39;&#39;   6
+ |   |InplaceDimShuffle{x} [id I] &#39;&#39;   5
+ |   | |TensorConstant{1.0} [id J]
+ |   |sd_X [id K]
+ |RandomFunction{normal}.1 [id L] &#39;~Y_rv&#39;   4
+   |&lt;RandomStateType&gt; [id C]
+   |Elemwise{Cast{int64}} [id M] &#39;&#39;   3
+   | |MakeVector{dtype=&#39;int8&#39;} [id N] &#39;&#39;   2
+   |   |TensorConstant{1} [id F]
+   |mu_Y [id O]
+   |Elemwise{mul,no_inplace} [id P] &#39;&#39;   1
+     |InplaceDimShuffle{x} [id Q] &#39;&#39;   0
+     | |TensorConstant{1.0} [id J]
+     |sd_Y [id R]
+
+</code></pre>
+<figure id="fig:random_op_mapping_exa_graph">
+<img src="https://brandonwillard.github.io/figures/Z_fgraph_rv_tt.png" alt="Graph of the log likelihood function for Z_fgraph_rv_tt. " />
+<figcaption>
+Graph of the log likelihood function for <code>Z_fgraph_rv_tt</code>.
+</figcaption>
+</figure>
+</div>
+<p>Illustrations of the transformed graphs given in <a href="#random_op_mapping_exa">random_op_mapping_exa</a> and <a href="#fig:random_op_mapping_exa_graph">fig:random_op_mapping_exa_graph</a> show the full extent of our simple example model and provide a context in which to perform higher-level manipulations.</p>
+<p>With a graph representing the relevant terms and relationships, we can start implementing the convolution simplification/transformation/optimization. For instance, as shown in <a href="#rv_find_nodes">rv_find_nodes</a>, we can now easily query random function/variable nodes in a graph.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" title="1"><span class="co"># Using a `FunctionGraph` &quot;feature&quot;</span></a>
+<a class="sourceLine" id="cb16-2" title="2">Z_fgraph_rv_tt.attach_feature(NodeFinder())</a>
+<a class="sourceLine" id="cb16-3" title="3"></a>
+<a class="sourceLine" id="cb16-4" title="4"><span class="co"># The fixed `TensorType` is unnecessarily restrictive.</span></a>
+<a class="sourceLine" id="cb16-5" title="5">rf_normal_type <span class="op">=</span> RandomFunction(<span class="st">&#39;normal&#39;</span>, tt.TensorType(<span class="st">&#39;float64&#39;</span>, (<span class="va">True</span>,)))</a>
+<a class="sourceLine" id="cb16-6" title="6">rf_nodes <span class="op">=</span> Z_fgraph_rv_tt.get_nodes(rf_normal_type)</a>
+<a class="sourceLine" id="cb16-7" title="7"></a>
+<a class="sourceLine" id="cb16-8" title="8"><span class="co">#</span></a>
+<a class="sourceLine" id="cb16-9" title="9"><span class="co"># or, more generally,...</span></a>
+<a class="sourceLine" id="cb16-10" title="10"><span class="co">#</span></a>
+<a class="sourceLine" id="cb16-11" title="11"><span class="kw">def</span> get_random_nodes(fgraph):</a>
+<a class="sourceLine" id="cb16-12" title="12">    <span class="cf">return</span> <span class="bu">list</span>(<span class="bu">filter</span>(<span class="kw">lambda</span> x: <span class="bu">isinstance</span>(x.op, RandomFunction), fgraph.apply_nodes))</a>
+<a class="sourceLine" id="cb16-13" title="13"></a>
+<a class="sourceLine" id="cb16-14" title="14">rf_nodes <span class="op">=</span> get_random_nodes(Z_fgraph_rv_tt)</a>
+<a class="sourceLine" id="cb16-15" title="15"></a>
+<a class="sourceLine" id="cb16-16" title="16">tt.printing.debugprint(rf_nodes)</a></code></pre></div>
+<pre class="text"><code>RandomFunction{normal}.0 [id A] &#39;&#39;
+ |&lt;RandomStateType&gt; [id B]
+ |Elemwise{Cast{int64}} [id C] &#39;&#39;
+ | |MakeVector{dtype=&#39;int8&#39;} [id D] &#39;&#39;
+ |   |TensorConstant{1} [id E]
+ |mu_Y [id F]
+ |Elemwise{mul,no_inplace} [id G] &#39;&#39;
+   |InplaceDimShuffle{x} [id H] &#39;&#39;
+   | |TensorConstant{1.0} [id I]
+   |sd_Y [id J]
+RandomFunction{normal}.1 [id A] &#39;~Y_rv&#39;
+RandomFunction{normal}.0 [id K] &#39;&#39;
+ |&lt;RandomStateType&gt; [id B]
+ |Elemwise{Cast{int64}} [id L] &#39;&#39;
+ | |MakeVector{dtype=&#39;int8&#39;} [id M] &#39;&#39;
+ |   |TensorConstant{1} [id E]
+ |mu_X [id N]
+ |Elemwise{mul,no_inplace} [id O] &#39;&#39;
+   |InplaceDimShuffle{x} [id P] &#39;&#39;
+   | |TensorConstant{1.0} [id I]
+   |sd_X [id Q]
+RandomFunction{normal}.1 [id K] &#39;~X_rv&#39;
+
+</code></pre>
+</section>
+<section id="performing-high-level-simplifications" class="level1">
+<h1>Performing High-level Simplifications</h1>
+<p>To apply optimizations like our simple convolution, we need to first identify the appropriate circumstances for its application. This means finding all sub-graphs for which we are able to replace existing nodes with a convolution node.</p>
+<p>Theano provides some <a href="https://en.wikipedia.org/wiki/Unification_(computer_science)">unification</a> tools that facilitate the search component. We’ll use those to implement an extremely restrictive form of our convolution.</p>
+<div class="example" data-markdown="" data-env-number="2">
+<p>In <a href="#normal_conv_pattern">normal_conv_pattern</a>, we create patterns for our expressions of interest that are unified against the elements in our graph and reified with a replacement expression. The patterns are expressed as tuples in a LISP-like fashion, e.g. <code>(add, 1, 2)</code> corresponding to an unevaluated <code>add(1, 2)</code>.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" title="1"><span class="im">from</span> operator <span class="im">import</span> attrgetter, itemgetter</a>
+<a class="sourceLine" id="cb18-2" title="2"></a>
+<a class="sourceLine" id="cb18-3" title="3"></a>
+<a class="sourceLine" id="cb18-4" title="4"><span class="co"># </span><span class="al">FIXME</span><span class="co">: This fixed `TensorType` specification is restrictive.</span></a>
+<a class="sourceLine" id="cb18-5" title="5">NormalRV <span class="op">=</span> RandomFunction(<span class="st">&#39;normal&#39;</span>, tt.TensorType(<span class="st">&#39;float64&#39;</span>, (<span class="va">True</span>,)))</a>
+<a class="sourceLine" id="cb18-6" title="6"></a>
+<a class="sourceLine" id="cb18-7" title="7">norm_conv_pat_tt <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb18-8" title="8">    tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="cb18-9" title="9">        <span class="co"># Search expression pattern</span></a>
+<a class="sourceLine" id="cb18-10" title="10">      (tt.add,</a>
+<a class="sourceLine" id="cb18-11" title="11">       (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;shp_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
+<a class="sourceLine" id="cb18-12" title="12">       (NormalRV, <span class="st">&#39;rs_y&#39;</span>, <span class="st">&#39;shp_y&#39;</span>, <span class="st">&#39;mu_y&#39;</span>, <span class="st">&#39;sd_y&#39;</span>),</a>
+<a class="sourceLine" id="cb18-13" title="13">      ),</a>
+<a class="sourceLine" id="cb18-14" title="14">        <span class="co"># Replacement expression</span></a>
+<a class="sourceLine" id="cb18-15" title="15">      (itemgetter(<span class="dv">1</span>), <span class="co">#</span></a>
+<a class="sourceLine" id="cb18-16" title="16">       (NormalRV,</a>
+<a class="sourceLine" id="cb18-17" title="17">        <span class="st">&#39;rs_x&#39;</span>,</a>
+<a class="sourceLine" id="cb18-18" title="18">        <span class="st">&#39;shp_x&#39;</span>,</a>
+<a class="sourceLine" id="cb18-19" title="19">        (tt.add, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;mu_y&#39;</span>),</a>
+<a class="sourceLine" id="cb18-20" title="20">        (tt.sqrt, (tt.add, (tt.square, <span class="st">&#39;sd_x&#39;</span>), (tt.square, <span class="st">&#39;sd_y&#39;</span>))),</a>
+<a class="sourceLine" id="cb18-21" title="21">       )),</a>
+<a class="sourceLine" id="cb18-22" title="22">    ),</a>
+<a class="sourceLine" id="cb18-23" title="23">]</a></code></pre></div>
+<p>The <code>itemgetter(1)</code> applied to the replacement result is necessary because the <code>Op</code> <code>RandomFunction</code> returns two outputs and the second is the <code>TensorVariable</code> corresponding to a sample from that random variable.</p>
+<p>We also need to specify exactly how the pattern matching and replacement are to be performed for the entire graph. Do we match a single sum of normal distributions or all of them? What happens when a replacement creates yet another sum of normals that can be reduced?</p>
+<p>In this case, we choose to apply the operation until it reaches a fixed point, i.e. until it produces no changes in the graph.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1">norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(norm_conv_pat_tt,</a>
+<a class="sourceLine" id="cb19-2" title="2">                                                   max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a></code></pre></div>
+<p>Finally, we manually perform our Theano optimization.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb20-1" title="1">_ <span class="op">=</span> norm_conv_opt_tt.optimize(Z_fgraph_rv_tt)</a></code></pre></div>
+</div>
+<p>The optimization was applied within our graph, as evidenced by the single new <code>RandomFunction</code> node.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb21-1" title="1">tt.printing.debugprint(Z_fgraph_rv_tt)</a></code></pre></div>
+<pre class="text"><code>RandomFunction{normal}.1 [id A] &#39;&#39;   11
+ |&lt;RandomStateType&gt; [id B]
+ |Elemwise{Cast{int64}} [id C] &#39;&#39;   10
+ | |MakeVector{dtype=&#39;int8&#39;} [id D] &#39;&#39;   9
+ |   |TensorConstant{1} [id E]
+ |Elemwise{add,no_inplace} [id F] &#39;&#39;   8
+ | |mu_X [id G]
+ | |mu_Y [id H]
+ |Elemwise{sqrt,no_inplace} [id I] &#39;&#39;   7
+   |Elemwise{add,no_inplace} [id J] &#39;&#39;   6
+     |Elemwise{sqr,no_inplace} [id K] &#39;&#39;   5
+     | |Elemwise{mul,no_inplace} [id L] &#39;&#39;   4
+     |   |InplaceDimShuffle{x} [id M] &#39;&#39;   3
+     |   | |TensorConstant{1.0} [id N]
+     |   |sd_X [id O]
+     |Elemwise{sqr,no_inplace} [id P] &#39;&#39;   2
+       |Elemwise{mul,no_inplace} [id Q] &#39;&#39;   1
+         |InplaceDimShuffle{x} [id R] &#39;&#39;   0
+         | |TensorConstant{1.0} [id N]
+         |sd_Y [id S]
+
+</code></pre>
+<p>Likewise, the resulting distribution terms in the optimized graph reflect the normal-normal random variable sum. Figure <a href="#fig:norm_sum_merge_graph">fig:norm_sum_merge_graph</a> shows the graph under our optimization.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb23-1" title="1">conv_rv_tt <span class="op">=</span> Z_fgraph_rv_tt.outputs[<span class="dv">0</span>].owner</a>
+<a class="sourceLine" id="cb23-2" title="2"></a>
+<a class="sourceLine" id="cb23-3" title="3">new_mu, new_sd <span class="op">=</span> conv_rv_tt.inputs[<span class="dv">2</span>:<span class="dv">4</span>]</a>
+<a class="sourceLine" id="cb23-4" title="4"></a>
+<a class="sourceLine" id="cb23-5" title="5"><span class="co"># Test values of the original means/new moments&#39; inputs</span></a>
+<a class="sourceLine" id="cb23-6" title="6"><span class="bu">print</span>(<span class="st">&#39;, &#39;</span>.join([<span class="st">&#39;</span><span class="sc">{}</span><span class="st"> = </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(o), o.tag.test_value)</a>
+<a class="sourceLine" id="cb23-7" title="7">                 <span class="cf">for</span> o <span class="kw">in</span> new_mu.owner.inputs]))</a>
+<a class="sourceLine" id="cb23-8" title="8"><span class="bu">print</span>(tt.pprint(new_mu))</a>
+<a class="sourceLine" id="cb23-9" title="9"></a>
+<a class="sourceLine" id="cb23-10" title="10"><span class="bu">print</span>(<span class="st">&#39;, &#39;</span>.join([<span class="st">&#39;</span><span class="sc">{}</span><span class="st"> = </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(o), o.tag.test_value)</a>
+<a class="sourceLine" id="cb23-11" title="11">                 <span class="cf">for</span> o <span class="kw">in</span> new_sd.owner.inputs]))</a>
+<a class="sourceLine" id="cb23-12" title="12"><span class="bu">print</span>(tt.pprint(new_sd))</a>
+<a class="sourceLine" id="cb23-13" title="13"></a>
+<a class="sourceLine" id="cb23-14" title="14"><span class="bu">print</span>(<span class="st">&#39;mean: </span><span class="sc">{}</span><span class="ch">\n</span><span class="st">std. dev.: </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(</a>
+<a class="sourceLine" id="cb23-15" title="15">    new_mu.tag.test_value,</a>
+<a class="sourceLine" id="cb23-16" title="16">    new_sd.tag.test_value))</a></code></pre></div>
+<pre class="text"><code>mu_X = [0.], mu_Y = [1.]
+(mu_X + mu_Y)
+(sqr((TensorConstant{1.0} * sd_X)) + sqr((TensorConstant{1.0} * sd_Y))) = [1.25]
+sqrt((sqr((TensorConstant{1.0} * sd_X)) + sqr((TensorConstant{1.0} * sd_Y))))
+mean: [1.]
+std. dev.: [1.11803399]
+
+</code></pre>
+<figure id="fig:norm_sum_merge_graph">
+<img src="https://brandonwillard.github.io/figures/Z_fgraph_rv_tt.png" alt="Graph of merged normal variables. " />
+<figcaption>
+Graph of merged normal variables.
+</figcaption>
+</figure>
+</section>
+<section id="generalizing-operations" class="level1">
+<h1>Generalizing Operations</h1>
+<p>Our example above was admittedly too simple; for instance, what about scale and location transformed variables? Most models/graphs will consist of more elaborate manipulations of random variables, so it’s necessary that we account for as many basic manipulations, as well.</p>
+<p>We start by adding an optimization that lifts scale parameters into the arguments/parameters of a random variable. In other words,</p>
+<p><span class="math display">\[\begin{gather*}
+  X \sim N(\mu, \sigma^2) \\
+  Z = a X \sim N\left(a \mu, (a \sigma)^2\right)
+  \;.
+\end{gather*}\]</span></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" title="1">norm_conv_pat_tt <span class="op">+=</span> [</a>
+<a class="sourceLine" id="cb25-2" title="2">    tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="cb25-3" title="3">        <span class="co"># Search expression pattern</span></a>
+<a class="sourceLine" id="cb25-4" title="4">        (tt.mul,</a>
+<a class="sourceLine" id="cb25-5" title="5">         <span class="st">&#39;a_x&#39;</span>,</a>
+<a class="sourceLine" id="cb25-6" title="6">         (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;shp_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>)),</a>
+<a class="sourceLine" id="cb25-7" title="7">        <span class="co"># Replacement expression</span></a>
+<a class="sourceLine" id="cb25-8" title="8">        (itemgetter(<span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb25-9" title="9">         (NormalRV,</a>
+<a class="sourceLine" id="cb25-10" title="10">          <span class="co"># RNG</span></a>
+<a class="sourceLine" id="cb25-11" title="11">                <span class="st">&#39;rs_x&#39;</span>,</a>
+<a class="sourceLine" id="cb25-12" title="12">          <span class="co"># Convolution shape</span></a>
+<a class="sourceLine" id="cb25-13" title="13">                <span class="st">&#39;shp_x&#39;</span>,</a>
+<a class="sourceLine" id="cb25-14" title="14">          <span class="co"># Convolution mean</span></a>
+<a class="sourceLine" id="cb25-15" title="15">                (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>),</a>
+<a class="sourceLine" id="cb25-16" title="16">          <span class="co"># Convolution std. dev.</span></a>
+<a class="sourceLine" id="cb25-17" title="17">                (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
+<a class="sourceLine" id="cb25-18" title="18">         )),</a>
+<a class="sourceLine" id="cb25-19" title="19">    )</a>
+<a class="sourceLine" id="cb25-20" title="20">]</a>
+<a class="sourceLine" id="cb25-21" title="21"></a>
+<a class="sourceLine" id="cb25-22" title="22">norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(</a>
+<a class="sourceLine" id="cb25-23" title="23">    norm_conv_pat_tt, max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a></code></pre></div>
+<p>The additional optimization is demonstrated in <a href="#mat_mul_scaling_exa">mat_mul_scaling_exa</a>.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" title="1">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)</a>
+<a class="sourceLine" id="cb26-2" title="2">mu_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb26-3" title="3">sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)</a>
+<a class="sourceLine" id="cb26-4" title="4">sd_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb26-5" title="5"></a>
+<a class="sourceLine" id="cb26-6" title="6"><span class="cf">with</span> pm.Model() <span class="im">as</span> conv_scale_model:</a>
+<a class="sourceLine" id="cb26-7" title="7">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
+<a class="sourceLine" id="cb26-8" title="8">    Z_rv <span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> X_rv</a>
+<a class="sourceLine" id="cb26-9" title="9"></a>
+<a class="sourceLine" id="cb26-10" title="10">Z_mul_tt <span class="op">=</span> model_graph(conv_scale_model, derived_vars<span class="op">=</span>[Z_rv])</a>
+<a class="sourceLine" id="cb26-11" title="11">Z_mul_rv <span class="op">=</span> create_theano_rvs(Z_mul_tt)</a>
+<a class="sourceLine" id="cb26-12" title="12"></a>
+<a class="sourceLine" id="cb26-13" title="13">Z_mul_rv_merged <span class="op">=</span> Z_mul_rv.clone()</a>
+<a class="sourceLine" id="cb26-14" title="14"></a>
+<a class="sourceLine" id="cb26-15" title="15">_ <span class="op">=</span> norm_conv_opt_tt.optimize(Z_mul_rv_merged)</a></code></pre></div>
+<p><a href="#fig:scaled_random_sum_before">fig:scaled_random_sum_before</a> and <a href="#fig:scaled_random_sum_after">fig:scaled_random_sum_after</a> demonstrate the a scaled normal random variable before and after the optimization, respectively.</p>
+<figure id="fig:scaled_random_sum_before">
+<img src="https://brandonwillard.github.io/figures/Z_mul_rv.png" alt="Graph of a single term scaled in a normal-normal convolution. " />
+<figcaption>
+Graph of a single term scaled in a normal-normal convolution.
+</figcaption>
+</figure>
+<figure id="fig:scaled_random_sum_after">
+<img src="https://brandonwillard.github.io/figures/Z_mul_rv_merged.png" alt="Graph of a single term scaled in a normal-normal convolution after the convolution optimization. " />
+<figcaption>
+Graph of a single term scaled in a normal-normal convolution after the convolution optimization.
+</figcaption>
+</figure>
+</section>
+<section id="challenges" class="level1">
+<h1>Challenges</h1>
+<p>If we change the dimensions of our example above, the pattern employed by our scaling optimization will not match. To fix this, we can generalize the form of our <code>RandomFunction</code> operator so that it includes more cases of broadcastable dimensions–instead of only <code>(True, )</code></p>
+<p>We could also extend the reach of our <code>PatternSub</code>s; however, this direction introduces more complexity into the process of writing optimizations and provides no foreseeable benefit elsewhere.</p>
+<p>More generally, one of the major challenges in this kind of work is due to the design of <code>RandomFunction</code>; its type is dependent on a <code>TensorType</code> parameter that requires an array of “broadcast” dimensions.</p>
+<p>This situation arises–in part–from PyMC3, Theano, and NumPy’s use of a “size” parameter in combination with random variable dimensions inferred from distribution parameters. A few outstanding <a href="https://github.com/pymc-devs/pymc3/pull/1125">PyMC3 issues seem to revolve</a> around the interactions between these elements.</p>
+<p>The size parameter is like a sample size, but with all the samples considered together as a single tensor (e.g. each sample of a multivariate normal random variable, say, acting as a column in a matrix). The size parameter is independent of a random variable’s parameters’ sizes (e.g. dimensions of a mean and covariance), but, together, the size and distribution parameters effectively compose the size/dimension of a random variable’s support (e.g. the matrix in the above example is the resulting random variable).</p>
+<p>Needless to say, PyMC3 and Theano’s terms–and their relation to mathematical notions–are a bit confusing, and likely driven more by software design choices than the mathematical frameworks in use. However, those design choices significantly affect our ability to manipulate graphs and express common mathematical notions. For instance, these terms and design choices put greater demand on the graph manipulation steps, due to the ambiguous dimensions of the elements involved.</p>
+</section>
+<section id="next-steps" class="level1">
+<h1>Next Steps</h1>
+<p>In a follow-up, I’ll introduce a new <code>Op</code> that overcomes some of the dimensionality issues and allows for much easier graph manipulation. It replaces <code>RandomFunction</code> with a single <code>Op</code> for each distribution type and [re]moves the type specifier from the definition of the <code>Op</code>.</p>
+<p>Essentially, the <code>TensorType</code> argument to the <code>RandomFunction</code> constructor is moved into <code>RandomFunction</code>’s <code>make_node</code> method and, thus, generated/inferred from the symbolic inputs.</p>
+<p>To be clear, we’re talking about two distinct aspects of <code>RandomFunction</code>: one is the <code>NormalRV = RandomFunction('normal', TensorType('float64', bcast))</code> step, in which we <strong>create the <code>Op</code></strong> corresponding to a specific type of normal random variable, and the other in which we <strong>use the <code>Op</code></strong> (e.g. <code>NormalRV(rng, 1, 2)</code>)–to, say, produce a tensor variable corresponding to an instance of said random variable.</p>
+<p>This distinction is important for pattern matching because <code>NormalRV</code>, as defined above, isn’t very general and mostly due to the <code>TensorType('float64', bcast))</code> covering only some Theano tensor types (i.e. those that match the fixed broadcast dimensions specified by <code>bcast</code>).</p>
+<p>As stated previously, there have been real difficulties with the handling of shape and type information in PyMC3 (see <a href="https://github.com/pymc-devs/pymc3/pull/1125">PyMC3 PR 1125</a>). These problems are related to the same concerns involving <code>TensorType</code>s. In refactoring the type information requirement for <code>RandomFunction</code>, we’ll end up addressing those PyMC3 issues as well.</p>
+</section>
+<section id="bibliography" class="level1">
+<h1>Bibliography</h1>
+<p><a id="WillardRoleSymbolicComputation2017"></a>[WillardRoleSymbolicComputation2017] Willard, A Role for Symbolic Computation in the General Estimation of Statistical Models, <i>Brandon T. Willard</i>, (2017). <a href="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html">link</a>. <a href="#4407b21e48ab9ff17c017e8d62684725">↩</a></p>
+</section>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  CommonHTML: { linebreaks: { automatic: true } },
+  "HTML-CSS": { linebreaks: { automatic: true } },
+  SVG: { linebreaks: { automatic: true } },
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+</body>
+</html>
+
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'brandonwillard-github-io'; // required: replace example with your forum shortname
+
+                    var disqus_identifier = 'symbolic-math-in-pymc3';
+                var disqus_url = 'https://brandonwillard.github.io/symbolic-math-in-pymc3.html';
+
+            var disqus_config = function () {
+                this.language = "en";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<div id="aboutme">
+        <p>
+            <img width="100%" class="img-thumbnail" src="https://brandonwillard.github.io//images/profile-pic.png"/>
+        </p>
+    <p>
+      <strong>About Brandon T. Willard</strong><br/>
+        applied math/stats person
+    </p>
+</div><!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://linkedin.com/pub/brandon-willard/10/bb4/468/"><i class="fa fa-linkedin fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar ai-lg"></i> google scholar</a></li>
+    <li class="list-group-item"><a href="https://plus.google.com/+brandonwillard"><i class="fa fa-google-plus fa-lg"></i> google+</a></li>
+    <li class="list-group-item"><a href="https://bitbucket.io/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
+    <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2018 Brandon T. Willard
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>                <p><small>  <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
+    Content
+  licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en">Creative Commons Attribution-NonCommercial 4.0 International License</a>, except where indicated otherwise.
+</small></p>
+         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://brandonwillard.github.io/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://brandonwillard.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://brandonwillard.github.io/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'brandonwillard-github-io'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-91585967-1', '');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>
