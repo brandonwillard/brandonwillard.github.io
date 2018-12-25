@@ -263,6 +263,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb2-14" title="14">    Z_rv <span class="op">=</span> X_rv <span class="op">+</span> Y_rv</a></code></pre></div>
 <p>The Python objects representing terms in <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> are <code>X_rv</code>, <code>Y_rv</code>, and <code>Z_rv</code> in <a href="#pymc3_model">pymc3_model</a>. Those terms together form a Theano graph for the entirety of <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span>.</p>
 <p>Other aspects of the model are implicitly stored in the <a href="https://docs.python.org/3.6/reference/compound_stmts.html#with">Python context object</a> <code>conv_model</code>. For example, the context object tracks the model’s log likelihood function when some variables are designated as “observed”–i.e. associated with sample data. In this example, we haven’t specified an observed variable, so the context object won’t be immediately useful.</p>
+<div class="remark" data-markdown="" data-env-number="1">
+<p>In what follows, we’ll briefly introduce the internal aspects of PyMC3 that are immediately relevant for the topics addressed here; otherwise, see <a href="https://docs.pymc.io/developer_guide.html">the PyMC3 developer’s guide</a> for an explanation of its design and internal workings.</p>
+</div>
 <p>The terms <code>X_rv</code>, <code>Y_rv</code> are derived from both a PyMC3 <a href="https://github.com/pymc-devs/pymc3/blob/v3.3/pymc3/model.py#L151"><code>Factor</code></a> class and the standard Theano <code>TensorVariable</code>, as illustrated in the output of <a href="#pymc3_mro">pymc3_mro</a>. However, the convolution term <code>Z_rv</code> is not a PyMC3 random variable; in other words, it does <strong>not</strong> implement the PyMC3 <code>Factor</code> class, but it <strong>is</strong> a Theano <code>TensorVariable</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1">pprint({<span class="st">&#39;Y_rv&#39;</span>: <span class="bu">type</span>(Y_rv).mro()})</a>
 <a class="sourceLine" id="cb3-2" title="2">pprint({<span class="st">&#39;Z_rv&#39;</span>: <span class="bu">type</span>(Z_rv).mro()})</a></code></pre></div>
@@ -295,21 +298,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="random-variables-in-graphs" class="level1">
 <h1>Random Variables in Graphs</h1>
-<p>The Theano graph representing <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> consists of linear/tensor algebra operations–under the interface of <code>theano.gof.op.Op</code>–on <code>TensorVariable</code>s. For our example in <a href="#pymc3_model">pymc3_model</a>, a textual representation is given in <a href="#Z_rv_debugprint">Z_rv_debugprint</a> and a graphical form in <a href="#fig:norm_sum_graph">fig:norm_sum_graph</a>. Likewise, <a href="#Z_rv_debugprint">Z_rv_debugprint</a> provides a more mathematical-expression-friendly output.</p>
+<p>The Theano graph representing <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> consists of linear/tensor algebra operations–under the interface of <code>theano.gof.op.Op</code>–on <code>TensorVariable</code>s. For our example in <a href="#pymc3_model">pymc3_model</a>, a textual representation is given in <a href="#Z_rv_debugprint">Z_rv_debugprint</a> and a graphical form in <a href="#fig:norm_sum_graph">fig:norm_sum_graph</a>.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1">tt.printing.debugprint(Z_rv)</a></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1">Elemwise{add,no_inplace} [<span class="bu">id</span> A] <span class="st">&#39;&#39;</span></a>
-<a class="sourceLine" id="cb8-2" title="2"> <span class="op">|</span>X_rv [<span class="bu">id</span> B]</a>
-<a class="sourceLine" id="cb8-3" title="3"> <span class="op">|</span>Y_rv [<span class="bu">id</span> C]</a>
-<a class="sourceLine" id="cb8-4" title="4"></a></code></pre></div>
+<pre class="text"><code>Elemwise{add,no_inplace} [id A] &#39;&#39;
+ |X_rv [id B]
+ |Y_rv [id C]
+
+</code></pre>
 <figure id="fig:norm_sum_graph">
 <img src="https://brandonwillard.github.io/figures/Z_rv.png" alt="Graph of Z_rv for the PyMC3 model in 2. " />
 <figcaption>
 Graph of <code>Z_rv</code> for the PyMC3 model in <a href="#org7c56540">2</a>.
 </figcaption>
 </figure>
-<p>At present, PyMC3 (version 3.3) does not make very consistent use of Theano’s graph objects. For instance, notice how the dependent parameters <code>mu_X</code> and <code>sd_X</code> are not present in the model’s graph (e.g. <a href="#fig:norm_sum_graph">fig:norm_sum_graph</a>). We know that <code>X_rv</code> and <code>Y_rv</code> are PyMC3 random variables, but what we’re seeing in the graph is only their representations as sampled values–in the form of Theano tensor variables. In other words, where <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> symbolize random variables and <span class="math inline">\(x \sim X\)</span>, <span class="math inline">\(y \sim Y\)</span> samples, we’re working with a graph expressing only <span class="math inline">\(z = x + y\)</span>.</p>
-<p>What we really need for higher-level work is a graph for <span class="math inline">\(Z = X + Y\)</span> that includes every term involved. This is true for graphs representing a model’s measure <strong>and</strong> its sampled values. The former is essentially covered by the log-likelihood graphs we can already produce using the model objects; it’s the latter that we’re building toward, since it enables the application of numerous techniques in statistics and probability theory.</p>
-<p>One way to produce graphs that represent the full probabilistic model is to formalize the notion of random variable in Theano. Basically, if we want to include the relationships between distribution parameters and sampled variables, we need an <code>Op</code> that represents random variables and/or the act of sampling. <code>theano.tensor.raw_random.RandomFunction</code> does exactly this; although it represents the concept of a sampling action and not exactly a random measure.</p>
+<p>At present, PyMC3 (version <code>print(pm.__version__)</code> 3.3) does not make very consistent use of Theano’s graph objects. For instance, notice how the dependent parameters <code>mu_X</code> and <code>sd_X</code> are not present in the model’s graph (e.g. <a href="#fig:norm_sum_graph">fig:norm_sum_graph</a>). We know that <code>X_rv</code> and <code>Y_rv</code> are PyMC3 random variables, but what we see in the graph is only their representations as sampled scalar/vector/matrix/tensor values. In other words, where <span class="math inline">\(X\)</span>, <span class="math inline">\(Y\)</span> symbolize random variables and <span class="math inline">\(x \sim X\)</span>, <span class="math inline">\(y \sim Y\)</span> their samples, we have a graph expressing only <span class="math inline">\(z = x + y\)</span>.</p>
+<p>What we need for higher-level work is a graph of <span class="math inline">\(Z = X + Y\)</span> that includes every term involved. This is true for graphs representing a model’s measure/log-likelihood <strong>and</strong> its sampled values. The former is essentially covered by the log-likelihood graphs we can already produce using the PyMC3 model objects. It’s the latter that we’ll establish here, since it sets the stage for applications of numerous techniques in statistics and probability theory.</p>
+<p>One way to produce graphs that represent the full probabilistic model is to formalize the notion of random variables using the Theano API. Basically, if we want to include the relationships between distribution parameters and sampled variables, <strong>we need an <code>Op</code> that represents random variables and/or the act of sampling</strong>. <code>theano.tensor.raw_random.RandomFunction</code> does exactly this; although it represents the concept of a sampling action and not exactly a random measure.</p>
 <p>Nonetheless, using <code>RandomFunction</code>, we can replace nodes corresponding to PyMC3 random variables with newly constructed <code>Op</code> nodes.</p>
 <div class="example" data-markdown="" data-env-number="1">
 <p>We can produce the types of graphs described above through conversion of existing PyMC3 models.</p>
@@ -465,8 +469,7 @@ Graph of <code>Z_rv</code> for the PyMC3 model in <a href="#org7c56540">2</a>.
 <a class="sourceLine" id="cb13-77" title="77">    <span class="cf">return</span> fgraph_</a></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1">Z_fgraph_rv_tt <span class="op">=</span> create_theano_rvs(Z_fgraph_tt)</a>
 <a class="sourceLine" id="cb14-2" title="2"></a>
-<a class="sourceLine" id="cb14-3" title="3">tt.printing.debugprint(Z_fgraph_rv_tt)</a>
-<a class="sourceLine" id="cb14-4" title="4"><span class="co"># pprint(tt.pprint(Z_fgraph_rv_tt.outputs[0]))</span></a></code></pre></div>
+<a class="sourceLine" id="cb14-3" title="3">tt.printing.debugprint(Z_fgraph_rv_tt)</a></code></pre></div>
 <pre class="text"><code>Elemwise{add,no_inplace} [id A] &#39;&#39;   10
  |RandomFunction{normal}.1 [id B] &#39;~X_rv&#39;   9
  | |&lt;RandomStateType&gt; [id C]
@@ -491,14 +494,14 @@ Graph of <code>Z_rv</code> for the PyMC3 model in <a href="#org7c56540">2</a>.
 
 </code></pre>
 <figure id="fig:random_op_mapping_exa_graph">
-<img src="https://brandonwillard.github.io/figures/Z_fgraph_rv_tt.png" alt="Graph of the log likelihood function for Z_fgraph_rv_tt. " />
+<img src="https://brandonwillard.github.io/figures/Z_fgraph_rv_tt.png" alt="Graph of Z = X + Y using an Op to represent sampling/a random variable. " />
 <figcaption>
-Graph of the log likelihood function for <code>Z_fgraph_rv_tt</code>.
+Graph of <span class="math inline">\(Z = X + Y\)</span> using an <code>Op</code> to represent sampling/a random variable.
 </figcaption>
 </figure>
 </div>
 <p>Illustrations of the transformed graphs given in <a href="#random_op_mapping_exa">random_op_mapping_exa</a> and <a href="#fig:random_op_mapping_exa_graph">fig:random_op_mapping_exa_graph</a> show the full extent of our simple example model and provide a context in which to perform higher-level manipulations.</p>
-<p>With a graph representing the relevant terms and relationships, we can start implementing the convolution simplification/transformation/optimization. For instance, as shown in <a href="#rv_find_nodes">rv_find_nodes</a>, we can now easily query random function/variable nodes in a graph.</p>
+<p>With a graph representing the relevant terms and relationships, we can implement the convolution simplification/transformation/optimization. For instance, as shown in <a href="#rv_find_nodes">rv_find_nodes</a>, we can now easily query random function/variable nodes in a graph.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" title="1"><span class="co"># Using a `FunctionGraph` &quot;feature&quot;</span></a>
 <a class="sourceLine" id="cb16-2" title="2">Z_fgraph_rv_tt.attach_feature(NodeFinder())</a>
 <a class="sourceLine" id="cb16-3" title="3"></a>
@@ -520,23 +523,23 @@ Graph of the log likelihood function for <code>Z_fgraph_rv_tt</code>.
  |Elemwise{Cast{int64}} [id C] &#39;&#39;
  | |MakeVector{dtype=&#39;int8&#39;} [id D] &#39;&#39;
  |   |TensorConstant{1} [id E]
- |mu_Y [id F]
+ |mu_X [id F]
  |Elemwise{mul,no_inplace} [id G] &#39;&#39;
    |InplaceDimShuffle{x} [id H] &#39;&#39;
    | |TensorConstant{1.0} [id I]
-   |sd_Y [id J]
-RandomFunction{normal}.1 [id A] &#39;~Y_rv&#39;
+   |sd_X [id J]
+RandomFunction{normal}.1 [id A] &#39;~X_rv&#39;
 RandomFunction{normal}.0 [id K] &#39;&#39;
  |&lt;RandomStateType&gt; [id B]
  |Elemwise{Cast{int64}} [id L] &#39;&#39;
  | |MakeVector{dtype=&#39;int8&#39;} [id M] &#39;&#39;
  |   |TensorConstant{1} [id E]
- |mu_X [id N]
+ |mu_Y [id N]
  |Elemwise{mul,no_inplace} [id O] &#39;&#39;
    |InplaceDimShuffle{x} [id P] &#39;&#39;
    | |TensorConstant{1.0} [id I]
-   |sd_X [id Q]
-RandomFunction{normal}.1 [id K] &#39;~X_rv&#39;
+   |sd_Y [id Q]
+RandomFunction{normal}.1 [id K] &#39;~Y_rv&#39;
 
 </code></pre>
 </section>
@@ -627,7 +630,7 @@ std. dev.: [1.11803399]
 
 </code></pre>
 <figure id="fig:norm_sum_merge_graph">
-<img src="https://brandonwillard.github.io/figures/Z_fgraph_rv_tt.png" alt="Graph of merged normal variables. " />
+<img src="https://brandonwillard.github.io/figures/Z_fgraph_opt_tt.png" alt="Graph of merged normal variables. " />
 <figcaption>
 Graph of merged normal variables.
 </figcaption>
