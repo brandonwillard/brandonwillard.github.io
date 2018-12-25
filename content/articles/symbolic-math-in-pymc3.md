@@ -13,7 +13,7 @@ figure_ext: png
 
 # Introduction
 
-In <sup id="4407b21e48ab9ff17c017e8d62684725"><a href="#WillardRoleSymbolicComputation2017">A Role for Symbolic Computation in the General Estimation of Statistical Models</a></sup>, we described how symbolic computation is used by bayesian modeling software like PyMC3 and some directions it could be taken. We closed with an example of automatic normal-normal convolution using PyMC3 objects and Theano's optimization framework. This article elaborates on the foundations for symbolic mathematics in Theano and PyMC3; specifically, its current state, some challenges, and potential improvements.
+In <sup id="4407b21e48ab9ff17c017e8d62684725"><a href="#WillardRoleSymbolicComputation2017">A Role for Symbolic Computation in the General Estimation of Statistical Models</a></sup>, I described how symbolic computation is used by bayesian modeling software like PyMC3 and some directions it could take. It closed with an example of automatic normal-normal convolution using PyMC3 objects and Theano's optimization framework. This article elaborates on the foundations for symbolic mathematics in Theano and PyMC3; specifically, its current state, some challenges, and potential improvements.
 
 Let's start by reconsidering the simple normal-normal convolution model. Mathematically, we can represent the model as follows:
 
@@ -65,6 +65,12 @@ with pm.Model() as conv_model:
 The Python objects representing terms in \(\eqref{eq:norm_conv_model}\) are `X_rv`, `Y_rv`, and `Z_rv` in [pymc3_model](#pymc3_model). Those terms together form a Theano graph for the entirety of \(\eqref{eq:norm_conv_model}\).
 
 Other aspects of the model are implicitly stored in the [Python context object](https://docs.python.org/3.6/reference/compound_stmts.html#with) `conv_model`. For example, the context object tracks the model's log likelihood function when some variables are designated as "observed"&#x2013;i.e. associated with sample data. In this example, we haven't specified an observed variable, so the context object won't be immediately useful.
+
+<div class="remark" markdown="" env-number="1">
+
+In what follows, we'll briefly introduce the internal aspects of PyMC3 that are immediately relevant for the topics addressed here; otherwise, see [the PyMC3 developer's guide](https://docs.pymc.io/developer_guide.html) for an explanation of its design and internal workings.
+
+</div>
 
 The terms `X_rv`, `Y_rv` are derived from both a PyMC3 [`Factor`](https://github.com/pymc-devs/pymc3/blob/v3.3/pymc3/model.py#L151) class and the standard Theano `TensorVariable`, as illustrated in the output of [pymc3_mro](#pymc3_mro). However, the convolution term `Z_rv` is not a PyMC3 random variable; in other words, it does **not** implement the PyMC3 `Factor` class, but it **is** a Theano `TensorVariable`.
 
@@ -119,13 +125,13 @@ To start, we'll have to dive deeper into the graph aspects of Theano.
 
 # Random Variables in Graphs
 
-The Theano graph representing \(\eqref{eq:norm_conv_model}\) consists of linear/tensor algebra operations&#x2013;under the interface of `theano.gof.op.Op`&#x2013;on `TensorVariable`s. For our example in [pymc3_model](#pymc3_model), a textual representation is given in [Z_rv_debugprint](#Z_rv_debugprint) and a graphical form in [fig:norm_sum_graph](#fig:norm_sum_graph). Likewise, [Z_rv_debugprint](#Z_rv_debugprint) provides a more mathematical-expression-friendly output.
+The Theano graph representing \(\eqref{eq:norm_conv_model}\) consists of linear/tensor algebra operations&#x2013;under the interface of `theano.gof.op.Op`&#x2013;on `TensorVariable`s. For our example in [pymc3_model](#pymc3_model), a textual representation is given in [Z_rv_debugprint](#Z_rv_debugprint) and a graphical form in [fig:norm_sum_graph](#fig:norm_sum_graph).
 
 ```python
 tt.printing.debugprint(Z_rv)
 ```
 
-```python
+```text
 Elemwise{add,no_inplace} [id A] ''
  |X_rv [id B]
  |Y_rv [id C]
@@ -135,11 +141,11 @@ Elemwise{add,no_inplace} [id A] ''
 
 <figure id="fig:norm_sum_graph"> ![Graph of `Z_rv` for the PyMC3 model in [2](#org7c56540). \label{fig:norm_sum_graph}]({attach}/articles/figures/Z_rv.png) <figcaption>Graph of `Z_rv` for the PyMC3 model in [2](#org7c56540).</figcaption> </figure>
 
-At present, PyMC3 (version 3.3) does not make very consistent use of Theano's graph objects. For instance, notice how the dependent parameters `mu_X` and `sd_X` are not present in the model's graph (e.g. [fig:norm_sum_graph](#fig:norm_sum_graph)). We know that `X_rv` and `Y_rv` are PyMC3 random variables, but what we're seeing in the graph is only their representations as sampled values&#x2013;in the form of Theano tensor variables. In other words, where \(X\) and \(Y\) symbolize random variables and \(x \sim X\), \(y \sim Y\) samples, we're working with a graph expressing only \(z = x + y\).
+At present, PyMC3 (version `print(pm.__version__)` 3.3) does not make very consistent use of Theano's graph objects. For instance, notice how the dependent parameters `mu_X` and `sd_X` are not present in the model's graph (e.g. [fig:norm_sum_graph](#fig:norm_sum_graph)). We know that `X_rv` and `Y_rv` are PyMC3 random variables, but what we see in the graph is only their representations as sampled scalar/vector/matrix/tensor values. In other words, where \(X\), \(Y\) symbolize random variables and \(x \sim X\), \(y \sim Y\) their samples, we have a graph expressing only \(z = x + y\).
 
-What we really need for higher-level work is a graph for \(Z = X + Y\) that includes every term involved. This is true for graphs representing a model's measure **and** its sampled values. The former is essentially covered by the log-likelihood graphs we can already produce using the model objects; it's the latter that we're building toward, since it enables the application of numerous techniques in statistics and probability theory.
+What we need for higher-level work is a graph of \(Z = X + Y\) that includes every term involved. This is true for graphs representing a model's measure/log-likelihood **and** its sampled values. The former is essentially covered by the log-likelihood graphs we can already produce using the PyMC3 model objects. It's the latter that we'll establish here, since it sets the stage for applications of numerous techniques in statistics and probability theory.
 
-One way to produce graphs that represent the full probabilistic model is to formalize the notion of random variable in Theano. Basically, if we want to include the relationships between distribution parameters and sampled variables, we need an `Op` that represents random variables and/or the act of sampling. `theano.tensor.raw_random.RandomFunction` does exactly this; although it represents the concept of a sampling action and not exactly a random measure.
+One way to produce graphs that represent the full probabilistic model is to formalize the notion of random variables using the Theano API. Basically, if we want to include the relationships between distribution parameters and sampled variables, **we need an `Op` that represents random variables and/or the act of sampling**. `theano.tensor.raw_random.RandomFunction` does exactly this; although it represents the concept of a sampling action and not exactly a random measure.
 
 Nonetheless, using `RandomFunction`, we can replace nodes corresponding to PyMC3 random variables with newly constructed `Op` nodes.
 
@@ -323,7 +329,6 @@ def create_theano_rvs(fgraph, clone=True, rand_state=None):
 Z_fgraph_rv_tt = create_theano_rvs(Z_fgraph_tt)
 
 tt.printing.debugprint(Z_fgraph_rv_tt)
-# pprint(tt.pprint(Z_fgraph_rv_tt.outputs[0]))
 ```
 
 ```text
@@ -352,13 +357,13 @@ Elemwise{add,no_inplace} [id A] ''   10
 
 ```
 
-<figure id="fig:random_op_mapping_exa_graph"> ![Graph of the log likelihood function for `Z_fgraph_rv_tt`. \label{fig:random_op_mapping_exa_graph}]({attach}/articles/figures/Z_fgraph_rv_tt.png) <figcaption>Graph of the log likelihood function for `Z_fgraph_rv_tt`.</figcaption> </figure>
+<figure id="fig:random_op_mapping_exa_graph"> ![Graph of \(Z = X + Y\) using an `Op` to represent sampling/a random variable. \label{fig:random_op_mapping_exa_graph}]({attach}/articles/figures/Z_fgraph_rv_tt.png) <figcaption>Graph of \(Z = X + Y\) using an `Op` to represent sampling/a random variable.</figcaption> </figure>
 
 </div>
 
 Illustrations of the transformed graphs given in [random_op_mapping_exa](#random_op_mapping_exa) and [fig:random_op_mapping_exa_graph](#fig:random_op_mapping_exa_graph) show the full extent of our simple example model and provide a context in which to perform higher-level manipulations.
 
-With a graph representing the relevant terms and relationships, we can start implementing the convolution simplification/transformation/optimization. For instance, as shown in [rv_find_nodes](#rv_find_nodes), we can now easily query random function/variable nodes in a graph.
+With a graph representing the relevant terms and relationships, we can implement the convolution simplification/transformation/optimization. For instance, as shown in [rv_find_nodes](#rv_find_nodes), we can now easily query random function/variable nodes in a graph.
 
 ```python
 # Using a `FunctionGraph` "feature"
@@ -385,23 +390,23 @@ RandomFunction{normal}.0 [id A] ''
  |Elemwise{Cast{int64}} [id C] ''
  | |MakeVector{dtype='int8'} [id D] ''
  |   |TensorConstant{1} [id E]
- |mu_Y [id F]
+ |mu_X [id F]
  |Elemwise{mul,no_inplace} [id G] ''
    |InplaceDimShuffle{x} [id H] ''
    | |TensorConstant{1.0} [id I]
-   |sd_Y [id J]
-RandomFunction{normal}.1 [id A] '~Y_rv'
+   |sd_X [id J]
+RandomFunction{normal}.1 [id A] '~X_rv'
 RandomFunction{normal}.0 [id K] ''
  |<RandomStateType> [id B]
  |Elemwise{Cast{int64}} [id L] ''
  | |MakeVector{dtype='int8'} [id M] ''
  |   |TensorConstant{1} [id E]
- |mu_X [id N]
+ |mu_Y [id N]
  |Elemwise{mul,no_inplace} [id O] ''
    |InplaceDimShuffle{x} [id P] ''
    | |TensorConstant{1.0} [id I]
-   |sd_X [id Q]
-RandomFunction{normal}.1 [id K] '~X_rv'
+   |sd_Y [id Q]
+RandomFunction{normal}.1 [id K] '~Y_rv'
 
 
 ```
@@ -525,7 +530,7 @@ std. dev.: [1.11803399]
 
 ```
 
-<figure id="fig:norm_sum_merge_graph"> ![Graph of merged normal variables. \label{fig:norm_sum_merge_graph}]({attach}/articles/figures/Z_fgraph_rv_tt.png) <figcaption>Graph of merged normal variables.</figcaption> </figure>
+<figure id="fig:norm_sum_merge_graph"> ![Graph of merged normal variables. \label{fig:norm_sum_merge_graph}]({attach}/articles/figures/Z_fgraph_opt_tt.png) <figcaption>Graph of merged normal variables.</figcaption> </figure>
 
 
 # Generalizing Operations
