@@ -214,7 +214,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="proximal-and-computational-components" class="level1">
 <h1>Proximal and Computational Components</h1>
-<p>First, we <span class="math display">\[re\]</span>-introduce the workhorse of proximal methods: the <em>proximal operator</em>.</p>
+<p>First, we [re]-introduce the workhorse of proximal methods: the <em>proximal operator</em>.</p>
 <div class="definition" data-markdown="" data-env-number="1" data-title-name="[Proximal Operator]">
 <p><span class="math display">\[\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
@@ -649,10 +649,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb12-15" title="15">    cd_step.reset()</a>
 <a class="sourceLine" id="cb12-16" title="16">    np.random.shuffle(cd_step.col_seq)</a></code></pre></div>
 <p><span id="fig:pg_coord_plot"><span id="fig:pg_coord_plot_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{2}\label{fig:pg_coord_plot}\end{equation}\]</span></span><img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_coord_plot_1.png" title="fig:" alt="Minimization by coordinate descent." /></span></p>
-<p>Figure <span class="math inline">\(\ref{fig:pg_coord_plot}\)</span> shows convergence measures for each randomized coordinate order. The <span class="math display">\[average\]</span> difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.</p>
+<p>Figure <span class="math inline">\(\ref{fig:pg_coord_plot}\)</span> shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.</p>
 <div class="remark" data-markdown="" data-env-number="4" data-title-name="">
 <p>Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature <span class="citation" data-cites="roberts_updating_1997">(Roberts and Sahu 1997)</span>–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark <span class="math inline">\(\ref{rem:bases}\)</span> and, to some extent, stochastic gradient descent (SGD) <span class="citation" data-cites="bertsekas_incremental_2010">(Bertsekas 2010)</span>.</p>
-<p>In a woefully lacking over-generalization, let’s say that it comes down to the <span class="math display">\[spectral\]</span> properties of the composite operator(s) <span class="math inline">\(l \circ X\)</span> and/or <span class="math inline">\(\nabla l \circ X\)</span>. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of <span class="math inline">\(\beta\)</span> nears or distances from those bounds.</p>
+<p>In a woefully lacking over-generalization, let’s say that it comes down to the [spectral] properties of the composite operator(s) <span class="math inline">\(l \circ X\)</span> and/or <span class="math inline">\(\nabla l \circ X\)</span>. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of <span class="math inline">\(\beta\)</span> nears or distances from those bounds.</p>
 </div>
 <section id="regularization-paths" class="level3">
 <h3>Regularization Paths</h3>
