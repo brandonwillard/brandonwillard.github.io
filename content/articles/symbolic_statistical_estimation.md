@@ -145,7 +145,7 @@ Proximal operators can be composed with a gradient step to produce the *proximal
   \label{eq:forward-backward}
 \end{equation}$$
 
-Besides the proximal operator for $\phi$, steps in the proximal gradient algorithm are very straightforward and require only the gradient of $l(\beta)$. This is where a tangible benefit of symbolic computation becomes apparent: $\nabla l(\beta)$ can be computed automatically and efficiently. With \[backtracking\] line search to handle unknown step sizes, $\alpha$, the proximal gradient algorithm provides a surprisingly general means of sparse estimation.
+Besides the proximal operator for $\phi$, steps in the proximal gradient algorithm are very straightforward and require only the gradient of $l(\beta)$. This is where a tangible benefit of symbolic computation becomes apparent: $\nabla l(\beta)$ can be computed automatically and efficiently. With [backtracking] line search to handle unknown step sizes, $\alpha$, the proximal gradient algorithm provides a surprisingly general means of sparse estimation.
 
 The Symbolic Operations
 =======================
@@ -417,7 +417,7 @@ Elemwise{add,no_inplace} [id M] ''   11
 
 </div>
 
-Even more symbolic capabilities might be needed to \[efficiently\] achieve the functionality we desire. Standalone libraries like SymPy and [LogPy](https://github.com/logpy/logpy/) can be adapted to Theano graphs and provide these capabilities–although direct implementation in Theano may be better.
+Even more symbolic capabilities might be needed to [efficiently] achieve the functionality we desire. Standalone libraries like SymPy and [LogPy](https://github.com/logpy/logpy/) can be adapted to Theano graphs and provide these capabilities–although direct implementation in Theano may be better.
 
 Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the `hessian` function, and within `theano.sandbox.linalg` are `Optimizer` hints for matrix positivity and other properties relevant to determining convexity.
 

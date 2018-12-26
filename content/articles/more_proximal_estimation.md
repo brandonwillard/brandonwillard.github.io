@@ -24,7 +24,7 @@ The focal point of this short exposition will be an elaboration of the basic $\e
 Proximal and Computational Components
 =====================================
 
-First, we \[re\]-introduce the workhorse of proximal methods: the *proximal operator*.
+First, we [re]-introduce the workhorse of proximal methods: the *proximal operator*.
 
 <div class="definition" markdown="" env-number="1" title-name="[Proximal Operator]">
 
@@ -556,13 +556,13 @@ for j in range(15):
 
 <span id="fig:pg_coord_plot"><span id="fig:pg_coord_plot_span" style="display:none;visibility:hidden">$$\begin{equation}\tag{2}\label{fig:pg_coord_plot}\end{equation}$$</span>![Minimization by coordinate descent.<span data-label="fig:pg_coord_plot"></span>]({attach}/articles/figures/more_proximal_estimation_pg_coord_plot_1.png "fig:"){width="\textwidth"}</span>
 
-Figure $\ref{fig:pg_coord_plot}$ shows convergence measures for each randomized coordinate order. The \[average\] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.
+Figure $\ref{fig:pg_coord_plot}$ shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.
 
 <div class="remark" markdown="" env-number="4" title-name="">
 
 Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature [@roberts_updating_1997]–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark $\ref{rem:bases}$ and, to some extent, stochastic gradient descent (SGD) [@bertsekas_incremental_2010].
 
-In a woefully lacking over-generalization, let’s say that it comes down to the \[spectral\] properties of the composite operator(s) $l \circ X$ and/or $\nabla l \circ X$. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of $\beta$ nears or distances from those bounds.
+In a woefully lacking over-generalization, let’s say that it comes down to the [spectral] properties of the composite operator(s) $l \circ X$ and/or $\nabla l \circ X$. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of $\beta$ nears or distances from those bounds.
 
 </div>
 

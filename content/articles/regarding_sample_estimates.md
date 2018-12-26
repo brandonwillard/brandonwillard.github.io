@@ -16,7 +16,7 @@ In this post I want to address some concepts regarding statistical model specifi
 
 The generality, applicability and relative simplicity of the core concepts within Bayesian modeling are sadly overlooked in practice. Bayes is too often conflated with MCMC and its associated computational costs, or is seen as needlessly “mathy” and technical. I argue that there is an oft unacknowledged trade-off in the efforts of mathematical modeling, and that Bayesian modeling helps navigate that complexity. In doing so, one can save on expended efforts in the long run.
 
-When a model is \[fully\] specified in a statistical or Bayesian way, the modeler has at their disposal distributions for the unknown quantities of interest; these distributions are often the primary interest. The desired estimates are found “within” the distributions. For instance, as a distribution’s moments (e.g. mean, mode, variance, etc.), which may correspond to certain “best” estimates or measures of parameter uncertainty. The same goes for functions of these distributions (e.g. rolling sums and averages).
+When a model is [fully] specified in a statistical or Bayesian way, the modeler has at their disposal distributions for the unknown quantities of interest; these distributions are often the primary interest. The desired estimates are found “within” the distributions. For instance, as a distribution’s moments (e.g. mean, mode, variance, etc.), which may correspond to certain “best” estimates or measures of parameter uncertainty. The same goes for functions of these distributions (e.g. rolling sums and averages).
 
 Normally, modeling objectives are specified in terms of *point-estimates* instead of distributions: like the aforementioned “best” parameter estimates. This situation is also covered by the Bayesian paradigm, especially when the corresponding distributions have a closed-form and are fully specified by a finite number of parameters. However, when this isn’t the case, point-estimates provide only part of the picture. It’s usually these missing parts that make model assessment and prediction largely separate and difficult endeavours down the road.
 
@@ -28,9 +28,9 @@ As a starting point, one can find quite a few non-Bayes models with Bayesian int
 
 Before getting into the details, let’s cover some preliminaries regarding notation.
 
-The symbol $\sim$ is overloaded to mean a couple things. First, a statement like $X \sim \operatorname{P}$ means “$X$ is distributed according to $\operatorname{P}$”, when $X$ is understood to be a random variable (generally denoted by capital letter variables). Second, for a non-random variable $x$, $x \sim \operatorname{P}$ and $x \sim X$ means “$x$ is a sample from distribution $\operatorname{P}$”. When $\operatorname{P}$ is not meant to signify a distribution, but instead a generic function–like a probability density function $p(X=x) \equiv p(x)$, then the distribution in question is \[the\] one arising from the function (interpreted as a probability density and/or measure)–when possible. See [here](https://en.wikipedia.org/wiki/Notation_in_probability_and_statistics) for a similar notation. Also, whenever indices are dropped, the resulting symbol is assumed to be a stacked matrix containing each entry, e.g. $$\begin{equation*}
+The symbol $\sim$ is overloaded to mean a couple things. First, a statement like $X \sim \operatorname{P}$ means “$X$ is distributed according to $\operatorname{P}$”, when $X$ is understood to be a random variable (generally denoted by capital letter variables). Second, for a non-random variable $x$, $x \sim \operatorname{P}$ and $x \sim X$ means “$x$ is a sample from distribution $\operatorname{P}$”. When $\operatorname{P}$ is not meant to signify a distribution, but instead a generic function–like a probability density function $p(X=x) \equiv p(x)$, then the distribution in question is [the] one arising from the function (interpreted as a probability density and/or measure)–when possible. See [here](https://en.wikipedia.org/wiki/Notation_in_probability_and_statistics) for a similar notation. Also, whenever indices are dropped, the resulting symbol is assumed to be a stacked matrix containing each entry, e.g. $$\begin{equation*}
 X^\top = \begin{pmatrix} X_1 & \dots & X_N \end{pmatrix} \;.
-\end{equation*}$$ When the indexed symbol is a vector, then it is customary to denote the row stacked matrix of each vector with the symbol’s capital letter. E.g., for \[column\] vectors $z_i$ over $i \in \{1, \dots, N\}$, $$\begin{equation*}
+\end{equation*}$$ When the indexed symbol is a vector, then it is customary to denote the row stacked matrix of each vector with the symbol’s capital letter. E.g., for [column] vectors $z_i$ over $i \in \{1, \dots, N\}$, $$\begin{equation*}
 Z = \begin{pmatrix} z_1 \\ \vdots \\ z_N \end{pmatrix} \;.
 \end{equation*}$$
 
@@ -231,7 +231,7 @@ plt.show()
 The Costs
 ---------
 
-MCMC, and specifically the Metropolis-Hastings approach used above, can look very simple and universally applicable, but–of course–there’s a trade-off occurring somewhere. The trade-offs most often appear in relation to the complexity and cost of \[intermediate\] sampling steps and convergence rates. To over simplify, the standard $O(N^{-1/2})$ error rate–from the [Central Limit Theorem](https://en.wikipedia.org/wiki/Central_limit_theorem)–is the MCMC baseline, which isn’t all that competitive with some of the standard deterministic optimization methods.
+MCMC, and specifically the Metropolis-Hastings approach used above, can look very simple and universally applicable, but–of course–there’s a trade-off occurring somewhere. The trade-offs most often appear in relation to the complexity and cost of [intermediate] sampling steps and convergence rates. To over simplify, the standard $O(N^{-1/2})$ error rate–from the [Central Limit Theorem](https://en.wikipedia.org/wiki/Central_limit_theorem)–is the MCMC baseline, which isn’t all that competitive with some of the standard deterministic optimization methods.
 
 Even for conceptually simple models, the proposal distribution (and its parameters) are not always easy to choose or cheap to tune. The upfront computational costs can be quite high for the more generic MCMC approaches, but there are almost always paths toward efficient samplers–in the context of a specific problem, at least.
 
@@ -293,7 +293,7 @@ Let’s say we’re interested in daily, monthly, or yearly averages for $Y_t$ a
 
 </div>
 
-Next, we produce predictions for daily averages–along with \[credible\] intervals.
+Next, we produce predictions for daily averages–along with [credible] intervals.
 
 ``` python
 y_obs_h = pd.Series(y_obs, index=sim_index)
