@@ -1,7 +1,7 @@
 ---
 bibliography:
 - 'tex/symbolic-pymc3.bib'
-modified: '2018-12-23'
+modified: '2018-12-26'
 tags: 'pymc3,theano,statistics,symbolic computation,python,probability theory'
 title: Symbolic Math in PyMC3
 date: '2018-12-18'

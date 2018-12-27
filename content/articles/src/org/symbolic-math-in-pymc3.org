@@ -12,20 +12,10 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 #+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 
-#+RESULTS: pelican-preamble
-#+BEGIN_EXPORT html
----
-bibliography:
-- 'tex/symbolic-pymc3.bib'
-modified: '2018-12-23'
-tags: 'pymc3,theano,statistics,symbolic computation,python,probability theory'
-title: Symbolic Math in PyMC3
-date: '2018-12-18'
-author: 'Brandon T. Willard'
-figure_dir: '{attach}/articles/figures/'
-figure_ext: png
----
-#+END_EXPORT
+#+INCLUDE: org-setup.org
+#+BEGIN_SRC elisp :eval t :exports none :results none
+(org-babel-lob-ingest "org-babel-extensions.org")
+#+END_SRC
 
 #+PROPERTY: header-args :eval never-export :exports both :results output drawer replace
 #+PROPERTY: header-args+ :session symbolic-math-pymc3
@@ -247,6 +237,7 @@ Elemwise{add,no_inplace} [id A] ''
 
 #+END_SRC
 
+#+NAME: initial-z-graph
 #+CALL: insert_pydot_figure[:results value](graph_obj_name="Z_rv", label="norm_sum_graph", caption="Graph of src_python{Z_rv} for the PyMC3 model in [[pymc3_model]].")
 
 #+RESULTS:
@@ -558,7 +549,7 @@ Elemwise{add,no_inplace} [id A] ''   10
 
 #+END_SRC
 
-
+#+NAME: expanded-z-graph
 #+CALL: insert_pydot_figure[:results value](graph_obj_name="Z_fgraph_rv_tt", label="random_op_mapping_exa_graph", caption="Graph of \(Z = X + Y\) using an src_python{Op} to represent sampling/a random variable.")
 
 #+RESULTS:
@@ -782,6 +773,8 @@ std. dev.: [1.11803399]
 #+BEGIN_SRC python :exports none :results none
 Z_fgraph_opt_tt = Z_fgraph_rv_tt
 #+END_SRC
+
+#+NAME: optimized-z-graph
 #+CALL: insert_pydot_figure[:results value](graph_obj_name="Z_fgraph_opt_tt", label="norm_sum_merge_graph", caption="Graph of merged normal variables.")
 
 #+RESULTS:
@@ -864,6 +857,7 @@ _ = norm_conv_opt_tt.optimize(Z_mul_rv_merged)
 the a scaled normal random variable before and after the optimization,
 respectively.
 
+#+NAME: pre-scaled-z-graph
 #+CALL: insert_pydot_figure[:results value](graph_obj_name="Z_mul_rv", label="scaled_random_sum_before", caption="Graph of a single term scaled in a normal-normal convolution.")
 
 #+RESULTS:
@@ -876,6 +870,7 @@ respectively.
 :END:
 
 
+#+NAME: post-scaled-z-graph
 #+CALL: insert_pydot_figure[:results value](graph_obj_name="Z_mul_rv_merged", label="scaled_random_sum_after", caption="Graph of a single term scaled in a normal-normal convolution after the convolution optimization.")
 
 #+RESULTS:
@@ -886,7 +881,6 @@ respectively.
 #+NAME: fig:scaled_random_sum_after
 [[file:/home/bwillard/projects/websites/brandonwillard.github.io/content/articles/figures/Z_mul_rv_merged.png]]
 :END:
-
 
 * Challenges
 
@@ -925,7 +919,6 @@ significantly affect our ability to manipulate graphs and express common
 mathematical notions.
 For instance, these terms and design choices put greater demand on the graph
 manipulation steps, due to the ambiguous dimensions of the elements involved.
-
 
 * Next Steps
 In a follow-up, I'll introduce a new src_python{Op} that overcomes some of the
