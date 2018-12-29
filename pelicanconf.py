@@ -77,6 +77,7 @@ SOCIAL = (('linkedin', 'https://linkedin.com/pub/brandon-willard/10/bb4/468/'),
 
 DISPLAY_TAGS_ON_SIDEBAR = True
 DISPLAY_TAGS_INLINE = True
+SHOW_DATE_MODIFIED = True
 
 DIRECT_TEMPLATES = [
     'index', 'archives', # 'publications'
