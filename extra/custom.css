@@ -68,6 +68,7 @@ ul.project-links li {
 }
 .theorem:before {
     data-title-name: "";
+    counter-increment: theorem;
     content: "Theorem " counter(theorem) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
@@ -79,6 +80,7 @@ ul.project-links li {
 }
 .lemma:before {
     data-title-name: "";
+    counter-increment: lemma;
     content: "Lemma " counter(lemma) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
@@ -90,6 +92,7 @@ ul.project-links li {
 }
 .corollary:before {
     data-title-name: "";
+    counter-increment: corollary;
     content: "Corollary " counter(corollary) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
@@ -102,6 +105,7 @@ ul.project-links li {
 }
 .proof:before {
     data-title-name: "";
+    counter-increment: proof;
     content: "Proof " counter(proof) ". " attr(data-title-name);
     font-style: italic;
 }
@@ -118,7 +122,8 @@ ul.project-links li {
 }
 .definition:before {
     data-title-name: "";
-    content: "Definition " counter(defnition) ". " attr(data-title-name);
+    counter-increment: definition;
+    content: "Definition " counter(definition) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -128,8 +133,8 @@ ul.project-links li {
     font-style: italic;
 }
 .example:before {
-    counter-increment: example;
     data-title-name: "";
+    counter-increment: example;
     content: "Example " counter(example) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
@@ -141,6 +146,7 @@ ul.project-links li {
 }
 .proposition:before {
     data-title-name: "";
+    counter-increment: proposition;
     content: "Proposition " counter(proposition) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
@@ -152,6 +158,7 @@ ul.project-links li {
 }
 .remark:before {
     data-title-name: "";
+    counter-increment: remark;
     content: "Remark " counter(remark) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
