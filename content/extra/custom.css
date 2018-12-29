@@ -1,3 +1,14 @@
+body {
+    counter-reset: example 0
+                   theorem 0
+                   lemma 0
+                   proof 0
+                   definition 0
+                   corollary 0
+                   remark 0
+                   proposition 0;
+}
+
 figure {
     float: center;
     /* width: 30%; */
@@ -56,9 +67,9 @@ ul.project-links li {
     font-style: italic;
 }
 .theorem:before {
-    data-env-number: "";
     data-title-name: "";
-    content: "Theorem " attr(data-env-number) ". " attr(data-title-name);
+    counter-increment: theorem;
+    content: "Theorem " counter(theorem) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -68,9 +79,9 @@ ul.project-links li {
     font-style: italic;
 }
 .lemma:before {
-    data-env-number: "";
     data-title-name: "";
-    content: "Lemma " attr(data-env-number) ". " attr(data-title-name);
+    counter-increment: lemma;
+    content: "Lemma " counter(lemma) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -80,9 +91,9 @@ ul.project-links li {
     font-style: italic;
 }
 .corollary:before {
-    data-env-number: "";
     data-title-name: "";
-    content: "Corollary " attr(data-env-number) ". " attr(data-title-name);
+    counter-increment: corollary;
+    content: "Corollary " counter(corollary) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -93,9 +104,9 @@ ul.project-links li {
     overflow: auto;
 }
 .proof:before {
-    data-env-number: "";
     data-title-name: "";
-    content: "Proof " attr(data-env-number) ". " attr(data-title-name);
+    counter-increment: proof;
+    content: "Proof " counter(proof) ". " attr(data-title-name);
     font-style: italic;
 }
 .proof:after {
@@ -110,9 +121,9 @@ ul.project-links li {
     font-style: normal;
 }
 .definition:before {
-    data-env-number: "";
     data-title-name: "";
-    content: "Definition " attr(data-env-number) ". " attr(data-title-name);
+    counter-increment: definition;
+    content: "Definition " counter(definition) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -122,9 +133,9 @@ ul.project-links li {
     font-style: italic;
 }
 .example:before {
-    data-env-number: "";
     data-title-name: "";
-    content: "Example " attr(data-env-number) ". " attr(data-title-name);
+    counter-increment: example;
+    content: "Example " counter(example) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -134,9 +145,9 @@ ul.project-links li {
     font-style: italic;
 }
 .proposition:before {
-    data-env-number: "";
     data-title-name: "";
-    content: "Proposition " attr(data-env-number) ". " attr(data-title-name);
+    counter-increment: proposition;
+    content: "Proposition " counter(proposition) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }
@@ -146,9 +157,9 @@ ul.project-links li {
     font-style: italic;
 }
 .remark:before {
-    data-env-number: "";
     data-title-name: "";
-    content: "Remark " attr(data-env-number) ". " attr(data-title-name);
+    counter-increment: remark;
+    content: "Remark " counter(remark) ". " attr(data-title-name);
     font-weight: bold;
     font-style: normal;
 }

@@ -35,7 +35,7 @@ provides a generic src_python[:eval never]{repr} function--with limited Python
 "readability" guarantees--and a src_python[:eval never]{__repr__} property for
 object/class-level customization.
 
-#+HTML: <div class="example" markdown="" env-number="1">
+#+HTML: <div class="example" markdown="">
 #+NAME: repr-demo
 #+BEGIN_SRC python :eval never-export :results output :wrap "SRC python :eval never"
 test_obj = {"a": 1, "b": [2, 3]}
@@ -112,7 +112,7 @@ function src_python[:eval never]{ast.parse} effectively handles the regex work
 and yields the bulk of information needed for a Hy src_python[:eval never]{repr}
 string: the function name and its (positional and keyword) arguments.
 
-#+HTML: <div class="example" markdown="" env-number="2">
+#+HTML: <div class="example" markdown="">
 Let's say we implement our own object and src_python[:eval never]{repr}.
 #+NAME: test-obj
 #+BEGIN_SRC hy :eval never-export :results output :wrap "SRC python :eval never"
@@ -182,7 +182,7 @@ built-in src_python{repr} on their arguments, so attempts to salvage
 already-converted src_python{repr} output are undeniably fraught with
 complications.
 
-#+HTML: <div class="example" markdown="" env-number="3">
+#+HTML: <div class="example" markdown="">
 Working from the src_python[:eval never]{repr}-produced AST above, I mocked-up a
 quick prototype for a generic Python-to-Hy conversion function.
 
@@ -314,7 +314,7 @@ The missing/next step would be to output Python AST (instead of more Hy forms, l
 
 Perhaps, in a follow-up, I'll illustrate how this can be done.
 
-# #+HTML: <div class="example" markdown="" env-number="3">
+# #+HTML: <div class="example" markdown="">
 
 #+BEGIN_SRC hy :eval never-export :exports none :results none
 (import ast)

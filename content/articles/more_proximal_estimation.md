@@ -26,7 +26,7 @@ Proximal and Computational Components
 
 First, we [re]-introduce the workhorse of proximal methods: the *proximal operator*.
 
-<div class="definition" markdown="" env-number="1" title-name="[Proximal Operator]">
+<div class="definition" markdown="" title-name="[Proximal Operator]">
 
 $$\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
@@ -89,7 +89,7 @@ def tt_soft_threshold(beta_, lambda_):
     return tt.sgn(beta_) * tt.maximum(tt.abs_(beta_) - lambda_, 0)
 ```
 
-<div class="remark" markdown="" env-number="1" title-name="">
+<div class="remark" markdown="" title-name="">
 
 This operator can take other forms, and the one used here is likely not the best. The `maximum` can be replaced by other conditional-like statements–such as $$\begin{equation*}
 \operatorname{S}(z, \lambda) =
@@ -262,7 +262,7 @@ loss_grad_start_.T.dot(step_diff))
         assert alpha_ >= 0, 'invalid step size: {}'.format(alpha_)
 ```
 
-<div class="remark" markdown="" env-number="2" title-name="">
+<div class="remark" markdown="" title-name="">
 
 Routines like this that make use of the gradient and other quantities might also be good candidates for execution in Theano, if only because of the graph optimizations that are able to remedy obviously redundant computations.
 
@@ -397,7 +397,7 @@ From a statistical perspective, the basics of coordinate-wise methods begin with
 
 Now, if we wanted to relate Equation $\eqref{eq:partial_resid}$ a proximal method via the statement of a proximal gradient fixed-point solution–i.e. Equation $\eqref{eq:forward-backward}$–we might use the following property of proximal operators:
 
-<div id="lem:prox_ortho_basis" class="lemma" markdown="" env-number="1" title-name="">
+<div id="lem:prox_ortho_basis" class="lemma" markdown="" title-name="">
 
 <span id="lem:prox_ortho_basis_span" style="display:none;visibility:hidden">$$\begin{equation}\tag{1}\label{lem:prox_ortho_basis}\end{equation}$$</span>
 
@@ -407,7 +407,7 @@ $$\begin{equation*}
     \;.
 \end{equation*}$$
 
-<div class="proof" markdown="" env-number="1" title-name="">
+<div class="proof" markdown="" title-name="">
 
 See @chaux_variational_2007.
 
@@ -417,7 +417,7 @@ See @chaux_variational_2007.
 
 The next result yields our desired connection.
 
-<div id="eq:prox_grad_descent" class="proposition" markdown="" env-number="1" title-name="">
+<div id="eq:prox_grad_descent" class="proposition" markdown="" title-name="">
 
 <span id="eq:prox_grad_descent_span" style="display:none;visibility:hidden">$$\begin{equation}\tag{1}\label{eq:prox_grad_descent}\end{equation}$$</span>
 
@@ -436,7 +436,7 @@ For $X$ such that ${{\bf 1}}^\top X e_m = 0$ and $e^\top_m X^\top X e_m = 1$, $m
     \;.
 \end{equation*}$$
 
-<div class="proof" markdown="" env-number="2" title-name="">
+<div class="proof" markdown="" title-name="">
 
 We start with an expansion of the terms in $\operatorname*{prox}_{\lambda \phi} \equiv \operatorname{S}_\lambda$. After simplifying the notation with $$\begin{equation*}
 \begin{gathered}
@@ -475,7 +475,7 @@ We start with an expansion of the terms in $\operatorname*{prox}_{\lambda \phi} 
 
 </div>
 
-<div id="rem:bases" class="remark" markdown="" env-number="3" title-name="">
+<div id="rem:bases" class="remark" markdown="" title-name="">
 
 <span id="rem:bases_span" style="display:none;visibility:hidden">$$\begin{equation}\tag{3}\label{rem:bases}\end{equation}$$</span>
 
@@ -558,7 +558,7 @@ for j in range(15):
 
 Figure $\ref{fig:pg_coord_plot}$ shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.
 
-<div class="remark" markdown="" env-number="4" title-name="">
+<div class="remark" markdown="" title-name="">
 
 Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature [@roberts_updating_1997]–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark $\ref{rem:bases}$ and, to some extent, stochastic gradient descent (SGD) [@bertsekas_incremental_2010].
 
@@ -623,7 +623,7 @@ Discussion
 
 Among the changes discussed earlier regarding Theano `Op`s for the proximal objects used here, we would also like to motivate much larger changes to the applied mathematician/statistician’s standard tools by demonstrating the relevance of less common–yet increasingly useful–abstractions. For instance, the proximal methods are neatly framed within operator theory and set-valued analysis, where concepts like the resolvent, sub-differential/gradient and others are common. Abstractions like these provide a compact means of extending familiar ideas into new contexts–such as non-differentiable functions.
 
-Unfortunately, our numerical libraries do not provide much in the way utilizing these abstractions. Most are strictly founded in the representation of point-valued mappings, which can require significant work-arounds to handle even the most common non-differentiable functions (e.g. the absolute value within our example problem). Our use of the proximal framework is, in part, motivated by its near seamless use *and* simultaneous bypassing of set-valued maps–in implementation, at least.
+Unfortunately, numerical libraries do not provide much in the way of utilizing these abstractions. Most are strictly founded in the representation of point-valued mappings, which can require significant work-arounds to handle even the most basic non-differentiable functions (e.g. the absolute value within our example problem). Our use of the proximal framework is, in part, motivated by its near seamless use *and* simultaneous bypassing of set-valued maps–in implementation, at least.
 
 There is no fundamental restriction blocking support for set-valued maps, however–aside from the necessary labor and community interest. Even minimal support could provide a context that makes frameworks like ours merely minor abstractions. A similar idea can be found in the symbolic calculation of limits via filters [@beeson_meaning_2005]. Perhaps we can liken these changes to the modern evolution of linear algebra libraries to tensor libraries.
 

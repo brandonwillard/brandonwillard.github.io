@@ -1,82 +1,56 @@
-#+TITLE: Random Variables in Theano
-#+AUTHOR: Brandon T. Willard
-#+DATE: 2018-12-18
-#+EMAIL: brandonwillard@gmail.com
-#+FILETAGS: :pymc3:theano:statistics:symbolic computation:python:probability theory:
+---
+bibliography:
+- 'tex/symbolic-pymc3.bib'
+modified: '2018-12-28'
+tags: 'pymc3,theano,statistics,symbolic computation,python,probability theory'
+title: Random Variables in Theano
+date: '2018-12-18'
+author: 'Brandon T. Willard'
+figure_dir: '{attach}/articles/figures/'
+figure_ext: png
+---
 
-#+STARTUP: hideblocks indent hidestars
-#+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:(results) html-preamble:t
-#+SELECT_TAGS: export
-#+EXCLUDE_TAGS: noexport
+<div class="abstract">
+Continuing from <sup id="24875a2c31fa7f94ce562adddedc0bf8"><a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }">WillardSymbolicMathPyMC32018</a></sup>, we'll attempt to improve upon `RandomFunction` and make a case for a similar `Op` in PyMC3.
 
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
-#+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+</div>
 
-#+INCLUDE: org-setup.org
-#+BEGIN_SRC elisp :eval t :exports none :results none
-(org-babel-lob-ingest "org-babel-extensions.org")
-#+END_SRC
 
-#+PROPERTY: header-args :eval never-export :exports both :results output drawer replace
-#+PROPERTY: header-args+ :session symbolic-math-pymc3-2
+# A **new** Random Variable `Op`
 
-#+BEGIN_abstract
-Continuing from [[cite:WillardSymbolicMathPyMC32018]], we'll attempt to improve
-upon src_python[]{RandomFunction} and make a case for a similar src_python[]{Op} in
-PyMC3.
-#+END_abstract
+We'll call this new `Op` `RandomVariable`, since random variables are the abstraction we're primarily targeting. `RandomVariable` will provide the functionality of `Distribution`, `FreeRV` and `ObservedRV`, and, by working at the `Op` level, it will be much more capable of leveraging existing Theano functionality.
 
-* A *new* Random Variable src_python[]{Op}
+Specifically, by using the `Op` interface, we're able to do the following:
 
-We'll call this new src_python[]{Op} src_python[]{RandomVariable}, since random
-variables are the abstraction we're primarily targeting.
-src_python[]{RandomVariable} will provide the functionality
-of src_python[]{Distribution}, src_python[]{FreeRV} and src_python[]{ObservedRV}, and,
-by working at the src_python[]{Op} level, it will be much more capable of leveraging
-existing Theano functionality.
+1.  Reduce/remove the need for an explicitly specified shape parameter.
 
-Specifically, by using the src_python[]{Op} interface, we're able to do the
-following:
+    <div class="example" markdown="">
 
-1. Reduce/remove the need for an explicitly specified shape parameter.
-   #+HTML: <div class="example" markdown="">
-   For example, definitions like
-   #+BEGIN_SRC python
-   with pm.Model():
-       X_rv = pm.Normal('X_rv', mu_X, sd=sd_X, shape=(1,))
-   #+END_SRC
-   reduce to
-   #+BEGIN_SRC python
-   with pm.Model():
-       X_rv = pm.Normal('X_rv', mu_X, sd=sd_X)
-   #+END_SRC
-   #+HTML: </div>
-2. Random variable nodes created by an src_python[]{Op} automatically implement
-   src_python[]{Distribution.default}/src_python[]{Distribution.get_test_val}
-   functionality and remove the reliance on initial values during random
-   variable instantiation.  src_python[]{Op} automatically
-   uses src_python[]{Op.perform}, which will draw a sample as a test value *and*
-   propagate it throughout the graph to derived/down-stream tensor variables.
-3. Log-densities can be generated as secondary outputs of
-   src_python[]{Op.make_node}, which removes the need
-   for src_python[]{Distribution.logp*} methods.
-4. src_python[]{pymc.distribution.draw_values} and related methods are no longer necessary;
-   their functionality is already covered within Theano's existing graph machinery--in the
-   same way as src_python[]{pymc.distribution.Distribution.default/get_test_val}.
+    For example, definitions like
 
-The main points of entry in our src_python[]{Op}, are src_python[]{Op.make_node}
-and src_python[]{Op.perform}.  src_python[]{Op.make_node} is used during symbolic
-graph creation and provides immediate access to the src_python[]{Op}'s
-symbolic inputs--serving a purpose similar to src_python[]{Distribution.__init__}.
-src_python[]{Op.make_node} is where shape inference tasks (e.g. [[https://github.com/pymc-devs/pymc3/pull/1125][PyMC3 PR 1125]]) are more
-suitably addressed; however, src_python[]{Op} provides additional means of shape inference
-and management (e.g. src_python[]{Op.infer_shape}) occurring at different phases of
-graph compilation that aren't readily accessible outside of the src_python[]{Op} framework.
+    ```{.python}
+    with pm.Model():
+        X_rv = pm.Normal('X_rv', mu_X, sd=sd_X, shape=(1,))
+    ```
 
-** Implementation
-#+ATTR_LATEX: :float t :placement h!
-#+NAME: import_theano_pymc3
-#+BEGIN_SRC python
+    reduce to
+
+    ```{.python}
+    with pm.Model():
+        X_rv = pm.Normal('X_rv', mu_X, sd=sd_X)
+    ```
+
+    </div>
+2.  Random variable nodes created by an `Op` automatically implement `Distribution.default`/`Distribution.get_test_val` functionality and remove the reliance on initial values during random variable instantiation. `Op` automatically uses `Op.perform`, which will draw a sample as a test value **and** propagate it throughout the graph to derived/down-stream tensor variables.
+3.  Log-densities can be generated as secondary outputs of `Op.make_node`, which removes the need for `Distribution.logp*` methods.
+4.  `pymc.distribution.draw_values` and related methods are no longer necessary; their functionality is already covered within Theano's existing graph machinery&#x2013;in the same way as `pymc.distribution.Distribution.default/get_test_val`.
+
+The main points of entry in our `Op`, are `Op.make_node` and `Op.perform`. `Op.make_node` is used during symbolic graph creation and provides immediate access to the `Op`'s symbolic inputs&#x2013;serving a purpose similar to `Distribution.__init__`. `Op.make_node` is where shape inference tasks (e.g. [PyMC3 PR 1125](https://github.com/pymc-devs/pymc3/pull/1125)) are more suitably addressed; however, `Op` provides additional means of shape inference and management (e.g. `Op.infer_shape`) occurring at different phases of graph compilation that aren't readily accessible outside of the `Op` framework.
+
+
+## Implementation
+
+```{#import_theano_pymc3 .python}
 import sys
 import os
 
@@ -94,12 +68,9 @@ theano.config.exception_verbosity = 'high'
 theano.config.compute_test_value = 'raise'
 
 import pymc3 as pm
-#+END_SRC
+```
 
-#+ATTR_LATEX: :float nil
-#+CAPTION: Helper function for src_python[]{RandomVariable}
-#+NAME: supp_shape_fn
-#+BEGIN_SRC python
+```{#supp_shape_fn .python}
 from collections.abc import Iterable, ByteString
 from warnings import warn
 from copy import copy
@@ -134,12 +105,9 @@ def matched_supp_shape_fn(ndim_supp, ndims_params, dist_params,
         ref_shape = tt.shape(dist_params[0])
         # return ref_shape[-self.ndim_supp:]
         return (ref_shape[-ndim_supp],)
-#+END_SRC
+```
 
-#+ATTR_LATEX: :float nil
-#+CAPTION: A new random variable src_python[]{Op}.
-#+NAME: new_rv_op
-#+BEGIN_SRC python
+```{#new_rv_op .python}
 class RandomVariable(tt.gof.Op):
     """This is essentially `RandomFunction`, except that it removes the `outtype`
     dependency and handles shape dimension information more directly.
@@ -148,7 +116,7 @@ class RandomVariable(tt.gof.Op):
 
     def __init__(self, name, ndim_supp, ndims_params, rng_fn, *args,
                  supp_shape_fn=None, dtype=theano.config.floatX, inplace=False,
-                 ,**kwargs):
+                 **kwargs):
         """Create a random variable `Op`.
 
         Parameters
@@ -379,12 +347,13 @@ class RandomVariable(tt.gof.Op):
 
     def R_op(self, inputs, eval_points):
         return [None for i in eval_points]
-#+END_SRC
+```
 
-#+HTML: <div class="example" markdown="">
-Here are some examples of src_python[]{RandomVariable} in action.
-#+NAME: random_variable_example
-#+BEGIN_SRC python
+<div class="example" markdown="">
+
+Here are some examples of `RandomVariable` in action.
+
+```{#random_variable_example .python}
 NormalRV = RandomVariable('normal', 0, [0, 0], 'normal')
 MvNormalRV = RandomVariable('multivariate_normal', 1, [1, 2], 'multivariate_normal')
 
@@ -393,10 +362,9 @@ print("NormalRV([0., 100.], 30, size=[4, 2]):\n{}\n".format(
 
 print("MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):\n{}".format(
     MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]).eval()))
-#+END_SRC
+```
 
-#+RESULTS: random_variable_example
-#+BEGIN_SRC python
+```{.python}
 NormalRV([0., 100.], 30, size=[4, 2]):
 [[ 27.43632901  93.39441318]
  [ 15.85959218 133.70107347]
@@ -431,18 +399,17 @@ MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):
    [ 6.17426596e-01  1.01919972e+02  1.99914348e+03]]]]
 
 
-#+END_SRC
+```
 
-#+HTML: </div>
+</div>
 
-As we've mentioned, there are a few difficulties surrounding the use and
-determination of shape information in PyMC3.  src_python[]{RandomVariable} doesn't
-suffer the same limitations.
+As we've mentioned, there are a few difficulties surrounding the use and determination of shape information in PyMC3. `RandomVariable` doesn't suffer the same limitations.
 
-#+HTML: <div class="example" markdown="" title-name="">
-A multivariate normal random variable cannot be created without
-explicit shape information.
-#+BEGIN_SRC python
+<div class="example" markdown="" title-name="">
+
+A multivariate normal random variable cannot be created without explicit shape information.
+
+```{.python}
 import traceback
 
 test_mean = tt.vector('test_mean')
@@ -456,16 +423,15 @@ try:
     test_rv = pm.MvNormal('test_rv', test_mean, test_cov)
 except Exception as e:
   print("".join(traceback.format_exception_only(type(e), e)))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 ValueError: Invalid dimension for value: 0
 
 
-#+END_SRC
+```
 
-#+BEGIN_SRC python
+```{.python}
 try:
   with pm.Model():
     test_rv = pm.MvNormal('test_rv', test_mean, test_cov, shape=1)
@@ -473,20 +439,18 @@ try:
     print("test_rv.tag.test_value = {}".format(test_rv.tag.test_value))
 except Exception as e:
   print("".join(traceback.format_exception_only(type(e), e)))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 test_rv.distribution.shape = [1]
 test_rv.tag.test_value = [1.]
 
 
-#+END_SRC
+```
 
-Using src_python[]{RandomVariable}, we do not have to specify a shape, nor
-implement any sampling code outside of src_python[]{RandomVariable.perform}
-to draw random variables and generate valid test values.
-#+BEGIN_SRC python
+Using `RandomVariable`, we do not have to specify a shape, nor implement any sampling code outside of `RandomVariable.perform` to draw random variables and generate valid test values.
+
+```{.python}
 test_mv_rv = MvNormalRV(test_mean, test_cov)
 test_mv_rv_2 = MvNormalRV(test_mv_rv, test_cov)
 
@@ -499,99 +463,25 @@ print("test_mv_rv.eval() = {}".format(test_mv_rv.eval(
     {test_mean: [1, 2], test_cov: np.diag([1, 2])})))
 print("test_mv_rv_2.eval() = {}".format(test_mv_rv_2.eval(
     {test_mean: [1, 2, 3], test_cov: np.diag([1, 2, 70])})))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 test_mv_rv.tag.test_value = [0.90661799]
 test_mv_rv_2.tag.test_value = [1.10201953]
 test_mv_rv.eval() = [-1.90184227  1.8679379 ]
 test_mv_rv_2.eval() = [ 2.05659828 -1.33638943  3.85355663]
 
 
-#+END_SRC
-#+HTML: </div>
+```
+
+</div>
 
 
+# A Problem with PyMC3 Broadcast Dimensions
 
-** Testing src_python[]{RandomVariable}                             :noexport:
-In the following we implement some unit-like tests
-for src_python[]{RandomVariable}.  They confirm expected sample dimensions and
-broadcast properties.
+As in <sup id="24875a2c31fa7f94ce562adddedc0bf8"><a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }">WillardSymbolicMathPyMC32018</a></sup>, we can create mappings between existing PyMC3 random variables and their new `RandomVariable` equivalents.
 
-#+BEGIN_SRC python
-def rv_numpy_test(rv, *params, size=None):
-    """Test for correspondence between `RandomVariable` and NumPy shape and
-    broadcast dimensions.
-    """
-    test_rv = rv(*params, size=size)
-    param_vals = [tt.gof.op.get_test_value(p) for p in params]
-    size_val = None if size is None else tt.gof.op.get_test_value(size)
-    test_val = getattr(np.random, rv.name)(*param_vals, size=size_val)
-    test_shp = np.shape(test_val)
-
-    # This might be a little too harsh, since purely symbolic `tensor.vector` inputs
-    # have no broadcastable information, yet, they can take broadcastable values.
-    # E.g.
-    #     x_tt = tt.vector('x')
-    #     x_tt.tag.test_value = np.array([5]) # non-symbolic value is broadcastable!
-    #     x_tt.tag.test_value = np.array([5, 4]) # non-symbolic value is not broadcastable.
-    #
-    # In the end, there's really no clear way to determine this without full
-    # evaluation of a symbolic node, and that mostly defeats the purpose.
-    # Unfortunately, this is what PyMC3 resorts to when constructing its
-    # `TensorType`s (and shapes).
-    test_bcast = [s == 1 for s in test_shp]
-    np.testing.assert_array_equal(test_rv.type.broadcastable, test_bcast)
-
-    eval_args = {p: v for p, v in zip(params, param_vals)
-                 if isinstance(p, tt.Variable) and not isinstance(p, tt.Constant)}
-    np.testing.assert_array_equal(test_rv.shape.eval(eval_args), test_shp)
-    np.testing.assert_array_equal(np.shape(test_rv.eval(eval_args)), test_shp)
-
-
-tt.config.on_opt_error = 'raise'
-
-rv_numpy_test(NormalRV, 0., 1.)
-rv_numpy_test(NormalRV, 0., 1., size=[3])
-# Broadcast sd over independent means...
-rv_numpy_test(NormalRV, [0., 1., 2.], 1.)
-rv_numpy_test(NormalRV, [0., 1., 2.], 1., size=[3, 3])
-rv_numpy_test(NormalRV, [0], [1], size=[1])
-
-rv_numpy_test(NormalRV, tt.as_tensor_variable([0]), [1], size=[1])
-rv_numpy_test(NormalRV, tt.as_tensor_variable([0]), [1], size=tt.as_tensor_variable([1]))
-
-
-# XXX: Shouldn't work due to broadcastable comments in `rv_numpy_test`.
-# test_mean = tt.vector('test_mean')
-# test_mean.tag.test_value = np.r_[1]
-# rv_numpy_test(NormalRV, test_mean, [1], size=tt.as_tensor_variable([1]))
-
-# with pm.Model():
-#     test_rv = pm.MvNormal('test_rv', [0], np.diag([1]), shape=1)
-#
-# test_rv.broadcastable
-
-rv_numpy_test(MvNormalRV, [0], np.diag([1]))
-rv_numpy_test(MvNormalRV, [0], np.diag([1]), size=[1])
-rv_numpy_test(MvNormalRV, [0], np.diag([1]), size=[4])
-rv_numpy_test(MvNormalRV, [0], np.diag([1]), size=[4, 1])
-rv_numpy_test(MvNormalRV, [0], np.diag([1]), size=[4, 1, 1])
-rv_numpy_test(MvNormalRV, [0], np.diag([1]), size=[1, 5, 8])
-rv_numpy_test(MvNormalRV, [0, 1, 2], np.diag([1, 1, 1]))
-# Broadcast cov matrix across independent means?
-# Looks like NumPy doesn't support that (and are probably better off for it).
-# rv_numpy_test(MvNormalRV, [[0, 1, 2], [4, 5, 6]], np.diag([1, 1, 1]))
-#+END_SRC
-
-* A Problem with PyMC3 Broadcast Dimensions
-As in [[cite:WillardSymbolicMathPyMC32018]], we can create mappings between
-existing PyMC3 random variables and their new src_python[]{RandomVariable}
-equivalents.
-
-#+NAME: pymc_theano_rv_equivs
-#+BEGIN_SRC python
+```{#pymc_theano_rv_equivs .python}
 pymc_theano_rv_equivs = {
     pm.Normal:
     lambda dist, rand_state:
@@ -603,56 +493,41 @@ pymc_theano_rv_equivs = {
     lambda dist, rand_state:
     (None, NormalRV(dist.mu, dist.cov, size=dist.shape[1:], rng=rand_state)),
 }
-#+END_SRC
+```
 
-However, if we attempt the same PymC3 graph conversion approach as before (i.e. convert a
-PyMC3 model to a Theano src_python[]{FunctionGraph}
-using src_python[]{model_graph}, then replace PyMC3 random variable
-nodes with our new random variable types
-using src_python[]{create_theano_rvs}), we're likely to run into a
-problem involving mismatching broadcastable dimensions.
+However, if we attempt the same PymC3 graph conversion approach as before (i.e. convert a PyMC3 model to a Theano `FunctionGraph` using `model_graph`, then replace PyMC3 random variable nodes with our new random variable types using `create_theano_rvs`), we're likely to run into a problem involving mismatching broadcastable dimensions.
 
-The problem arises because *PyMC3 "knows" more broadcast information than it
-should*, since it uses the Theano variables' test values in order to obtain
-concrete shapes for the random variables it creates.  Using concrete,
-non-symbolic shapes, it can exactly determine what would otherwise be ambiguous
-[[http://deeplearning.net/software/theano/library/tensor/basic.html?highlight=broadcastable#theano.tensor.TensorType.broadcastable][broadcastable dimensions]] at the symbolic level.
+The problem arises because **PyMC3 "knows" more broadcast information than it should**, since it uses the Theano variables' test values in order to obtain concrete shapes for the random variables it creates. Using concrete, non-symbolic shapes, it can exactly determine what would otherwise be ambiguous [broadcastable dimensions](http://deeplearning.net/software/theano/library/tensor/basic.html?highlight=broadcastable#theano.tensor.TensorType.broadcastable) at the symbolic level.
 
-More specifically, broadcast information is required during the construction of a
-Theano src_python[]{TensorType}, so PyMC3 random variable types can be
-inconsistent (unnecessarily restrictive, really) causing Theano to complain when
-we try to construct a src_python[]{FunctionGraph}.
+More specifically, broadcast information is required during the construction of a Theano `TensorType`, so PyMC3 random variable types can be inconsistent (unnecessarily restrictive, really) causing Theano to complain when we try to construct a `FunctionGraph`.
 
-#+HTML: <div class="example" markdown="">
-Consider the following example; it constructs two purely symbolic
-Theano vectors: one with broadcasting and one without.
-#+ATTR_LATEX: :float t :placement h
-#+BEGIN_SRC python
+<div class="example" markdown="">
+
+Consider the following example; it constructs two purely symbolic Theano vectors: one with broadcasting and one without.
+
+```{.python}
 y_tt = tt.row('y')
 print("y_tt.broadcastable = {}".format(y_tt.broadcastable))
 x_tt = tt.matrix('x')
 print("x_tt.broadcastable = {}".format(x_tt.broadcastable))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 y_tt.broadcastable = (True, False)
 x_tt.broadcastable = (False, False)
 
 
-#+END_SRC
-Notice that it--by default--signifies no broadcasting on its first and only
-dimension.
+```
 
-If we wish--or if [[http://deeplearning.net/software/theano/library/config.html#config.compute_test_value][Theano's configuration demands]] it--we can assign the
-symbolic vector arbitrary test values, as long as they're consistent with its
-type (i.e. a vector, or 1-dimensional array).
+Notice that it&#x2013;by default&#x2013;signifies no broadcasting on its first and only dimension.
 
-In the following, we assign both a broadcastable (i.e. first--and only--dimension has
-size 1) and non-broadcastable test value.
+If we wish&#x2013;or if [Theano's configuration demands](http://deeplearning.net/software/theano/library/config.html#config.compute_test_value) it&#x2013;we can assign the symbolic vector arbitrary test values, as long as they're consistent with its type (i.e. a vector, or 1-dimensional array).
+
+In the following, we assign both a broadcastable (i.e. first&#x2013;and only&#x2013;dimension has size 1) and non-broadcastable test value.
 
 Test value is broadcastable:
-#+BEGIN_SRC python
+
+```{.python}
 x_tt.tag.test_value = np.array([[5]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))
@@ -664,18 +539,17 @@ try:
     print("shape checks out!")
 except TypeError as e:
     print(str(e))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 test_value.broadcastable = (True, True)
 x_tt.broadcastable = (False, False)
 shape checks out!
 
 
-#+END_SRC
+```
 
-#+BEGIN_SRC python
+```{.python}
 y_tt.tag.test_value = np.array([[5]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))
@@ -687,20 +561,19 @@ try:
     print("shape checks out!")
 except TypeError as e:
     print(str(e))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 test_value.broadcastable = (True, True)
 y_tt.broadcastable = (True, False)
 shape checks out!
 
 
-#+END_SRC
+```
 
+Test value is **not** broadcastable:
 
-Test value is *not* broadcastable:
-#+BEGIN_SRC python
+```{.python}
 x_tt.tag.test_value = np.array([[5, 4]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))
@@ -712,18 +585,17 @@ try:
     print("shape checks out!")
 except TypeError as e:
     print(str(e))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 test_value.broadcastable = (True, False)
 x_tt.broadcastable = (False, False)
 shape checks out!
 
 
-#+END_SRC
+```
 
-#+BEGIN_SRC python
+```{.python}
 y_tt.tag.test_value = np.array([[5, 4], [3, 2]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))
@@ -735,10 +607,9 @@ try:
     print("shape checks out!")
 except TypeError as e:
     print(str(e))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 test_value.broadcastable = (False, False)
 y_tt.broadcastable = (True, False)
 For compute_test_value, one input test value does not have the requested type.
@@ -768,28 +639,20 @@ Non-unit value on shape on a broadcastable dimension.
 (True, False)
 
 
-#+END_SRC
+```
 
-Simply put: non-broadcastable Theano tensor variable types can take
-broadcastable and non-broadcastable values, while broadcastable types can only
-take broadcastable values.
+Simply put: non-broadcastable Theano tensor variable types can take broadcastable and non-broadcastable values, while broadcastable types can only take broadcastable values.
 
-#+HTML: </div>
+</div>
 
-What we can take from the example above is that if we determine that a vector
-has broadcastable dimensions using test values--as PyMC3 does--we unnecessarily
-introduce restrictions and potential inconsistencies down the line.
-One point of origin for such issues is *shared variables*.
+What we can take from the example above is that if we determine that a vector has broadcastable dimensions using test values&#x2013;as PyMC3 does&#x2013;we unnecessarily introduce restrictions and potential inconsistencies down the line. One point of origin for such issues is **shared variables**.
 
-* Optimizations Using src_python[]{RandomVariable}
 
-With our new src_python[]{RandomVariable}, we can alter the replacement patterns
-used by src_python[]{tt.gof.opt.PatternSub} in
-[[cite:WillardSymbolicMathPyMC32018]] and implement a slightly better parameter
-lifting for affine transforms of scalar normal random variables.
+# Optimizations Using `RandomVariable`
 
-#+NAME: rv_optimizations
-#+BEGIN_SRC python
+With our new `RandomVariable`, we can alter the replacement patterns used by `tt.gof.opt.PatternSub` in <sup id="24875a2c31fa7f94ce562adddedc0bf8"><a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }">WillardSymbolicMathPyMC32018</a></sup> and implement a slightly better parameter lifting for affine transforms of scalar normal random variables.
+
+```{#rv_optimizations .python}
 # Create random variable constructors.
 NormalRV = RandomVariable('normal', 0, [0, 0], 'normal')
 MvNormalRV = RandomVariable('multivariate_normal', 1, [1, 2], 'multivariate_normal')
@@ -826,14 +689,11 @@ norm_lift_pats = [
 
 norm_lift_opts = tt.gof.opt.EquilibriumOptimizer(
     norm_lift_pats, max_use_ratio=10)
-#+END_SRC
+```
 
-#+HTML: <div class="example" markdown="">
+<div class="example" markdown="">
 
-#+ATTR_LATEX: :float nil
-#+CAPTION: Scaled normal random variable example using src_python[]{RandomVariable}.
-#+NAME: mat_mul_scaling_rv_exa
-#+BEGIN_SRC python
+```{#mat_mul_scaling_rv_exa .python}
 from theano.gof import FunctionGraph, Feature, NodeFinder
 from theano.gof.graph import inputs as tt_inputs, clone_get_equiv
 
@@ -865,25 +725,19 @@ _ = norm_lift_opts.optimize(Z_graph_opt)
 
 print('Before: {}'.format(tt.pprint(Z_graph.outputs[0])))
 print('After: {}'.format(tt.pprint(Z_graph_opt.outputs[0])))
-#+END_SRC
+```
 
-#+RESULTS: mat_mul_scaling_rv_exa
-#+BEGIN_SRC text
+```{.text}
 Before: ((TensorConstant{5} * normal_rv(<RandomStateType>, TensorConstant{[]}, mu_X, sd_X)) + TensorConstant{(1,) of 5.0})
 After: normal_rv(<RandomStateType>, TensorConstant{[]}, ((TensorConstant{5} * mu_X) + TensorConstant{(1,) of 5.0}), (TensorConstant{5} * sd_X))
 
 
-#+END_SRC
+```
 
-#+HTML: </div>
+</div>
 
-:TODO:
-- What about division and subtraction?  These can be addressed using
-canonicalization?
-:END:
+Now, what if we wanted to handle affine transformations of a multivariate normal random variable? Specifically, consider implementing the following:
 
-Now, what if we wanted to handle affine transformations of a multivariate normal
-random variable?  Specifically, consider implementing the following:
 \begin{equation*}
   X \sim N\left(\mu, \Sigma \right), \quad
   A X \sim N\left(A \mu, A \Sigma A^\top \right)
@@ -891,8 +745,8 @@ random variable?  Specifically, consider implementing the following:
 \end{equation*}
 
 At first, the following substitution pattern might seem reasonable:
-#+ATTR_LATEX: :float t :placement h
-#+BEGIN_SRC python
+
+```{.python}
 # Vector multiplication
 tt.gof.opt.PatternSub(
     (tt.dot,
@@ -907,29 +761,26 @@ tt.gof.opt.PatternSub(
       (tt.dot, 'A_x', 'cov_x')
       (tt.transpose, 'A_x')),
     ))
-#+END_SRC
+```
 
-Unfortunately, the combination of size parameter and broadcasting complicates
-the scenario.  Both parameters indirectly affect the distribution parameters,
-making the un-lifted dot-product consistent, but not necessarily the lifted products.
+Unfortunately, the combination of size parameter and broadcasting complicates the scenario. Both parameters indirectly affect the distribution parameters, making the un-lifted dot-product consistent, but not necessarily the lifted products.
 
-The following example demonstrates the lifting issues brought on by
-broadcasting.
+The following example demonstrates the lifting issues brought on by broadcasting.
 
-#+HTML: <div class="example" markdown="">
+<div class="example" markdown="">
+
 First, we create a simple multivariate normal.
-#+ATTR_LATEX: :float t :placement h
-#+BEGIN_SRC python
+
+```{.python}
 mu_X = [0, 10]
 cov_X = np.diag([1, 1e-2])
 size_X_rv = [2, 3]
 X_rv = MvNormalRV(mu_X, cov_X, size=size_X_rv)
 
 print('X_rv sample:\n{}\n'.format(X_rv.tag.test_value))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 X_rv sample:
 [[[-0.49226543  9.98771301]
   [-0.22713441 10.00124952]
@@ -940,10 +791,11 @@ X_rv sample:
   [ 1.25295917 10.09953858]]]
 
 
-#+END_SRC
+```
 
 Next, we create a simple matrix operator to apply to the multivariate normal.
-#+BEGIN_SRC python
+
+```{.python}
 A_tt = tt.as_tensor_variable([[2, 5, 8], [3, 4, 9]])
 # or A_tt = tt.as_tensor_variable([[2, 5, 8]])
 
@@ -951,10 +803,9 @@ A_tt = tt.as_tensor_variable([[2, 5, 8], [3, 4, 9]])
 E_X_rv = X_rv.owner.inputs[2]
 
 print('A * X_rv =\n{}\n'.format(tt.dot(A_tt, X_rv).tag.test_value))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 A * X_rv =
 [[[  7.60818207 150.2910632 ]
   [ 19.60611837 150.36836345]]
@@ -963,39 +814,34 @@ A * X_rv =
   [ 21.20721252 160.53188091]]]
 
 
-#+END_SRC
+```
 
-As we can see, the multivariate normal's test/sampled value has the correct
-shape for our matrix operator.
+As we can see, the multivariate normal's test/sampled value has the correct shape for our matrix operator.
 
-#+BEGIN_SRC python
+```{.python}
 import traceback
 try:
     print('A * E[X_rv] =\n{}\n'.format(tt.dot(A_tt, E_X_rv).tag.test_value))
 except ValueError as e:
     print("".join(traceback.format_exception_only(type(e), e)))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 ValueError: shapes (2,3) and (2,) not aligned: 3 (dim 1) != 2 (dim 0)
 
 
-#+END_SRC
+```
 
-However, we see that the multivariate normal's inputs (i.e. the src_python[]{Op}
-inputs)--specifically the mean parameter--do not directly reflect the support's
-shape, as intuitively would suggest.
+However, we see that the multivariate normal's inputs (i.e. the `Op` inputs)&#x2013;specifically the mean parameter&#x2013;do not directly reflect the support's shape, as intuitively would suggest.
 
-#+BEGIN_SRC python
+```{.python}
 size_tile = tuple(size_X_rv) + (1,)
 E_X_rv_ = tt.tile(E_X_rv, size_tile, X_rv.ndim)
 
 print('A * E[X_rv] =\n{}\n'.format(tt.dot(A_tt, E_X_rv_).tag.test_value))
-#+END_SRC
+```
 
-#+RESULTS:
-#+BEGIN_SRC python
+```{.python}
 A * E[X_rv] =
 [[[  0 150]
   [  0 150]]
@@ -1004,75 +850,21 @@ A * E[X_rv] =
   [  0 160]]]
 
 
-#+END_SRC
+```
 
-We can manually replicate the inputs so that they match the output shape, but
-a solution to the general problem requires a more organized response.
+We can manually replicate the inputs so that they match the output shape, but a solution to the general problem requires a more organized response.
 
-#+HTML: </div>
+</div>
 
-:TESTING:
-#+BEGIN_SRC python
-def replicate_expr(param, rep_size, dist_op, param_idx):
-    return tt.tile(param, tuple(rep_size) + (1,), dist_op.ndims_params[param_idx] + len(rep_size))
 
-mvnorm_lift_pats = tt.gof.opt.PatternSub(
-    (tt.dot,
-     'A_x',
-     (MvNormalRV, 'rs_x', 'size_x', 'mu_x', 'cov_x')),
-    (construct_rv,
-     MvNormalRV,
-     'rs_x',
-     'size_x',
-     (tt.dot, 'A_x',
-      (replicate_expr, 'mu_x', 'size_x', MvNormalRV, 0)),
-     (tt.dot,
-      (tt.dot, 'A_x',
-       (replicate_expr, 'cov_x', 'size_x', MvNormalRV, 1)),
-      (tt.transpose, 'A_x'))),
-)
-
-mvnorm_lift_opts = tt.gof.opt.EquilibriumOptimizer(
-    [ mvnorm_lift_pats ], max_use_ratio=10)
-
-mu_X = [0, 10]
-cov_X = np.diag([1, 1e-2])
-X_rv = MvNormalRV(mu_X, cov_X, size=[2, 3])
-
-A_tt = tt.as_tensor_variable([[2, 5, 8], [3, 4, 9]])
-
-Z_rv = tt.dot(A_tt, X_rv)
-
-Z_graph = FunctionGraph(tt_inputs([Z_rv]), [Z_rv])
-
-tt.printing.debugprint(Z_graph)
-
-Z_graph_opt = Z_graph.clone()
-
-# This won't work because `tt.dot` uses `tensor_dot`, which does some
-# reshaping and dim-shuffling.
-# We need to account for those, as well.
-# TODO: We need to implement something like `local_dimshuffle_lift` for some RVs.
-_ = mvnorm_lift_opts.optimize(Z_graph_opt)
-
-tt.printing.debugprint(Z_graph_opt)
-#+END_SRC
-:END:
-
-* Discussion
+# Discussion
 
 In a follow-up, we'll address a few loose ends, such as
-- the inclusion of density functions and likelihoods,
-- decompositions/reductions of overlapping multivariate types
-  (e.g. transforms between tensors of univariate normals and equivalent
-  multivariate normals),
-- canonicalization of graphs containing src_python{RandomVariable} terms,
-- and optimizations that specifically benefit MCMC schemes (e.g. automatic conversion to scale
-  mixture decompositions that improve sampling/covariance structure).
 
-:TODO:
-Talk about src_python[]{supp_shape_fn}.
-:END:
+-   the inclusion of density functions and likelihoods,
+-   decompositions/reductions of overlapping multivariate types (e.g. transforms between tensors of univariate normals and equivalent multivariate normals),
+-   canonicalization of graphs containing `RandomVariable` terms,
+-   and optimizations that specifically benefit MCMC schemes (e.g. automatic conversion to scale mixture decompositions that improve sampling/covariance structure).
 
-#+BIBLIOGRAPHY: ../tex/symbolic-pymc3.bib
-#+BIBLIOGRAPHYSTYLE: plainnat
+# Bibliography
+<a id="WillardSymbolicMathPyMC32018"></a>[WillardSymbolicMathPyMC32018] Willard, Symbolic Math in PyMC3, <i></i>, (2018). <a href="https://brandonwillard.github.io/symbolic-math-in-pymc3.html">link</a>. [↩](#24875a2c31fa7f94ce562adddedc0bf8)

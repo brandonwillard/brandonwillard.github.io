@@ -66,7 +66,7 @@ The Python objects representing terms in \(\eqref{eq:norm_conv_model}\) are `X_r
 
 Other aspects of the model are implicitly stored in the [Python context object](https://docs.python.org/3.6/reference/compound_stmts.html#with) `conv_model`. For example, the context object tracks the model's log likelihood function when some variables are designated as "observed"&#x2013;i.e. associated with sample data. In this example, we haven't specified an observed variable, so the context object won't be immediately useful.
 
-<div class="remark" markdown="" env-number="1">
+<div class="remark" markdown="">
 
 In what follows, we'll briefly introduce the internal aspects of PyMC3 that are immediately relevant for the topics addressed here; otherwise, see [the PyMC3 developer's guide](https://docs.pymc.io/developer_guide.html) for an explanation of its design and internal workings.
 
@@ -149,7 +149,7 @@ One way to produce graphs that represent the full probabilistic model is to form
 
 Nonetheless, using `RandomFunction`, we can replace nodes corresponding to PyMC3 random variables with newly constructed `Op` nodes.
 
-<div class="example" markdown="" env-number="1">
+<div class="example" markdown="">
 
 We can produce the types of graphs described above through conversion of existing PyMC3 models.
 
@@ -418,7 +418,7 @@ To apply optimizations like our simple convolution, we need to first identify th
 
 Theano provides some [unification](https://en.wikipedia.org/wiki/Unification_(computer_science)) tools that facilitate the search component. We'll use those to implement an extremely restrictive form of our convolution.
 
-<div class="example" markdown="" env-number="2">
+<div class="example" markdown="">
 
 In [normal_conv_pattern](#normal_conv_pattern), we create patterns for our expressions of interest that are unified against the elements in our graph and reified with a replacement expression. The patterns are expressed as tuples in a LISP-like fashion, e.g. `(add, 1, 2)` corresponding to an unevaluated `add(1, 2)`.
 

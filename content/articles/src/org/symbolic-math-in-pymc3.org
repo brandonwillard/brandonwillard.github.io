@@ -117,7 +117,7 @@ tracks the model's log likelihood function when some variables are designated as
 specified an observed variable, so the context object won't be immediately
 useful.
 
-#+HTML: <div class="remark" markdown="" env-number="1">
+#+HTML: <div class="remark" markdown="">
 In what follows, we'll briefly introduce the internal aspects of PyMC3 that are
 immediately relevant for the topics addressed here; otherwise, see [[https://docs.pymc.io/developer_guide.html][the PyMC3
 developer's guide]] for an explanation of its design and internal workings.
@@ -302,7 +302,7 @@ Nonetheless, using src_python[:eval never]{RandomFunction}, we can replace nodes
 corresponding to PyMC3 random variables with newly
 constructed src_python[:eval never]{Op} nodes.
 
-#+HTML: <div class="example" markdown="" env-number="1">
+#+HTML: <div class="example" markdown="">
 We can produce the types of graphs described above through conversion of
 existing PyMC3 models.
 
@@ -633,7 +633,7 @@ sub-graphs for which we are able to replace existing nodes with a convolution no
 Theano provides some [[https://en.wikipedia.org/wiki/Unification_(computer_science)][unification]] tools that facilitate the search component.
 We'll use those to implement an extremely restrictive form of our convolution.
 
-#+HTML: <div class="example" markdown="" env-number="2">
+#+HTML: <div class="example" markdown="">
 
 In [[ref:normal_conv_pattern]], we create patterns for our expressions of interest
 that are unified against the elements in our graph and reified with a

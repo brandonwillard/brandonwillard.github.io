@@ -20,7 +20,7 @@ In the past few months, I've been working on [Hy](https://github.com/hylang/hy) 
 
 One feature I've been missing the most is "readable" print-outs from the REPL. In this case, "readable" means "a string that can be `eval`'ed to [re-]produce the object it's meant to represent". [Python calls the function(s) that produce these strings "`repr`"s](https://docs.python.org/3/library/functions.html#repr) and provides a generic `repr` function&#x2013;with limited Python "readability" guarantees&#x2013;and a `__repr__` property for object/class-level customization.
 
-<div class="example" markdown="" env-number="1">
+<div class="example" markdown="">
 
 ```python
 test_obj = {"a": 1, "b": [2, 3]}
@@ -66,7 +66,7 @@ The latter seems like it has the potential to be more thorough and far-reaching,
 
 Fortunately, the latter is unnecessary, because, when the existing `repr` output is Python readable, it can be parsed by `ast.parse`. The function `ast.parse` effectively handles the regex work and yields the bulk of information needed for a Hy `repr` string: the function name and its (positional and keyword) arguments.
 
-<div class="example" markdown="" env-number="2">
+<div class="example" markdown="">
 
 Let's say we implement our own object and `repr`.
 
@@ -120,7 +120,7 @@ In this scenario, we need only be concerned with the conversion of Python AST in
 
 On the down-side, if a Hy `repr` implementation overrides the built-in `repr`, then arguments in existing `repr`/`__repr__`s might already be converted by the overridden `repr`; however, the results from `ast.parse` will undo/discard those results. Even so, custom class `__repr__`s aren't guaranteed to use the built-in `repr` on their arguments, so attempts to salvage already-converted `repr` output are undeniably fraught with complications.
 
-<div class="example" markdown="" env-number="3">
+<div class="example" markdown="">
 
 Working from the `repr`-produced AST above, I mocked-up a quick prototype for a generic Python-to-Hy conversion function.
 

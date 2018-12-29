@@ -94,7 +94,7 @@ PANDOC_ARGS = ['-s', '--mathjax', '--section-divs',
                ]
 PANDOC_EXTENSIONS = ['+old_dashes', '+yaml_metadata_block', '+raw_tex',
                      '+auto_identifiers', '+tex_math_single_backslash',
-                     '+link_attributes']
+                     '+link_attributes', '+fenced_code_attributes']
 PANDOC_FILTERS = ['pandoc-citeproc']
 
 DELETE_OUTPUT_DIRECTORY = True

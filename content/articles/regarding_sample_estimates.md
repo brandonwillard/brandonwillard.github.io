@@ -287,7 +287,7 @@ plt.show()
 
 <span id="fig:hourly_ppc_plot"><span id="fig:hourly_ppc_plot_span" style="display:none;visibility:hidden">$$\begin{equation}\tag{2}\label{fig:hourly_ppc_plot}\end{equation}$$</span>![Posterior predictive samples<span data-label="fig:hourly_ppc_plot"></span>]({attach}/articles/figures/regarding_sample_estimates_hourly_ppc_plot_1.png "fig:"){width="\textwidth"}</span>
 
-<div class="example" markdown="" env-number="1" title-name="">
+<div class="example" markdown="" title-name="">
 
 Let’s say we’re interested in daily, monthly, or yearly averages for $Y_t$ at a lower frequency–like minutes or hours. Similarly, we might want to consider functions of differences between the outputs of different models, $f(Y^{(j)} - Y^{(k)})$ for $j, k \in \{1, 2\}$, or more generally $f(Y^{(j)}, Y^{(k)})$. These quantities derived from simple manipulations of `ppc_hpd`.
 
@@ -332,7 +332,7 @@ Even though we only considered “in-sample” predictions in the previous secti
 
 Nearly every instance of such imputations gives rise to an implicit model. Going back to our preference for transparent statistical specification, it behooves us to formally specify the model. If we do so in a well-defined Bayes way, then we’re immediately provided the exact same conveniences as above.
 
-<div id="ex:X_temp" class="example" markdown="" env-number="2" title-name="">
+<div id="ex:X_temp" class="example" markdown="" title-name="">
 
 <span id="ex:X_temp_span" style="display:none;visibility:hidden">$$\begin{equation}\tag{2}\label{ex:X_temp}\end{equation}$$</span>
 
@@ -350,7 +350,7 @@ The kinds of complicated models arising in these situations are both conceptuall
 
 In contrast, we can model the $x_t$ values directly and have a very clear cut path toward out-of-sample predictions and their distributional properties. Even if we hold to the belief that the previous average values are a reasonable imputation, then a number of simple models can account for that assumption.
 
-<div id="ex:prior_extension" class="example" markdown="" env-number="3" title-name="">
+<div id="ex:prior_extension" class="example" markdown="" title-name="">
 
 <span id="ex:prior_extension_span" style="display:none;visibility:hidden">$$\begin{equation}\tag{3}\label{ex:prior_extension}\end{equation}$$</span>
 
@@ -381,7 +381,7 @@ The change in our complete model is relatively minimal. The model above for $X$ 
 
 The reduction in Example $\ref{ex:prior_extension}$ is quite reasonable and could be considered an entire re-definition of our initial observation model in Equation $\eqref{eq:normal-normal}$. A change like this is a natural part of the standard model development cycle. However, this is not the only way to look at it. In the Bayesian setting we can keep the observation model fixed and iterate on the prior’s specification. The resulting marginal distribution could effectively be the same under both approaches (if desired), but the latter has the advantage of at least maintaining–conditionally–our earlier work.
 
-<div class="example" markdown="" env-number="4" title-name="">
+<div class="example" markdown="" title-name="">
 
 We haven’t given a prior to $\beta$, but if we did, in the absence of conflicting assumptions, we might want the product $\beta \cdot \theta$ to simplified to a single unknown variables of its own, so that we’re not estimating two “entangled” variables. This idea might be inspired by an understanding of the classical [identification](https://en.wikipedia.org/wiki/Parameter_identification_problem) issue arising from such products.
 

@@ -98,7 +98,7 @@ The Proximal Context
 
 We start with the essential ingredient: the proximal operator.
 
-<div class="Def" markdown="" env-number="1" title-name="[Proximal Operator]">
+<div class="Def" markdown="" title-name="[Proximal Operator]">
 
 $$\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
@@ -164,7 +164,7 @@ logl.name = "logl"
 
 Instead, let’s assume we’re extending `find_MAP` with even more generality, so that we can’t determine $l$ and $\phi$ in this way. This situation can occur when a user specifies custom distributions or potential functions. Regardless, we need to operate at a more symbolic level.
 
-<div class="remark" markdown="" env-number="1" title-name="">
+<div class="remark" markdown="" title-name="">
 
 At this point, it is extremely worthwhile to browse the [Theano documentation](http://deeplearning.net/software/theano/extending/graphstructures.html) regarding graphs and their constituent objects.
 
@@ -319,7 +319,7 @@ The appropriate computational tools are found in the subjects of graph unificati
 
 Many standard algebraic simplifications are already present in Theano, and, by creating our own graph optimizations, we can provide the advanced functionality we’ve been alluding to.
 
-<div class="example" markdown="" env-number="1" title-name="[Algebraic Graph Optimization]">
+<div class="example" markdown="" title-name="[Algebraic Graph Optimization]">
 
 As a quick demonstration, we’ll make replacement patterns for multiplicative distribution across two forms of addition: `sum` and `add`.
 
@@ -421,7 +421,7 @@ Even more symbolic capabilities might be needed to [efficiently] achieve the fun
 
 Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the `hessian` function, and within `theano.sandbox.linalg` are `Optimizer` hints for matrix positivity and other properties relevant to determining convexity.
 
-<div class="remark" markdown="" env-number="2" title-name="">
+<div class="remark" markdown="" title-name="">
 
 Other great examples of linear algebra themed optimizations are in `theano.sandbox.linalg`: for instance, `no_transpose_symmetric`. Some of these demonstrate exactly how straight-forward adding algebraic features can be.
 

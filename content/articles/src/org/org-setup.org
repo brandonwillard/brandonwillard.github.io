@@ -125,6 +125,25 @@
     (funcall old-fun link contents info)))
 
 (advice-add #'org-md-link :around #'btw--org-md-link)
+
+
+(defun btw--org-gfm-src-block (old-fun src-block contents info)
+  "Allow attributes (only name, for now) in fenced code block definitions.
+
+E.g., '```{#block-name .python}'
+
+For Pandoc, use with 'fenced_code_attributes'
+"
+  (let* ((lang (org-element-property :language src-block))
+         (code (org-export-format-code-default src-block info))
+         (name (org-element-property :name src-block))
+         (prefix (if name
+                     (concat "```{#" name " ." lang "}\n")
+                   (concat "```{." lang "}\n")))
+         (suffix "```"))
+    (concat prefix code suffix)))
+
+(advice-add #'org-gfm-src-block :around #'btw--org-gfm-src-block)
 #+END_SRC
 
 #+NAME: org-publish-modifications
