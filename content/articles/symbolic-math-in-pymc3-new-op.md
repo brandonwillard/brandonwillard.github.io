@@ -4,7 +4,7 @@ bibliography:
 modified: '2018-12-28'
 tags: 'pymc3,theano,statistics,symbolic computation,python,probability theory'
 title: Random Variables in Theano
-date: '2018-12-18'
+date: '2018-12-28'
 author: 'Brandon T. Willard'
 figure_dir: '{attach}/articles/figures/'
 figure_ext: png

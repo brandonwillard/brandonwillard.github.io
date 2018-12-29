@@ -1,6 +1,6 @@
 #+TITLE: Random Variables in Theano
 #+AUTHOR: Brandon T. Willard
-#+DATE: 2018-12-18
+#+DATE: 2018-12-28
 #+EMAIL: brandonwillard@gmail.com
 #+FILETAGS: :pymc3:theano:statistics:symbolic computation:python:probability theory:
 
