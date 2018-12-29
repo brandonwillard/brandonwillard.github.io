@@ -265,7 +265,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="the-proximal-context" class="level1">
 <h1>The Proximal Context</h1>
 <p>We start with the essential ingredient: the proximal operator.</p>
-<div class="Def" data-markdown="" data-env-number="1" data-title-name="[Proximal Operator]">
+<div class="Def" data-markdown="" data-title-name="[Proximal Operator]">
 <p><span class="math display">\[\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
     \operatorname*{argmin}_{z} \left\{
@@ -310,7 +310,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb7-4" title="4">                {beta_rv: beta_tt})</a>
 <a class="sourceLine" id="cb7-5" title="5">logl.name <span class="op">=</span> <span class="st">&quot;logl&quot;</span></a></code></pre></div>
 <p>Instead, let’s assume we’re extending <code>find_MAP</code> with even more generality, so that we can’t determine <span class="math inline">\(l\)</span> and <span class="math inline">\(\phi\)</span> in this way. This situation can occur when a user specifies custom distributions or potential functions. Regardless, we need to operate at a more symbolic level.</p>
-<div class="remark" data-markdown="" data-env-number="1" data-title-name="">
+<div class="remark" data-markdown="" data-title-name="">
 <p>At this point, it is extremely worthwhile to browse the <a href="http://deeplearning.net/software/theano/extending/graphstructures.html">Theano documentation</a> regarding graphs and their constituent objects.</p>
 </div>
 <p>The total log-likelihood is a good place to start. Let’s look at the symbolic graph for the log-likelihood of our model.</p>
@@ -435,7 +435,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The appropriate computational tools are found in the subjects of graph unification and term rewriting, as well as the areas of functional and logic programming. Luckily, Theano provides some basic unification capabilities through its <code>PatternSub</code> class.</p>
 <p><code>PatternSub</code> works within the context of Theano <a href="http://deeplearning.net/software/theano/optimizations.html">graph optimization</a>. Graph optimizations perform the common symbolic operations of reduction/simplification and rewriting. Consider the <code>phi</code> variable; the print-outs show an unnecessary subtraction with <span class="math inline">\(0\)</span>. Clearly this step is unnecessary, so–in a basic way–we can see that the graph hasn’t been simplified, yet.</p>
 <p>Many standard algebraic simplifications are already present in Theano, and, by creating our own graph optimizations, we can provide the advanced functionality we’ve been alluding to.</p>
-<div class="example" data-markdown="" data-env-number="1" data-title-name="[Algebraic Graph Optimization]">
+<div class="example" data-markdown="" data-title-name="[Algebraic Graph Optimization]">
 <p>As a quick demonstration, we’ll make replacement patterns for multiplicative distribution across two forms of addition: <code>sum</code> and <code>add</code>.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1">test_a_tt <span class="op">=</span> tt.as_tensor_variable(<span class="dv">5</span>, name<span class="op">=</span><span class="st">&#39;a&#39;</span>)</a>
 <a class="sourceLine" id="cb14-2" title="2">test_b_tt <span class="op">=</span> tt.as_tensor_variable(<span class="dv">2</span>, name<span class="op">=</span><span class="st">&#39;b&#39;</span>)</a>
@@ -515,7 +515,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>Even more symbolic capabilities might be needed to [efficiently] achieve the functionality we desire. Standalone libraries like SymPy and <a href="https://github.com/logpy/logpy/">LogPy</a> can be adapted to Theano graphs and provide these capabilities–although direct implementation in Theano may be better.</p>
 <p>Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the <code>hessian</code> function, and within <code>theano.sandbox.linalg</code> are <code>Optimizer</code> hints for matrix positivity and other properties relevant to determining convexity.</p>
-<div class="remark" data-markdown="" data-env-number="2" data-title-name="">
+<div class="remark" data-markdown="" data-title-name="">
 <p>Other great examples of linear algebra themed optimizations are in <code>theano.sandbox.linalg</code>: for instance, <code>no_transpose_symmetric</code>. Some of these demonstrate exactly how straight-forward adding algebraic features can be.</p>
 </div>
 <p>Although our convexity testing idea is far too simple for some functions, the point is that the basic tools necessary for work in this direction are already in place. With the logic programming and symbolic libraries mentioned earlier, a robust implementation of the convex function calculus could be very much in reach.</p>

@@ -110,6 +110,10 @@ Brandon T. Willard            </a>
     <span class="published">
         <i class="fa fa-calendar"></i><time datetime="2018-12-20T00:00:00-06:00"> Thu 20 December 2018</time>
     </span>
+          <span class="label label-default">Modified</span>
+            <span class="modified">
+                <i class="fa fa-calendar"></i><time datetime="2018-12-23T00:00:00-06:00"> Sun 23 December 2018</time>
+            </span>
 
 
 
@@ -218,7 +222,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1>Introduction</h1>
 <p>In the past few months, I’ve been working on <a href="https://github.com/hylang/hy">Hy</a> a lot. It’s been great for translating symbolic computation ideas originating in the Lisp community or simply performing the generic meta-programming inherent to the subject.</p>
 <p>One feature I’ve been missing the most is “readable” print-outs from the REPL. In this case, “readable” means “a string that can be <code>eval</code>’ed to [re-]produce the object it’s meant to represent”. <a href="https://docs.python.org/3/library/functions.html#repr">Python calls the function(s) that produce these strings “<code>repr</code>”s</a> and provides a generic <code>repr</code> function–with limited Python “readability” guarantees–and a <code>__repr__</code> property for object/class-level customization.</p>
-<div class="example" data-markdown="" data-env-number="1">
+<div class="example" data-markdown="">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1">test_obj <span class="op">=</span> {<span class="st">&quot;a&quot;</span>: <span class="dv">1</span>, <span class="st">&quot;b&quot;</span>: [<span class="dv">2</span>, <span class="dv">3</span>]}</a>
 <a class="sourceLine" id="cb1-2" title="2"></a>
 <a class="sourceLine" id="cb1-3" title="3"><span class="co"># Produce a readable string using `repr`</span></a>
@@ -247,7 +251,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The first few things that come to mind when considering a more general approach to Python-to-Hy <code>__repr__</code> translation involve some use of the existing <code>repr</code> code. That might come in the form of string manipulation of <code>repr</code> output, which <code>hy.contrib.hy-repr</code> already does in some cases, or quite possibly some use of a <code>repr</code> function’s source or code object.</p>
 <p>The latter seems like it has the potential to be more thorough and far-reaching, but also considerably more involved and computationally inefficient. Unfortunately, similar things can be said about the regex approach. Although it does seem a little easier to implement and–for limited cases–efficient enough for most purposes, it also comes across as much more brittle.</p>
 <p>Fortunately, the latter is unnecessary, because, when the existing <code>repr</code> output is Python readable, it can be parsed by <code>ast.parse</code>. The function <code>ast.parse</code> effectively handles the regex work and yields the bulk of information needed for a Hy <code>repr</code> string: the function name and its (positional and keyword) arguments.</p>
-<div class="example" data-markdown="" data-env-number="2">
+<div class="example" data-markdown="">
 <p>Let’s say we implement our own object and <code>repr</code>.</p>
 <pre class="hy"><code>(defclass TestClass [object]
   (defn --init-- [self arg1 arg2 &amp;optional kwarg1 kwarg2]
@@ -283,7 +287,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>With existing <code>repr</code> output converted to Python AST by Python itself (using <code>ast.parse</code>), we can produce readable Hy strings from the resulting AST objects.</p>
 <p>In this scenario, we need only be concerned with the conversion of Python AST into readable Hy strings. This works like an inverse to the Hy compiler: in other words, a Hy decompiler. For <code>repr</code> purposes, only function call statements and their arguments need to be decompiled. Unfortunately, function arguments can consist of arbitrary Python/Hy objects, and that’s how the decompilation responsibilities start to expand. If we limit our scope to a reasonable subset of Python builtins/primitives, the results can still be quite effective, and won’t require a complete decompiler.</p>
 <p>On the down-side, if a Hy <code>repr</code> implementation overrides the built-in <code>repr</code>, then arguments in existing <code>repr</code>/<code>__repr__</code>s might already be converted by the overridden <code>repr</code>; however, the results from <code>ast.parse</code> will undo/discard those results. Even so, custom class <code>__repr__</code>s aren’t guaranteed to use the built-in <code>repr</code> on their arguments, so attempts to salvage already-converted <code>repr</code> output are undeniably fraught with complications.</p>
-<div class="example" data-markdown="" data-env-number="3">
+<div class="example" data-markdown="">
 <p>Working from the <code>repr</code>-produced AST above, I mocked-up a quick prototype for a generic Python-to-Hy conversion function.</p>
 <pre class="hy"><code>(import ast)
 (import builtins)

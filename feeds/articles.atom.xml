@@ -1,5 +1,796 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - articles</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/articles.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2018-12-23T00:00:00-06:00</updated><entry><title>Readable Strings and Relational Programming in Hy</title><link href="https://brandonwillard.github.io/readable-strings-and-relational-programming-in-hy.html" rel="alternate"></link><published>2018-12-20T00:00:00-06:00</published><updated>2018-12-23T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-20:/readable-strings-and-relational-programming-in-hy.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - articles</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/articles.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2018-12-28T00:00:00-06:00</updated><entry><title>Random Variables in Theano</title><link href="https://brandonwillard.github.io/random-variables-in-theano.html" rel="alternate"></link><published>2018-12-28T00:00:00-06:00</published><updated>2018-12-28T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-28:/random-variables-in-theano.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+  &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
+  &lt;meta http-equiv="Content-Style-Type" content="text/css" /&gt;
+  &lt;meta name="generator" content="pandoc" /&gt;
+  &lt;meta name="author" content="Brandon T. Willard" /&gt;
+  &lt;title&gt;Random Variables in Theano&lt;/title&gt;
+  &lt;style type="text/css"&gt;code{white-space: pre;}&lt;/style&gt;
+  &lt;style type="text/css"&gt;
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  &lt;/style&gt;
+  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;div id="header"&gt; --&gt;
+&lt;!-- &lt;h1 class="title"&gt;Random Variables in Theano&lt;/h1&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;h2 class="author"&gt;Brandon T. Willard&lt;/h2&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;h3 class="date"&gt;2018–12–28&lt;/h3&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;/div&gt; --&gt;
+&lt;!--  --&gt;
+&lt;div class="abstract"&gt;
+&lt;p&gt;Continuing from &lt;sup id="24875a2c31fa7f94ce562adddedc0bf8"&gt;&lt;a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }"&gt;WillardSymbolicMathPyMC32018&lt;/a&gt;&lt;/sup&gt;, we’ll attempt to improve upon &lt;code&gt;RandomFunction&lt;/code&gt; and make a case for a similar &lt;code&gt;Op&lt;/code&gt; in PyMC3.&lt;/p&gt;
+&lt;/div&gt;
+&lt;section id="a-new-random-variable-op" class="level1"&gt;
+&lt;h1&gt;A &lt;strong&gt;new&lt;/strong&gt; Random Variable &lt;code&gt;Op&lt;/code&gt;&lt;/h1&gt;
+&lt;p&gt;We’ll call this new &lt;code&gt;Op&lt;/code&gt; &lt;code&gt;RandomVariable&lt;/code&gt;, since random variables are the abstraction we’re primarily targeting. &lt;code&gt;RandomVariable&lt;/code&gt; will provide the functionality of &lt;code&gt;Distribution&lt;/code&gt;, &lt;code&gt;FreeRV&lt;/code&gt; and &lt;code&gt;ObservedRV&lt;/code&gt;, and, by working at the &lt;code&gt;Op&lt;/code&gt; level, it will be much more capable of leveraging existing Theano functionality.&lt;/p&gt;
+&lt;p&gt;Specifically, by using the &lt;code&gt;Op&lt;/code&gt; interface, we’re able to do the following:&lt;/p&gt;
+&lt;ol type="1"&gt;
+&lt;li&gt;&lt;p&gt;Reduce/remove the need for an explicitly specified shape parameter.&lt;/p&gt;
+&lt;div class="example" data-markdown=""&gt;
+&lt;p&gt;For example, definitions like&lt;/p&gt;
+&lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb1-1" title="1"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; pm.Model():&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-2" title="2"&gt;    X_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;X_rv&amp;#39;&lt;/span&gt;, mu_X, sd&lt;span class="op"&gt;=&lt;/span&gt;sd_X, shape&lt;span class="op"&gt;=&lt;/span&gt;(&lt;span class="dv"&gt;1&lt;/span&gt;,))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;reduce to&lt;/p&gt;
+&lt;div class="sourceCode" id="cb2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb2-1" title="1"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; pm.Model():&lt;/a&gt;
+&lt;a class="sourceLine" id="cb2-2" title="2"&gt;    X_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;X_rv&amp;#39;&lt;/span&gt;, mu_X, sd&lt;span class="op"&gt;=&lt;/span&gt;sd_X)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;Random variable nodes created by an &lt;code&gt;Op&lt;/code&gt; automatically implement &lt;code&gt;Distribution.default&lt;/code&gt;/&lt;code&gt;Distribution.get_test_val&lt;/code&gt; functionality and remove the reliance on initial values during random variable instantiation. &lt;code&gt;Op&lt;/code&gt; automatically uses &lt;code&gt;Op.perform&lt;/code&gt;, which will draw a sample as a test value &lt;strong&gt;and&lt;/strong&gt; propagate it throughout the graph to derived/down-stream tensor variables.&lt;/li&gt;
+&lt;li&gt;Log-densities can be generated as secondary outputs of &lt;code&gt;Op.make_node&lt;/code&gt;, which removes the need for &lt;code&gt;Distribution.logp*&lt;/code&gt; methods.&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;pymc.distribution.draw_values&lt;/code&gt; and related methods are no longer necessary; their functionality is already covered within Theano’s existing graph machinery–in the same way as &lt;code&gt;pymc.distribution.Distribution.default/get_test_val&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The main points of entry in our &lt;code&gt;Op&lt;/code&gt;, are &lt;code&gt;Op.make_node&lt;/code&gt; and &lt;code&gt;Op.perform&lt;/code&gt;. &lt;code&gt;Op.make_node&lt;/code&gt; is used during symbolic graph creation and provides immediate access to the &lt;code&gt;Op&lt;/code&gt;’s symbolic inputs–serving a purpose similar to &lt;code&gt;Distribution.__init__&lt;/code&gt;. &lt;code&gt;Op.make_node&lt;/code&gt; is where shape inference tasks (e.g. &lt;a href="https://github.com/pymc-devs/pymc3/pull/1125"&gt;PyMC3 PR 1125&lt;/a&gt;) are more suitably addressed; however, &lt;code&gt;Op&lt;/code&gt; provides additional means of shape inference and management (e.g. &lt;code&gt;Op.infer_shape&lt;/code&gt;) occurring at different phases of graph compilation that aren’t readily accessible outside of the &lt;code&gt;Op&lt;/code&gt; framework.&lt;/p&gt;
+&lt;section id="implementation" class="level2"&gt;
+&lt;h2&gt;Implementation&lt;/h2&gt;
+&lt;div class="sourceCode" id="import_theano_pymc3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="import_theano_pymc3-1" title="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; sys&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-2" title="2"&gt;&lt;span class="im"&gt;import&lt;/span&gt; os&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-3" title="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-4" title="4"&gt;&lt;span class="im"&gt;from&lt;/span&gt; pprint &lt;span class="im"&gt;import&lt;/span&gt; pprint&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-5" title="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-6" title="6"&gt;&lt;span class="im"&gt;import&lt;/span&gt; numpy &lt;span class="im"&gt;as&lt;/span&gt; np&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-7" title="7"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-8" title="8"&gt;os.environ[&lt;span class="st"&gt;&amp;#39;MKL_THREADING_LAYER&amp;#39;&lt;/span&gt;] &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;GNU&amp;#39;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-9" title="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-10" title="10"&gt;&lt;span class="im"&gt;import&lt;/span&gt; theano&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-11" title="11"&gt;&lt;span class="im"&gt;import&lt;/span&gt; theano.tensor &lt;span class="im"&gt;as&lt;/span&gt; tt&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-12" title="12"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-13" title="13"&gt;theano.config.mode &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;FAST_COMPILE&amp;#39;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-14" title="14"&gt;theano.config.exception_verbosity &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;high&amp;#39;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-15" title="15"&gt;theano.config.compute_test_value &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;raise&amp;#39;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-16" title="16"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="import_theano_pymc3-17" title="17"&gt;&lt;span class="im"&gt;import&lt;/span&gt; pymc3 &lt;span class="im"&gt;as&lt;/span&gt; pm&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="supp_shape_fn"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="supp_shape_fn-1" title="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; collections.abc &lt;span class="im"&gt;import&lt;/span&gt; Iterable, ByteString&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-2" title="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; warnings &lt;span class="im"&gt;import&lt;/span&gt; warn&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-3" title="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; copy &lt;span class="im"&gt;import&lt;/span&gt; copy&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-4" title="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-5" title="5"&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano.tensor.raw_random &lt;span class="im"&gt;import&lt;/span&gt; (RandomFunction, RandomStateType,&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-6" title="6"&gt;                                      _infer_ndim_bcast)&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-7" title="7"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-8" title="8"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-9" title="9"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; matched_supp_shape_fn(ndim_supp, ndims_params, dist_params,&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-10" title="10"&gt;                          param_shapes&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;None&lt;/span&gt;):&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-11" title="11"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;A function for extracting a random variable&amp;#39;s support shape/dimensions&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-12" title="12"&gt;&lt;span class="co"&gt;    from other (e.g. distribution parameters) shape information.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-13" title="13"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-14" title="14"&gt;&lt;span class="co"&gt;    This default implementation uses the first non-independent/replicated&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-15" title="15"&gt;&lt;span class="co"&gt;    dimension of the first distribution parameter.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-16" title="16"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-17" title="17"&gt;&lt;span class="co"&gt;    For example, with a normal random variable, the shape of the mean parameter&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-18" title="18"&gt;&lt;span class="co"&gt;    along the first dimension will be used; dimensions after that, if any,&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-19" title="19"&gt;&lt;span class="co"&gt;    determine the mean parameters for other *independent* normal variables.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-20" title="20"&gt;&lt;span class="co"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-21" title="21"&gt;    &lt;span class="co"&gt;# XXX: Gotta be careful slicing Theano variables, the `Subtensor` Op isn&amp;#39;t&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-22" title="22"&gt;    &lt;span class="co"&gt;# handled by `tensor.get_scalar_constant_value`!&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-23" title="23"&gt;    &lt;span class="co"&gt;# E.g.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-24" title="24"&gt;    &lt;span class="co"&gt;#     test_val = tt.as_tensor_variable([[1], [4]])&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-25" title="25"&gt;    &lt;span class="co"&gt;#     tt.get_scalar_constant_value(test_val.shape[-1]) # works&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-26" title="26"&gt;    &lt;span class="co"&gt;#     tt.get_scalar_constant_value(test_val.shape[0]) # doesn&amp;#39;t&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-27" title="27"&gt;    &lt;span class="co"&gt;#     tt.get_scalar_constant_value(test_val.shape[:-1]) # doesn&amp;#39;t&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-28" title="28"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; param_shapes &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-29" title="29"&gt;        &lt;span class="co"&gt;# return param_shapes[0][-self.ndim_supp:]&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-30" title="30"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; (param_shapes[&lt;span class="dv"&gt;0&lt;/span&gt;][&lt;span class="op"&gt;-&lt;/span&gt;ndim_supp],)&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-31" title="31"&gt;    &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-32" title="32"&gt;        ref_shape &lt;span class="op"&gt;=&lt;/span&gt; tt.shape(dist_params[&lt;span class="dv"&gt;0&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-33" title="33"&gt;        &lt;span class="co"&gt;# return ref_shape[-self.ndim_supp:]&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="supp_shape_fn-34" title="34"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; (ref_shape[&lt;span class="op"&gt;-&lt;/span&gt;ndim_supp],)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="new_rv_op"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="new_rv_op-1" title="1"&gt;&lt;span class="kw"&gt;class&lt;/span&gt; RandomVariable(tt.gof.Op):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-2" title="2"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;This is essentially `RandomFunction`, except that it removes the `outtype`&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-3" title="3"&gt;&lt;span class="co"&gt;    dependency and handles shape dimension information more directly.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-4" title="4"&gt;&lt;span class="co"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-5" title="5"&gt;    __props__ &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="st"&gt;&amp;#39;name&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;dtype&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;ndim_supp&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;inplace&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;ndims_params&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-6" title="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-7" title="7"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; &lt;span class="fu"&gt;__init__&lt;/span&gt;(&lt;span class="va"&gt;self&lt;/span&gt;, name, ndim_supp, ndims_params, rng_fn, &lt;span class="op"&gt;*&lt;/span&gt;args,&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-8" title="8"&gt;                 supp_shape_fn&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;None&lt;/span&gt;, dtype&lt;span class="op"&gt;=&lt;/span&gt;theano.config.floatX, inplace&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;False&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-9" title="9"&gt;                 &lt;span class="op"&gt;**&lt;/span&gt;kwargs):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-10" title="10"&gt;        &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Create a random variable `Op`.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-11" title="11"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-12" title="12"&gt;&lt;span class="co"&gt;        Parameters&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-13" title="13"&gt;&lt;span class="co"&gt;        ==========&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-14" title="14"&gt;&lt;span class="co"&gt;        ndim_supp: int&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-15" title="15"&gt;&lt;span class="co"&gt;            Dimension of the support.  This value is used to infer the exact&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-16" title="16"&gt;&lt;span class="co"&gt;            shape of the support and independent terms from ``dist_params``.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-17" title="17"&gt;&lt;span class="co"&gt;        ndims_params: tuple (int)&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-18" title="18"&gt;&lt;span class="co"&gt;            Number of dimensions for each parameter in ``dist_params``&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-19" title="19"&gt;&lt;span class="co"&gt;            for a single variate.  Used to determine the shape of the&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-20" title="20"&gt;&lt;span class="co"&gt;            independent variate space.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-21" title="21"&gt;&lt;span class="co"&gt;        rng_fn: function or str&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-22" title="22"&gt;&lt;span class="co"&gt;            Sampler function.  Can be the string name of a method provided by&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-23" title="23"&gt;&lt;span class="co"&gt;            `numpy.random.RandomState`.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-24" title="24"&gt;&lt;span class="co"&gt;        supp_shape_fn: callable&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-25" title="25"&gt;&lt;span class="co"&gt;            Function used to determine the exact shape of the distribution&amp;#39;s&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-26" title="26"&gt;&lt;span class="co"&gt;            support. It must take arguments ndim_supp, ndims_params,&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-27" title="27"&gt;&lt;span class="co"&gt;            dist_params (i.e. an collection of the distribution parameters) and an&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-28" title="28"&gt;&lt;span class="co"&gt;            optional param_shapes (i.e. tuples containing the size of each&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-29" title="29"&gt;&lt;span class="co"&gt;            dimension for each distribution parameter).&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-30" title="30"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-31" title="31"&gt;&lt;span class="co"&gt;            Defaults to `supp_shape_fn`&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-32" title="32"&gt;&lt;span class="co"&gt;        &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-33" title="33"&gt;        &lt;span class="bu"&gt;super&lt;/span&gt;().&lt;span class="fu"&gt;__init__&lt;/span&gt;(&lt;span class="op"&gt;*&lt;/span&gt;args, &lt;span class="op"&gt;**&lt;/span&gt;kwargs)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-34" title="34"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-35" title="35"&gt;        &lt;span class="va"&gt;self&lt;/span&gt;.name &lt;span class="op"&gt;=&lt;/span&gt; name&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-36" title="36"&gt;        &lt;span class="va"&gt;self&lt;/span&gt;.inplace &lt;span class="op"&gt;=&lt;/span&gt; inplace&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-37" title="37"&gt;        &lt;span class="va"&gt;self&lt;/span&gt;.dtype &lt;span class="op"&gt;=&lt;/span&gt; dtype&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-38" title="38"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-39" title="39"&gt;        &lt;span class="va"&gt;self&lt;/span&gt;.supp_shape_fn &lt;span class="op"&gt;=&lt;/span&gt; supp_shape_fn &lt;span class="kw"&gt;or&lt;/span&gt; matched_supp_shape_fn&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-40" title="40"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-41" title="41"&gt;        &lt;span class="va"&gt;self&lt;/span&gt;.ndim_supp &lt;span class="op"&gt;=&lt;/span&gt; ndim_supp&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-42" title="42"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-43" title="43"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(ndims_params, Iterable):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-44" title="44"&gt;            &lt;span class="cf"&gt;raise&lt;/span&gt; &lt;span class="pp"&gt;ValueError&lt;/span&gt;(&lt;span class="st"&gt;&amp;#39;Parameter ndims_params must be iterable.&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-45" title="45"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-46" title="46"&gt;        &lt;span class="va"&gt;self&lt;/span&gt;.ndims_params &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(ndims_params)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-47" title="47"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-48" title="48"&gt;        &lt;span class="va"&gt;self&lt;/span&gt;.default_output &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="dv"&gt;1&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-49" title="49"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-50" title="50"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(rng_fn, (&lt;span class="bu"&gt;str&lt;/span&gt;, ByteString)):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-51" title="51"&gt;            &lt;span class="va"&gt;self&lt;/span&gt;.rng_fn &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;getattr&lt;/span&gt;(np.random.RandomState, rng_fn)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-52" title="52"&gt;        &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-53" title="53"&gt;            &lt;span class="va"&gt;self&lt;/span&gt;.rng_fn &lt;span class="op"&gt;=&lt;/span&gt; rng_fn&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-54" title="54"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-55" title="55"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; &lt;span class="fu"&gt;__str__&lt;/span&gt;(&lt;span class="va"&gt;self&lt;/span&gt;):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-56" title="56"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;&lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;_rv&amp;#39;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(&lt;span class="va"&gt;self&lt;/span&gt;.name)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-57" title="57"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-58" title="58"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; _infer_shape(&lt;span class="va"&gt;self&lt;/span&gt;, size, dist_params, param_shapes&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;None&lt;/span&gt;):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-59" title="59"&gt;        &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Compute shapes and broadcasts properties.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-60" title="60"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-61" title="61"&gt;&lt;span class="co"&gt;        Inspired by `tt.add.get_output_info`.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-62" title="62"&gt;&lt;span class="co"&gt;        &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-63" title="63"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-64" title="64"&gt;        size_len &lt;span class="op"&gt;=&lt;/span&gt; tt.get_vector_length(size)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-65" title="65"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-66" title="66"&gt;        dummy_params &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(p &lt;span class="cf"&gt;if&lt;/span&gt; n &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;0&lt;/span&gt; &lt;span class="cf"&gt;else&lt;/span&gt; tt.ones(&lt;span class="bu"&gt;tuple&lt;/span&gt;(p.shape)[:&lt;span class="op"&gt;-&lt;/span&gt;n])&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-67" title="67"&gt;                             &lt;span class="cf"&gt;for&lt;/span&gt; p, n &lt;span class="kw"&gt;in&lt;/span&gt; &lt;span class="bu"&gt;zip&lt;/span&gt;(dist_params, &lt;span class="va"&gt;self&lt;/span&gt;.ndims_params))&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-68" title="68"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-69" title="69"&gt;        _, out_bcasts, bcastd_inputs &lt;span class="op"&gt;=&lt;/span&gt; tt.add.get_output_info(&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-70" title="70"&gt;            tt.DimShuffle, &lt;span class="op"&gt;*&lt;/span&gt;dummy_params)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-71" title="71"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-72" title="72"&gt;        &lt;span class="co"&gt;# _, out_bcasts, bcastd_inputs = tt.add.get_output_info(tt.DimShuffle, *dist_params)&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-73" title="73"&gt;        &lt;span class="co"&gt;# .tag.test_value&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-74" title="74"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-75" title="75"&gt;        bcast_ind, &lt;span class="op"&gt;=&lt;/span&gt; out_bcasts&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-76" title="76"&gt;        ndim_ind &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;len&lt;/span&gt;(bcast_ind)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-77" title="77"&gt;        shape_ind &lt;span class="op"&gt;=&lt;/span&gt; bcastd_inputs[&lt;span class="dv"&gt;0&lt;/span&gt;].shape&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-78" title="78"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-79" title="79"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="va"&gt;self&lt;/span&gt;.ndim_supp &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;0&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-80" title="80"&gt;            shape_supp &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;()&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-81" title="81"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-82" title="82"&gt;            &lt;span class="co"&gt;# In the scalar case, `size` corresponds to the entire result&amp;#39;s&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-83" title="83"&gt;            &lt;span class="co"&gt;# shape. This implies the following:&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-84" title="84"&gt;            &lt;span class="co"&gt;#     shape_ind[-ndim_ind] == size[:ndim_ind]&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-85" title="85"&gt;            &lt;span class="co"&gt;# &lt;/span&gt;&lt;span class="al"&gt;TODO&lt;/span&gt;&lt;span class="co"&gt;: How do we add this constraint/check symbolically?&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-86" title="86"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-87" title="87"&gt;            ndim_reps &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;max&lt;/span&gt;(size_len &lt;span class="op"&gt;-&lt;/span&gt; ndim_ind, &lt;span class="dv"&gt;0&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-88" title="88"&gt;            shape_reps &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(size)[ndim_ind:]&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-89" title="89"&gt;        &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-90" title="90"&gt;            shape_supp &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="va"&gt;self&lt;/span&gt;.supp_shape_fn(&lt;span class="va"&gt;self&lt;/span&gt;.ndim_supp,&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-91" title="91"&gt;                                            &lt;span class="va"&gt;self&lt;/span&gt;.ndims_params,&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-92" title="92"&gt;                                            dist_params,&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-93" title="93"&gt;                                            param_shapes&lt;span class="op"&gt;=&lt;/span&gt;param_shapes)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-94" title="94"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-95" title="95"&gt;            ndim_reps &lt;span class="op"&gt;=&lt;/span&gt; size_len&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-96" title="96"&gt;            shape_reps &lt;span class="op"&gt;=&lt;/span&gt; size&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-97" title="97"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-98" title="98"&gt;        ndim_shape &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="va"&gt;self&lt;/span&gt;.ndim_supp &lt;span class="op"&gt;+&lt;/span&gt; ndim_ind &lt;span class="op"&gt;+&lt;/span&gt; ndim_reps&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-99" title="99"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-100" title="100"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; ndim_shape &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;0&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-101" title="101"&gt;            shape &lt;span class="op"&gt;=&lt;/span&gt; tt.constant([], dtype&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;int64&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-102" title="102"&gt;        &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-103" title="103"&gt;            shape &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(shape_reps) &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(shape_ind) &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(shape_supp)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-104" title="104"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-105" title="105"&gt;        &lt;span class="co"&gt;# if shape is None:&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-106" title="106"&gt;        &lt;span class="co"&gt;#     raise tt.ShapeError()&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-107" title="107"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-108" title="108"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; shape&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-109" title="109"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-110" title="110"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; make_node(&lt;span class="va"&gt;self&lt;/span&gt;, &lt;span class="op"&gt;*&lt;/span&gt;dist_params, size&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;None&lt;/span&gt;, rng&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;None&lt;/span&gt;, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;None&lt;/span&gt;):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-111" title="111"&gt;        &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;This will be the &amp;quot;constructor&amp;quot; called by users.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-112" title="112"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-113" title="113"&gt;&lt;span class="co"&gt;        Parameters&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-114" title="114"&gt;&lt;span class="co"&gt;        ==========&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-115" title="115"&gt;&lt;span class="co"&gt;        dist_params: list&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-116" title="116"&gt;&lt;span class="co"&gt;            Distribution parameters.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-117" title="117"&gt;&lt;span class="co"&gt;        size: Iterable or None&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-118" title="118"&gt;&lt;span class="co"&gt;            Numpy-like size of the output (i.e. replications).&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-119" title="119"&gt;&lt;span class="co"&gt;        rng: RandomState or None&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-120" title="120"&gt;&lt;span class="co"&gt;            Existing Theano `RandomState` object to be used.  Creates a&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-121" title="121"&gt;&lt;span class="co"&gt;            new one, if `None`.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-122" title="122"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-123" title="123"&gt;&lt;span class="co"&gt;        Results&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-124" title="124"&gt;&lt;span class="co"&gt;        =======&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-125" title="125"&gt;&lt;span class="co"&gt;        An `Apply` node with rng state and sample tensor outputs.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-126" title="126"&gt;&lt;span class="co"&gt;        &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-127" title="127"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; (size &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt; &lt;span class="kw"&gt;or&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(size, Iterable)):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-128" title="128"&gt;            &lt;span class="cf"&gt;raise&lt;/span&gt; &lt;span class="pp"&gt;ValueError&lt;/span&gt;(&lt;span class="st"&gt;&amp;#39;Parameter size must be None or iterable&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-129" title="129"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-130" title="130"&gt;        dist_params &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(tt.as_tensor_variable(p)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-131" title="131"&gt;                            &lt;span class="cf"&gt;for&lt;/span&gt; p &lt;span class="kw"&gt;in&lt;/span&gt; dist_params)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-132" title="132"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-133" title="133"&gt;        dtype &lt;span class="op"&gt;=&lt;/span&gt; tt.scal.upcast(&lt;span class="va"&gt;self&lt;/span&gt;.dtype, &lt;span class="op"&gt;*&lt;/span&gt;[p.dtype &lt;span class="cf"&gt;for&lt;/span&gt; p &lt;span class="kw"&gt;in&lt;/span&gt; dist_params])&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-134" title="134"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-135" title="135"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; rng &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-136" title="136"&gt;            rng &lt;span class="op"&gt;=&lt;/span&gt; theano.shared(np.random.RandomState())&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-137" title="137"&gt;        &lt;span class="cf"&gt;elif&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(rng.&lt;span class="bu"&gt;type&lt;/span&gt;, RandomStateType):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-138" title="138"&gt;            warn(&lt;span class="st"&gt;&amp;#39;The type of rng should be an instance of RandomStateType&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-139" title="139"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-140" title="140"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; size &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-141" title="141"&gt;            size &lt;span class="op"&gt;=&lt;/span&gt; tt.constant([], dtype&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;int64&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-142" title="142"&gt;        &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-143" title="143"&gt;            size &lt;span class="op"&gt;=&lt;/span&gt; tt.as_tensor_variable(size, ndim&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-144" title="144"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-145" title="145"&gt;        &lt;span class="cf"&gt;assert&lt;/span&gt; size.dtype &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;int64&amp;#39;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-146" title="146"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-147" title="147"&gt;        shape &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="va"&gt;self&lt;/span&gt;._infer_shape(size, dist_params)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-148" title="148"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-149" title="149"&gt;        &lt;span class="co"&gt;# Let&amp;#39;s try to do a better job than `_infer_ndim_bcast` when&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-150" title="150"&gt;        &lt;span class="co"&gt;# dimension sizes are symbolic.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-151" title="151"&gt;        bcast &lt;span class="op"&gt;=&lt;/span&gt; []&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-152" title="152"&gt;        &lt;span class="cf"&gt;for&lt;/span&gt; s &lt;span class="kw"&gt;in&lt;/span&gt; shape:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-153" title="153"&gt;            &lt;span class="cf"&gt;try&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-154" title="154"&gt;                &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(s.owner.op, tt.Subtensor) &lt;span class="kw"&gt;and&lt;/span&gt; &lt;span class="op"&gt;\&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-155" title="155"&gt;                   s.owner.inputs[&lt;span class="dv"&gt;0&lt;/span&gt;].owner &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-156" title="156"&gt;                    &lt;span class="co"&gt;# Handle a special case in which&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-157" title="157"&gt;                    &lt;span class="co"&gt;# `tensor.get_scalar_constant_value` doesn&amp;#39;t really work.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-158" title="158"&gt;                    s_x, s_idx &lt;span class="op"&gt;=&lt;/span&gt; s.owner.inputs&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-159" title="159"&gt;                    s_idx &lt;span class="op"&gt;=&lt;/span&gt; tt.get_scalar_constant_value(s_idx)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-160" title="160"&gt;                    &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(s_x.owner.op, tt.Shape):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-161" title="161"&gt;                        x_obj, &lt;span class="op"&gt;=&lt;/span&gt; s_x.owner.inputs&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-162" title="162"&gt;                        s_val &lt;span class="op"&gt;=&lt;/span&gt; x_obj.&lt;span class="bu"&gt;type&lt;/span&gt;.broadcastable[s_idx]&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-163" title="163"&gt;                    &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-164" title="164"&gt;                        &lt;span class="co"&gt;# &lt;/span&gt;&lt;span class="al"&gt;TODO&lt;/span&gt;&lt;span class="co"&gt;: Could go for an existing broadcastable here, too, no?&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-165" title="165"&gt;                        s_val &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="va"&gt;False&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-166" title="166"&gt;                &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-167" title="167"&gt;                    s_val &lt;span class="op"&gt;=&lt;/span&gt; tt.get_scalar_constant_value(s)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-168" title="168"&gt;            &lt;span class="cf"&gt;except&lt;/span&gt; tt.NotScalarConstantError:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-169" title="169"&gt;                s_val &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="va"&gt;False&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-170" title="170"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-171" title="171"&gt;            bcast &lt;span class="op"&gt;+=&lt;/span&gt; [s_val &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;1&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-172" title="172"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-173" title="173"&gt;        outtype &lt;span class="op"&gt;=&lt;/span&gt; tt.TensorType(dtype&lt;span class="op"&gt;=&lt;/span&gt;dtype, broadcastable&lt;span class="op"&gt;=&lt;/span&gt;bcast)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-174" title="174"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-175" title="175"&gt;        out_var &lt;span class="op"&gt;=&lt;/span&gt; outtype(name&lt;span class="op"&gt;=&lt;/span&gt;name)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-176" title="176"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-177" title="177"&gt;        inputs &lt;span class="op"&gt;=&lt;/span&gt; (rng, size) &lt;span class="op"&gt;+&lt;/span&gt; dist_params&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-178" title="178"&gt;        outputs &lt;span class="op"&gt;=&lt;/span&gt; (rng.&lt;span class="bu"&gt;type&lt;/span&gt;(), out_var)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-179" title="179"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-180" title="180"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; theano.gof.Apply(&lt;span class="va"&gt;self&lt;/span&gt;, inputs, outputs)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-181" title="181"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-182" title="182"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; infer_shape(&lt;span class="va"&gt;self&lt;/span&gt;, node, input_shapes):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-183" title="183"&gt;        size &lt;span class="op"&gt;=&lt;/span&gt; node.inputs[&lt;span class="dv"&gt;1&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-184" title="184"&gt;        dist_params &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(node.inputs[&lt;span class="dv"&gt;2&lt;/span&gt;:])&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-185" title="185"&gt;        shape &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="va"&gt;self&lt;/span&gt;._infer_shape(size, dist_params,&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-186" title="186"&gt;                                  param_shapes&lt;span class="op"&gt;=&lt;/span&gt;input_shapes[&lt;span class="dv"&gt;2&lt;/span&gt;:])&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-187" title="187"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-188" title="188"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; [&lt;span class="va"&gt;None&lt;/span&gt;, [s &lt;span class="cf"&gt;for&lt;/span&gt; s &lt;span class="kw"&gt;in&lt;/span&gt; shape]]&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-189" title="189"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-190" title="190"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; perform(&lt;span class="va"&gt;self&lt;/span&gt;, node, inputs, outputs):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-191" title="191"&gt;        &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Uses `self.rng_fn` to draw random numbers.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-192" title="192"&gt;        rng_out, smpl_out &lt;span class="op"&gt;=&lt;/span&gt; outputs&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-193" title="193"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-194" title="194"&gt;        &lt;span class="co"&gt;# Draw from `rng` if `self.inplace` is `True`, and from a&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-195" title="195"&gt;        &lt;span class="co"&gt;# copy of `rng` otherwise.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-196" title="196"&gt;        rng, size, args &lt;span class="op"&gt;=&lt;/span&gt; inputs[&lt;span class="dv"&gt;0&lt;/span&gt;], inputs[&lt;span class="dv"&gt;1&lt;/span&gt;], inputs[&lt;span class="dv"&gt;2&lt;/span&gt;:]&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-197" title="197"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-198" title="198"&gt;        &lt;span class="cf"&gt;assert&lt;/span&gt; &lt;span class="bu"&gt;type&lt;/span&gt;(rng) &lt;span class="op"&gt;==&lt;/span&gt; np.random.RandomState, (&lt;span class="bu"&gt;type&lt;/span&gt;(rng), rng)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-199" title="199"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-200" title="200"&gt;        rng_out[&lt;span class="dv"&gt;0&lt;/span&gt;] &lt;span class="op"&gt;=&lt;/span&gt; rng&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-201" title="201"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-202" title="202"&gt;        &lt;span class="co"&gt;# The symbolic output variable corresponding to value produced here.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-203" title="203"&gt;        out_var &lt;span class="op"&gt;=&lt;/span&gt; node.outputs[&lt;span class="dv"&gt;1&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-204" title="204"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-205" title="205"&gt;        &lt;span class="co"&gt;# If `size == []`, that means no size is enforced, and NumPy is&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-206" title="206"&gt;        &lt;span class="co"&gt;# trusted to draw the appropriate number of samples, NumPy uses&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-207" title="207"&gt;        &lt;span class="co"&gt;# `size=None` to represent that.  Otherwise, NumPy expects a tuple.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-208" title="208"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; np.size(size) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;0&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-209" title="209"&gt;            size &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-210" title="210"&gt;        &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-211" title="211"&gt;            size &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(size)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-212" title="212"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-213" title="213"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;self&lt;/span&gt;.inplace:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-214" title="214"&gt;            rng &lt;span class="op"&gt;=&lt;/span&gt; copy(rng)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-215" title="215"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-216" title="216"&gt;        smpl_val &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="va"&gt;self&lt;/span&gt;.rng_fn(rng, &lt;span class="op"&gt;*&lt;/span&gt;(args &lt;span class="op"&gt;+&lt;/span&gt; [size]))&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-217" title="217"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-218" title="218"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; (&lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(smpl_val, np.ndarray) &lt;span class="kw"&gt;or&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-219" title="219"&gt;            &lt;span class="bu"&gt;str&lt;/span&gt;(smpl_val.dtype) &lt;span class="op"&gt;!=&lt;/span&gt; out_var.&lt;span class="bu"&gt;type&lt;/span&gt;.dtype):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-220" title="220"&gt;            smpl_val &lt;span class="op"&gt;=&lt;/span&gt; theano._asarray(smpl_val, dtype&lt;span class="op"&gt;=&lt;/span&gt;out_var.&lt;span class="bu"&gt;type&lt;/span&gt;.dtype)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-221" title="221"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-222" title="222"&gt;        &lt;span class="co"&gt;# When `size` is `None`, NumPy has a tendency to unexpectedly&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-223" title="223"&gt;        &lt;span class="co"&gt;# return a scalar instead of a higher-dimension array containing&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-224" title="224"&gt;        &lt;span class="co"&gt;# only one element. This value should be reshaped&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-225" title="225"&gt;        &lt;span class="co"&gt;# &lt;/span&gt;&lt;span class="al"&gt;TODO&lt;/span&gt;&lt;span class="co"&gt;: Really?  Why shouldn&amp;#39;t the output correctly correspond to&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-226" title="226"&gt;        &lt;span class="co"&gt;# the returned NumPy value?  Sounds more like a mis-specification of&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-227" title="227"&gt;        &lt;span class="co"&gt;# the symbolic output variable.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-228" title="228"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; size &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt; &lt;span class="kw"&gt;and&lt;/span&gt; smpl_val.ndim &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;0&lt;/span&gt; &lt;span class="kw"&gt;and&lt;/span&gt; out_var.ndim &lt;span class="op"&gt;&amp;gt;&lt;/span&gt; &lt;span class="dv"&gt;0&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-229" title="229"&gt;            smpl_val &lt;span class="op"&gt;=&lt;/span&gt; smpl_val.reshape([&lt;span class="dv"&gt;1&lt;/span&gt;] &lt;span class="op"&gt;*&lt;/span&gt; out_var.ndim)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-230" title="230"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-231" title="231"&gt;        smpl_out[&lt;span class="dv"&gt;0&lt;/span&gt;] &lt;span class="op"&gt;=&lt;/span&gt; smpl_val&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-232" title="232"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-233" title="233"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; grad(&lt;span class="va"&gt;self&lt;/span&gt;, inputs, outputs):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-234" title="234"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; [theano.gradient.grad_undefined(&lt;span class="va"&gt;self&lt;/span&gt;, k, inp,&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-235" title="235"&gt;                                               &lt;span class="st"&gt;&amp;#39;No gradient defined through raw random numbers op&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-236" title="236"&gt;                &lt;span class="cf"&gt;for&lt;/span&gt; k, inp &lt;span class="kw"&gt;in&lt;/span&gt; &lt;span class="bu"&gt;enumerate&lt;/span&gt;(inputs)]&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-237" title="237"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-238" title="238"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; R_op(&lt;span class="va"&gt;self&lt;/span&gt;, inputs, eval_points):&lt;/a&gt;
+&lt;a class="sourceLine" id="new_rv_op-239" title="239"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; [&lt;span class="va"&gt;None&lt;/span&gt; &lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; eval_points]&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="example" data-markdown=""&gt;
+&lt;p&gt;Here are some examples of &lt;code&gt;RandomVariable&lt;/code&gt; in action.&lt;/p&gt;
+&lt;div class="sourceCode" id="random_variable_example"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="random_variable_example-1" title="1"&gt;NormalRV &lt;span class="op"&gt;=&lt;/span&gt; RandomVariable(&lt;span class="st"&gt;&amp;#39;normal&amp;#39;&lt;/span&gt;, &lt;span class="dv"&gt;0&lt;/span&gt;, [&lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="dv"&gt;0&lt;/span&gt;], &lt;span class="st"&gt;&amp;#39;normal&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="random_variable_example-2" title="2"&gt;MvNormalRV &lt;span class="op"&gt;=&lt;/span&gt; RandomVariable(&lt;span class="st"&gt;&amp;#39;multivariate_normal&amp;#39;&lt;/span&gt;, &lt;span class="dv"&gt;1&lt;/span&gt;, [&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;], &lt;span class="st"&gt;&amp;#39;multivariate_normal&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="random_variable_example-3" title="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="random_variable_example-4" title="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;NormalRV([0., 100.], 30, size=[4, 2]):&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(&lt;/a&gt;
+&lt;a class="sourceLine" id="random_variable_example-5" title="5"&gt;    NormalRV([&lt;span class="fl"&gt;0.&lt;/span&gt;, &lt;span class="fl"&gt;100.&lt;/span&gt;], &lt;span class="dv"&gt;30&lt;/span&gt;, size&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="dv"&gt;4&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;]).&lt;span class="bu"&gt;eval&lt;/span&gt;()))&lt;/a&gt;
+&lt;a class="sourceLine" id="random_variable_example-6" title="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="random_variable_example-7" title="7"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(&lt;/a&gt;
+&lt;a class="sourceLine" id="random_variable_example-8" title="8"&gt;    MvNormalRV([&lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="fl"&gt;1e2&lt;/span&gt;, &lt;span class="fl"&gt;2e3&lt;/span&gt;], np.diag([&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;1&lt;/span&gt;]), size&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="dv"&gt;3&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;3&lt;/span&gt;]).&lt;span class="bu"&gt;eval&lt;/span&gt;()))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb3-1" title="1"&gt;NormalRV([&lt;span class="fl"&gt;0.&lt;/span&gt;, &lt;span class="fl"&gt;100.&lt;/span&gt;], &lt;span class="dv"&gt;30&lt;/span&gt;, size&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="dv"&gt;4&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;]):&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-2" title="2"&gt;[[ &lt;span class="fl"&gt;27.43632901&lt;/span&gt;  &lt;span class="fl"&gt;93.39441318&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-3" title="3"&gt; [ &lt;span class="fl"&gt;15.85959218&lt;/span&gt; &lt;span class="fl"&gt;133.70107347&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-4" title="4"&gt; [ &lt;span class="fl"&gt;-9.36097104&lt;/span&gt;  &lt;span class="fl"&gt;68.13953575&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-5" title="5"&gt; [ &lt;span class="fl"&gt;13.41389074&lt;/span&gt; &lt;span class="fl"&gt;102.36908493&lt;/span&gt;]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-6" title="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-7" title="7"&gt;MvNormalRV([&lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="fl"&gt;1e2&lt;/span&gt;, &lt;span class="fl"&gt;2e3&lt;/span&gt;], np.diag([&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;1&lt;/span&gt;]), size&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="dv"&gt;3&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;3&lt;/span&gt;]):&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-8" title="8"&gt;[[[[&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;1.95386446e+00&lt;/span&gt;  &lt;span class="fl"&gt;1.00395353e+02&lt;/span&gt;  &lt;span class="fl"&gt;2.00061885e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-9" title="9"&gt;   [ &lt;span class="fl"&gt;1.05345467e-02&lt;/span&gt;  &lt;span class="fl"&gt;1.00488854e+02&lt;/span&gt;  &lt;span class="fl"&gt;2.00075391e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-10" title="10"&gt;   [&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;2.96094820e-01&lt;/span&gt;  &lt;span class="fl"&gt;9.97791115e+01&lt;/span&gt;  &lt;span class="fl"&gt;2.00039472e+03&lt;/span&gt;]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-11" title="11"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-12" title="12"&gt;  [[ &lt;span class="fl"&gt;1.09725296e+00&lt;/span&gt;  &lt;span class="fl"&gt;1.00481658e+02&lt;/span&gt;  &lt;span class="fl"&gt;2.00168402e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-13" title="13"&gt;   [&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;5.97706814e-01&lt;/span&gt;  &lt;span class="fl"&gt;9.84007224e+01&lt;/span&gt;  &lt;span class="fl"&gt;1.99998250e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-14" title="14"&gt;   [ &lt;span class="fl"&gt;6.05551705e-01&lt;/span&gt;  &lt;span class="fl"&gt;1.00905256e+02&lt;/span&gt;  &lt;span class="fl"&gt;1.99904533e+03&lt;/span&gt;]]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-15" title="15"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-16" title="16"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-17" title="17"&gt; [[[ &lt;span class="fl"&gt;3.13777265e-01&lt;/span&gt;  &lt;span class="fl"&gt;9.73407662e+01&lt;/span&gt;  &lt;span class="fl"&gt;1.99854117e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-18" title="18"&gt;   [&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;8.54227150e-01&lt;/span&gt;  &lt;span class="fl"&gt;1.01332597e+02&lt;/span&gt;  &lt;span class="fl"&gt;1.99945623e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-19" title="19"&gt;   [&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;4.71493054e-01&lt;/span&gt;  &lt;span class="fl"&gt;9.98134334e+01&lt;/span&gt;  &lt;span class="fl"&gt;2.00121111e+03&lt;/span&gt;]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-20" title="20"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-21" title="21"&gt;  [[&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;3.61516595e-01&lt;/span&gt;  &lt;span class="fl"&gt;9.99772061e+01&lt;/span&gt;  &lt;span class="fl"&gt;1.99853933e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-22" title="22"&gt;   [ &lt;span class="fl"&gt;5.17271791e-01&lt;/span&gt;  &lt;span class="fl"&gt;9.74970520e+01&lt;/span&gt;  &lt;span class="fl"&gt;2.00052296e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-23" title="23"&gt;   [ &lt;span class="fl"&gt;2.15904894e-01&lt;/span&gt;  &lt;span class="fl"&gt;9.99694385e+01&lt;/span&gt;  &lt;span class="fl"&gt;2.00021462e+03&lt;/span&gt;]]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-24" title="24"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-25" title="25"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-26" title="26"&gt; [[[&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;9.61903721e-01&lt;/span&gt;  &lt;span class="fl"&gt;1.00569645e+02&lt;/span&gt;  &lt;span class="fl"&gt;1.99858826e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-27" title="27"&gt;   [&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;6.72526622e-01&lt;/span&gt;  &lt;span class="fl"&gt;1.00277177e+02&lt;/span&gt;  &lt;span class="fl"&gt;2.00036283e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-28" title="28"&gt;   [ &lt;span class="fl"&gt;2.58608351e-01&lt;/span&gt;  &lt;span class="fl"&gt;1.01020520e+02&lt;/span&gt;  &lt;span class="fl"&gt;1.99866678e+03&lt;/span&gt;]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-29" title="29"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-30" title="30"&gt;  [[ &lt;span class="fl"&gt;8.70002780e-02&lt;/span&gt;  &lt;span class="fl"&gt;1.01020608e+02&lt;/span&gt;  &lt;span class="fl"&gt;1.99975983e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-31" title="31"&gt;   [ &lt;span class="fl"&gt;8.56671014e-01&lt;/span&gt;  &lt;span class="fl"&gt;9.97595247e+01&lt;/span&gt;  &lt;span class="fl"&gt;2.00094824e+03&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-32" title="32"&gt;   [ &lt;span class="fl"&gt;6.17426596e-01&lt;/span&gt;  &lt;span class="fl"&gt;1.01919972e+02&lt;/span&gt;  &lt;span class="fl"&gt;1.99914348e+03&lt;/span&gt;]]]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb3-33" title="33"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;As we’ve mentioned, there are a few difficulties surrounding the use and determination of shape information in PyMC3. &lt;code&gt;RandomVariable&lt;/code&gt; doesn’t suffer the same limitations.&lt;/p&gt;
+&lt;div class="example" data-markdown="" data-title-name=""&gt;
+&lt;p&gt;A multivariate normal random variable cannot be created without explicit shape information.&lt;/p&gt;
+&lt;div class="sourceCode" id="cb4"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb4-1" title="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; traceback&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-2" title="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-3" title="3"&gt;test_mean &lt;span class="op"&gt;=&lt;/span&gt; tt.vector(&lt;span class="st"&gt;&amp;#39;test_mean&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-4" title="4"&gt;test_mean.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.asarray([&lt;span class="dv"&gt;1&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-5" title="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-6" title="6"&gt;test_cov &lt;span class="op"&gt;=&lt;/span&gt; tt.matrix(&lt;span class="st"&gt;&amp;#39;test_cov&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-7" title="7"&gt;test_cov.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.asarray([[&lt;span class="dv"&gt;1&lt;/span&gt;]])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-8" title="8"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-9" title="9"&gt;&lt;span class="cf"&gt;try&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-10" title="10"&gt;  &lt;span class="cf"&gt;with&lt;/span&gt; pm.Model():&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-11" title="11"&gt;    test_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.MvNormal(&lt;span class="st"&gt;&amp;#39;test_rv&amp;#39;&lt;/span&gt;, test_mean, test_cov)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-12" title="12"&gt;&lt;span class="cf"&gt;except&lt;/span&gt; &lt;span class="pp"&gt;Exception&lt;/span&gt; &lt;span class="im"&gt;as&lt;/span&gt; e:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb4-13" title="13"&gt;  &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;&amp;quot;&lt;/span&gt;.join(traceback.format_exception_only(&lt;span class="bu"&gt;type&lt;/span&gt;(e), e)))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb5"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb5-1" title="1"&gt;&lt;span class="pp"&gt;ValueError&lt;/span&gt;: Invalid dimension &lt;span class="cf"&gt;for&lt;/span&gt; value: &lt;span class="dv"&gt;0&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb5-2" title="2"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb6"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb6-1" title="1"&gt;&lt;span class="cf"&gt;try&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-2" title="2"&gt;  &lt;span class="cf"&gt;with&lt;/span&gt; pm.Model():&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-3" title="3"&gt;    test_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.MvNormal(&lt;span class="st"&gt;&amp;#39;test_rv&amp;#39;&lt;/span&gt;, test_mean, test_cov, shape&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-4" title="4"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_rv.distribution.shape = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(test_rv.distribution.shape))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-5" title="5"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_rv.tag.test_value = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(test_rv.tag.test_value))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-6" title="6"&gt;&lt;span class="cf"&gt;except&lt;/span&gt; &lt;span class="pp"&gt;Exception&lt;/span&gt; &lt;span class="im"&gt;as&lt;/span&gt; e:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb6-7" title="7"&gt;  &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;&amp;quot;&lt;/span&gt;.join(traceback.format_exception_only(&lt;span class="bu"&gt;type&lt;/span&gt;(e), e)))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb7"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb7-1" title="1"&gt;test_rv.distribution.shape &lt;span class="op"&gt;=&lt;/span&gt; [&lt;span class="dv"&gt;1&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb7-2" title="2"&gt;test_rv.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; [&lt;span class="fl"&gt;1.&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb7-3" title="3"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Using &lt;code&gt;RandomVariable&lt;/code&gt;, we do not have to specify a shape, nor implement any sampling code outside of &lt;code&gt;RandomVariable.perform&lt;/code&gt; to draw random variables and generate valid test values.&lt;/p&gt;
+&lt;div class="sourceCode" id="cb8"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb8-1" title="1"&gt;test_mv_rv &lt;span class="op"&gt;=&lt;/span&gt; MvNormalRV(test_mean, test_cov)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-2" title="2"&gt;test_mv_rv_2 &lt;span class="op"&gt;=&lt;/span&gt; MvNormalRV(test_mv_rv, test_cov)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-3" title="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-4" title="4"&gt;&lt;span class="co"&gt;# Observe the automatically generated test values&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-5" title="5"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_mv_rv.tag.test_value = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(test_mv_rv.tag.test_value))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-6" title="6"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_mv_rv_2.tag.test_value = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(test_mv_rv_2.tag.test_value))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-7" title="7"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-8" title="8"&gt;&lt;span class="co"&gt;# Sample some values under specific parameter values&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-9" title="9"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_mv_rv.eval() = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(test_mv_rv.&lt;span class="bu"&gt;eval&lt;/span&gt;(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-10" title="10"&gt;    {test_mean: [&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;], test_cov: np.diag([&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;])})))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-11" title="11"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_mv_rv_2.eval() = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(test_mv_rv_2.&lt;span class="bu"&gt;eval&lt;/span&gt;(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb8-12" title="12"&gt;    {test_mean: [&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;3&lt;/span&gt;], test_cov: np.diag([&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;70&lt;/span&gt;])})))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb9"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb9-1" title="1"&gt;test_mv_rv.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; [&lt;span class="fl"&gt;0.90661799&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-2" title="2"&gt;test_mv_rv_2.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; [&lt;span class="fl"&gt;1.10201953&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-3" title="3"&gt;test_mv_rv.&lt;span class="bu"&gt;eval&lt;/span&gt;() &lt;span class="op"&gt;=&lt;/span&gt; [&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;1.90184227&lt;/span&gt;  &lt;span class="fl"&gt;1.8679379&lt;/span&gt; ]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-4" title="4"&gt;test_mv_rv_2.&lt;span class="bu"&gt;eval&lt;/span&gt;() &lt;span class="op"&gt;=&lt;/span&gt; [ &lt;span class="fl"&gt;2.05659828&lt;/span&gt; &lt;span class="fl"&gt;-1.33638943&lt;/span&gt;  &lt;span class="fl"&gt;3.85355663&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb9-5" title="5"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/section&gt;
+&lt;/section&gt;
+&lt;section id="a-problem-with-pymc3-broadcast-dimensions" class="level1"&gt;
+&lt;h1&gt;A Problem with PyMC3 Broadcast Dimensions&lt;/h1&gt;
+&lt;p&gt;As in &lt;sup id="24875a2c31fa7f94ce562adddedc0bf8"&gt;&lt;a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }"&gt;WillardSymbolicMathPyMC32018&lt;/a&gt;&lt;/sup&gt;, we can create mappings between existing PyMC3 random variables and their new &lt;code&gt;RandomVariable&lt;/code&gt; equivalents.&lt;/p&gt;
+&lt;div class="sourceCode" id="pymc_theano_rv_equivs"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="pymc_theano_rv_equivs-1" title="1"&gt;pymc_theano_rv_equivs &lt;span class="op"&gt;=&lt;/span&gt; {&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-2" title="2"&gt;    pm.Normal:&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-3" title="3"&gt;    &lt;span class="kw"&gt;lambda&lt;/span&gt; dist, rand_state:&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-4" title="4"&gt;    (&lt;span class="va"&gt;None&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-5" title="5"&gt;     &lt;span class="co"&gt;# PyMC3 shapes aren&amp;#39;t NumPy-like size parameters, so we attempt to&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-6" title="6"&gt;     &lt;span class="co"&gt;# adjust for that.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-7" title="7"&gt;     NormalRV(dist.mu, dist.sd, size&lt;span class="op"&gt;=&lt;/span&gt;dist.shape[&lt;span class="dv"&gt;1&lt;/span&gt;:], rng&lt;span class="op"&gt;=&lt;/span&gt;rand_state)),&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-8" title="8"&gt;    pm.MvNormal:&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-9" title="9"&gt;    &lt;span class="kw"&gt;lambda&lt;/span&gt; dist, rand_state:&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-10" title="10"&gt;    (&lt;span class="va"&gt;None&lt;/span&gt;, NormalRV(dist.mu, dist.cov, size&lt;span class="op"&gt;=&lt;/span&gt;dist.shape[&lt;span class="dv"&gt;1&lt;/span&gt;:], rng&lt;span class="op"&gt;=&lt;/span&gt;rand_state)),&lt;/a&gt;
+&lt;a class="sourceLine" id="pymc_theano_rv_equivs-11" title="11"&gt;}&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;However, if we attempt the same PymC3 graph conversion approach as before (i.e. convert a PyMC3 model to a Theano &lt;code&gt;FunctionGraph&lt;/code&gt; using &lt;code&gt;model_graph&lt;/code&gt;, then replace PyMC3 random variable nodes with our new random variable types using &lt;code&gt;create_theano_rvs&lt;/code&gt;), we’re likely to run into a problem involving mismatching broadcastable dimensions.&lt;/p&gt;
+&lt;p&gt;The problem arises because &lt;strong&gt;PyMC3 “knows” more broadcast information than it should&lt;/strong&gt;, since it uses the Theano variables’ test values in order to obtain concrete shapes for the random variables it creates. Using concrete, non-symbolic shapes, it can exactly determine what would otherwise be ambiguous &lt;a href="http://deeplearning.net/software/theano/library/tensor/basic.html?highlight=broadcastable#theano.tensor.TensorType.broadcastable"&gt;broadcastable dimensions&lt;/a&gt; at the symbolic level.&lt;/p&gt;
+&lt;p&gt;More specifically, broadcast information is required during the construction of a Theano &lt;code&gt;TensorType&lt;/code&gt;, so PyMC3 random variable types can be inconsistent (unnecessarily restrictive, really) causing Theano to complain when we try to construct a &lt;code&gt;FunctionGraph&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="example" data-markdown=""&gt;
+&lt;p&gt;Consider the following example; it constructs two purely symbolic Theano vectors: one with broadcasting and one without.&lt;/p&gt;
+&lt;div class="sourceCode" id="cb10"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb10-1" title="1"&gt;y_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.row(&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-2" title="2"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;y_tt.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(y_tt.broadcastable))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-3" title="3"&gt;x_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.matrix(&lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb10-4" title="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;x_tt.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(x_tt.broadcastable))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb11"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb11-1" title="1"&gt;y_tt.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;True&lt;/span&gt;, &lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-2" title="2"&gt;x_tt.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;False&lt;/span&gt;, &lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb11-3" title="3"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Notice that it–by default–signifies no broadcasting on its first and only dimension.&lt;/p&gt;
+&lt;p&gt;If we wish–or if &lt;a href="http://deeplearning.net/software/theano/library/config.html#config.compute_test_value"&gt;Theano’s configuration demands&lt;/a&gt; it–we can assign the symbolic vector arbitrary test values, as long as they’re consistent with its type (i.e. a vector, or 1-dimensional array).&lt;/p&gt;
+&lt;p&gt;In the following, we assign both a broadcastable (i.e. first–and only–dimension has size 1) and non-broadcastable test value.&lt;/p&gt;
+&lt;p&gt;Test value is broadcastable:&lt;/p&gt;
+&lt;div class="sourceCode" id="cb12"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb12-1" title="1"&gt;x_tt.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.array([[&lt;span class="dv"&gt;5&lt;/span&gt;]])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-2" title="2"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_value.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-3" title="3"&gt;    tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-4" title="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;x_tt.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(x_tt.broadcastable))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-5" title="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-6" title="6"&gt;&lt;span class="co"&gt;# Compute this to run internal checks&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-7" title="7"&gt;&lt;span class="cf"&gt;try&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-8" title="8"&gt;    x_tt.shape&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-9" title="9"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;shape checks out!&amp;quot;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-10" title="10"&gt;&lt;span class="cf"&gt;except&lt;/span&gt; &lt;span class="pp"&gt;TypeError&lt;/span&gt; &lt;span class="im"&gt;as&lt;/span&gt; e:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb12-11" title="11"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="bu"&gt;str&lt;/span&gt;(e))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb13"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb13-1" title="1"&gt;test_value.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;True&lt;/span&gt;, &lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-2" title="2"&gt;x_tt.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;False&lt;/span&gt;, &lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-3" title="3"&gt;shape checks out&lt;span class="op"&gt;!&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb13-4" title="4"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb14"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb14-1" title="1"&gt;y_tt.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.array([[&lt;span class="dv"&gt;5&lt;/span&gt;]])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-2" title="2"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_value.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-3" title="3"&gt;    tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-4" title="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;y_tt.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(y_tt.broadcastable))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-5" title="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-6" title="6"&gt;&lt;span class="co"&gt;# Compute this to run internal checks&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-7" title="7"&gt;&lt;span class="cf"&gt;try&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-8" title="8"&gt;    y_tt.shape&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-9" title="9"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;shape checks out!&amp;quot;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-10" title="10"&gt;&lt;span class="cf"&gt;except&lt;/span&gt; &lt;span class="pp"&gt;TypeError&lt;/span&gt; &lt;span class="im"&gt;as&lt;/span&gt; e:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb14-11" title="11"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="bu"&gt;str&lt;/span&gt;(e))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb15"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb15-1" title="1"&gt;test_value.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;True&lt;/span&gt;, &lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb15-2" title="2"&gt;y_tt.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;True&lt;/span&gt;, &lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb15-3" title="3"&gt;shape checks out&lt;span class="op"&gt;!&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb15-4" title="4"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Test value is &lt;strong&gt;not&lt;/strong&gt; broadcastable:&lt;/p&gt;
+&lt;div class="sourceCode" id="cb16"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb16-1" title="1"&gt;x_tt.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.array([[&lt;span class="dv"&gt;5&lt;/span&gt;, &lt;span class="dv"&gt;4&lt;/span&gt;]])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-2" title="2"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_value.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-3" title="3"&gt;    tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-4" title="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;x_tt.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(x_tt.broadcastable))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-5" title="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-6" title="6"&gt;&lt;span class="co"&gt;# Compute this to run internal checks&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-7" title="7"&gt;&lt;span class="cf"&gt;try&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-8" title="8"&gt;    x_tt.shape&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-9" title="9"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;shape checks out!&amp;quot;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-10" title="10"&gt;&lt;span class="cf"&gt;except&lt;/span&gt; &lt;span class="pp"&gt;TypeError&lt;/span&gt; &lt;span class="im"&gt;as&lt;/span&gt; e:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb16-11" title="11"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="bu"&gt;str&lt;/span&gt;(e))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb17"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb17-1" title="1"&gt;test_value.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;True&lt;/span&gt;, &lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb17-2" title="2"&gt;x_tt.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;False&lt;/span&gt;, &lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb17-3" title="3"&gt;shape checks out&lt;span class="op"&gt;!&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb17-4" title="4"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb18"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb18-1" title="1"&gt;y_tt.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.array([[&lt;span class="dv"&gt;5&lt;/span&gt;, &lt;span class="dv"&gt;4&lt;/span&gt;], [&lt;span class="dv"&gt;3&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;]])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-2" title="2"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;test_value.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-3" title="3"&gt;    tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-4" title="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;y_tt.broadcastable = &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(y_tt.broadcastable))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-5" title="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-6" title="6"&gt;&lt;span class="co"&gt;# Compute this to run internal checks&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-7" title="7"&gt;&lt;span class="cf"&gt;try&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-8" title="8"&gt;    y_tt.shape&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-9" title="9"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;shape checks out!&amp;quot;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-10" title="10"&gt;&lt;span class="cf"&gt;except&lt;/span&gt; &lt;span class="pp"&gt;TypeError&lt;/span&gt; &lt;span class="im"&gt;as&lt;/span&gt; e:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb18-11" title="11"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="bu"&gt;str&lt;/span&gt;(e))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb19"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb19-1" title="1"&gt;test_value.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;False&lt;/span&gt;, &lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-2" title="2"&gt;y_tt.broadcastable &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="va"&gt;True&lt;/span&gt;, &lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-3" title="3"&gt;For compute_test_value, one &lt;span class="bu"&gt;input&lt;/span&gt; test value does &lt;span class="kw"&gt;not&lt;/span&gt; have the requested &lt;span class="bu"&gt;type&lt;/span&gt;.&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-4" title="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-5" title="5"&gt;Backtrace when that variable &lt;span class="kw"&gt;is&lt;/span&gt; created:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-6" title="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-7" title="7"&gt;  File &lt;span class="st"&gt;&amp;quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/terminal/interactiveshell.py&amp;quot;&lt;/span&gt;, line &lt;span class="dv"&gt;485&lt;/span&gt;, &lt;span class="kw"&gt;in&lt;/span&gt; mainloop&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-8" title="8"&gt;    &lt;span class="va"&gt;self&lt;/span&gt;.interact()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-9" title="9"&gt;  File &lt;span class="st"&gt;&amp;quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/terminal/interactiveshell.py&amp;quot;&lt;/span&gt;, line &lt;span class="dv"&gt;476&lt;/span&gt;, &lt;span class="kw"&gt;in&lt;/span&gt; interact&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-10" title="10"&gt;    &lt;span class="va"&gt;self&lt;/span&gt;.run_cell(code, store_history&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-11" title="11"&gt;  File &lt;span class="st"&gt;&amp;quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&amp;quot;&lt;/span&gt;, line &lt;span class="dv"&gt;2662&lt;/span&gt;, &lt;span class="kw"&gt;in&lt;/span&gt; run_cell&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-12" title="12"&gt;    raw_cell, store_history, silent, shell_futures)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-13" title="13"&gt;  File &lt;span class="st"&gt;&amp;quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&amp;quot;&lt;/span&gt;, line &lt;span class="dv"&gt;2785&lt;/span&gt;, &lt;span class="kw"&gt;in&lt;/span&gt; _run_cell&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-14" title="14"&gt;    interactivity&lt;span class="op"&gt;=&lt;/span&gt;interactivity, compiler&lt;span class="op"&gt;=&lt;/span&gt;compiler, result&lt;span class="op"&gt;=&lt;/span&gt;result)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-15" title="15"&gt;  File &lt;span class="st"&gt;&amp;quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&amp;quot;&lt;/span&gt;, line &lt;span class="dv"&gt;2909&lt;/span&gt;, &lt;span class="kw"&gt;in&lt;/span&gt; run_ast_nodes&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-16" title="16"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="va"&gt;self&lt;/span&gt;.run_code(code, result):&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-17" title="17"&gt;  File &lt;span class="st"&gt;&amp;quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&amp;quot;&lt;/span&gt;, line &lt;span class="dv"&gt;2963&lt;/span&gt;, &lt;span class="kw"&gt;in&lt;/span&gt; run_code&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-18" title="18"&gt;    &lt;span class="bu"&gt;exec&lt;/span&gt;(code_obj, &lt;span class="va"&gt;self&lt;/span&gt;.user_global_ns, &lt;span class="va"&gt;self&lt;/span&gt;.user_ns)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-19" title="19"&gt;  File &lt;span class="st"&gt;&amp;quot;&amp;lt;ipython-input-163-7eec6ac09cb0&amp;gt;&amp;quot;&lt;/span&gt;, line &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="kw"&gt;in&lt;/span&gt; &lt;span class="op"&gt;&amp;lt;&lt;/span&gt;module&lt;span class="op"&gt;&amp;gt;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-20" title="20"&gt;    __org_babel_python_fname &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;/tmp/user/1000/babel-f5w2XO/python-Cjuz3L&amp;#39;&lt;/span&gt;&lt;span class="op"&gt;;&lt;/span&gt; __org_babel_python_fh &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;open&lt;/span&gt;(__org_babel_python_fname)&lt;span class="op"&gt;;&lt;/span&gt; &lt;span class="bu"&gt;exec&lt;/span&gt;(&lt;span class="bu"&gt;compile&lt;/span&gt;(__org_babel_python_fh.read(), __org_babel_python_fname, &lt;span class="st"&gt;&amp;#39;exec&amp;#39;&lt;/span&gt;))&lt;span class="op"&gt;;&lt;/span&gt; __org_babel_python_fh.close()&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-21" title="21"&gt;  File &lt;span class="st"&gt;&amp;quot;/tmp/user/1000/babel-f5w2XO/python-Cjuz3L&amp;quot;&lt;/span&gt;, line &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="kw"&gt;in&lt;/span&gt; &lt;span class="op"&gt;&amp;lt;&lt;/span&gt;module&lt;span class="op"&gt;&amp;gt;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-22" title="22"&gt;    y_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.row(&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-23" title="23"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-24" title="24"&gt;The error when converting the test value to that variable &lt;span class="bu"&gt;type&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-25" title="25"&gt;Non&lt;span class="op"&gt;-&lt;/span&gt;unit value on shape on a broadcastable dimension.&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-26" title="26"&gt;(&lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-27" title="27"&gt;(&lt;span class="va"&gt;True&lt;/span&gt;, &lt;span class="va"&gt;False&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb19-28" title="28"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Simply put: non-broadcastable Theano tensor variable types can take broadcastable and non-broadcastable values, while broadcastable types can only take broadcastable values.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;What we can take from the example above is that if we determine that a vector has broadcastable dimensions using test values–as PyMC3 does–we unnecessarily introduce restrictions and potential inconsistencies down the line. One point of origin for such issues is &lt;strong&gt;shared variables&lt;/strong&gt;.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="optimizations-using-randomvariable" class="level1"&gt;
+&lt;h1&gt;Optimizations Using &lt;code&gt;RandomVariable&lt;/code&gt;&lt;/h1&gt;
+&lt;p&gt;With our new &lt;code&gt;RandomVariable&lt;/code&gt;, we can alter the replacement patterns used by &lt;code&gt;tt.gof.opt.PatternSub&lt;/code&gt; in &lt;sup id="24875a2c31fa7f94ce562adddedc0bf8"&gt;&lt;a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }"&gt;WillardSymbolicMathPyMC32018&lt;/a&gt;&lt;/sup&gt; and implement a slightly better parameter lifting for affine transforms of scalar normal random variables.&lt;/p&gt;
+&lt;div class="sourceCode" id="rv_optimizations"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="rv_optimizations-1" title="1"&gt;&lt;span class="co"&gt;# Create random variable constructors.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-2" title="2"&gt;NormalRV &lt;span class="op"&gt;=&lt;/span&gt; RandomVariable(&lt;span class="st"&gt;&amp;#39;normal&amp;#39;&lt;/span&gt;, &lt;span class="dv"&gt;0&lt;/span&gt;, [&lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="dv"&gt;0&lt;/span&gt;], &lt;span class="st"&gt;&amp;#39;normal&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-3" title="3"&gt;MvNormalRV &lt;span class="op"&gt;=&lt;/span&gt; RandomVariable(&lt;span class="st"&gt;&amp;#39;multivariate_normal&amp;#39;&lt;/span&gt;, &lt;span class="dv"&gt;1&lt;/span&gt;, [&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;], &lt;span class="st"&gt;&amp;#39;multivariate_normal&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-4" title="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-5" title="5"&gt;&lt;span class="co"&gt;# We use the following to handle keyword arguments.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-6" title="6"&gt;construct_rv &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="kw"&gt;lambda&lt;/span&gt; rng, size, mu, sd: NormalRV(mu, sd, size&lt;span class="op"&gt;=&lt;/span&gt;size, rng&lt;span class="op"&gt;=&lt;/span&gt;rng)&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-7" title="7"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-8" title="8"&gt;norm_lift_pats &lt;span class="op"&gt;=&lt;/span&gt; [&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-9" title="9"&gt;    &lt;span class="co"&gt;# Lift element-wise multiplication&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-10" title="10"&gt;    tt.gof.opt.PatternSub(&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-11" title="11"&gt;        (tt.mul,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-12" title="12"&gt;         &lt;span class="st"&gt;&amp;#39;a_x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-13" title="13"&gt;         (NormalRV, &lt;span class="st"&gt;&amp;#39;rs_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;size_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;mu_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;sd_x&amp;#39;&lt;/span&gt;)),&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-14" title="14"&gt;        (construct_rv,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-15" title="15"&gt;         &lt;span class="st"&gt;&amp;#39;rs_x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-16" title="16"&gt;         &lt;span class="co"&gt;# XXX: Is this really consistent?  How will it handle broadcasting?&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-17" title="17"&gt;         &lt;span class="st"&gt;&amp;#39;size_x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-18" title="18"&gt;         (tt.mul, &lt;span class="st"&gt;&amp;#39;a_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;mu_x&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-19" title="19"&gt;         (tt.mul, &lt;span class="st"&gt;&amp;#39;a_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;sd_x&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-20" title="20"&gt;        )),&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-21" title="21"&gt;    &lt;span class="co"&gt;# Lift element-wise addition&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-22" title="22"&gt;    tt.gof.opt.PatternSub(&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-23" title="23"&gt;        (tt.add,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-24" title="24"&gt;         (NormalRV, &lt;span class="st"&gt;&amp;#39;rs_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;size_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;mu_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;sd_x&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-25" title="25"&gt;         &lt;span class="st"&gt;&amp;#39;b_x&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-26" title="26"&gt;        (construct_rv,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-27" title="27"&gt;         &lt;span class="st"&gt;&amp;#39;rs_x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-28" title="28"&gt;         &lt;span class="co"&gt;# XXX: Is this really consistent?  How will it handle broadcasting?&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-29" title="29"&gt;         &lt;span class="st"&gt;&amp;#39;size_x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-30" title="30"&gt;         (tt.add, &lt;span class="st"&gt;&amp;#39;mu_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b_x&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-31" title="31"&gt;         &lt;span class="st"&gt;&amp;#39;sd_x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-32" title="32"&gt;        )),&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-33" title="33"&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-34" title="34"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-35" title="35"&gt;norm_lift_opts &lt;span class="op"&gt;=&lt;/span&gt; tt.gof.opt.EquilibriumOptimizer(&lt;/a&gt;
+&lt;a class="sourceLine" id="rv_optimizations-36" title="36"&gt;    norm_lift_pats, max_use_ratio&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;10&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="example" data-markdown=""&gt;
+&lt;div class="sourceCode" id="mat_mul_scaling_rv_exa"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-1" title="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano.gof &lt;span class="im"&gt;import&lt;/span&gt; FunctionGraph, Feature, NodeFinder&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-2" title="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano.gof.graph &lt;span class="im"&gt;import&lt;/span&gt; inputs &lt;span class="im"&gt;as&lt;/span&gt; tt_inputs, clone_get_equiv&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-3" title="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-4" title="4"&gt;mu_X &lt;span class="op"&gt;=&lt;/span&gt; tt.vector(&lt;span class="st"&gt;&amp;#39;mu_X&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-5" title="5"&gt;sd_X &lt;span class="op"&gt;=&lt;/span&gt; tt.vector(&lt;span class="st"&gt;&amp;#39;sd_X&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-6" title="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-7" title="7"&gt;mu_X.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.array([&lt;span class="dv"&gt;0&lt;/span&gt;], dtype&lt;span class="op"&gt;=&lt;/span&gt;tt.config.floatX)&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-8" title="8"&gt;sd_X.tag.test_value &lt;span class="op"&gt;=&lt;/span&gt; np.array([&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt;], dtype&lt;span class="op"&gt;=&lt;/span&gt;tt.config.floatX)&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-9" title="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-10" title="10"&gt;&lt;span class="co"&gt;# &lt;/span&gt;&lt;span class="al"&gt;TODO&lt;/span&gt;&lt;span class="co"&gt;: Defining the offset, `b_tt`, using `tt.vector` will err-out because of&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-11" title="11"&gt;&lt;span class="co"&gt;# non-matching dimensions and no default broadcasting.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-12" title="12"&gt;&lt;span class="co"&gt;# This is another good reason for broadcasting inputs in `make_node`.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-13" title="13"&gt;&lt;span class="co"&gt;# E.g.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-14" title="14"&gt;&lt;span class="co"&gt;# b_tt = tt.vector(&amp;#39;b&amp;#39;)&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-15" title="15"&gt;&lt;span class="co"&gt;# b_tt.tag.test_value = np.array([1, 2], dtype=tt.config.floatX)&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-16" title="16"&gt;&lt;span class="co"&gt;# or&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-17" title="17"&gt;&lt;span class="co"&gt;# b_tt.tag.test_value = np.array([1], dtype=tt.config.floatX)&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-18" title="18"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-19" title="19"&gt;b_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.as_tensor_variable([&lt;span class="fl"&gt;5.&lt;/span&gt;], name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-20" title="20"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-21" title="21"&gt;X_rv &lt;span class="op"&gt;=&lt;/span&gt; NormalRV(mu_X, sd_X, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;~X_rv&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-22" title="22"&gt;Z_rv &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="dv"&gt;5&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; X_rv &lt;span class="op"&gt;+&lt;/span&gt; b_tt&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-23" title="23"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-24" title="24"&gt;Z_graph &lt;span class="op"&gt;=&lt;/span&gt; FunctionGraph(tt_inputs([Z_rv]), [Z_rv])&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-25" title="25"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-26" title="26"&gt;Z_graph_opt &lt;span class="op"&gt;=&lt;/span&gt; Z_graph.clone()&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-27" title="27"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-28" title="28"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; norm_lift_opts.optimize(Z_graph_opt)&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-29" title="29"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-30" title="30"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;#39;Before: &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(tt.pprint(Z_graph.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;])))&lt;/a&gt;
+&lt;a class="sourceLine" id="mat_mul_scaling_rv_exa-31" title="31"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;#39;After: &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(tt.pprint(Z_graph_opt.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;])))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre class="text"&gt;&lt;code&gt;Before: ((TensorConstant{5} * normal_rv(&amp;lt;RandomStateType&amp;gt;, TensorConstant{[]}, mu_X, sd_X)) + TensorConstant{(1,) of 5.0})
+After: normal_rv(&amp;lt;RandomStateType&amp;gt;, TensorConstant{[]}, ((TensorConstant{5} * mu_X) + TensorConstant{(1,) of 5.0}), (TensorConstant{5} * sd_X))
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Now, what if we wanted to handle affine transformations of a multivariate normal random variable? Specifically, consider implementing the following:&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
+  X \sim N\left(\mu, \Sigma \right), \quad
+  A X \sim N\left(A \mu, A \Sigma A^\top \right)
+ \;.
+\end{equation*}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;At first, the following substitution pattern might seem reasonable:&lt;/p&gt;
+&lt;div class="sourceCode" id="cb21"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb21-1" title="1"&gt;&lt;span class="co"&gt;# Vector multiplication&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-2" title="2"&gt;tt.gof.opt.PatternSub(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-3" title="3"&gt;    (tt.dot,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-4" title="4"&gt;     &lt;span class="st"&gt;&amp;#39;A_x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-5" title="5"&gt;     (MvNormalRV, &lt;span class="st"&gt;&amp;#39;rs_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;size_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;mu_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;cov_x&amp;#39;&lt;/span&gt;)),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-6" title="6"&gt;    (construct_rv,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-7" title="7"&gt;     MvNormalRV,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-8" title="8"&gt;     &lt;span class="st"&gt;&amp;#39;rs_x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-9" title="9"&gt;     &lt;span class="st"&gt;&amp;#39;size_x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-10" title="10"&gt;     (tt.dot, &lt;span class="st"&gt;&amp;#39;A_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;mu_x&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-11" title="11"&gt;     (tt.dot,&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-12" title="12"&gt;      (tt.dot, &lt;span class="st"&gt;&amp;#39;A_x&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;cov_x&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-13" title="13"&gt;      (tt.transpose, &lt;span class="st"&gt;&amp;#39;A_x&amp;#39;&lt;/span&gt;)),&lt;/a&gt;
+&lt;a class="sourceLine" id="cb21-14" title="14"&gt;    ))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Unfortunately, the combination of size parameter and broadcasting complicates the scenario. Both parameters indirectly affect the distribution parameters, making the un-lifted dot-product consistent, but not necessarily the lifted products.&lt;/p&gt;
+&lt;p&gt;The following example demonstrates the lifting issues brought on by broadcasting.&lt;/p&gt;
+&lt;div class="example" data-markdown=""&gt;
+&lt;p&gt;First, we create a simple multivariate normal.&lt;/p&gt;
+&lt;div class="sourceCode" id="cb22"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb22-1" title="1"&gt;mu_X &lt;span class="op"&gt;=&lt;/span&gt; [&lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="dv"&gt;10&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb22-2" title="2"&gt;cov_X &lt;span class="op"&gt;=&lt;/span&gt; np.diag([&lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="fl"&gt;1e-2&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb22-3" title="3"&gt;size_X_rv &lt;span class="op"&gt;=&lt;/span&gt; [&lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;3&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb22-4" title="4"&gt;X_rv &lt;span class="op"&gt;=&lt;/span&gt; MvNormalRV(mu_X, cov_X, size&lt;span class="op"&gt;=&lt;/span&gt;size_X_rv)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb22-5" title="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb22-6" title="6"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;#39;X_rv sample:&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(X_rv.tag.test_value))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb23"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb23-1" title="1"&gt;X_rv sample:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-2" title="2"&gt;[[[&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;0.49226543&lt;/span&gt;  &lt;span class="fl"&gt;9.98771301&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-3" title="3"&gt;  [&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;0.22713441&lt;/span&gt; &lt;span class="fl"&gt;10.00124952&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-4" title="4"&gt;  [ &lt;span class="fl"&gt;1.21604812&lt;/span&gt; &lt;span class="fl"&gt;10.0386737&lt;/span&gt; ]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-5" title="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-6" title="6"&gt; [[ &lt;span class="fl"&gt;1.61758857&lt;/span&gt;  &lt;span class="fl"&gt;9.98456418&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-7" title="7"&gt;  [ &lt;span class="fl"&gt;1.26945358&lt;/span&gt;  &lt;span class="fl"&gt;9.9205853&lt;/span&gt; ]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-8" title="8"&gt;  [ &lt;span class="fl"&gt;1.25295917&lt;/span&gt; &lt;span class="fl"&gt;10.09953858&lt;/span&gt;]]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-9" title="9"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Next, we create a simple matrix operator to apply to the multivariate normal.&lt;/p&gt;
+&lt;div class="sourceCode" id="cb24"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb24-1" title="1"&gt;A_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.as_tensor_variable([[&lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;5&lt;/span&gt;, &lt;span class="dv"&gt;8&lt;/span&gt;], [&lt;span class="dv"&gt;3&lt;/span&gt;, &lt;span class="dv"&gt;4&lt;/span&gt;, &lt;span class="dv"&gt;9&lt;/span&gt;]])&lt;/a&gt;
+&lt;a class="sourceLine" id="cb24-2" title="2"&gt;&lt;span class="co"&gt;# or A_tt = tt.as_tensor_variable([[2, 5, 8]])&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb24-3" title="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb24-4" title="4"&gt;&lt;span class="co"&gt;# It&amp;#39;s really just `mu_X`...&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb24-5" title="5"&gt;E_X_rv &lt;span class="op"&gt;=&lt;/span&gt; X_rv.owner.inputs[&lt;span class="dv"&gt;2&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb24-6" title="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb24-7" title="7"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;#39;A * X_rv =&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(tt.dot(A_tt, X_rv).tag.test_value))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb25"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb25-1" title="1"&gt;A &lt;span class="op"&gt;*&lt;/span&gt; X_rv &lt;span class="op"&gt;=&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb25-2" title="2"&gt;[[[  &lt;span class="fl"&gt;7.60818207&lt;/span&gt; &lt;span class="fl"&gt;150.2910632&lt;/span&gt; ]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb25-3" title="3"&gt;  [ &lt;span class="fl"&gt;19.60611837&lt;/span&gt; &lt;span class="fl"&gt;150.36836345&lt;/span&gt;]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb25-4" title="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb25-5" title="5"&gt; [[  &lt;span class="fl"&gt;8.55909917&lt;/span&gt; &lt;span class="fl"&gt;160.31620039&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb25-6" title="6"&gt;  [ &lt;span class="fl"&gt;21.20721252&lt;/span&gt; &lt;span class="fl"&gt;160.53188091&lt;/span&gt;]]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb25-7" title="7"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As we can see, the multivariate normal’s test/sampled value has the correct shape for our matrix operator.&lt;/p&gt;
+&lt;div class="sourceCode" id="cb26"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb26-1" title="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; traceback&lt;/a&gt;
+&lt;a class="sourceLine" id="cb26-2" title="2"&gt;&lt;span class="cf"&gt;try&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb26-3" title="3"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;#39;A * E[X_rv] =&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(tt.dot(A_tt, E_X_rv).tag.test_value))&lt;/a&gt;
+&lt;a class="sourceLine" id="cb26-4" title="4"&gt;&lt;span class="cf"&gt;except&lt;/span&gt; &lt;span class="pp"&gt;ValueError&lt;/span&gt; &lt;span class="im"&gt;as&lt;/span&gt; e:&lt;/a&gt;
+&lt;a class="sourceLine" id="cb26-5" title="5"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;&amp;quot;&lt;/span&gt;.join(traceback.format_exception_only(&lt;span class="bu"&gt;type&lt;/span&gt;(e), e)))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb27"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb27-1" title="1"&gt;&lt;span class="pp"&gt;ValueError&lt;/span&gt;: shapes (&lt;span class="dv"&gt;2&lt;/span&gt;,&lt;span class="dv"&gt;3&lt;/span&gt;) &lt;span class="kw"&gt;and&lt;/span&gt; (&lt;span class="dv"&gt;2&lt;/span&gt;,) &lt;span class="kw"&gt;not&lt;/span&gt; aligned: &lt;span class="dv"&gt;3&lt;/span&gt; (dim &lt;span class="dv"&gt;1&lt;/span&gt;) &lt;span class="op"&gt;!=&lt;/span&gt; &lt;span class="dv"&gt;2&lt;/span&gt; (dim &lt;span class="dv"&gt;0&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb27-2" title="2"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;However, we see that the multivariate normal’s inputs (i.e. the &lt;code&gt;Op&lt;/code&gt; inputs)–specifically the mean parameter–do not directly reflect the support’s shape, as intuitively would suggest.&lt;/p&gt;
+&lt;div class="sourceCode" id="cb28"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb28-1" title="1"&gt;size_tile &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;tuple&lt;/span&gt;(size_X_rv) &lt;span class="op"&gt;+&lt;/span&gt; (&lt;span class="dv"&gt;1&lt;/span&gt;,)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb28-2" title="2"&gt;E_X_rv_ &lt;span class="op"&gt;=&lt;/span&gt; tt.tile(E_X_rv, size_tile, X_rv.ndim)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb28-3" title="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb28-4" title="4"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;#39;A * E[X_rv] =&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="ch"&gt;\n&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(tt.dot(A_tt, E_X_rv_).tag.test_value))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="cb29"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb29-1" title="1"&gt;A &lt;span class="op"&gt;*&lt;/span&gt; E[X_rv] &lt;span class="op"&gt;=&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb29-2" title="2"&gt;[[[  &lt;span class="dv"&gt;0&lt;/span&gt; &lt;span class="dv"&gt;150&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb29-3" title="3"&gt;  [  &lt;span class="dv"&gt;0&lt;/span&gt; &lt;span class="dv"&gt;150&lt;/span&gt;]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb29-4" title="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb29-5" title="5"&gt; [[  &lt;span class="dv"&gt;0&lt;/span&gt; &lt;span class="dv"&gt;160&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb29-6" title="6"&gt;  [  &lt;span class="dv"&gt;0&lt;/span&gt; &lt;span class="dv"&gt;160&lt;/span&gt;]]]&lt;/a&gt;
+&lt;a class="sourceLine" id="cb29-7" title="7"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;We can manually replicate the inputs so that they match the output shape, but a solution to the general problem requires a more organized response.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/section&gt;
+&lt;section id="discussion" class="level1"&gt;
+&lt;h1&gt;Discussion&lt;/h1&gt;
+&lt;p&gt;In a follow-up, we’ll address a few loose ends, such as&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;the inclusion of density functions and likelihoods,&lt;/li&gt;
+&lt;li&gt;decompositions/reductions of overlapping multivariate types (e.g. transforms between tensors of univariate normals and equivalent multivariate normals),&lt;/li&gt;
+&lt;li&gt;canonicalization of graphs containing &lt;code&gt;RandomVariable&lt;/code&gt; terms,&lt;/li&gt;
+&lt;li&gt;and optimizations that specifically benefit MCMC schemes (e.g. automatic conversion to scale mixture decompositions that improve sampling/covariance structure).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/section&gt;
+&lt;section id="bibliography" class="level1"&gt;
+&lt;h1&gt;Bibliography&lt;/h1&gt;
+&lt;p&gt;&lt;a id="WillardSymbolicMathPyMC32018"&gt;&lt;/a&gt;[WillardSymbolicMathPyMC32018] Willard, Symbolic Math in PyMC3, &lt;i&gt;&lt;/i&gt;, (2018). &lt;a href="https://brandonwillard.github.io/symbolic-math-in-pymc3.html"&gt;link&lt;/a&gt;. &lt;a href="#24875a2c31fa7f94ce562adddedc0bf8"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/section&gt;
+&lt;script type="text/x-mathjax-config"&gt;
+MathJax.Hub.Config({
+  CommonHTML: { linebreaks: { automatic: true } },
+  "HTML-CSS": { linebreaks: { automatic: true } },
+  SVG: { linebreaks: { automatic: true } },
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</content><category term="pymc3"></category><category term="theano"></category><category term="statistics"></category><category term="symbolic computation"></category><category term="python"></category><category term="probability theory"></category></entry><entry><title>Readable Strings and Relational Programming in Hy</title><link href="https://brandonwillard.github.io/readable-strings-and-relational-programming-in-hy.html" rel="alternate"></link><published>2018-12-20T00:00:00-06:00</published><updated>2018-12-23T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-20:/readable-strings-and-relational-programming-in-hy.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -93,7 +884,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;h1&gt;Introduction&lt;/h1&gt;
 &lt;p&gt;In the past few months, I’ve been working on &lt;a href="https://github.com/hylang/hy"&gt;Hy&lt;/a&gt; a lot. It’s been great for translating symbolic computation ideas originating in the Lisp community or simply performing the generic meta-programming inherent to the subject.&lt;/p&gt;
 &lt;p&gt;One feature I’ve been missing the most is “readable” print-outs from the REPL. In this case, “readable” means “a string that can be &lt;code&gt;eval&lt;/code&gt;’ed to [re-]produce the object it’s meant to represent”. &lt;a href="https://docs.python.org/3/library/functions.html#repr"&gt;Python calls the function(s) that produce these strings “&lt;code&gt;repr&lt;/code&gt;”s&lt;/a&gt; and provides a generic &lt;code&gt;repr&lt;/code&gt; function–with limited Python “readability” guarantees–and a &lt;code&gt;__repr__&lt;/code&gt; property for object/class-level customization.&lt;/p&gt;
-&lt;div class="example" data-markdown="" data-env-number="1"&gt;
+&lt;div class="example" data-markdown=""&gt;
 &lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb1-1" title="1"&gt;test_obj &lt;span class="op"&gt;=&lt;/span&gt; {&lt;span class="st"&gt;&amp;quot;a&amp;quot;&lt;/span&gt;: &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="st"&gt;&amp;quot;b&amp;quot;&lt;/span&gt;: [&lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;3&lt;/span&gt;]}&lt;/a&gt;
 &lt;a class="sourceLine" id="cb1-2" title="2"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb1-3" title="3"&gt;&lt;span class="co"&gt;# Produce a readable string using `repr`&lt;/span&gt;&lt;/a&gt;
@@ -122,7 +913,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;p&gt;The first few things that come to mind when considering a more general approach to Python-to-Hy &lt;code&gt;__repr__&lt;/code&gt; translation involve some use of the existing &lt;code&gt;repr&lt;/code&gt; code. That might come in the form of string manipulation of &lt;code&gt;repr&lt;/code&gt; output, which &lt;code&gt;hy.contrib.hy-repr&lt;/code&gt; already does in some cases, or quite possibly some use of a &lt;code&gt;repr&lt;/code&gt; function’s source or code object.&lt;/p&gt;
 &lt;p&gt;The latter seems like it has the potential to be more thorough and far-reaching, but also considerably more involved and computationally inefficient. Unfortunately, similar things can be said about the regex approach. Although it does seem a little easier to implement and–for limited cases–efficient enough for most purposes, it also comes across as much more brittle.&lt;/p&gt;
 &lt;p&gt;Fortunately, the latter is unnecessary, because, when the existing &lt;code&gt;repr&lt;/code&gt; output is Python readable, it can be parsed by &lt;code&gt;ast.parse&lt;/code&gt;. The function &lt;code&gt;ast.parse&lt;/code&gt; effectively handles the regex work and yields the bulk of information needed for a Hy &lt;code&gt;repr&lt;/code&gt; string: the function name and its (positional and keyword) arguments.&lt;/p&gt;
-&lt;div class="example" data-markdown="" data-env-number="2"&gt;
+&lt;div class="example" data-markdown=""&gt;
 &lt;p&gt;Let’s say we implement our own object and &lt;code&gt;repr&lt;/code&gt;.&lt;/p&gt;
 &lt;pre class="hy"&gt;&lt;code&gt;(defclass TestClass [object]
   (defn --init-- [self arg1 arg2 &amp;amp;optional kwarg1 kwarg2]
@@ -158,7 +949,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;p&gt;With existing &lt;code&gt;repr&lt;/code&gt; output converted to Python AST by Python itself (using &lt;code&gt;ast.parse&lt;/code&gt;), we can produce readable Hy strings from the resulting AST objects.&lt;/p&gt;
 &lt;p&gt;In this scenario, we need only be concerned with the conversion of Python AST into readable Hy strings. This works like an inverse to the Hy compiler: in other words, a Hy decompiler. For &lt;code&gt;repr&lt;/code&gt; purposes, only function call statements and their arguments need to be decompiled. Unfortunately, function arguments can consist of arbitrary Python/Hy objects, and that’s how the decompilation responsibilities start to expand. If we limit our scope to a reasonable subset of Python builtins/primitives, the results can still be quite effective, and won’t require a complete decompiler.&lt;/p&gt;
 &lt;p&gt;On the down-side, if a Hy &lt;code&gt;repr&lt;/code&gt; implementation overrides the built-in &lt;code&gt;repr&lt;/code&gt;, then arguments in existing &lt;code&gt;repr&lt;/code&gt;/&lt;code&gt;__repr__&lt;/code&gt;s might already be converted by the overridden &lt;code&gt;repr&lt;/code&gt;; however, the results from &lt;code&gt;ast.parse&lt;/code&gt; will undo/discard those results. Even so, custom class &lt;code&gt;__repr__&lt;/code&gt;s aren’t guaranteed to use the built-in &lt;code&gt;repr&lt;/code&gt; on their arguments, so attempts to salvage already-converted &lt;code&gt;repr&lt;/code&gt; output are undeniably fraught with complications.&lt;/p&gt;
-&lt;div class="example" data-markdown="" data-env-number="3"&gt;
+&lt;div class="example" data-markdown=""&gt;
 &lt;p&gt;Working from the &lt;code&gt;repr&lt;/code&gt;-produced AST above, I mocked-up a quick prototype for a generic Python-to-Hy conversion function.&lt;/p&gt;
 &lt;pre class="hy"&gt;&lt;code&gt;(import ast)
 (import builtins)
@@ -279,7 +1070,7 @@ MathJax.Hub.Config({
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</content><category term="statistics"></category><category term="symbolic computation"></category><category term="citybase"></category></entry><entry><title>Symbolic Math in PyMC3</title><link href="https://brandonwillard.github.io/symbolic-math-in-pymc3.html" rel="alternate"></link><published>2018-12-18T00:00:00-06:00</published><updated>2018-12-23T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-18:/symbolic-math-in-pymc3.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+</content><category term="statistics"></category><category term="symbolic computation"></category><category term="citybase"></category></entry><entry><title>Symbolic Math in PyMC3</title><link href="https://brandonwillard.github.io/symbolic-math-in-pymc3.html" rel="alternate"></link><published>2018-12-18T00:00:00-06:00</published><updated>2018-12-26T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-18:/symbolic-math-in-pymc3.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -409,7 +1200,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;a class="sourceLine" id="cb2-14" title="14"&gt;    Z_rv &lt;span class="op"&gt;=&lt;/span&gt; X_rv &lt;span class="op"&gt;+&lt;/span&gt; Y_rv&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The Python objects representing terms in &lt;span class="math inline"&gt;\(\eqref{eq:norm_conv_model}\)&lt;/span&gt; are &lt;code&gt;X_rv&lt;/code&gt;, &lt;code&gt;Y_rv&lt;/code&gt;, and &lt;code&gt;Z_rv&lt;/code&gt; in &lt;a href="#pymc3_model"&gt;pymc3_model&lt;/a&gt;. Those terms together form a Theano graph for the entirety of &lt;span class="math inline"&gt;\(\eqref{eq:norm_conv_model}\)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;Other aspects of the model are implicitly stored in the &lt;a href="https://docs.python.org/3.6/reference/compound_stmts.html#with"&gt;Python context object&lt;/a&gt; &lt;code&gt;conv_model&lt;/code&gt;. For example, the context object tracks the model’s log likelihood function when some variables are designated as “observed”–i.e. associated with sample data. In this example, we haven’t specified an observed variable, so the context object won’t be immediately useful.&lt;/p&gt;
-&lt;div class="remark" data-markdown="" data-env-number="1"&gt;
+&lt;div class="remark" data-markdown=""&gt;
 &lt;p&gt;In what follows, we’ll briefly introduce the internal aspects of PyMC3 that are immediately relevant for the topics addressed here; otherwise, see &lt;a href="https://docs.pymc.io/developer_guide.html"&gt;the PyMC3 developer’s guide&lt;/a&gt; for an explanation of its design and internal workings.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;The terms &lt;code&gt;X_rv&lt;/code&gt;, &lt;code&gt;Y_rv&lt;/code&gt; are derived from both a PyMC3 &lt;a href="https://github.com/pymc-devs/pymc3/blob/v3.3/pymc3/model.py#L151"&gt;&lt;code&gt;Factor&lt;/code&gt;&lt;/a&gt; class and the standard Theano &lt;code&gt;TensorVariable&lt;/code&gt;, as illustrated in the output of &lt;a href="#pymc3_mro"&gt;pymc3_mro&lt;/a&gt;. However, the convolution term &lt;code&gt;Z_rv&lt;/code&gt; is not a PyMC3 random variable; in other words, it does &lt;strong&gt;not&lt;/strong&gt; implement the PyMC3 &lt;code&gt;Factor&lt;/code&gt; class, but it &lt;strong&gt;is&lt;/strong&gt; a Theano &lt;code&gt;TensorVariable&lt;/code&gt;.&lt;/p&gt;
@@ -461,7 +1252,7 @@ Graph of &lt;code&gt;Z_rv&lt;/code&gt; for the PyMC3 model in &lt;a href="#org7c
 &lt;p&gt;What we need for higher-level work is a graph of &lt;span class="math inline"&gt;\(Z = X + Y\)&lt;/span&gt; that includes every term involved. This is true for graphs representing a model’s measure/log-likelihood &lt;strong&gt;and&lt;/strong&gt; its sampled values. The former is essentially covered by the log-likelihood graphs we can already produce using the PyMC3 model objects. It’s the latter that we’ll establish here, since it sets the stage for applications of numerous techniques in statistics and probability theory.&lt;/p&gt;
 &lt;p&gt;One way to produce graphs that represent the full probabilistic model is to formalize the notion of random variables using the Theano API. Basically, if we want to include the relationships between distribution parameters and sampled variables, &lt;strong&gt;we need an &lt;code&gt;Op&lt;/code&gt; that represents random variables and/or the act of sampling&lt;/strong&gt;. &lt;code&gt;theano.tensor.raw_random.RandomFunction&lt;/code&gt; does exactly this; although it represents the concept of a sampling action and not exactly a random measure.&lt;/p&gt;
 &lt;p&gt;Nonetheless, using &lt;code&gt;RandomFunction&lt;/code&gt;, we can replace nodes corresponding to PyMC3 random variables with newly constructed &lt;code&gt;Op&lt;/code&gt; nodes.&lt;/p&gt;
-&lt;div class="example" data-markdown="" data-env-number="1"&gt;
+&lt;div class="example" data-markdown=""&gt;
 &lt;p&gt;We can produce the types of graphs described above through conversion of existing PyMC3 models.&lt;/p&gt;
 &lt;p&gt;In order to perform any manipulations on our model’s graph, we need to create a Theano &lt;code&gt;theano.gof.FunctionGraph&lt;/code&gt; object. We create a utility function in &lt;a href="#model_graph_fn"&gt;model_graph_fn&lt;/a&gt; that constructs a &lt;code&gt;FunctionGraph&lt;/code&gt; from a PyMC3 model.&lt;/p&gt;
 &lt;div class="sourceCode" id="cb9"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb9-1" title="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano.gof &lt;span class="im"&gt;import&lt;/span&gt; FunctionGraph, Feature, NodeFinder&lt;/a&gt;
@@ -693,7 +1484,7 @@ RandomFunction{normal}.1 [id K] &amp;#39;~Y_rv&amp;#39;
 &lt;h1&gt;Performing High-level Simplifications&lt;/h1&gt;
 &lt;p&gt;To apply optimizations like our simple convolution, we need to first identify the appropriate circumstances for its application. This means finding all sub-graphs for which we are able to replace existing nodes with a convolution node.&lt;/p&gt;
 &lt;p&gt;Theano provides some &lt;a href="https://en.wikipedia.org/wiki/Unification_(computer_science)"&gt;unification&lt;/a&gt; tools that facilitate the search component. We’ll use those to implement an extremely restrictive form of our convolution.&lt;/p&gt;
-&lt;div class="example" data-markdown="" data-env-number="2"&gt;
+&lt;div class="example" data-markdown=""&gt;
 &lt;p&gt;In &lt;a href="#normal_conv_pattern"&gt;normal_conv_pattern&lt;/a&gt;, we create patterns for our expressions of interest that are unified against the elements in our graph and reified with a replacement expression. The patterns are expressed as tuples in a LISP-like fashion, e.g. &lt;code&gt;(add, 1, 2)&lt;/code&gt; corresponding to an unevaluated &lt;code&gt;add(1, 2)&lt;/code&gt;.&lt;/p&gt;
 &lt;div class="sourceCode" id="cb18"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb18-1" title="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; operator &lt;span class="im"&gt;import&lt;/span&gt; attrgetter, itemgetter&lt;/a&gt;
 &lt;a class="sourceLine" id="cb18-2" title="2"&gt;&lt;/a&gt;
@@ -976,7 +1767,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;section id="proximal-and-computational-components" class="level1"&gt;
 &lt;h1&gt;Proximal and Computational Components&lt;/h1&gt;
 &lt;p&gt;First, we [re]-introduce the workhorse of proximal methods: the &lt;em&gt;proximal operator&lt;/em&gt;.&lt;/p&gt;
-&lt;div class="definition" data-markdown="" data-env-number="1" data-title-name="[Proximal Operator]"&gt;
+&lt;div class="definition" data-markdown="" data-title-name="[Proximal Operator]"&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
     \operatorname*{argmin}_{z} \left\{
@@ -1023,7 +1814,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;p&gt;For simplicity, we’ll just assume that all components of the estimation problem are know–i.e. loss and penalty functions. The proximal operator that arises in this standard example is the &lt;em&gt;soft thresholding&lt;/em&gt; operator. In Theano, it can be implemented with the following:&lt;/p&gt;
 &lt;div class="sourceCode" id="cb3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb3-1" title="1"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; tt_soft_threshold(beta_, lambda_):&lt;/a&gt;
 &lt;a class="sourceLine" id="cb3-2" title="2"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; tt.sgn(beta_) &lt;span class="op"&gt;*&lt;/span&gt; tt.maximum(tt.abs_(beta_) &lt;span class="op"&gt;-&lt;/span&gt; lambda_, &lt;span class="dv"&gt;0&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class="remark" data-markdown="" data-env-number="1" data-title-name=""&gt;
+&lt;div class="remark" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;This operator can take other forms, and the one used here is likely not the best. The &lt;code&gt;maximum&lt;/code&gt; can be replaced by other conditional-like statements–such as &lt;span class="math display"&gt;\[\begin{equation*}
 \operatorname{S}(z, \lambda) =
     \begin{cases}
@@ -1171,7 +1962,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;a class="sourceLine" id="cb6-23" title="23"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb6-24" title="24"&gt;        alpha_ &lt;span class="op"&gt;*=&lt;/span&gt; bt_rate&lt;/a&gt;
 &lt;a class="sourceLine" id="cb6-25" title="25"&gt;        &lt;span class="cf"&gt;assert&lt;/span&gt; alpha_ &lt;span class="op"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;invalid step size: &lt;/span&gt;&lt;span class="sc"&gt;{}&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;&lt;/span&gt;.&lt;span class="bu"&gt;format&lt;/span&gt;(alpha_)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class="remark" data-markdown="" data-env-number="2" data-title-name=""&gt;
+&lt;div class="remark" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;Routines like this that make use of the gradient and other quantities might also be good candidates for execution in Theano, if only because of the graph optimizations that are able to remedy obviously redundant computations.&lt;/p&gt;
 &lt;p&gt;In this vein, we could consider performing the line-search, and/or the entire optimization loop, within a Theano &lt;code&gt;scan&lt;/code&gt; operation. We could also create &lt;code&gt;Op&lt;/code&gt;s that represents gradient and line-search step. These might make graph construction much simpler, and be more suited for the current optimization framework.&lt;/p&gt;
 &lt;p&gt;Although &lt;code&gt;scan&lt;/code&gt; and tighter Theano integration may not on average produce better results than our current use of its compiled functions, we still wish to emphasize the possibilities.&lt;/p&gt;
@@ -1281,19 +2072,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \label{eq:partial_resid}
 \end{equation}\]&lt;/span&gt; The last expression hints at the most basic idea behind the coordinate-wise approach: conditional minimization in each &lt;span class="math inline"&gt;\(m\)&lt;/span&gt;. Its exact solution in each coordinate is given by the aforementioned soft thresholding function, which–as we’ve already stated–is a proximal operator. In symbols, &lt;span class="math inline"&gt;\(\operatorname*{prox}_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)\)&lt;/span&gt;, where the latter is the soft thresholding operator.&lt;/p&gt;
 &lt;p&gt;Now, if we wanted to relate Equation &lt;span class="math inline"&gt;\(\eqref{eq:partial_resid}\)&lt;/span&gt; a proximal method via the statement of a proximal gradient fixed-point solution–i.e. Equation &lt;span class="math inline"&gt;\(\eqref{eq:forward-backward}\)&lt;/span&gt;–we might use the following property of proximal operators:&lt;/p&gt;
-&lt;div id="lem:prox_ortho_basis" class="lemma" data-markdown="" data-env-number="1" data-title-name=""&gt;
+&lt;div id="lem:prox_ortho_basis" class="lemma" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;&lt;span id="lem:prox_ortho_basis_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{1}\label{lem:prox_ortho_basis}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 \operatorname*{prox}_{\lambda \phi \circ e^\top_m}(z) =
     \sum^M_m \operatorname*{prox}_{\lambda \phi}\left(e^\top_m z\right) e_m
     \;.
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
-&lt;div class="proof" data-markdown="" data-env-number="1" data-title-name=""&gt;
+&lt;div class="proof" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;See &lt;span class="citation" data-cites="chaux_variational_2007"&gt;Chaux et al. (2007)&lt;/span&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;p&gt;The next result yields our desired connection.&lt;/p&gt;
-&lt;div id="eq:prox_grad_descent" class="proposition" data-markdown="" data-env-number="1" data-title-name=""&gt;
+&lt;div id="eq:prox_grad_descent" class="proposition" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;&lt;span id="eq:prox_grad_descent_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{1}\label{eq:prox_grad_descent}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;For &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; such that &lt;span class="math inline"&gt;\({{\bf 1}}^\top X e_m = 0\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(e^\top_m X^\top X e_m = 1\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(m \in \{1, \dots, M\}\)&lt;/span&gt;, the coordinate-wise step of the Lasso in &lt;span class="citation" data-cites="friedman_pathwise_2007"&gt;Friedman et al. (2007 Equation (9))&lt;/span&gt;, &lt;span class="math display"&gt;\[\begin{equation*}
 \beta_m = \operatorname{S}_{\lambda}\left[
@@ -1309,7 +2100,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     \right] e_m
     \;.
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
-&lt;div class="proof" data-markdown="" data-env-number="2" data-title-name=""&gt;
+&lt;div class="proof" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;We start with an expansion of the terms in &lt;span class="math inline"&gt;\(\operatorname*{prox}_{\lambda \phi} \equiv \operatorname{S}_\lambda\)&lt;/span&gt;. After simplifying the notation with &lt;span class="math display"&gt;\[\begin{equation*}
 \begin{gathered}
     \sum^N_{n} X_{n,m} z_n = e^\top_m X^\top z, \quad \text{and} \quad
@@ -1343,7 +2134,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="rem:bases" class="remark" data-markdown="" data-env-number="3" data-title-name=""&gt;
+&lt;div id="rem:bases" class="remark" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;&lt;span id="rem:bases_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{3}\label{rem:bases}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The property in Lemma &lt;span class="math inline"&gt;\(\eqref{lem:prox_ortho_basis}\)&lt;/span&gt; can used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques &lt;span class="citation" data-cites="chaux_variational_2007"&gt;(Chaux et al. 2007)&lt;/span&gt;. Also, this property provides a neat way to think about &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;-based orthogonalizations in estimations for regression and grouped-penalization problems.&lt;/p&gt;
 &lt;/div&gt;
@@ -1411,7 +2202,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;a class="sourceLine" id="cb12-16" title="16"&gt;    np.random.shuffle(cd_step.col_seq)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:pg_coord_plot"&gt;&lt;span id="fig:pg_coord_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{2}\label{fig:pg_coord_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_coord_plot_1.png" title="fig:" alt="Minimization by coordinate descent." /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_coord_plot}\)&lt;/span&gt; shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.&lt;/p&gt;
-&lt;div class="remark" data-markdown="" data-env-number="4" data-title-name=""&gt;
+&lt;div class="remark" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature &lt;span class="citation" data-cites="roberts_updating_1997"&gt;(Roberts and Sahu 1997)&lt;/span&gt;–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark &lt;span class="math inline"&gt;\(\ref{rem:bases}\)&lt;/span&gt; and, to some extent, stochastic gradient descent (SGD) &lt;span class="citation" data-cites="bertsekas_incremental_2010"&gt;(Bertsekas 2010)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;In a woefully lacking over-generalization, let’s say that it comes down to the [spectral] properties of the composite operator(s) &lt;span class="math inline"&gt;\(l \circ X\)&lt;/span&gt; and/or &lt;span class="math inline"&gt;\(\nabla l \circ X\)&lt;/span&gt;. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; nears or distances from those bounds.&lt;/p&gt;
 &lt;/div&gt;
@@ -1690,7 +2481,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;section id="the-proximal-context" class="level1"&gt;
 &lt;h1&gt;The Proximal Context&lt;/h1&gt;
 &lt;p&gt;We start with the essential ingredient: the proximal operator.&lt;/p&gt;
-&lt;div class="Def" data-markdown="" data-env-number="1" data-title-name="[Proximal Operator]"&gt;
+&lt;div class="Def" data-markdown="" data-title-name="[Proximal Operator]"&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
     \operatorname*{argmin}_{z} \left\{
@@ -1735,7 +2526,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;a class="sourceLine" id="cb7-4" title="4"&gt;                {beta_rv: beta_tt})&lt;/a&gt;
 &lt;a class="sourceLine" id="cb7-5" title="5"&gt;logl.name &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;quot;logl&amp;quot;&lt;/span&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Instead, let’s assume we’re extending &lt;code&gt;find_MAP&lt;/code&gt; with even more generality, so that we can’t determine &lt;span class="math inline"&gt;\(l\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt; in this way. This situation can occur when a user specifies custom distributions or potential functions. Regardless, we need to operate at a more symbolic level.&lt;/p&gt;
-&lt;div class="remark" data-markdown="" data-env-number="1" data-title-name=""&gt;
+&lt;div class="remark" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;At this point, it is extremely worthwhile to browse the &lt;a href="http://deeplearning.net/software/theano/extending/graphstructures.html"&gt;Theano documentation&lt;/a&gt; regarding graphs and their constituent objects.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;The total log-likelihood is a good place to start. Let’s look at the symbolic graph for the log-likelihood of our model.&lt;/p&gt;
@@ -1860,7 +2651,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;p&gt;The appropriate computational tools are found in the subjects of graph unification and term rewriting, as well as the areas of functional and logic programming. Luckily, Theano provides some basic unification capabilities through its &lt;code&gt;PatternSub&lt;/code&gt; class.&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;PatternSub&lt;/code&gt; works within the context of Theano &lt;a href="http://deeplearning.net/software/theano/optimizations.html"&gt;graph optimization&lt;/a&gt;. Graph optimizations perform the common symbolic operations of reduction/simplification and rewriting. Consider the &lt;code&gt;phi&lt;/code&gt; variable; the print-outs show an unnecessary subtraction with &lt;span class="math inline"&gt;\(0\)&lt;/span&gt;. Clearly this step is unnecessary, so–in a basic way–we can see that the graph hasn’t been simplified, yet.&lt;/p&gt;
 &lt;p&gt;Many standard algebraic simplifications are already present in Theano, and, by creating our own graph optimizations, we can provide the advanced functionality we’ve been alluding to.&lt;/p&gt;
-&lt;div class="example" data-markdown="" data-env-number="1" data-title-name="[Algebraic Graph Optimization]"&gt;
+&lt;div class="example" data-markdown="" data-title-name="[Algebraic Graph Optimization]"&gt;
 &lt;p&gt;As a quick demonstration, we’ll make replacement patterns for multiplicative distribution across two forms of addition: &lt;code&gt;sum&lt;/code&gt; and &lt;code&gt;add&lt;/code&gt;.&lt;/p&gt;
 &lt;div class="sourceCode" id="cb14"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb14-1" title="1"&gt;test_a_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.as_tensor_variable(&lt;span class="dv"&gt;5&lt;/span&gt;, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;)&lt;/a&gt;
 &lt;a class="sourceLine" id="cb14-2" title="2"&gt;test_b_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.as_tensor_variable(&lt;span class="dv"&gt;2&lt;/span&gt;, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;)&lt;/a&gt;
@@ -1940,7 +2731,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;/div&gt;
 &lt;p&gt;Even more symbolic capabilities might be needed to [efficiently] achieve the functionality we desire. Standalone libraries like SymPy and &lt;a href="https://github.com/logpy/logpy/"&gt;LogPy&lt;/a&gt; can be adapted to Theano graphs and provide these capabilities–although direct implementation in Theano may be better.&lt;/p&gt;
 &lt;p&gt;Finally, let’s briefly imagine how convexity could be determined symbolically. For differentiable terms, we could start with a simple second derivative test. Within Theano, a “second derivative” can be obtained using the &lt;code&gt;hessian&lt;/code&gt; function, and within &lt;code&gt;theano.sandbox.linalg&lt;/code&gt; are &lt;code&gt;Optimizer&lt;/code&gt; hints for matrix positivity and other properties relevant to determining convexity.&lt;/p&gt;
-&lt;div class="remark" data-markdown="" data-env-number="2" data-title-name=""&gt;
+&lt;div class="remark" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;Other great examples of linear algebra themed optimizations are in &lt;code&gt;theano.sandbox.linalg&lt;/code&gt;: for instance, &lt;code&gt;no_transpose_symmetric&lt;/code&gt;. Some of these demonstrate exactly how straight-forward adding algebraic features can be.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;Although our convexity testing idea is far too simple for some functions, the point is that the basic tools necessary for work in this direction are already in place. With the logic programming and symbolic libraries mentioned earlier, a robust implementation of the convex function calculus could be very much in reach.&lt;/p&gt;
@@ -2378,7 +3169,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;a class="sourceLine" id="cb8-11" title="11"&gt;plt.legend()&lt;/a&gt;
 &lt;a class="sourceLine" id="cb8-12" title="12"&gt;plt.show()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:hourly_ppc_plot"&gt;&lt;span id="fig:hourly_ppc_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{2}\label{fig:hourly_ppc_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_hourly_ppc_plot_1.png" title="fig:" alt="Posterior predictive samples" /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;div class="example" data-markdown="" data-env-number="1" data-title-name=""&gt;
+&lt;div class="example" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;Let’s say we’re interested in daily, monthly, or yearly averages for &lt;span class="math inline"&gt;\(Y_t\)&lt;/span&gt; at a lower frequency–like minutes or hours. Similarly, we might want to consider functions of differences between the outputs of different models, &lt;span class="math inline"&gt;\(f(Y^{(j)} - Y^{(k)})\)&lt;/span&gt; for &lt;span class="math inline"&gt;\(j, k \in \{1, 2\}\)&lt;/span&gt;, or more generally &lt;span class="math inline"&gt;\(f(Y^{(j)}, Y^{(k)})\)&lt;/span&gt;. These quantities derived from simple manipulations of &lt;code&gt;ppc_hpd&lt;/code&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;Next, we produce predictions for daily averages–along with [credible] intervals.&lt;/p&gt;
@@ -2410,7 +3201,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;h1&gt;Hierarchical Extensions&lt;/h1&gt;
 &lt;p&gt;Even though we only considered “in-sample” predictions in the previous section, out-of-sample and missing values are covered by exactly the same process (neatly simplified by PyMC3’s &lt;code&gt;sample_ppc&lt;/code&gt;). In our example we needed an exogenous variable &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; in order to sample a point from the observation model &lt;span class="math inline"&gt;\((Y_t \mid x_t)\)&lt;/span&gt;. When the values in &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; cannot be obtained–e.g. future values of a non-deterministic quantity–clever, context specific imputations are usually proposed.&lt;/p&gt;
 &lt;p&gt;Nearly every instance of such imputations gives rise to an implicit model. Going back to our preference for transparent statistical specification, it behooves us to formally specify the model. If we do so in a well-defined Bayes way, then we’re immediately provided the exact same conveniences as above.&lt;/p&gt;
-&lt;div id="ex:X_temp" class="example" data-markdown="" data-env-number="2" data-title-name=""&gt;
+&lt;div id="ex:X_temp" class="example" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;&lt;span id="ex:X_temp_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{2}\label{ex:X_temp}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;If the &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; values in our sample now correspond to, say, temperature, and today is the last day in our time-indexed observations &lt;code&gt;y_obs&lt;/code&gt;, then predicting forward in time will require temperatures for the future.&lt;/p&gt;
 &lt;/div&gt;
@@ -2419,7 +3210,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;p&gt;This isn’t a bad idea, per se, but it is a needlessly indirect–and often insufficient–approach to defining a statistical model for &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;. It leaves out critical distributional details, the same details needed to determine how anything using our new &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; estimates might be affected (through &lt;a href="https://en.wikipedia.org/wiki/Propagation_of_uncertainty"&gt;propagation of uncertainty&lt;/a&gt;). Eventually one comes around to specifying these details, but, in situations of sufficient complexity, this practice doesn’t produce a very clean, manageable or easily extensible model.&lt;/p&gt;
 &lt;p&gt;The kinds of complicated models arising in these situations are both conceptually and technically difficult to use, and–as a result–it can be very hard to produce anything other than naive asymptotic approximations for errors and intervals. Sadly, these approximations are generally insufficient for all but the simplest scenarios.&lt;/p&gt;
 &lt;p&gt;In contrast, we can model the &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; values directly and have a very clear cut path toward out-of-sample predictions and their distributional properties. Even if we hold to the belief that the previous average values are a reasonable imputation, then a number of simple models can account for that assumption.&lt;/p&gt;
-&lt;div id="ex:prior_extension" class="example" data-markdown="" data-env-number="3" data-title-name=""&gt;
+&lt;div id="ex:prior_extension" class="example" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;&lt;span id="ex:prior_extension_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{3}\label{ex:prior_extension}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Let’s consider a normal regression model for &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; with seasonal factors, i.e. &lt;span class="math display"&gt;\[\begin{equation}
 X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
@@ -2441,7 +3232,7 @@ X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;The reduction in Example &lt;span class="math inline"&gt;\(\ref{ex:prior_extension}\)&lt;/span&gt; is quite reasonable and could be considered an entire re-definition of our initial observation model in Equation &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt;. A change like this is a natural part of the standard model development cycle. However, this is not the only way to look at it. In the Bayesian setting we can keep the observation model fixed and iterate on the prior’s specification. The resulting marginal distribution could effectively be the same under both approaches (if desired), but the latter has the advantage of at least maintaining–conditionally–our earlier work.&lt;/p&gt;
-&lt;div class="example" data-markdown="" data-env-number="4" data-title-name=""&gt;
+&lt;div class="example" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;We haven’t given a prior to &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt;, but if we did, in the absence of conflicting assumptions, we might want the product &lt;span class="math inline"&gt;\(\beta \cdot \theta\)&lt;/span&gt; to simplified to a single unknown variables of its own, so that we’re not estimating two “entangled” variables. This idea might be inspired by an understanding of the classical &lt;a href="https://en.wikipedia.org/wiki/Parameter_identification_problem"&gt;identification&lt;/a&gt; issue arising from such products.&lt;/p&gt;
 &lt;p&gt;With &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; constant, the form of our marginal observation model is basically unchanged from our initial under &lt;span class="math inline"&gt;\(x_t \to d(t)^\top \beta\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\sigma^2 \to \sigma^2 + \sigma_x^2 \cdot d(t)^\top \beta \beta^\top d(t)\)&lt;/span&gt;.&lt;/p&gt;
 &lt;/div&gt;

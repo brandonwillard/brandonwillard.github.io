@@ -113,6 +113,10 @@ Brandon T. Willard            </a>
     <span class="published">
         <i class="fa fa-calendar"></i><time datetime="2018-12-18T00:00:00-06:00"> Tue 18 December 2018</time>
     </span>
+          <span class="label label-default">Modified</span>
+            <span class="modified">
+                <i class="fa fa-calendar"></i><time datetime="2018-12-26T00:00:00-06:00"> Wed 26 December 2018</time>
+            </span>
 
 
 
@@ -263,7 +267,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb2-14" title="14">    Z_rv <span class="op">=</span> X_rv <span class="op">+</span> Y_rv</a></code></pre></div>
 <p>The Python objects representing terms in <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> are <code>X_rv</code>, <code>Y_rv</code>, and <code>Z_rv</code> in <a href="#pymc3_model">pymc3_model</a>. Those terms together form a Theano graph for the entirety of <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span>.</p>
 <p>Other aspects of the model are implicitly stored in the <a href="https://docs.python.org/3.6/reference/compound_stmts.html#with">Python context object</a> <code>conv_model</code>. For example, the context object tracks the model’s log likelihood function when some variables are designated as “observed”–i.e. associated with sample data. In this example, we haven’t specified an observed variable, so the context object won’t be immediately useful.</p>
-<div class="remark" data-markdown="" data-env-number="1">
+<div class="remark" data-markdown="">
 <p>In what follows, we’ll briefly introduce the internal aspects of PyMC3 that are immediately relevant for the topics addressed here; otherwise, see <a href="https://docs.pymc.io/developer_guide.html">the PyMC3 developer’s guide</a> for an explanation of its design and internal workings.</p>
 </div>
 <p>The terms <code>X_rv</code>, <code>Y_rv</code> are derived from both a PyMC3 <a href="https://github.com/pymc-devs/pymc3/blob/v3.3/pymc3/model.py#L151"><code>Factor</code></a> class and the standard Theano <code>TensorVariable</code>, as illustrated in the output of <a href="#pymc3_mro">pymc3_mro</a>. However, the convolution term <code>Z_rv</code> is not a PyMC3 random variable; in other words, it does <strong>not</strong> implement the PyMC3 <code>Factor</code> class, but it <strong>is</strong> a Theano <code>TensorVariable</code>.</p>
@@ -315,7 +319,7 @@ Graph of <code>Z_rv</code> for the PyMC3 model in <a href="#org7c56540">2</a>.
 <p>What we need for higher-level work is a graph of <span class="math inline">\(Z = X + Y\)</span> that includes every term involved. This is true for graphs representing a model’s measure/log-likelihood <strong>and</strong> its sampled values. The former is essentially covered by the log-likelihood graphs we can already produce using the PyMC3 model objects. It’s the latter that we’ll establish here, since it sets the stage for applications of numerous techniques in statistics and probability theory.</p>
 <p>One way to produce graphs that represent the full probabilistic model is to formalize the notion of random variables using the Theano API. Basically, if we want to include the relationships between distribution parameters and sampled variables, <strong>we need an <code>Op</code> that represents random variables and/or the act of sampling</strong>. <code>theano.tensor.raw_random.RandomFunction</code> does exactly this; although it represents the concept of a sampling action and not exactly a random measure.</p>
 <p>Nonetheless, using <code>RandomFunction</code>, we can replace nodes corresponding to PyMC3 random variables with newly constructed <code>Op</code> nodes.</p>
-<div class="example" data-markdown="" data-env-number="1">
+<div class="example" data-markdown="">
 <p>We can produce the types of graphs described above through conversion of existing PyMC3 models.</p>
 <p>In order to perform any manipulations on our model’s graph, we need to create a Theano <code>theano.gof.FunctionGraph</code> object. We create a utility function in <a href="#model_graph_fn">model_graph_fn</a> that constructs a <code>FunctionGraph</code> from a PyMC3 model.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="im">from</span> theano.gof <span class="im">import</span> FunctionGraph, Feature, NodeFinder</a>
@@ -547,7 +551,7 @@ RandomFunction{normal}.1 [id K] &#39;~Y_rv&#39;
 <h1>Performing High-level Simplifications</h1>
 <p>To apply optimizations like our simple convolution, we need to first identify the appropriate circumstances for its application. This means finding all sub-graphs for which we are able to replace existing nodes with a convolution node.</p>
 <p>Theano provides some <a href="https://en.wikipedia.org/wiki/Unification_(computer_science)">unification</a> tools that facilitate the search component. We’ll use those to implement an extremely restrictive form of our convolution.</p>
-<div class="example" data-markdown="" data-env-number="2">
+<div class="example" data-markdown="">
 <p>In <a href="#normal_conv_pattern">normal_conv_pattern</a>, we create patterns for our expressions of interest that are unified against the elements in our graph and reified with a replacement expression. The patterns are expressed as tuples in a LISP-like fashion, e.g. <code>(add, 1, 2)</code> corresponding to an unevaluated <code>add(1, 2)</code>.</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" title="1"><span class="im">from</span> operator <span class="im">import</span> attrgetter, itemgetter</a>
 <a class="sourceLine" id="cb18-2" title="2"></a>

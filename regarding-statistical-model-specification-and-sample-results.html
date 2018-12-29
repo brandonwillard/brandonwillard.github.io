@@ -419,7 +419,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 <a class="sourceLine" id="cb8-11" title="11">plt.legend()</a>
 <a class="sourceLine" id="cb8-12" title="12">plt.show()</a></code></pre></div>
 <p><span id="fig:hourly_ppc_plot"><span id="fig:hourly_ppc_plot_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{2}\label{fig:hourly_ppc_plot}\end{equation}\]</span></span><img src="https://brandonwillard.github.io/figures/regarding_sample_estimates_hourly_ppc_plot_1.png" title="fig:" alt="Posterior predictive samples" /></span></p>
-<div class="example" data-markdown="" data-env-number="1" data-title-name="">
+<div class="example" data-markdown="" data-title-name="">
 <p>Let’s say we’re interested in daily, monthly, or yearly averages for <span class="math inline">\(Y_t\)</span> at a lower frequency–like minutes or hours. Similarly, we might want to consider functions of differences between the outputs of different models, <span class="math inline">\(f(Y^{(j)} - Y^{(k)})\)</span> for <span class="math inline">\(j, k \in \{1, 2\}\)</span>, or more generally <span class="math inline">\(f(Y^{(j)}, Y^{(k)})\)</span>. These quantities derived from simple manipulations of <code>ppc_hpd</code>.</p>
 </div>
 <p>Next, we produce predictions for daily averages–along with [credible] intervals.</p>
@@ -451,7 +451,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 <h1>Hierarchical Extensions</h1>
 <p>Even though we only considered “in-sample” predictions in the previous section, out-of-sample and missing values are covered by exactly the same process (neatly simplified by PyMC3’s <code>sample_ppc</code>). In our example we needed an exogenous variable <span class="math inline">\(x_t\)</span> in order to sample a point from the observation model <span class="math inline">\((Y_t \mid x_t)\)</span>. When the values in <span class="math inline">\(X\)</span> cannot be obtained–e.g. future values of a non-deterministic quantity–clever, context specific imputations are usually proposed.</p>
 <p>Nearly every instance of such imputations gives rise to an implicit model. Going back to our preference for transparent statistical specification, it behooves us to formally specify the model. If we do so in a well-defined Bayes way, then we’re immediately provided the exact same conveniences as above.</p>
-<div id="ex:X_temp" class="example" data-markdown="" data-env-number="2" data-title-name="">
+<div id="ex:X_temp" class="example" data-markdown="" data-title-name="">
 <p><span id="ex:X_temp_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{2}\label{ex:X_temp}\end{equation}\]</span></span></p>
 <p>If the <span class="math inline">\(X\)</span> values in our sample now correspond to, say, temperature, and today is the last day in our time-indexed observations <code>y_obs</code>, then predicting forward in time will require temperatures for the future.</p>
 </div>
@@ -460,7 +460,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 <p>This isn’t a bad idea, per se, but it is a needlessly indirect–and often insufficient–approach to defining a statistical model for <span class="math inline">\(X\)</span>. It leaves out critical distributional details, the same details needed to determine how anything using our new <span class="math inline">\(x_t\)</span> estimates might be affected (through <a href="https://en.wikipedia.org/wiki/Propagation_of_uncertainty">propagation of uncertainty</a>). Eventually one comes around to specifying these details, but, in situations of sufficient complexity, this practice doesn’t produce a very clean, manageable or easily extensible model.</p>
 <p>The kinds of complicated models arising in these situations are both conceptually and technically difficult to use, and–as a result–it can be very hard to produce anything other than naive asymptotic approximations for errors and intervals. Sadly, these approximations are generally insufficient for all but the simplest scenarios.</p>
 <p>In contrast, we can model the <span class="math inline">\(x_t\)</span> values directly and have a very clear cut path toward out-of-sample predictions and their distributional properties. Even if we hold to the belief that the previous average values are a reasonable imputation, then a number of simple models can account for that assumption.</p>
-<div id="ex:prior_extension" class="example" data-markdown="" data-env-number="3" data-title-name="">
+<div id="ex:prior_extension" class="example" data-markdown="" data-title-name="">
 <p><span id="ex:prior_extension_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{3}\label{ex:prior_extension}\end{equation}\]</span></span></p>
 <p>Let’s consider a normal regression model for <span class="math inline">\(x_t\)</span> with seasonal factors, i.e. <span class="math display">\[\begin{equation}
 X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
@@ -482,7 +482,7 @@ X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
 \end{equation*}\]</span></p>
 </div>
 <p>The reduction in Example <span class="math inline">\(\ref{ex:prior_extension}\)</span> is quite reasonable and could be considered an entire re-definition of our initial observation model in Equation <span class="math inline">\(\eqref{eq:normal-normal}\)</span>. A change like this is a natural part of the standard model development cycle. However, this is not the only way to look at it. In the Bayesian setting we can keep the observation model fixed and iterate on the prior’s specification. The resulting marginal distribution could effectively be the same under both approaches (if desired), but the latter has the advantage of at least maintaining–conditionally–our earlier work.</p>
-<div class="example" data-markdown="" data-env-number="4" data-title-name="">
+<div class="example" data-markdown="" data-title-name="">
 <p>We haven’t given a prior to <span class="math inline">\(\beta\)</span>, but if we did, in the absence of conflicting assumptions, we might want the product <span class="math inline">\(\beta \cdot \theta\)</span> to simplified to a single unknown variables of its own, so that we’re not estimating two “entangled” variables. This idea might be inspired by an understanding of the classical <a href="https://en.wikipedia.org/wiki/Parameter_identification_problem">identification</a> issue arising from such products.</p>
 <p>With <span class="math inline">\(\beta\)</span> constant, the form of our marginal observation model is basically unchanged from our initial under <span class="math inline">\(x_t \to d(t)^\top \beta\)</span> and <span class="math inline">\(\sigma^2 \to \sigma^2 + \sigma_x^2 \cdot d(t)^\top \beta \beta^\top d(t)\)</span>.</p>
 </div>

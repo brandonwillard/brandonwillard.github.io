@@ -215,7 +215,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="proximal-and-computational-components" class="level1">
 <h1>Proximal and Computational Components</h1>
 <p>First, we [re]-introduce the workhorse of proximal methods: the <em>proximal operator</em>.</p>
-<div class="definition" data-markdown="" data-env-number="1" data-title-name="[Proximal Operator]">
+<div class="definition" data-markdown="" data-title-name="[Proximal Operator]">
 <p><span class="math display">\[\begin{equation*}
 \operatorname*{prox}_{\phi}(x) =
     \operatorname*{argmin}_{z} \left\{
@@ -262,7 +262,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>For simplicity, we’ll just assume that all components of the estimation problem are know–i.e. loss and penalty functions. The proximal operator that arises in this standard example is the <em>soft thresholding</em> operator. In Theano, it can be implemented with the following:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> tt_soft_threshold(beta_, lambda_):</a>
 <a class="sourceLine" id="cb3-2" title="2">    <span class="cf">return</span> tt.sgn(beta_) <span class="op">*</span> tt.maximum(tt.abs_(beta_) <span class="op">-</span> lambda_, <span class="dv">0</span>)</a></code></pre></div>
-<div class="remark" data-markdown="" data-env-number="1" data-title-name="">
+<div class="remark" data-markdown="" data-title-name="">
 <p>This operator can take other forms, and the one used here is likely not the best. The <code>maximum</code> can be replaced by other conditional-like statements–such as <span class="math display">\[\begin{equation*}
 \operatorname{S}(z, \lambda) =
     \begin{cases}
@@ -410,7 +410,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb6-23" title="23"></a>
 <a class="sourceLine" id="cb6-24" title="24">        alpha_ <span class="op">*=</span> bt_rate</a>
 <a class="sourceLine" id="cb6-25" title="25">        <span class="cf">assert</span> alpha_ <span class="op">&gt;=</span> <span class="dv">0</span>, <span class="st">&#39;invalid step size: </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(alpha_)</a></code></pre></div>
-<div class="remark" data-markdown="" data-env-number="2" data-title-name="">
+<div class="remark" data-markdown="" data-title-name="">
 <p>Routines like this that make use of the gradient and other quantities might also be good candidates for execution in Theano, if only because of the graph optimizations that are able to remedy obviously redundant computations.</p>
 <p>In this vein, we could consider performing the line-search, and/or the entire optimization loop, within a Theano <code>scan</code> operation. We could also create <code>Op</code>s that represents gradient and line-search step. These might make graph construction much simpler, and be more suited for the current optimization framework.</p>
 <p>Although <code>scan</code> and tighter Theano integration may not on average produce better results than our current use of its compiled functions, we still wish to emphasize the possibilities.</p>
@@ -520,19 +520,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \label{eq:partial_resid}
 \end{equation}\]</span> The last expression hints at the most basic idea behind the coordinate-wise approach: conditional minimization in each <span class="math inline">\(m\)</span>. Its exact solution in each coordinate is given by the aforementioned soft thresholding function, which–as we’ve already stated–is a proximal operator. In symbols, <span class="math inline">\(\operatorname*{prox}_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)\)</span>, where the latter is the soft thresholding operator.</p>
 <p>Now, if we wanted to relate Equation <span class="math inline">\(\eqref{eq:partial_resid}\)</span> a proximal method via the statement of a proximal gradient fixed-point solution–i.e. Equation <span class="math inline">\(\eqref{eq:forward-backward}\)</span>–we might use the following property of proximal operators:</p>
-<div id="lem:prox_ortho_basis" class="lemma" data-markdown="" data-env-number="1" data-title-name="">
+<div id="lem:prox_ortho_basis" class="lemma" data-markdown="" data-title-name="">
 <p><span id="lem:prox_ortho_basis_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{1}\label{lem:prox_ortho_basis}\end{equation}\]</span></span></p>
 <p><span class="math display">\[\begin{equation*}
 \operatorname*{prox}_{\lambda \phi \circ e^\top_m}(z) =
     \sum^M_m \operatorname*{prox}_{\lambda \phi}\left(e^\top_m z\right) e_m
     \;.
 \end{equation*}\]</span></p>
-<div class="proof" data-markdown="" data-env-number="1" data-title-name="">
+<div class="proof" data-markdown="" data-title-name="">
 <p>See <span class="citation" data-cites="chaux_variational_2007">Chaux et al. (2007)</span>.</p>
 </div>
 </div>
 <p>The next result yields our desired connection.</p>
-<div id="eq:prox_grad_descent" class="proposition" data-markdown="" data-env-number="1" data-title-name="">
+<div id="eq:prox_grad_descent" class="proposition" data-markdown="" data-title-name="">
 <p><span id="eq:prox_grad_descent_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{1}\label{eq:prox_grad_descent}\end{equation}\]</span></span></p>
 <p>For <span class="math inline">\(X\)</span> such that <span class="math inline">\({{\bf 1}}^\top X e_m = 0\)</span> and <span class="math inline">\(e^\top_m X^\top X e_m = 1\)</span>, <span class="math inline">\(m \in \{1, \dots, M\}\)</span>, the coordinate-wise step of the Lasso in <span class="citation" data-cites="friedman_pathwise_2007">Friedman et al. (2007 Equation (9))</span>, <span class="math display">\[\begin{equation*}
 \beta_m = \operatorname{S}_{\lambda}\left[
@@ -548,7 +548,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     \right] e_m
     \;.
 \end{equation*}\]</span></p>
-<div class="proof" data-markdown="" data-env-number="2" data-title-name="">
+<div class="proof" data-markdown="" data-title-name="">
 <p>We start with an expansion of the terms in <span class="math inline">\(\operatorname*{prox}_{\lambda \phi} \equiv \operatorname{S}_\lambda\)</span>. After simplifying the notation with <span class="math display">\[\begin{equation*}
 \begin{gathered}
     \sum^N_{n} X_{n,m} z_n = e^\top_m X^\top z, \quad \text{and} \quad
@@ -582,7 +582,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 \end{equation*}\]</span></p>
 </div>
 </div>
-<div id="rem:bases" class="remark" data-markdown="" data-env-number="3" data-title-name="">
+<div id="rem:bases" class="remark" data-markdown="" data-title-name="">
 <p><span id="rem:bases_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{3}\label{rem:bases}\end{equation}\]</span></span></p>
 <p>The property in Lemma <span class="math inline">\(\eqref{lem:prox_ortho_basis}\)</span> can used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques <span class="citation" data-cites="chaux_variational_2007">(Chaux et al. 2007)</span>. Also, this property provides a neat way to think about <span class="math inline">\(X\)</span>-based orthogonalizations in estimations for regression and grouped-penalization problems.</p>
 </div>
@@ -650,7 +650,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb12-16" title="16">    np.random.shuffle(cd_step.col_seq)</a></code></pre></div>
 <p><span id="fig:pg_coord_plot"><span id="fig:pg_coord_plot_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{2}\label{fig:pg_coord_plot}\end{equation}\]</span></span><img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_coord_plot_1.png" title="fig:" alt="Minimization by coordinate descent." /></span></p>
 <p>Figure <span class="math inline">\(\ref{fig:pg_coord_plot}\)</span> shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.</p>
-<div class="remark" data-markdown="" data-env-number="4" data-title-name="">
+<div class="remark" data-markdown="" data-title-name="">
 <p>Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature <span class="citation" data-cites="roberts_updating_1997">(Roberts and Sahu 1997)</span>–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark <span class="math inline">\(\ref{rem:bases}\)</span> and, to some extent, stochastic gradient descent (SGD) <span class="citation" data-cites="bertsekas_incremental_2010">(Bertsekas 2010)</span>.</p>
 <p>In a woefully lacking over-generalization, let’s say that it comes down to the [spectral] properties of the composite operator(s) <span class="math inline">\(l \circ X\)</span> and/or <span class="math inline">\(\nabla l \circ X\)</span>. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of <span class="math inline">\(\beta\)</span> nears or distances from those bounds.</p>
 </div>
