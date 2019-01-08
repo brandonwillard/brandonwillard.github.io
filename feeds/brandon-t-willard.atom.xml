@@ -896,10 +896,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;a class="sourceLine" id="org1fcc4d3-9" title="9"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(obj_from_repr)&lt;/a&gt;
 &lt;a class="sourceLine" id="org1fcc4d3-10" title="10"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="org1fcc4d3-11" title="11"&gt;&lt;span class="bu"&gt;print&lt;/span&gt;(test_obj &lt;span class="op"&gt;==&lt;/span&gt; obj_from_repr)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class="sourceCode" id="org4461d5e"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org4461d5e-1" title="1"&gt;{&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;: [&lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;3&lt;/span&gt;]}&lt;/a&gt;
-&lt;a class="sourceLine" id="org4461d5e-2" title="2"&gt;{&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;: [&lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;3&lt;/span&gt;]}&lt;/a&gt;
-&lt;a class="sourceLine" id="org4461d5e-3" title="3"&gt;&lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org4461d5e-4" title="4"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="orgd8b6ebf"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgd8b6ebf-1" title="1"&gt;{&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;: [&lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;3&lt;/span&gt;]}&lt;/a&gt;
+&lt;a class="sourceLine" id="orgd8b6ebf-2" title="2"&gt;{&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;: [&lt;span class="dv"&gt;2&lt;/span&gt;, &lt;span class="dv"&gt;3&lt;/span&gt;]}&lt;/a&gt;
+&lt;a class="sourceLine" id="orgd8b6ebf-3" title="3"&gt;&lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgd8b6ebf-4" title="4"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;p&gt;There’s already a &lt;code&gt;hy.contrib.hy-repr&lt;/code&gt; module that gets most of the way there, but it doesn’t implement the Python standard library’s &lt;code&gt;reprlib.Repr&lt;/code&gt;. The class &lt;code&gt;reprlib.Repr&lt;/code&gt; implements limits for the display lengths of the strings it produces, and its source code provides a few standard library implementations of primitive object &lt;code&gt;repr&lt;/code&gt;s–which require only trivial changes to produce the desired Hy syntax.&lt;/p&gt;
 &lt;p&gt;For these reasons–and an overall interest in using and translating more of the Python standard library to Hy–I decided to try a quick refactoring of &lt;code&gt;hy.contrib.hy-repr&lt;/code&gt; that implements &lt;code&gt;reprlib.Repr&lt;/code&gt;.&lt;/p&gt;
@@ -929,18 +929,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 (setv test-obj (TestClass 1 {&amp;quot;a&amp;quot; 1 &amp;quot;b&amp;quot; 2} :kwarg1 1 :kwarg2 &amp;quot;ok&amp;quot;))
 (print (repr test-obj))&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="org01c6518"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org01c6518-1" title="1"&gt;TestClass(&lt;span class="dv"&gt;1&lt;/span&gt;, {&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;2&lt;/span&gt;}, kwarg1&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;, kwarg2&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;ok&amp;#39;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org400ef0c"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org400ef0c-1" title="1"&gt;TestClass(&lt;span class="dv"&gt;1&lt;/span&gt;, {&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;1&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;: &lt;span class="dv"&gt;2&lt;/span&gt;}, kwarg1&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;, kwarg2&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;ok&amp;#39;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Since the results are readable, we can do the following:&lt;/p&gt;
 &lt;pre id="org382ba33" class="hy"&gt;&lt;code&gt;(import ast astor)
 (setv repr-ast (ast.parse (repr test-obj) :mode &amp;quot;eval&amp;quot;))
 (print (astor.dump repr-ast))&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="org7d3959d"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org7d3959d-1" title="1"&gt;Expression(&lt;/a&gt;
-&lt;a class="sourceLine" id="org7d3959d-2" title="2"&gt;    body&lt;span class="op"&gt;=&lt;/span&gt;Call(func&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;TestClass&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="org7d3959d-3" title="3"&gt;              args&lt;span class="op"&gt;=&lt;/span&gt;[Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="org7d3959d-4" title="4"&gt;                    Dict(keys&lt;span class="op"&gt;=&lt;/span&gt;[Str(s&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;), Str(s&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;)],&lt;/a&gt;
-&lt;a class="sourceLine" id="org7d3959d-5" title="5"&gt;                         values&lt;span class="op"&gt;=&lt;/span&gt;[Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;), Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt;)])],&lt;/a&gt;
-&lt;a class="sourceLine" id="org7d3959d-6" title="6"&gt;              keywords&lt;span class="op"&gt;=&lt;/span&gt;[keyword(arg&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;kwarg1&amp;#39;&lt;/span&gt;, value&lt;span class="op"&gt;=&lt;/span&gt;Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;)),&lt;/a&gt;
-&lt;a class="sourceLine" id="org7d3959d-7" title="7"&gt;                        keyword(arg&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;kwarg2&amp;#39;&lt;/span&gt;, value&lt;span class="op"&gt;=&lt;/span&gt;Str(s&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;ok&amp;#39;&lt;/span&gt;))]))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org918f48e"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org918f48e-1" title="1"&gt;Expression(&lt;/a&gt;
+&lt;a class="sourceLine" id="org918f48e-2" title="2"&gt;    body&lt;span class="op"&gt;=&lt;/span&gt;Call(func&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;TestClass&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org918f48e-3" title="3"&gt;              args&lt;span class="op"&gt;=&lt;/span&gt;[Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org918f48e-4" title="4"&gt;                    Dict(keys&lt;span class="op"&gt;=&lt;/span&gt;[Str(s&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;), Str(s&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;)],&lt;/a&gt;
+&lt;a class="sourceLine" id="org918f48e-5" title="5"&gt;                         values&lt;span class="op"&gt;=&lt;/span&gt;[Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;), Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;2&lt;/span&gt;)])],&lt;/a&gt;
+&lt;a class="sourceLine" id="org918f48e-6" title="6"&gt;              keywords&lt;span class="op"&gt;=&lt;/span&gt;[keyword(arg&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;kwarg1&amp;#39;&lt;/span&gt;, value&lt;span class="op"&gt;=&lt;/span&gt;Num(n&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;)),&lt;/a&gt;
+&lt;a class="sourceLine" id="org918f48e-7" title="7"&gt;                        keyword(arg&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;kwarg2&amp;#39;&lt;/span&gt;, value&lt;span class="op"&gt;=&lt;/span&gt;Str(s&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;ok&amp;#39;&lt;/span&gt;))]))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/section&gt;
 &lt;section id="a-generalized-hy-repr-prototype" class="level2"&gt;
@@ -979,7 +979,7 @@ This can be used to turn a \&amp;quot;readable\&amp;quot; `repr` result, via an 
 
 (setv test-ast (ast.parse &amp;quot;range(x, y, blah=1, bloh=\&amp;quot;ok\&amp;quot;)&amp;quot; :mode &amp;quot;eval&amp;quot;))
 (print (ast-funcall-to-hy test-ast (fn [x &amp;amp;rest y] (-hy-repr x))))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre id="orge859f8d" class="hy"&gt;&lt;code&gt;(range x y :blah 1 :bloh &amp;quot;ok&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre id="orga24c441" class="hy"&gt;&lt;code&gt;(range x y :blah 1 :bloh &amp;quot;ok&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;code&gt;ast-funcall-to-hy&lt;/code&gt; is an extremely narrow decompiler that only handles readable function calls (represented by &lt;code&gt;ast.Call&lt;/code&gt; nodes), but, as part of a fallback sequence in a Hy &lt;code&gt;repr&lt;/code&gt; implementation, it’s still pretty useful.&lt;/p&gt;
 &lt;p&gt;A function like &lt;code&gt;ast-funcall-to-hy&lt;/code&gt; can be used in &lt;code&gt;repr&lt;/code&gt; logic as follows:&lt;/p&gt;
 &lt;pre id="org80332ca" class="hy"&gt;&lt;code&gt;(defn hy-repr [x &amp;amp;optional [level 1] [-repr (fn [x &amp;amp;rest y] (-hy-repr x))]]
@@ -1000,7 +1000,7 @@ we haven&amp;#39;t covered explicitly.
 (print (.format &amp;quot;before: {}\nafter: {}&amp;quot;
                 (repr test-ast)
                 (hy-repr test-ast)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre id="org1e110f5" class="text"&gt;&lt;code&gt;before: TestClass(1, {&amp;#39;a&amp;#39;: 2, &amp;#39;b&amp;#39;: 3}, kwarg1=1, kwarg2=&amp;#39;ok&amp;#39;)
+&lt;pre id="orgfc788b4" class="text"&gt;&lt;code&gt;before: TestClass(1, {&amp;#39;a&amp;#39;: 2, &amp;#39;b&amp;#39;: 3}, kwarg1=1, kwarg2=&amp;#39;ok&amp;#39;)
 after: (TestClass 1 {&amp;quot;a&amp;quot; 2  &amp;quot;b&amp;quot; 3} :kwarg1 1 :kwarg2 &amp;quot;ok&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/section&gt;
@@ -1019,17 +1019,17 @@ after: (TestClass 1 {&amp;quot;a&amp;quot; 2  &amp;quot;b&amp;quot; 3} :kwarg1 1
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;in a cohesive way.&lt;/p&gt;
 &lt;p&gt;My relational programming DSL of choice, &lt;a href="http://minikanren.org"&gt;miniKanren&lt;/a&gt;, already has an implementation in Hy: &lt;a href="https://github.com/algernon/adderall"&gt;&lt;code&gt;loghyc&lt;/code&gt; (and to be formally known as &lt;code&gt;adderall&lt;/code&gt;)&lt;/a&gt;. We’ve been using it to perform static code analysis and refactoring in the project &lt;a href="https://github.com/hylang/hydiomatic"&gt;&lt;code&gt;hydiomatic&lt;/code&gt;&lt;/a&gt;, so there’s also a precedent for parsing Hy syntax in a relational context.&lt;/p&gt;
-&lt;p&gt;The missing/next step would be to output Python AST (instead of more Hy forms, like &lt;code&gt;hydiomatic&lt;/code&gt; produces, for example). In the following, we provide a small example that only accounts for simple expressions/function calls and &lt;code&gt;if&lt;/code&gt; forms.&lt;/p&gt;
+&lt;p&gt;The missing/next step would be to output Python AST (instead of more Hy forms, like &lt;code&gt;hydiomatic&lt;/code&gt; produces, for example). In the following sections, we will construct a small relational Hy/Python compiler as a proof-of-concept.&lt;/p&gt;
 &lt;section id="a-prototype-relational-compiler" class="level2"&gt;
 &lt;h2&gt;A Prototype Relational Compiler&lt;/h2&gt;
 &lt;p&gt;Creating a bi-directional Hy/Python AST compiler in miniKanren involves the construction of goals “relating” the two AST forms. For simplicity, we’ll just consider function call expressions, like &lt;code&gt;func(args)&lt;/code&gt; and &lt;code&gt;(func args)&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;Also, since these kinds of relations are more easy to specify using constraints, we’ll use a prototype microKanren implementation in Hy that provides them: &lt;a href="https://github.com/brandonwillard/hypoKanren"&gt;&lt;code&gt;hypoKanren&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;First, let’s examine the general structure of the AST objects for each form.&lt;/p&gt;
 &lt;pre id="org322b444" class="hy"&gt;&lt;code&gt;(astor.dump (hy-compile `(if x y z) &amp;quot;__console__&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="org384225f"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org384225f-1" title="1"&gt;Module(body&lt;span class="op"&gt;=&lt;/span&gt;[Expr(value&lt;span class="op"&gt;=&lt;/span&gt;IfExp(test&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;), body&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;), orelse&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;)))])&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="orgd2dbcdd"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgd2dbcdd-1" title="1"&gt;Module(body&lt;span class="op"&gt;=&lt;/span&gt;[Expr(value&lt;span class="op"&gt;=&lt;/span&gt;IfExp(test&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;), body&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;), orelse&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;)))])&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;pre id="org7521929" class="hy"&gt;&lt;code&gt;(astor.dump (hy-compile `(func x :y z) &amp;quot;__console__&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="org4f6eb47"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org4f6eb47-1" title="1"&gt;Module(&lt;/a&gt;
-&lt;a class="sourceLine" id="org4f6eb47-2" title="2"&gt;    body&lt;span class="op"&gt;=&lt;/span&gt;[Expr(value&lt;span class="op"&gt;=&lt;/span&gt;Call(func&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;func&amp;#39;&lt;/span&gt;), args&lt;span class="op"&gt;=&lt;/span&gt;[Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;)], keywords&lt;span class="op"&gt;=&lt;/span&gt;[keyword(arg&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;, value&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;))]))])&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="orgdc5ccf2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgdc5ccf2-1" title="1"&gt;Module(&lt;/a&gt;
+&lt;a class="sourceLine" id="orgdc5ccf2-2" title="2"&gt;    body&lt;span class="op"&gt;=&lt;/span&gt;[Expr(value&lt;span class="op"&gt;=&lt;/span&gt;Call(func&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;func&amp;#39;&lt;/span&gt;), args&lt;span class="op"&gt;=&lt;/span&gt;[Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;)], keywords&lt;span class="op"&gt;=&lt;/span&gt;[keyword(arg&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;, value&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;))]))])&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;section id="ast-object-unification" class="level3"&gt;
 &lt;h3&gt;AST Object Unification&lt;/h3&gt;
 &lt;p&gt;To make existing Python AST objects amenable to the &lt;a href="https://en.wikipedia.org/wiki/Unification_(computer_science)"&gt;unification&lt;/a&gt; used by miniKanren, we implement &lt;code&gt;unify&lt;/code&gt; specializations for &lt;code&gt;ast.AST&lt;/code&gt; types. Our implementation simply generates unevaluated Hy forms, or Hy AST, that–when evaluated–would (re)create the &lt;code&gt;ast.AST&lt;/code&gt; objects.&lt;/p&gt;
@@ -1089,7 +1089,7 @@ after: (TestClass 1 {&amp;quot;a&amp;quot; 2  &amp;quot;b&amp;quot; 3} :kwarg1 1
 (= (.get unify-exa-1 (var 0))
    (.get unify-exa-2 (var 0))
    [])&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="orgf3fa74a"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgf3fa74a-1" title="1"&gt;&lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org043df5d"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org043df5d-1" title="1"&gt;&lt;span class="va"&gt;True&lt;/span&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Listing &lt;a href="#org70c1279"&gt;17&lt;/a&gt; illustrates unification of two &lt;code&gt;ast.AST&lt;/code&gt; forms. The &lt;code&gt;(var 0)&lt;/code&gt; objects are “logic variables” taking the value of sub-expressions that cause the two &lt;code&gt;unify&lt;/code&gt; arguments to, well, unify. The third argument to &lt;code&gt;unify&lt;/code&gt; is simply a &lt;code&gt;dict&lt;/code&gt; that stores the logic variable/sub-expression mappings.&lt;/p&gt;
 &lt;p&gt;In other words, logic variables are like unknowns that &lt;code&gt;unify(u, v, s)&lt;/code&gt; will “solve” in order to make &lt;code&gt;u&lt;/code&gt; and &lt;code&gt;v&lt;/code&gt; equal.&lt;/p&gt;
 &lt;/div&gt;
@@ -1097,12 +1097,12 @@ after: (TestClass 1 {&amp;quot;a&amp;quot; 2  &amp;quot;b&amp;quot; 3} :kwarg1 1
 &lt;pre id="orgd9478e0" class="hy"&gt;&lt;code&gt;(unify (cons &amp;#39;ast.Expr (var 0))
        (ast.Expr :value [(ast.Name :id &amp;quot;a&amp;quot;)])
        {})&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="orgfba407c"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgfba407c-1" title="1"&gt;{(LVar &lt;span class="dv"&gt;0&lt;/span&gt;): HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orgfba407c-2" title="2"&gt;  HyKeyword(&lt;span class="st"&gt;&amp;#39;value&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orgfba407c-3" title="3"&gt;  [HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orgfba407c-4" title="4"&gt;    HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orgfba407c-5" title="5"&gt;    HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orgfba407c-6" title="6"&gt;    &lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;])]])}&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org05aa032"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org05aa032-1" title="1"&gt;{(LVar &lt;span class="dv"&gt;0&lt;/span&gt;): HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org05aa032-2" title="2"&gt;  HyKeyword(&lt;span class="st"&gt;&amp;#39;value&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org05aa032-3" title="3"&gt;  [HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org05aa032-4" title="4"&gt;    HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org05aa032-5" title="5"&gt;    HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org05aa032-6" title="6"&gt;    &lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;])]])}&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Listing &lt;a href="#orgd9478e0"&gt;19&lt;/a&gt; is a more interesting example that demonstrates partial/improper list unification. Since &lt;code&gt;ast.AST&lt;/code&gt; objects are expanded into equal object-instantiating Hy AST forms, &lt;code&gt;(cons 'ast.Expr (var 0))&lt;/code&gt; is ultimately unified with a &lt;code&gt;HyExpression&lt;/code&gt; (a subclass of &lt;code&gt;list&lt;/code&gt;). Under the &lt;code&gt;cons&lt;/code&gt; abstraction, &lt;code&gt;(var 0)&lt;/code&gt; can be anything that–when &lt;code&gt;cons&lt;/code&gt;ed with the symbol &lt;code&gt;ast.Expr&lt;/code&gt;–will produce the expression &lt;code&gt;(ast.Expr :value [(ast.Name :id "a")])&lt;/code&gt;. The result is the partial &lt;code&gt;HyExpression&lt;/code&gt; comprising the arguments to the &lt;code&gt;ast.Expr&lt;/code&gt; constructor–in other words, the &lt;code&gt;cdr&lt;/code&gt; of the &lt;code&gt;ast.AST&lt;/code&gt; form.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;We will also need to unify some limited Hy AST forms; specifically, &lt;code&gt;HySymbol&lt;/code&gt;s. We will want to extract only the name part of a Hy symbol and relate that to Python &lt;code&gt;ast.Name&lt;/code&gt;s via one of the latter’s constructor arguments.&lt;/p&gt;
@@ -1125,7 +1125,7 @@ after: (TestClass 1 {&amp;quot;a&amp;quot; 2  &amp;quot;b&amp;quot; 3} :kwarg1 1
      (unify-hysymbol v u s)))&lt;/code&gt;&lt;/pre&gt;
 &lt;div class="example" data-markdown=""&gt;
 &lt;pre id="orgbc4dbe9" class="hy"&gt;&lt;code&gt;(unify &amp;#39;a `(HySymbol ~(var 0)) {})&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="org75b23f8"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org75b23f8-1" title="1"&gt;{(LVar &lt;span class="dv"&gt;0&lt;/span&gt;): &lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;}&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="orgc000745"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgc000745-1" title="1"&gt;{(LVar &lt;span class="dv"&gt;0&lt;/span&gt;): &lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;}&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Listing &lt;a href="#org7b1a1a0"&gt;21&lt;/a&gt; demonstrates the expansion and unification of Hy AST symbols.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/section&gt;
@@ -1194,67 +1194,67 @@ after: (TestClass 1 {&amp;quot;a&amp;quot; 2  &amp;quot;b&amp;quot; 3} :kwarg1 1
 (.format &amp;quot;hy_ast_exa = {}\npy_ast_exa = {}&amp;quot;
          hy-ast-exa
          (astor.dump py-ast-exa))&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="org9b4dd35"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org9b4dd35-1" title="1"&gt;hy_ast_exa &lt;span class="op"&gt;=&lt;/span&gt; HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="org9b4dd35-2" title="2"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="org9b4dd35-3" title="3"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="org9b4dd35-4" title="4"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="org9b4dd35-5" title="5"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;)])&lt;/a&gt;
-&lt;a class="sourceLine" id="org9b4dd35-6" title="6"&gt;py_ast_exa &lt;span class="op"&gt;=&lt;/span&gt; Expr(value&lt;span class="op"&gt;=&lt;/span&gt;Call(func&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;), args&lt;span class="op"&gt;=&lt;/span&gt;[Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;), Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;), Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;)], keywords&lt;span class="op"&gt;=&lt;/span&gt;[]))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org06b2621"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org06b2621-1" title="1"&gt;hy_ast_exa &lt;span class="op"&gt;=&lt;/span&gt; HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org06b2621-2" title="2"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org06b2621-3" title="3"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org06b2621-4" title="4"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org06b2621-5" title="5"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;)])&lt;/a&gt;
+&lt;a class="sourceLine" id="org06b2621-6" title="6"&gt;py_ast_exa &lt;span class="op"&gt;=&lt;/span&gt; Expr(value&lt;span class="op"&gt;=&lt;/span&gt;Call(func&lt;span class="op"&gt;=&lt;/span&gt;Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;), args&lt;span class="op"&gt;=&lt;/span&gt;[Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;), Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;), Name(&lt;span class="bu"&gt;id&lt;/span&gt;&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;)], keywords&lt;span class="op"&gt;=&lt;/span&gt;[]))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;We first run the Hy-to-Python direction by providing &lt;code&gt;hy-expro&lt;/code&gt; the &lt;code&gt;hy-ast-exa&lt;/code&gt; value above and a logic variable (i.e. an “unknown”) for the Python AST term.&lt;/p&gt;
 &lt;pre id="org5336211" class="hy"&gt;&lt;code&gt;(setv rel-res (run 1 [py-ast] (hy-py-asto hy-ast-exa py-ast)))
 (setv ast-res (get rel-res 0 0))
 ast-res&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="orga7805ab"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orga7805ab-1" title="1"&gt;HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-2" title="2"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Expr&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-3" title="3"&gt;  HyKeyword(&lt;span class="st"&gt;&amp;#39;value&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-4" title="4"&gt;  HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-5" title="5"&gt;    HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Call&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-6" title="6"&gt;    HyKeyword(&lt;span class="st"&gt;&amp;#39;func&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-7" title="7"&gt;    HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-8" title="8"&gt;      HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-9" title="9"&gt;      HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-10" title="10"&gt;      &lt;span class="st"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-11" title="11"&gt;      HyKeyword(&lt;span class="st"&gt;&amp;#39;ctx&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-12" title="12"&gt;      HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-13" title="13"&gt;        HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Load&amp;#39;&lt;/span&gt;)])]),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-14" title="14"&gt;    HyKeyword(&lt;span class="st"&gt;&amp;#39;args&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-15" title="15"&gt;    HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-16" title="16"&gt;      HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-17" title="17"&gt;        HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-18" title="18"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-19" title="19"&gt;        &lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-20" title="20"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;ctx&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-21" title="21"&gt;        HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-22" title="22"&gt;          HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Load&amp;#39;&lt;/span&gt;)])]),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-23" title="23"&gt;      HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-24" title="24"&gt;        HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-25" title="25"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-26" title="26"&gt;        &lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-27" title="27"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;ctx&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-28" title="28"&gt;        HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-29" title="29"&gt;          HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Load&amp;#39;&lt;/span&gt;)])]),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-30" title="30"&gt;      HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-31" title="31"&gt;        HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-32" title="32"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-33" title="33"&gt;        &lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-34" title="34"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;ctx&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-35" title="35"&gt;        HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-36" title="36"&gt;          HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Load&amp;#39;&lt;/span&gt;)])])]),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-37" title="37"&gt;    HyKeyword(&lt;span class="st"&gt;&amp;#39;keywords&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orga7805ab-38" title="38"&gt;    HyList()])])&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org5ab617c"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org5ab617c-1" title="1"&gt;HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-2" title="2"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Expr&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-3" title="3"&gt;  HyKeyword(&lt;span class="st"&gt;&amp;#39;value&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-4" title="4"&gt;  HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-5" title="5"&gt;    HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Call&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-6" title="6"&gt;    HyKeyword(&lt;span class="st"&gt;&amp;#39;func&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-7" title="7"&gt;    HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-8" title="8"&gt;      HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-9" title="9"&gt;      HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-10" title="10"&gt;      &lt;span class="st"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-11" title="11"&gt;      HyKeyword(&lt;span class="st"&gt;&amp;#39;ctx&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-12" title="12"&gt;      HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-13" title="13"&gt;        HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Load&amp;#39;&lt;/span&gt;)])]),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-14" title="14"&gt;    HyKeyword(&lt;span class="st"&gt;&amp;#39;args&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-15" title="15"&gt;    HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-16" title="16"&gt;      HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-17" title="17"&gt;        HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-18" title="18"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-19" title="19"&gt;        &lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-20" title="20"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;ctx&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-21" title="21"&gt;        HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-22" title="22"&gt;          HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Load&amp;#39;&lt;/span&gt;)])]),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-23" title="23"&gt;      HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-24" title="24"&gt;        HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-25" title="25"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-26" title="26"&gt;        &lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-27" title="27"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;ctx&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-28" title="28"&gt;        HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-29" title="29"&gt;          HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Load&amp;#39;&lt;/span&gt;)])]),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-30" title="30"&gt;      HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-31" title="31"&gt;        HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Name&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-32" title="32"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;id&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-33" title="33"&gt;        &lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-34" title="34"&gt;        HyKeyword(&lt;span class="st"&gt;&amp;#39;ctx&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-35" title="35"&gt;        HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-36" title="36"&gt;          HySymbol(&lt;span class="st"&gt;&amp;#39;ast.Load&amp;#39;&lt;/span&gt;)])])]),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-37" title="37"&gt;    HyKeyword(&lt;span class="st"&gt;&amp;#39;keywords&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5ab617c-38" title="38"&gt;    HyList()])])&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And, now, the other direction (i.e. known Python AST, unknown Hy AST).&lt;/p&gt;
 &lt;pre id="org7148809" class="hy"&gt;&lt;code&gt;(setv rel-res (run 1 [hy-ast] (hy-py-asto hy-ast py-ast-exa)))
 (setv ast-res (get rel-res 0 0))
 ast-res&lt;/code&gt;&lt;/pre&gt;
-&lt;div class="sourceCode" id="orgc0f6f8c"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgc0f6f8c-1" title="1"&gt;[HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc0f6f8c-2" title="2"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;HySymbol&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc0f6f8c-3" title="3"&gt;  &lt;span class="st"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;]), HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc0f6f8c-4" title="4"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;HySymbol&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc0f6f8c-5" title="5"&gt;  &lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;]), HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc0f6f8c-6" title="6"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;HySymbol&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc0f6f8c-7" title="7"&gt;  &lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;]), HyExpression([&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc0f6f8c-8" title="8"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;HySymbol&amp;#39;&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc0f6f8c-9" title="9"&gt;  &lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;])]&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org5731a00"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org5731a00-1" title="1"&gt;[HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5731a00-2" title="2"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;HySymbol&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5731a00-3" title="3"&gt;  &lt;span class="st"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;]), HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5731a00-4" title="4"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;HySymbol&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5731a00-5" title="5"&gt;  &lt;span class="st"&gt;&amp;#39;x&amp;#39;&lt;/span&gt;]), HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5731a00-6" title="6"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;HySymbol&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5731a00-7" title="7"&gt;  &lt;span class="st"&gt;&amp;#39;y&amp;#39;&lt;/span&gt;]), HyExpression([&lt;/a&gt;
+&lt;a class="sourceLine" id="org5731a00-8" title="8"&gt;  HySymbol(&lt;span class="st"&gt;&amp;#39;HySymbol&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org5731a00-9" title="9"&gt;  &lt;span class="st"&gt;&amp;#39;z&amp;#39;&lt;/span&gt;])]&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/section&gt;
 &lt;/section&gt;
