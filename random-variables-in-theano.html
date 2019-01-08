@@ -115,7 +115,7 @@ Brandon T. Willard            </a>
     </span>
           <span class="label label-default">Modified</span>
             <span class="modified">
-                <i class="fa fa-calendar"></i><time datetime="2018-12-28T00:00:00-06:00"> Fri 28 December 2018</time>
+                <i class="fa fa-calendar"></i><time datetime="2019-01-08T00:00:00-06:00"> Tue 08 January 2019</time>
             </span>
 
 
@@ -235,11 +235,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><p>Reduce/remove the need for an explicitly specified shape parameter.</p>
 <div class="example" data-markdown="">
 <p>For example, definitions like</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="cf">with</span> pm.Model():</a>
-<a class="sourceLine" id="cb1-2" title="2">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))</a></code></pre></div>
+<div class="sourceCode" id="org9a167d6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org9a167d6-1" title="1"><span class="cf">with</span> pm.Model():</a>
+<a class="sourceLine" id="org9a167d6-2" title="2">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))</a></code></pre></div>
 <p>reduce to</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="cf">with</span> pm.Model():</a>
-<a class="sourceLine" id="cb2-2" title="2">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X)</a></code></pre></div>
+<div class="sourceCode" id="org7baf18b"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org7baf18b-1" title="1"><span class="cf">with</span> pm.Model():</a>
+<a class="sourceLine" id="org7baf18b-2" title="2">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X)</a></code></pre></div>
 </div></li>
 <li>Random variable nodes created by an <code>Op</code> automatically implement <code>Distribution.default</code>/<code>Distribution.get_test_val</code> functionality and remove the reliance on initial values during random variable instantiation. <code>Op</code> automatically uses <code>Op.perform</code>, which will draw a sample as a test value <strong>and</strong> propagate it throughout the graph to derived/down-stream tensor variables.</li>
 <li>Log-densities can be generated as secondary outputs of <code>Op.make_node</code>, which removes the need for <code>Distribution.logp*</code> methods.</li>
@@ -248,504 +248,504 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The main points of entry in our <code>Op</code>, are <code>Op.make_node</code> and <code>Op.perform</code>. <code>Op.make_node</code> is used during symbolic graph creation and provides immediate access to the <code>Op</code>’s symbolic inputs–serving a purpose similar to <code>Distribution.__init__</code>. <code>Op.make_node</code> is where shape inference tasks (e.g. <a href="https://github.com/pymc-devs/pymc3/pull/1125">PyMC3 PR 1125</a>) are more suitably addressed; however, <code>Op</code> provides additional means of shape inference and management (e.g. <code>Op.infer_shape</code>) occurring at different phases of graph compilation that aren’t readily accessible outside of the <code>Op</code> framework.</p>
 <section id="implementation" class="level2">
 <h2>Implementation</h2>
-<div class="sourceCode" id="import_theano_pymc3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="import_theano_pymc3-1" title="1"><span class="im">import</span> sys</a>
-<a class="sourceLine" id="import_theano_pymc3-2" title="2"><span class="im">import</span> os</a>
-<a class="sourceLine" id="import_theano_pymc3-3" title="3"></a>
-<a class="sourceLine" id="import_theano_pymc3-4" title="4"><span class="im">from</span> pprint <span class="im">import</span> pprint</a>
-<a class="sourceLine" id="import_theano_pymc3-5" title="5"></a>
-<a class="sourceLine" id="import_theano_pymc3-6" title="6"><span class="im">import</span> numpy <span class="im">as</span> np</a>
-<a class="sourceLine" id="import_theano_pymc3-7" title="7"></a>
-<a class="sourceLine" id="import_theano_pymc3-8" title="8">os.environ[<span class="st">&#39;MKL_THREADING_LAYER&#39;</span>] <span class="op">=</span> <span class="st">&#39;GNU&#39;</span></a>
-<a class="sourceLine" id="import_theano_pymc3-9" title="9"></a>
-<a class="sourceLine" id="import_theano_pymc3-10" title="10"><span class="im">import</span> theano</a>
-<a class="sourceLine" id="import_theano_pymc3-11" title="11"><span class="im">import</span> theano.tensor <span class="im">as</span> tt</a>
-<a class="sourceLine" id="import_theano_pymc3-12" title="12"></a>
-<a class="sourceLine" id="import_theano_pymc3-13" title="13">theano.config.mode <span class="op">=</span> <span class="st">&#39;FAST_COMPILE&#39;</span></a>
-<a class="sourceLine" id="import_theano_pymc3-14" title="14">theano.config.exception_verbosity <span class="op">=</span> <span class="st">&#39;high&#39;</span></a>
-<a class="sourceLine" id="import_theano_pymc3-15" title="15">theano.config.compute_test_value <span class="op">=</span> <span class="st">&#39;raise&#39;</span></a>
-<a class="sourceLine" id="import_theano_pymc3-16" title="16"></a>
-<a class="sourceLine" id="import_theano_pymc3-17" title="17"><span class="im">import</span> pymc3 <span class="im">as</span> pm</a></code></pre></div>
-<div class="sourceCode" id="supp_shape_fn"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="supp_shape_fn-1" title="1"><span class="im">from</span> collections.abc <span class="im">import</span> Iterable, ByteString</a>
-<a class="sourceLine" id="supp_shape_fn-2" title="2"><span class="im">from</span> warnings <span class="im">import</span> warn</a>
-<a class="sourceLine" id="supp_shape_fn-3" title="3"><span class="im">from</span> copy <span class="im">import</span> copy</a>
-<a class="sourceLine" id="supp_shape_fn-4" title="4"></a>
-<a class="sourceLine" id="supp_shape_fn-5" title="5"><span class="im">from</span> theano.tensor.raw_random <span class="im">import</span> (RandomFunction, RandomStateType,</a>
-<a class="sourceLine" id="supp_shape_fn-6" title="6">                                      _infer_ndim_bcast)</a>
-<a class="sourceLine" id="supp_shape_fn-7" title="7"></a>
-<a class="sourceLine" id="supp_shape_fn-8" title="8"></a>
-<a class="sourceLine" id="supp_shape_fn-9" title="9"><span class="kw">def</span> matched_supp_shape_fn(ndim_supp, ndims_params, dist_params,</a>
-<a class="sourceLine" id="supp_shape_fn-10" title="10">                          param_shapes<span class="op">=</span><span class="va">None</span>):</a>
-<a class="sourceLine" id="supp_shape_fn-11" title="11">    <span class="co">&quot;&quot;&quot;A function for extracting a random variable&#39;s support shape/dimensions</span></a>
-<a class="sourceLine" id="supp_shape_fn-12" title="12"><span class="co">    from other (e.g. distribution parameters) shape information.</span></a>
-<a class="sourceLine" id="supp_shape_fn-13" title="13"></a>
-<a class="sourceLine" id="supp_shape_fn-14" title="14"><span class="co">    This default implementation uses the first non-independent/replicated</span></a>
-<a class="sourceLine" id="supp_shape_fn-15" title="15"><span class="co">    dimension of the first distribution parameter.</span></a>
-<a class="sourceLine" id="supp_shape_fn-16" title="16"></a>
-<a class="sourceLine" id="supp_shape_fn-17" title="17"><span class="co">    For example, with a normal random variable, the shape of the mean parameter</span></a>
-<a class="sourceLine" id="supp_shape_fn-18" title="18"><span class="co">    along the first dimension will be used; dimensions after that, if any,</span></a>
-<a class="sourceLine" id="supp_shape_fn-19" title="19"><span class="co">    determine the mean parameters for other *independent* normal variables.</span></a>
-<a class="sourceLine" id="supp_shape_fn-20" title="20"><span class="co">    &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="supp_shape_fn-21" title="21">    <span class="co"># XXX: Gotta be careful slicing Theano variables, the `Subtensor` Op isn&#39;t</span></a>
-<a class="sourceLine" id="supp_shape_fn-22" title="22">    <span class="co"># handled by `tensor.get_scalar_constant_value`!</span></a>
-<a class="sourceLine" id="supp_shape_fn-23" title="23">    <span class="co"># E.g.</span></a>
-<a class="sourceLine" id="supp_shape_fn-24" title="24">    <span class="co">#     test_val = tt.as_tensor_variable([[1], [4]])</span></a>
-<a class="sourceLine" id="supp_shape_fn-25" title="25">    <span class="co">#     tt.get_scalar_constant_value(test_val.shape[-1]) # works</span></a>
-<a class="sourceLine" id="supp_shape_fn-26" title="26">    <span class="co">#     tt.get_scalar_constant_value(test_val.shape[0]) # doesn&#39;t</span></a>
-<a class="sourceLine" id="supp_shape_fn-27" title="27">    <span class="co">#     tt.get_scalar_constant_value(test_val.shape[:-1]) # doesn&#39;t</span></a>
-<a class="sourceLine" id="supp_shape_fn-28" title="28">    <span class="cf">if</span> param_shapes <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="supp_shape_fn-29" title="29">        <span class="co"># return param_shapes[0][-self.ndim_supp:]</span></a>
-<a class="sourceLine" id="supp_shape_fn-30" title="30">        <span class="cf">return</span> (param_shapes[<span class="dv">0</span>][<span class="op">-</span>ndim_supp],)</a>
-<a class="sourceLine" id="supp_shape_fn-31" title="31">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="supp_shape_fn-32" title="32">        ref_shape <span class="op">=</span> tt.shape(dist_params[<span class="dv">0</span>])</a>
-<a class="sourceLine" id="supp_shape_fn-33" title="33">        <span class="co"># return ref_shape[-self.ndim_supp:]</span></a>
-<a class="sourceLine" id="supp_shape_fn-34" title="34">        <span class="cf">return</span> (ref_shape[<span class="op">-</span>ndim_supp],)</a></code></pre></div>
-<div class="sourceCode" id="new_rv_op"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="new_rv_op-1" title="1"><span class="kw">class</span> RandomVariable(tt.gof.Op):</a>
-<a class="sourceLine" id="new_rv_op-2" title="2">    <span class="co">&quot;&quot;&quot;This is essentially `RandomFunction`, except that it removes the `outtype`</span></a>
-<a class="sourceLine" id="new_rv_op-3" title="3"><span class="co">    dependency and handles shape dimension information more directly.</span></a>
-<a class="sourceLine" id="new_rv_op-4" title="4"><span class="co">    &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="new_rv_op-5" title="5">    __props__ <span class="op">=</span> (<span class="st">&#39;name&#39;</span>, <span class="st">&#39;dtype&#39;</span>, <span class="st">&#39;ndim_supp&#39;</span>, <span class="st">&#39;inplace&#39;</span>, <span class="st">&#39;ndims_params&#39;</span>)</a>
-<a class="sourceLine" id="new_rv_op-6" title="6"></a>
-<a class="sourceLine" id="new_rv_op-7" title="7">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, ndim_supp, ndims_params, rng_fn, <span class="op">*</span>args,</a>
-<a class="sourceLine" id="new_rv_op-8" title="8">                 supp_shape_fn<span class="op">=</span><span class="va">None</span>, dtype<span class="op">=</span>theano.config.floatX, inplace<span class="op">=</span><span class="va">False</span>,</a>
-<a class="sourceLine" id="new_rv_op-9" title="9">                 <span class="op">**</span>kwargs):</a>
-<a class="sourceLine" id="new_rv_op-10" title="10">        <span class="co">&quot;&quot;&quot;Create a random variable `Op`.</span></a>
-<a class="sourceLine" id="new_rv_op-11" title="11"></a>
-<a class="sourceLine" id="new_rv_op-12" title="12"><span class="co">        Parameters</span></a>
-<a class="sourceLine" id="new_rv_op-13" title="13"><span class="co">        ==========</span></a>
-<a class="sourceLine" id="new_rv_op-14" title="14"><span class="co">        ndim_supp: int</span></a>
-<a class="sourceLine" id="new_rv_op-15" title="15"><span class="co">            Dimension of the support.  This value is used to infer the exact</span></a>
-<a class="sourceLine" id="new_rv_op-16" title="16"><span class="co">            shape of the support and independent terms from ``dist_params``.</span></a>
-<a class="sourceLine" id="new_rv_op-17" title="17"><span class="co">        ndims_params: tuple (int)</span></a>
-<a class="sourceLine" id="new_rv_op-18" title="18"><span class="co">            Number of dimensions for each parameter in ``dist_params``</span></a>
-<a class="sourceLine" id="new_rv_op-19" title="19"><span class="co">            for a single variate.  Used to determine the shape of the</span></a>
-<a class="sourceLine" id="new_rv_op-20" title="20"><span class="co">            independent variate space.</span></a>
-<a class="sourceLine" id="new_rv_op-21" title="21"><span class="co">        rng_fn: function or str</span></a>
-<a class="sourceLine" id="new_rv_op-22" title="22"><span class="co">            Sampler function.  Can be the string name of a method provided by</span></a>
-<a class="sourceLine" id="new_rv_op-23" title="23"><span class="co">            `numpy.random.RandomState`.</span></a>
-<a class="sourceLine" id="new_rv_op-24" title="24"><span class="co">        supp_shape_fn: callable</span></a>
-<a class="sourceLine" id="new_rv_op-25" title="25"><span class="co">            Function used to determine the exact shape of the distribution&#39;s</span></a>
-<a class="sourceLine" id="new_rv_op-26" title="26"><span class="co">            support. It must take arguments ndim_supp, ndims_params,</span></a>
-<a class="sourceLine" id="new_rv_op-27" title="27"><span class="co">            dist_params (i.e. an collection of the distribution parameters) and an</span></a>
-<a class="sourceLine" id="new_rv_op-28" title="28"><span class="co">            optional param_shapes (i.e. tuples containing the size of each</span></a>
-<a class="sourceLine" id="new_rv_op-29" title="29"><span class="co">            dimension for each distribution parameter).</span></a>
-<a class="sourceLine" id="new_rv_op-30" title="30"></a>
-<a class="sourceLine" id="new_rv_op-31" title="31"><span class="co">            Defaults to `supp_shape_fn`</span></a>
-<a class="sourceLine" id="new_rv_op-32" title="32"><span class="co">        &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="new_rv_op-33" title="33">        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
-<a class="sourceLine" id="new_rv_op-34" title="34"></a>
-<a class="sourceLine" id="new_rv_op-35" title="35">        <span class="va">self</span>.name <span class="op">=</span> name</a>
-<a class="sourceLine" id="new_rv_op-36" title="36">        <span class="va">self</span>.inplace <span class="op">=</span> inplace</a>
-<a class="sourceLine" id="new_rv_op-37" title="37">        <span class="va">self</span>.dtype <span class="op">=</span> dtype</a>
-<a class="sourceLine" id="new_rv_op-38" title="38"></a>
-<a class="sourceLine" id="new_rv_op-39" title="39">        <span class="va">self</span>.supp_shape_fn <span class="op">=</span> supp_shape_fn <span class="kw">or</span> matched_supp_shape_fn</a>
-<a class="sourceLine" id="new_rv_op-40" title="40"></a>
-<a class="sourceLine" id="new_rv_op-41" title="41">        <span class="va">self</span>.ndim_supp <span class="op">=</span> ndim_supp</a>
-<a class="sourceLine" id="new_rv_op-42" title="42"></a>
-<a class="sourceLine" id="new_rv_op-43" title="43">        <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(ndims_params, Iterable):</a>
-<a class="sourceLine" id="new_rv_op-44" title="44">            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&#39;Parameter ndims_params must be iterable.&#39;</span>)</a>
-<a class="sourceLine" id="new_rv_op-45" title="45"></a>
-<a class="sourceLine" id="new_rv_op-46" title="46">        <span class="va">self</span>.ndims_params <span class="op">=</span> <span class="bu">tuple</span>(ndims_params)</a>
-<a class="sourceLine" id="new_rv_op-47" title="47"></a>
-<a class="sourceLine" id="new_rv_op-48" title="48">        <span class="va">self</span>.default_output <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="new_rv_op-49" title="49"></a>
-<a class="sourceLine" id="new_rv_op-50" title="50">        <span class="cf">if</span> <span class="bu">isinstance</span>(rng_fn, (<span class="bu">str</span>, ByteString)):</a>
-<a class="sourceLine" id="new_rv_op-51" title="51">            <span class="va">self</span>.rng_fn <span class="op">=</span> <span class="bu">getattr</span>(np.random.RandomState, rng_fn)</a>
-<a class="sourceLine" id="new_rv_op-52" title="52">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="new_rv_op-53" title="53">            <span class="va">self</span>.rng_fn <span class="op">=</span> rng_fn</a>
-<a class="sourceLine" id="new_rv_op-54" title="54"></a>
-<a class="sourceLine" id="new_rv_op-55" title="55">    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</a>
-<a class="sourceLine" id="new_rv_op-56" title="56">        <span class="cf">return</span> <span class="st">&#39;</span><span class="sc">{}</span><span class="st">_rv&#39;</span>.<span class="bu">format</span>(<span class="va">self</span>.name)</a>
-<a class="sourceLine" id="new_rv_op-57" title="57"></a>
-<a class="sourceLine" id="new_rv_op-58" title="58">    <span class="kw">def</span> _infer_shape(<span class="va">self</span>, size, dist_params, param_shapes<span class="op">=</span><span class="va">None</span>):</a>
-<a class="sourceLine" id="new_rv_op-59" title="59">        <span class="co">&quot;&quot;&quot;Compute shapes and broadcasts properties.</span></a>
-<a class="sourceLine" id="new_rv_op-60" title="60"></a>
-<a class="sourceLine" id="new_rv_op-61" title="61"><span class="co">        Inspired by `tt.add.get_output_info`.</span></a>
-<a class="sourceLine" id="new_rv_op-62" title="62"><span class="co">        &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="new_rv_op-63" title="63"></a>
-<a class="sourceLine" id="new_rv_op-64" title="64">        size_len <span class="op">=</span> tt.get_vector_length(size)</a>
-<a class="sourceLine" id="new_rv_op-65" title="65"></a>
-<a class="sourceLine" id="new_rv_op-66" title="66">        dummy_params <span class="op">=</span> <span class="bu">tuple</span>(p <span class="cf">if</span> n <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> tt.ones(<span class="bu">tuple</span>(p.shape)[:<span class="op">-</span>n])</a>
-<a class="sourceLine" id="new_rv_op-67" title="67">                             <span class="cf">for</span> p, n <span class="kw">in</span> <span class="bu">zip</span>(dist_params, <span class="va">self</span>.ndims_params))</a>
-<a class="sourceLine" id="new_rv_op-68" title="68"></a>
-<a class="sourceLine" id="new_rv_op-69" title="69">        _, out_bcasts, bcastd_inputs <span class="op">=</span> tt.add.get_output_info(</a>
-<a class="sourceLine" id="new_rv_op-70" title="70">            tt.DimShuffle, <span class="op">*</span>dummy_params)</a>
-<a class="sourceLine" id="new_rv_op-71" title="71"></a>
-<a class="sourceLine" id="new_rv_op-72" title="72">        <span class="co"># _, out_bcasts, bcastd_inputs = tt.add.get_output_info(tt.DimShuffle, *dist_params)</span></a>
-<a class="sourceLine" id="new_rv_op-73" title="73">        <span class="co"># .tag.test_value</span></a>
-<a class="sourceLine" id="new_rv_op-74" title="74"></a>
-<a class="sourceLine" id="new_rv_op-75" title="75">        bcast_ind, <span class="op">=</span> out_bcasts</a>
-<a class="sourceLine" id="new_rv_op-76" title="76">        ndim_ind <span class="op">=</span> <span class="bu">len</span>(bcast_ind)</a>
-<a class="sourceLine" id="new_rv_op-77" title="77">        shape_ind <span class="op">=</span> bcastd_inputs[<span class="dv">0</span>].shape</a>
-<a class="sourceLine" id="new_rv_op-78" title="78"></a>
-<a class="sourceLine" id="new_rv_op-79" title="79">        <span class="cf">if</span> <span class="va">self</span>.ndim_supp <span class="op">==</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="new_rv_op-80" title="80">            shape_supp <span class="op">=</span> <span class="bu">tuple</span>()</a>
-<a class="sourceLine" id="new_rv_op-81" title="81"></a>
-<a class="sourceLine" id="new_rv_op-82" title="82">            <span class="co"># In the scalar case, `size` corresponds to the entire result&#39;s</span></a>
-<a class="sourceLine" id="new_rv_op-83" title="83">            <span class="co"># shape. This implies the following:</span></a>
-<a class="sourceLine" id="new_rv_op-84" title="84">            <span class="co">#     shape_ind[-ndim_ind] == size[:ndim_ind]</span></a>
-<a class="sourceLine" id="new_rv_op-85" title="85">            <span class="co"># </span><span class="al">TODO</span><span class="co">: How do we add this constraint/check symbolically?</span></a>
-<a class="sourceLine" id="new_rv_op-86" title="86"></a>
-<a class="sourceLine" id="new_rv_op-87" title="87">            ndim_reps <span class="op">=</span> <span class="bu">max</span>(size_len <span class="op">-</span> ndim_ind, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="new_rv_op-88" title="88">            shape_reps <span class="op">=</span> <span class="bu">tuple</span>(size)[ndim_ind:]</a>
-<a class="sourceLine" id="new_rv_op-89" title="89">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="new_rv_op-90" title="90">            shape_supp <span class="op">=</span> <span class="va">self</span>.supp_shape_fn(<span class="va">self</span>.ndim_supp,</a>
-<a class="sourceLine" id="new_rv_op-91" title="91">                                            <span class="va">self</span>.ndims_params,</a>
-<a class="sourceLine" id="new_rv_op-92" title="92">                                            dist_params,</a>
-<a class="sourceLine" id="new_rv_op-93" title="93">                                            param_shapes<span class="op">=</span>param_shapes)</a>
-<a class="sourceLine" id="new_rv_op-94" title="94"></a>
-<a class="sourceLine" id="new_rv_op-95" title="95">            ndim_reps <span class="op">=</span> size_len</a>
-<a class="sourceLine" id="new_rv_op-96" title="96">            shape_reps <span class="op">=</span> size</a>
-<a class="sourceLine" id="new_rv_op-97" title="97"></a>
-<a class="sourceLine" id="new_rv_op-98" title="98">        ndim_shape <span class="op">=</span> <span class="va">self</span>.ndim_supp <span class="op">+</span> ndim_ind <span class="op">+</span> ndim_reps</a>
-<a class="sourceLine" id="new_rv_op-99" title="99"></a>
-<a class="sourceLine" id="new_rv_op-100" title="100">        <span class="cf">if</span> ndim_shape <span class="op">==</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="new_rv_op-101" title="101">            shape <span class="op">=</span> tt.constant([], dtype<span class="op">=</span><span class="st">&#39;int64&#39;</span>)</a>
-<a class="sourceLine" id="new_rv_op-102" title="102">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="new_rv_op-103" title="103">            shape <span class="op">=</span> <span class="bu">tuple</span>(shape_reps) <span class="op">+</span> <span class="bu">tuple</span>(shape_ind) <span class="op">+</span> <span class="bu">tuple</span>(shape_supp)</a>
-<a class="sourceLine" id="new_rv_op-104" title="104"></a>
-<a class="sourceLine" id="new_rv_op-105" title="105">        <span class="co"># if shape is None:</span></a>
-<a class="sourceLine" id="new_rv_op-106" title="106">        <span class="co">#     raise tt.ShapeError()</span></a>
-<a class="sourceLine" id="new_rv_op-107" title="107"></a>
-<a class="sourceLine" id="new_rv_op-108" title="108">        <span class="cf">return</span> shape</a>
-<a class="sourceLine" id="new_rv_op-109" title="109"></a>
-<a class="sourceLine" id="new_rv_op-110" title="110">    <span class="kw">def</span> make_node(<span class="va">self</span>, <span class="op">*</span>dist_params, size<span class="op">=</span><span class="va">None</span>, rng<span class="op">=</span><span class="va">None</span>, name<span class="op">=</span><span class="va">None</span>):</a>
-<a class="sourceLine" id="new_rv_op-111" title="111">        <span class="co">&quot;&quot;&quot;This will be the &quot;constructor&quot; called by users.</span></a>
-<a class="sourceLine" id="new_rv_op-112" title="112"></a>
-<a class="sourceLine" id="new_rv_op-113" title="113"><span class="co">        Parameters</span></a>
-<a class="sourceLine" id="new_rv_op-114" title="114"><span class="co">        ==========</span></a>
-<a class="sourceLine" id="new_rv_op-115" title="115"><span class="co">        dist_params: list</span></a>
-<a class="sourceLine" id="new_rv_op-116" title="116"><span class="co">            Distribution parameters.</span></a>
-<a class="sourceLine" id="new_rv_op-117" title="117"><span class="co">        size: Iterable or None</span></a>
-<a class="sourceLine" id="new_rv_op-118" title="118"><span class="co">            Numpy-like size of the output (i.e. replications).</span></a>
-<a class="sourceLine" id="new_rv_op-119" title="119"><span class="co">        rng: RandomState or None</span></a>
-<a class="sourceLine" id="new_rv_op-120" title="120"><span class="co">            Existing Theano `RandomState` object to be used.  Creates a</span></a>
-<a class="sourceLine" id="new_rv_op-121" title="121"><span class="co">            new one, if `None`.</span></a>
-<a class="sourceLine" id="new_rv_op-122" title="122"></a>
-<a class="sourceLine" id="new_rv_op-123" title="123"><span class="co">        Results</span></a>
-<a class="sourceLine" id="new_rv_op-124" title="124"><span class="co">        =======</span></a>
-<a class="sourceLine" id="new_rv_op-125" title="125"><span class="co">        An `Apply` node with rng state and sample tensor outputs.</span></a>
-<a class="sourceLine" id="new_rv_op-126" title="126"><span class="co">        &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="new_rv_op-127" title="127">        <span class="cf">if</span> <span class="kw">not</span> (size <span class="kw">is</span> <span class="va">None</span> <span class="kw">or</span> <span class="bu">isinstance</span>(size, Iterable)):</a>
-<a class="sourceLine" id="new_rv_op-128" title="128">            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&#39;Parameter size must be None or iterable&#39;</span>)</a>
-<a class="sourceLine" id="new_rv_op-129" title="129"></a>
-<a class="sourceLine" id="new_rv_op-130" title="130">        dist_params <span class="op">=</span> <span class="bu">tuple</span>(tt.as_tensor_variable(p)</a>
-<a class="sourceLine" id="new_rv_op-131" title="131">                            <span class="cf">for</span> p <span class="kw">in</span> dist_params)</a>
-<a class="sourceLine" id="new_rv_op-132" title="132"></a>
-<a class="sourceLine" id="new_rv_op-133" title="133">        dtype <span class="op">=</span> tt.scal.upcast(<span class="va">self</span>.dtype, <span class="op">*</span>[p.dtype <span class="cf">for</span> p <span class="kw">in</span> dist_params])</a>
-<a class="sourceLine" id="new_rv_op-134" title="134"></a>
-<a class="sourceLine" id="new_rv_op-135" title="135">        <span class="cf">if</span> rng <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="new_rv_op-136" title="136">            rng <span class="op">=</span> theano.shared(np.random.RandomState())</a>
-<a class="sourceLine" id="new_rv_op-137" title="137">        <span class="cf">elif</span> <span class="kw">not</span> <span class="bu">isinstance</span>(rng.<span class="bu">type</span>, RandomStateType):</a>
-<a class="sourceLine" id="new_rv_op-138" title="138">            warn(<span class="st">&#39;The type of rng should be an instance of RandomStateType&#39;</span>)</a>
-<a class="sourceLine" id="new_rv_op-139" title="139"></a>
-<a class="sourceLine" id="new_rv_op-140" title="140">        <span class="cf">if</span> size <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="new_rv_op-141" title="141">            size <span class="op">=</span> tt.constant([], dtype<span class="op">=</span><span class="st">&#39;int64&#39;</span>)</a>
-<a class="sourceLine" id="new_rv_op-142" title="142">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="new_rv_op-143" title="143">            size <span class="op">=</span> tt.as_tensor_variable(size, ndim<span class="op">=</span><span class="dv">1</span>)</a>
-<a class="sourceLine" id="new_rv_op-144" title="144"></a>
-<a class="sourceLine" id="new_rv_op-145" title="145">        <span class="cf">assert</span> size.dtype <span class="op">==</span> <span class="st">&#39;int64&#39;</span></a>
-<a class="sourceLine" id="new_rv_op-146" title="146"></a>
-<a class="sourceLine" id="new_rv_op-147" title="147">        shape <span class="op">=</span> <span class="va">self</span>._infer_shape(size, dist_params)</a>
-<a class="sourceLine" id="new_rv_op-148" title="148"></a>
-<a class="sourceLine" id="new_rv_op-149" title="149">        <span class="co"># Let&#39;s try to do a better job than `_infer_ndim_bcast` when</span></a>
-<a class="sourceLine" id="new_rv_op-150" title="150">        <span class="co"># dimension sizes are symbolic.</span></a>
-<a class="sourceLine" id="new_rv_op-151" title="151">        bcast <span class="op">=</span> []</a>
-<a class="sourceLine" id="new_rv_op-152" title="152">        <span class="cf">for</span> s <span class="kw">in</span> shape:</a>
-<a class="sourceLine" id="new_rv_op-153" title="153">            <span class="cf">try</span>:</a>
-<a class="sourceLine" id="new_rv_op-154" title="154">                <span class="cf">if</span> <span class="bu">isinstance</span>(s.owner.op, tt.Subtensor) <span class="kw">and</span> <span class="op">\</span></a>
-<a class="sourceLine" id="new_rv_op-155" title="155">                   s.owner.inputs[<span class="dv">0</span>].owner <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="new_rv_op-156" title="156">                    <span class="co"># Handle a special case in which</span></a>
-<a class="sourceLine" id="new_rv_op-157" title="157">                    <span class="co"># `tensor.get_scalar_constant_value` doesn&#39;t really work.</span></a>
-<a class="sourceLine" id="new_rv_op-158" title="158">                    s_x, s_idx <span class="op">=</span> s.owner.inputs</a>
-<a class="sourceLine" id="new_rv_op-159" title="159">                    s_idx <span class="op">=</span> tt.get_scalar_constant_value(s_idx)</a>
-<a class="sourceLine" id="new_rv_op-160" title="160">                    <span class="cf">if</span> <span class="bu">isinstance</span>(s_x.owner.op, tt.Shape):</a>
-<a class="sourceLine" id="new_rv_op-161" title="161">                        x_obj, <span class="op">=</span> s_x.owner.inputs</a>
-<a class="sourceLine" id="new_rv_op-162" title="162">                        s_val <span class="op">=</span> x_obj.<span class="bu">type</span>.broadcastable[s_idx]</a>
-<a class="sourceLine" id="new_rv_op-163" title="163">                    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="new_rv_op-164" title="164">                        <span class="co"># </span><span class="al">TODO</span><span class="co">: Could go for an existing broadcastable here, too, no?</span></a>
-<a class="sourceLine" id="new_rv_op-165" title="165">                        s_val <span class="op">=</span> <span class="va">False</span></a>
-<a class="sourceLine" id="new_rv_op-166" title="166">                <span class="cf">else</span>:</a>
-<a class="sourceLine" id="new_rv_op-167" title="167">                    s_val <span class="op">=</span> tt.get_scalar_constant_value(s)</a>
-<a class="sourceLine" id="new_rv_op-168" title="168">            <span class="cf">except</span> tt.NotScalarConstantError:</a>
-<a class="sourceLine" id="new_rv_op-169" title="169">                s_val <span class="op">=</span> <span class="va">False</span></a>
-<a class="sourceLine" id="new_rv_op-170" title="170"></a>
-<a class="sourceLine" id="new_rv_op-171" title="171">            bcast <span class="op">+=</span> [s_val <span class="op">==</span> <span class="dv">1</span>]</a>
-<a class="sourceLine" id="new_rv_op-172" title="172"></a>
-<a class="sourceLine" id="new_rv_op-173" title="173">        outtype <span class="op">=</span> tt.TensorType(dtype<span class="op">=</span>dtype, broadcastable<span class="op">=</span>bcast)</a>
-<a class="sourceLine" id="new_rv_op-174" title="174"></a>
-<a class="sourceLine" id="new_rv_op-175" title="175">        out_var <span class="op">=</span> outtype(name<span class="op">=</span>name)</a>
-<a class="sourceLine" id="new_rv_op-176" title="176"></a>
-<a class="sourceLine" id="new_rv_op-177" title="177">        inputs <span class="op">=</span> (rng, size) <span class="op">+</span> dist_params</a>
-<a class="sourceLine" id="new_rv_op-178" title="178">        outputs <span class="op">=</span> (rng.<span class="bu">type</span>(), out_var)</a>
-<a class="sourceLine" id="new_rv_op-179" title="179"></a>
-<a class="sourceLine" id="new_rv_op-180" title="180">        <span class="cf">return</span> theano.gof.Apply(<span class="va">self</span>, inputs, outputs)</a>
-<a class="sourceLine" id="new_rv_op-181" title="181"></a>
-<a class="sourceLine" id="new_rv_op-182" title="182">    <span class="kw">def</span> infer_shape(<span class="va">self</span>, node, input_shapes):</a>
-<a class="sourceLine" id="new_rv_op-183" title="183">        size <span class="op">=</span> node.inputs[<span class="dv">1</span>]</a>
-<a class="sourceLine" id="new_rv_op-184" title="184">        dist_params <span class="op">=</span> <span class="bu">tuple</span>(node.inputs[<span class="dv">2</span>:])</a>
-<a class="sourceLine" id="new_rv_op-185" title="185">        shape <span class="op">=</span> <span class="va">self</span>._infer_shape(size, dist_params,</a>
-<a class="sourceLine" id="new_rv_op-186" title="186">                                  param_shapes<span class="op">=</span>input_shapes[<span class="dv">2</span>:])</a>
-<a class="sourceLine" id="new_rv_op-187" title="187"></a>
-<a class="sourceLine" id="new_rv_op-188" title="188">        <span class="cf">return</span> [<span class="va">None</span>, [s <span class="cf">for</span> s <span class="kw">in</span> shape]]</a>
-<a class="sourceLine" id="new_rv_op-189" title="189"></a>
-<a class="sourceLine" id="new_rv_op-190" title="190">    <span class="kw">def</span> perform(<span class="va">self</span>, node, inputs, outputs):</a>
-<a class="sourceLine" id="new_rv_op-191" title="191">        <span class="co">&quot;&quot;&quot;Uses `self.rng_fn` to draw random numbers.&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="new_rv_op-192" title="192">        rng_out, smpl_out <span class="op">=</span> outputs</a>
-<a class="sourceLine" id="new_rv_op-193" title="193"></a>
-<a class="sourceLine" id="new_rv_op-194" title="194">        <span class="co"># Draw from `rng` if `self.inplace` is `True`, and from a</span></a>
-<a class="sourceLine" id="new_rv_op-195" title="195">        <span class="co"># copy of `rng` otherwise.</span></a>
-<a class="sourceLine" id="new_rv_op-196" title="196">        rng, size, args <span class="op">=</span> inputs[<span class="dv">0</span>], inputs[<span class="dv">1</span>], inputs[<span class="dv">2</span>:]</a>
-<a class="sourceLine" id="new_rv_op-197" title="197"></a>
-<a class="sourceLine" id="new_rv_op-198" title="198">        <span class="cf">assert</span> <span class="bu">type</span>(rng) <span class="op">==</span> np.random.RandomState, (<span class="bu">type</span>(rng), rng)</a>
-<a class="sourceLine" id="new_rv_op-199" title="199"></a>
-<a class="sourceLine" id="new_rv_op-200" title="200">        rng_out[<span class="dv">0</span>] <span class="op">=</span> rng</a>
-<a class="sourceLine" id="new_rv_op-201" title="201"></a>
-<a class="sourceLine" id="new_rv_op-202" title="202">        <span class="co"># The symbolic output variable corresponding to value produced here.</span></a>
-<a class="sourceLine" id="new_rv_op-203" title="203">        out_var <span class="op">=</span> node.outputs[<span class="dv">1</span>]</a>
-<a class="sourceLine" id="new_rv_op-204" title="204"></a>
-<a class="sourceLine" id="new_rv_op-205" title="205">        <span class="co"># If `size == []`, that means no size is enforced, and NumPy is</span></a>
-<a class="sourceLine" id="new_rv_op-206" title="206">        <span class="co"># trusted to draw the appropriate number of samples, NumPy uses</span></a>
-<a class="sourceLine" id="new_rv_op-207" title="207">        <span class="co"># `size=None` to represent that.  Otherwise, NumPy expects a tuple.</span></a>
-<a class="sourceLine" id="new_rv_op-208" title="208">        <span class="cf">if</span> np.size(size) <span class="op">==</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="new_rv_op-209" title="209">            size <span class="op">=</span> <span class="va">None</span></a>
-<a class="sourceLine" id="new_rv_op-210" title="210">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="new_rv_op-211" title="211">            size <span class="op">=</span> <span class="bu">tuple</span>(size)</a>
-<a class="sourceLine" id="new_rv_op-212" title="212"></a>
-<a class="sourceLine" id="new_rv_op-213" title="213">        <span class="cf">if</span> <span class="kw">not</span> <span class="va">self</span>.inplace:</a>
-<a class="sourceLine" id="new_rv_op-214" title="214">            rng <span class="op">=</span> copy(rng)</a>
-<a class="sourceLine" id="new_rv_op-215" title="215"></a>
-<a class="sourceLine" id="new_rv_op-216" title="216">        smpl_val <span class="op">=</span> <span class="va">self</span>.rng_fn(rng, <span class="op">*</span>(args <span class="op">+</span> [size]))</a>
-<a class="sourceLine" id="new_rv_op-217" title="217"></a>
-<a class="sourceLine" id="new_rv_op-218" title="218">        <span class="cf">if</span> (<span class="kw">not</span> <span class="bu">isinstance</span>(smpl_val, np.ndarray) <span class="kw">or</span></a>
-<a class="sourceLine" id="new_rv_op-219" title="219">            <span class="bu">str</span>(smpl_val.dtype) <span class="op">!=</span> out_var.<span class="bu">type</span>.dtype):</a>
-<a class="sourceLine" id="new_rv_op-220" title="220">            smpl_val <span class="op">=</span> theano._asarray(smpl_val, dtype<span class="op">=</span>out_var.<span class="bu">type</span>.dtype)</a>
-<a class="sourceLine" id="new_rv_op-221" title="221"></a>
-<a class="sourceLine" id="new_rv_op-222" title="222">        <span class="co"># When `size` is `None`, NumPy has a tendency to unexpectedly</span></a>
-<a class="sourceLine" id="new_rv_op-223" title="223">        <span class="co"># return a scalar instead of a higher-dimension array containing</span></a>
-<a class="sourceLine" id="new_rv_op-224" title="224">        <span class="co"># only one element. This value should be reshaped</span></a>
-<a class="sourceLine" id="new_rv_op-225" title="225">        <span class="co"># </span><span class="al">TODO</span><span class="co">: Really?  Why shouldn&#39;t the output correctly correspond to</span></a>
-<a class="sourceLine" id="new_rv_op-226" title="226">        <span class="co"># the returned NumPy value?  Sounds more like a mis-specification of</span></a>
-<a class="sourceLine" id="new_rv_op-227" title="227">        <span class="co"># the symbolic output variable.</span></a>
-<a class="sourceLine" id="new_rv_op-228" title="228">        <span class="cf">if</span> size <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> smpl_val.ndim <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> out_var.ndim <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="new_rv_op-229" title="229">            smpl_val <span class="op">=</span> smpl_val.reshape([<span class="dv">1</span>] <span class="op">*</span> out_var.ndim)</a>
-<a class="sourceLine" id="new_rv_op-230" title="230"></a>
-<a class="sourceLine" id="new_rv_op-231" title="231">        smpl_out[<span class="dv">0</span>] <span class="op">=</span> smpl_val</a>
-<a class="sourceLine" id="new_rv_op-232" title="232"></a>
-<a class="sourceLine" id="new_rv_op-233" title="233">    <span class="kw">def</span> grad(<span class="va">self</span>, inputs, outputs):</a>
-<a class="sourceLine" id="new_rv_op-234" title="234">        <span class="cf">return</span> [theano.gradient.grad_undefined(<span class="va">self</span>, k, inp,</a>
-<a class="sourceLine" id="new_rv_op-235" title="235">                                               <span class="st">&#39;No gradient defined through raw random numbers op&#39;</span>)</a>
-<a class="sourceLine" id="new_rv_op-236" title="236">                <span class="cf">for</span> k, inp <span class="kw">in</span> <span class="bu">enumerate</span>(inputs)]</a>
-<a class="sourceLine" id="new_rv_op-237" title="237"></a>
-<a class="sourceLine" id="new_rv_op-238" title="238">    <span class="kw">def</span> R_op(<span class="va">self</span>, inputs, eval_points):</a>
-<a class="sourceLine" id="new_rv_op-239" title="239">        <span class="cf">return</span> [<span class="va">None</span> <span class="cf">for</span> i <span class="kw">in</span> eval_points]</a></code></pre></div>
+<div class="sourceCode" id="org4a5aef2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org4a5aef2-1" title="1"><span class="im">import</span> sys</a>
+<a class="sourceLine" id="org4a5aef2-2" title="2"><span class="im">import</span> os</a>
+<a class="sourceLine" id="org4a5aef2-3" title="3"></a>
+<a class="sourceLine" id="org4a5aef2-4" title="4"><span class="im">from</span> pprint <span class="im">import</span> pprint</a>
+<a class="sourceLine" id="org4a5aef2-5" title="5"></a>
+<a class="sourceLine" id="org4a5aef2-6" title="6"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="org4a5aef2-7" title="7"></a>
+<a class="sourceLine" id="org4a5aef2-8" title="8">os.environ[<span class="st">&#39;MKL_THREADING_LAYER&#39;</span>] <span class="op">=</span> <span class="st">&#39;GNU&#39;</span></a>
+<a class="sourceLine" id="org4a5aef2-9" title="9"></a>
+<a class="sourceLine" id="org4a5aef2-10" title="10"><span class="im">import</span> theano</a>
+<a class="sourceLine" id="org4a5aef2-11" title="11"><span class="im">import</span> theano.tensor <span class="im">as</span> tt</a>
+<a class="sourceLine" id="org4a5aef2-12" title="12"></a>
+<a class="sourceLine" id="org4a5aef2-13" title="13">theano.config.mode <span class="op">=</span> <span class="st">&#39;FAST_COMPILE&#39;</span></a>
+<a class="sourceLine" id="org4a5aef2-14" title="14">theano.config.exception_verbosity <span class="op">=</span> <span class="st">&#39;high&#39;</span></a>
+<a class="sourceLine" id="org4a5aef2-15" title="15">theano.config.compute_test_value <span class="op">=</span> <span class="st">&#39;raise&#39;</span></a>
+<a class="sourceLine" id="org4a5aef2-16" title="16"></a>
+<a class="sourceLine" id="org4a5aef2-17" title="17"><span class="im">import</span> pymc3 <span class="im">as</span> pm</a></code></pre></div>
+<div class="sourceCode" id="org8ed8038"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org8ed8038-1" title="1"><span class="im">from</span> collections.abc <span class="im">import</span> Iterable, ByteString</a>
+<a class="sourceLine" id="org8ed8038-2" title="2"><span class="im">from</span> warnings <span class="im">import</span> warn</a>
+<a class="sourceLine" id="org8ed8038-3" title="3"><span class="im">from</span> copy <span class="im">import</span> copy</a>
+<a class="sourceLine" id="org8ed8038-4" title="4"></a>
+<a class="sourceLine" id="org8ed8038-5" title="5"><span class="im">from</span> theano.tensor.raw_random <span class="im">import</span> (RandomFunction, RandomStateType,</a>
+<a class="sourceLine" id="org8ed8038-6" title="6">                                      _infer_ndim_bcast)</a>
+<a class="sourceLine" id="org8ed8038-7" title="7"></a>
+<a class="sourceLine" id="org8ed8038-8" title="8"></a>
+<a class="sourceLine" id="org8ed8038-9" title="9"><span class="kw">def</span> matched_supp_shape_fn(ndim_supp, ndims_params, dist_params,</a>
+<a class="sourceLine" id="org8ed8038-10" title="10">                          param_shapes<span class="op">=</span><span class="va">None</span>):</a>
+<a class="sourceLine" id="org8ed8038-11" title="11">    <span class="co">&quot;&quot;&quot;A function for extracting a random variable&#39;s support shape/dimensions</span></a>
+<a class="sourceLine" id="org8ed8038-12" title="12"><span class="co">    from other (e.g. distribution parameters) shape information.</span></a>
+<a class="sourceLine" id="org8ed8038-13" title="13"></a>
+<a class="sourceLine" id="org8ed8038-14" title="14"><span class="co">    This default implementation uses the first non-independent/replicated</span></a>
+<a class="sourceLine" id="org8ed8038-15" title="15"><span class="co">    dimension of the first distribution parameter.</span></a>
+<a class="sourceLine" id="org8ed8038-16" title="16"></a>
+<a class="sourceLine" id="org8ed8038-17" title="17"><span class="co">    For example, with a normal random variable, the shape of the mean parameter</span></a>
+<a class="sourceLine" id="org8ed8038-18" title="18"><span class="co">    along the first dimension will be used; dimensions after that, if any,</span></a>
+<a class="sourceLine" id="org8ed8038-19" title="19"><span class="co">    determine the mean parameters for other *independent* normal variables.</span></a>
+<a class="sourceLine" id="org8ed8038-20" title="20"><span class="co">    &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="org8ed8038-21" title="21">    <span class="co"># XXX: Gotta be careful slicing Theano variables, the `Subtensor` Op isn&#39;t</span></a>
+<a class="sourceLine" id="org8ed8038-22" title="22">    <span class="co"># handled by `tensor.get_scalar_constant_value`!</span></a>
+<a class="sourceLine" id="org8ed8038-23" title="23">    <span class="co"># E.g.</span></a>
+<a class="sourceLine" id="org8ed8038-24" title="24">    <span class="co">#     test_val = tt.as_tensor_variable([[1], [4]])</span></a>
+<a class="sourceLine" id="org8ed8038-25" title="25">    <span class="co">#     tt.get_scalar_constant_value(test_val.shape[-1]) # works</span></a>
+<a class="sourceLine" id="org8ed8038-26" title="26">    <span class="co">#     tt.get_scalar_constant_value(test_val.shape[0]) # doesn&#39;t</span></a>
+<a class="sourceLine" id="org8ed8038-27" title="27">    <span class="co">#     tt.get_scalar_constant_value(test_val.shape[:-1]) # doesn&#39;t</span></a>
+<a class="sourceLine" id="org8ed8038-28" title="28">    <span class="cf">if</span> param_shapes <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="org8ed8038-29" title="29">        <span class="co"># return param_shapes[0][-self.ndim_supp:]</span></a>
+<a class="sourceLine" id="org8ed8038-30" title="30">        <span class="cf">return</span> (param_shapes[<span class="dv">0</span>][<span class="op">-</span>ndim_supp],)</a>
+<a class="sourceLine" id="org8ed8038-31" title="31">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="org8ed8038-32" title="32">        ref_shape <span class="op">=</span> tt.shape(dist_params[<span class="dv">0</span>])</a>
+<a class="sourceLine" id="org8ed8038-33" title="33">        <span class="co"># return ref_shape[-self.ndim_supp:]</span></a>
+<a class="sourceLine" id="org8ed8038-34" title="34">        <span class="cf">return</span> (ref_shape[<span class="op">-</span>ndim_supp],)</a></code></pre></div>
+<div class="sourceCode" id="orga6b862b"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orga6b862b-1" title="1"><span class="kw">class</span> RandomVariable(tt.gof.Op):</a>
+<a class="sourceLine" id="orga6b862b-2" title="2">    <span class="co">&quot;&quot;&quot;This is essentially `RandomFunction`, except that it removes the `outtype`</span></a>
+<a class="sourceLine" id="orga6b862b-3" title="3"><span class="co">    dependency and handles shape dimension information more directly.</span></a>
+<a class="sourceLine" id="orga6b862b-4" title="4"><span class="co">    &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="orga6b862b-5" title="5">    __props__ <span class="op">=</span> (<span class="st">&#39;name&#39;</span>, <span class="st">&#39;dtype&#39;</span>, <span class="st">&#39;ndim_supp&#39;</span>, <span class="st">&#39;inplace&#39;</span>, <span class="st">&#39;ndims_params&#39;</span>)</a>
+<a class="sourceLine" id="orga6b862b-6" title="6"></a>
+<a class="sourceLine" id="orga6b862b-7" title="7">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, ndim_supp, ndims_params, rng_fn, <span class="op">*</span>args,</a>
+<a class="sourceLine" id="orga6b862b-8" title="8">                 supp_shape_fn<span class="op">=</span><span class="va">None</span>, dtype<span class="op">=</span>theano.config.floatX, inplace<span class="op">=</span><span class="va">False</span>,</a>
+<a class="sourceLine" id="orga6b862b-9" title="9">                 <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="orga6b862b-10" title="10">        <span class="co">&quot;&quot;&quot;Create a random variable `Op`.</span></a>
+<a class="sourceLine" id="orga6b862b-11" title="11"></a>
+<a class="sourceLine" id="orga6b862b-12" title="12"><span class="co">        Parameters</span></a>
+<a class="sourceLine" id="orga6b862b-13" title="13"><span class="co">        ==========</span></a>
+<a class="sourceLine" id="orga6b862b-14" title="14"><span class="co">        ndim_supp: int</span></a>
+<a class="sourceLine" id="orga6b862b-15" title="15"><span class="co">            Dimension of the support.  This value is used to infer the exact</span></a>
+<a class="sourceLine" id="orga6b862b-16" title="16"><span class="co">            shape of the support and independent terms from ``dist_params``.</span></a>
+<a class="sourceLine" id="orga6b862b-17" title="17"><span class="co">        ndims_params: tuple (int)</span></a>
+<a class="sourceLine" id="orga6b862b-18" title="18"><span class="co">            Number of dimensions for each parameter in ``dist_params``</span></a>
+<a class="sourceLine" id="orga6b862b-19" title="19"><span class="co">            for a single variate.  Used to determine the shape of the</span></a>
+<a class="sourceLine" id="orga6b862b-20" title="20"><span class="co">            independent variate space.</span></a>
+<a class="sourceLine" id="orga6b862b-21" title="21"><span class="co">        rng_fn: function or str</span></a>
+<a class="sourceLine" id="orga6b862b-22" title="22"><span class="co">            Sampler function.  Can be the string name of a method provided by</span></a>
+<a class="sourceLine" id="orga6b862b-23" title="23"><span class="co">            `numpy.random.RandomState`.</span></a>
+<a class="sourceLine" id="orga6b862b-24" title="24"><span class="co">        supp_shape_fn: callable</span></a>
+<a class="sourceLine" id="orga6b862b-25" title="25"><span class="co">            Function used to determine the exact shape of the distribution&#39;s</span></a>
+<a class="sourceLine" id="orga6b862b-26" title="26"><span class="co">            support. It must take arguments ndim_supp, ndims_params,</span></a>
+<a class="sourceLine" id="orga6b862b-27" title="27"><span class="co">            dist_params (i.e. an collection of the distribution parameters) and an</span></a>
+<a class="sourceLine" id="orga6b862b-28" title="28"><span class="co">            optional param_shapes (i.e. tuples containing the size of each</span></a>
+<a class="sourceLine" id="orga6b862b-29" title="29"><span class="co">            dimension for each distribution parameter).</span></a>
+<a class="sourceLine" id="orga6b862b-30" title="30"></a>
+<a class="sourceLine" id="orga6b862b-31" title="31"><span class="co">            Defaults to `supp_shape_fn`</span></a>
+<a class="sourceLine" id="orga6b862b-32" title="32"><span class="co">        &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="orga6b862b-33" title="33">        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="orga6b862b-34" title="34"></a>
+<a class="sourceLine" id="orga6b862b-35" title="35">        <span class="va">self</span>.name <span class="op">=</span> name</a>
+<a class="sourceLine" id="orga6b862b-36" title="36">        <span class="va">self</span>.inplace <span class="op">=</span> inplace</a>
+<a class="sourceLine" id="orga6b862b-37" title="37">        <span class="va">self</span>.dtype <span class="op">=</span> dtype</a>
+<a class="sourceLine" id="orga6b862b-38" title="38"></a>
+<a class="sourceLine" id="orga6b862b-39" title="39">        <span class="va">self</span>.supp_shape_fn <span class="op">=</span> supp_shape_fn <span class="kw">or</span> matched_supp_shape_fn</a>
+<a class="sourceLine" id="orga6b862b-40" title="40"></a>
+<a class="sourceLine" id="orga6b862b-41" title="41">        <span class="va">self</span>.ndim_supp <span class="op">=</span> ndim_supp</a>
+<a class="sourceLine" id="orga6b862b-42" title="42"></a>
+<a class="sourceLine" id="orga6b862b-43" title="43">        <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(ndims_params, Iterable):</a>
+<a class="sourceLine" id="orga6b862b-44" title="44">            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&#39;Parameter ndims_params must be iterable.&#39;</span>)</a>
+<a class="sourceLine" id="orga6b862b-45" title="45"></a>
+<a class="sourceLine" id="orga6b862b-46" title="46">        <span class="va">self</span>.ndims_params <span class="op">=</span> <span class="bu">tuple</span>(ndims_params)</a>
+<a class="sourceLine" id="orga6b862b-47" title="47"></a>
+<a class="sourceLine" id="orga6b862b-48" title="48">        <span class="va">self</span>.default_output <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="orga6b862b-49" title="49"></a>
+<a class="sourceLine" id="orga6b862b-50" title="50">        <span class="cf">if</span> <span class="bu">isinstance</span>(rng_fn, (<span class="bu">str</span>, ByteString)):</a>
+<a class="sourceLine" id="orga6b862b-51" title="51">            <span class="va">self</span>.rng_fn <span class="op">=</span> <span class="bu">getattr</span>(np.random.RandomState, rng_fn)</a>
+<a class="sourceLine" id="orga6b862b-52" title="52">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="orga6b862b-53" title="53">            <span class="va">self</span>.rng_fn <span class="op">=</span> rng_fn</a>
+<a class="sourceLine" id="orga6b862b-54" title="54"></a>
+<a class="sourceLine" id="orga6b862b-55" title="55">    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</a>
+<a class="sourceLine" id="orga6b862b-56" title="56">        <span class="cf">return</span> <span class="st">&#39;</span><span class="sc">{}</span><span class="st">_rv&#39;</span>.<span class="bu">format</span>(<span class="va">self</span>.name)</a>
+<a class="sourceLine" id="orga6b862b-57" title="57"></a>
+<a class="sourceLine" id="orga6b862b-58" title="58">    <span class="kw">def</span> _infer_shape(<span class="va">self</span>, size, dist_params, param_shapes<span class="op">=</span><span class="va">None</span>):</a>
+<a class="sourceLine" id="orga6b862b-59" title="59">        <span class="co">&quot;&quot;&quot;Compute shapes and broadcasts properties.</span></a>
+<a class="sourceLine" id="orga6b862b-60" title="60"></a>
+<a class="sourceLine" id="orga6b862b-61" title="61"><span class="co">        Inspired by `tt.add.get_output_info`.</span></a>
+<a class="sourceLine" id="orga6b862b-62" title="62"><span class="co">        &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="orga6b862b-63" title="63"></a>
+<a class="sourceLine" id="orga6b862b-64" title="64">        size_len <span class="op">=</span> tt.get_vector_length(size)</a>
+<a class="sourceLine" id="orga6b862b-65" title="65"></a>
+<a class="sourceLine" id="orga6b862b-66" title="66">        dummy_params <span class="op">=</span> <span class="bu">tuple</span>(p <span class="cf">if</span> n <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> tt.ones(<span class="bu">tuple</span>(p.shape)[:<span class="op">-</span>n])</a>
+<a class="sourceLine" id="orga6b862b-67" title="67">                             <span class="cf">for</span> p, n <span class="kw">in</span> <span class="bu">zip</span>(dist_params, <span class="va">self</span>.ndims_params))</a>
+<a class="sourceLine" id="orga6b862b-68" title="68"></a>
+<a class="sourceLine" id="orga6b862b-69" title="69">        _, out_bcasts, bcastd_inputs <span class="op">=</span> tt.add.get_output_info(</a>
+<a class="sourceLine" id="orga6b862b-70" title="70">            tt.DimShuffle, <span class="op">*</span>dummy_params)</a>
+<a class="sourceLine" id="orga6b862b-71" title="71"></a>
+<a class="sourceLine" id="orga6b862b-72" title="72">        <span class="co"># _, out_bcasts, bcastd_inputs = tt.add.get_output_info(tt.DimShuffle, *dist_params)</span></a>
+<a class="sourceLine" id="orga6b862b-73" title="73">        <span class="co"># .tag.test_value</span></a>
+<a class="sourceLine" id="orga6b862b-74" title="74"></a>
+<a class="sourceLine" id="orga6b862b-75" title="75">        bcast_ind, <span class="op">=</span> out_bcasts</a>
+<a class="sourceLine" id="orga6b862b-76" title="76">        ndim_ind <span class="op">=</span> <span class="bu">len</span>(bcast_ind)</a>
+<a class="sourceLine" id="orga6b862b-77" title="77">        shape_ind <span class="op">=</span> bcastd_inputs[<span class="dv">0</span>].shape</a>
+<a class="sourceLine" id="orga6b862b-78" title="78"></a>
+<a class="sourceLine" id="orga6b862b-79" title="79">        <span class="cf">if</span> <span class="va">self</span>.ndim_supp <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="orga6b862b-80" title="80">            shape_supp <span class="op">=</span> <span class="bu">tuple</span>()</a>
+<a class="sourceLine" id="orga6b862b-81" title="81"></a>
+<a class="sourceLine" id="orga6b862b-82" title="82">            <span class="co"># In the scalar case, `size` corresponds to the entire result&#39;s</span></a>
+<a class="sourceLine" id="orga6b862b-83" title="83">            <span class="co"># shape. This implies the following:</span></a>
+<a class="sourceLine" id="orga6b862b-84" title="84">            <span class="co">#     shape_ind[-ndim_ind] == size[:ndim_ind]</span></a>
+<a class="sourceLine" id="orga6b862b-85" title="85">            <span class="co"># </span><span class="al">TODO</span><span class="co">: How do we add this constraint/check symbolically?</span></a>
+<a class="sourceLine" id="orga6b862b-86" title="86"></a>
+<a class="sourceLine" id="orga6b862b-87" title="87">            ndim_reps <span class="op">=</span> <span class="bu">max</span>(size_len <span class="op">-</span> ndim_ind, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="orga6b862b-88" title="88">            shape_reps <span class="op">=</span> <span class="bu">tuple</span>(size)[ndim_ind:]</a>
+<a class="sourceLine" id="orga6b862b-89" title="89">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="orga6b862b-90" title="90">            shape_supp <span class="op">=</span> <span class="va">self</span>.supp_shape_fn(<span class="va">self</span>.ndim_supp,</a>
+<a class="sourceLine" id="orga6b862b-91" title="91">                                            <span class="va">self</span>.ndims_params,</a>
+<a class="sourceLine" id="orga6b862b-92" title="92">                                            dist_params,</a>
+<a class="sourceLine" id="orga6b862b-93" title="93">                                            param_shapes<span class="op">=</span>param_shapes)</a>
+<a class="sourceLine" id="orga6b862b-94" title="94"></a>
+<a class="sourceLine" id="orga6b862b-95" title="95">            ndim_reps <span class="op">=</span> size_len</a>
+<a class="sourceLine" id="orga6b862b-96" title="96">            shape_reps <span class="op">=</span> size</a>
+<a class="sourceLine" id="orga6b862b-97" title="97"></a>
+<a class="sourceLine" id="orga6b862b-98" title="98">        ndim_shape <span class="op">=</span> <span class="va">self</span>.ndim_supp <span class="op">+</span> ndim_ind <span class="op">+</span> ndim_reps</a>
+<a class="sourceLine" id="orga6b862b-99" title="99"></a>
+<a class="sourceLine" id="orga6b862b-100" title="100">        <span class="cf">if</span> ndim_shape <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="orga6b862b-101" title="101">            shape <span class="op">=</span> tt.constant([], dtype<span class="op">=</span><span class="st">&#39;int64&#39;</span>)</a>
+<a class="sourceLine" id="orga6b862b-102" title="102">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="orga6b862b-103" title="103">            shape <span class="op">=</span> <span class="bu">tuple</span>(shape_reps) <span class="op">+</span> <span class="bu">tuple</span>(shape_ind) <span class="op">+</span> <span class="bu">tuple</span>(shape_supp)</a>
+<a class="sourceLine" id="orga6b862b-104" title="104"></a>
+<a class="sourceLine" id="orga6b862b-105" title="105">        <span class="co"># if shape is None:</span></a>
+<a class="sourceLine" id="orga6b862b-106" title="106">        <span class="co">#     raise tt.ShapeError()</span></a>
+<a class="sourceLine" id="orga6b862b-107" title="107"></a>
+<a class="sourceLine" id="orga6b862b-108" title="108">        <span class="cf">return</span> shape</a>
+<a class="sourceLine" id="orga6b862b-109" title="109"></a>
+<a class="sourceLine" id="orga6b862b-110" title="110">    <span class="kw">def</span> make_node(<span class="va">self</span>, <span class="op">*</span>dist_params, size<span class="op">=</span><span class="va">None</span>, rng<span class="op">=</span><span class="va">None</span>, name<span class="op">=</span><span class="va">None</span>):</a>
+<a class="sourceLine" id="orga6b862b-111" title="111">        <span class="co">&quot;&quot;&quot;This will be the &quot;constructor&quot; called by users.</span></a>
+<a class="sourceLine" id="orga6b862b-112" title="112"></a>
+<a class="sourceLine" id="orga6b862b-113" title="113"><span class="co">        Parameters</span></a>
+<a class="sourceLine" id="orga6b862b-114" title="114"><span class="co">        ==========</span></a>
+<a class="sourceLine" id="orga6b862b-115" title="115"><span class="co">        dist_params: list</span></a>
+<a class="sourceLine" id="orga6b862b-116" title="116"><span class="co">            Distribution parameters.</span></a>
+<a class="sourceLine" id="orga6b862b-117" title="117"><span class="co">        size: Iterable or None</span></a>
+<a class="sourceLine" id="orga6b862b-118" title="118"><span class="co">            Numpy-like size of the output (i.e. replications).</span></a>
+<a class="sourceLine" id="orga6b862b-119" title="119"><span class="co">        rng: RandomState or None</span></a>
+<a class="sourceLine" id="orga6b862b-120" title="120"><span class="co">            Existing Theano `RandomState` object to be used.  Creates a</span></a>
+<a class="sourceLine" id="orga6b862b-121" title="121"><span class="co">            new one, if `None`.</span></a>
+<a class="sourceLine" id="orga6b862b-122" title="122"></a>
+<a class="sourceLine" id="orga6b862b-123" title="123"><span class="co">        Results</span></a>
+<a class="sourceLine" id="orga6b862b-124" title="124"><span class="co">        =======</span></a>
+<a class="sourceLine" id="orga6b862b-125" title="125"><span class="co">        An `Apply` node with rng state and sample tensor outputs.</span></a>
+<a class="sourceLine" id="orga6b862b-126" title="126"><span class="co">        &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="orga6b862b-127" title="127">        <span class="cf">if</span> <span class="kw">not</span> (size <span class="kw">is</span> <span class="va">None</span> <span class="kw">or</span> <span class="bu">isinstance</span>(size, Iterable)):</a>
+<a class="sourceLine" id="orga6b862b-128" title="128">            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&#39;Parameter size must be None or iterable&#39;</span>)</a>
+<a class="sourceLine" id="orga6b862b-129" title="129"></a>
+<a class="sourceLine" id="orga6b862b-130" title="130">        dist_params <span class="op">=</span> <span class="bu">tuple</span>(tt.as_tensor_variable(p)</a>
+<a class="sourceLine" id="orga6b862b-131" title="131">                            <span class="cf">for</span> p <span class="kw">in</span> dist_params)</a>
+<a class="sourceLine" id="orga6b862b-132" title="132"></a>
+<a class="sourceLine" id="orga6b862b-133" title="133">        dtype <span class="op">=</span> tt.scal.upcast(<span class="va">self</span>.dtype, <span class="op">*</span>[p.dtype <span class="cf">for</span> p <span class="kw">in</span> dist_params])</a>
+<a class="sourceLine" id="orga6b862b-134" title="134"></a>
+<a class="sourceLine" id="orga6b862b-135" title="135">        <span class="cf">if</span> rng <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="orga6b862b-136" title="136">            rng <span class="op">=</span> theano.shared(np.random.RandomState())</a>
+<a class="sourceLine" id="orga6b862b-137" title="137">        <span class="cf">elif</span> <span class="kw">not</span> <span class="bu">isinstance</span>(rng.<span class="bu">type</span>, RandomStateType):</a>
+<a class="sourceLine" id="orga6b862b-138" title="138">            warn(<span class="st">&#39;The type of rng should be an instance of RandomStateType&#39;</span>)</a>
+<a class="sourceLine" id="orga6b862b-139" title="139"></a>
+<a class="sourceLine" id="orga6b862b-140" title="140">        <span class="cf">if</span> size <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="orga6b862b-141" title="141">            size <span class="op">=</span> tt.constant([], dtype<span class="op">=</span><span class="st">&#39;int64&#39;</span>)</a>
+<a class="sourceLine" id="orga6b862b-142" title="142">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="orga6b862b-143" title="143">            size <span class="op">=</span> tt.as_tensor_variable(size, ndim<span class="op">=</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="orga6b862b-144" title="144"></a>
+<a class="sourceLine" id="orga6b862b-145" title="145">        <span class="cf">assert</span> size.dtype <span class="op">==</span> <span class="st">&#39;int64&#39;</span></a>
+<a class="sourceLine" id="orga6b862b-146" title="146"></a>
+<a class="sourceLine" id="orga6b862b-147" title="147">        shape <span class="op">=</span> <span class="va">self</span>._infer_shape(size, dist_params)</a>
+<a class="sourceLine" id="orga6b862b-148" title="148"></a>
+<a class="sourceLine" id="orga6b862b-149" title="149">        <span class="co"># Let&#39;s try to do a better job than `_infer_ndim_bcast` when</span></a>
+<a class="sourceLine" id="orga6b862b-150" title="150">        <span class="co"># dimension sizes are symbolic.</span></a>
+<a class="sourceLine" id="orga6b862b-151" title="151">        bcast <span class="op">=</span> []</a>
+<a class="sourceLine" id="orga6b862b-152" title="152">        <span class="cf">for</span> s <span class="kw">in</span> shape:</a>
+<a class="sourceLine" id="orga6b862b-153" title="153">            <span class="cf">try</span>:</a>
+<a class="sourceLine" id="orga6b862b-154" title="154">                <span class="cf">if</span> <span class="bu">isinstance</span>(s.owner.op, tt.Subtensor) <span class="kw">and</span> <span class="op">\</span></a>
+<a class="sourceLine" id="orga6b862b-155" title="155">                   s.owner.inputs[<span class="dv">0</span>].owner <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="orga6b862b-156" title="156">                    <span class="co"># Handle a special case in which</span></a>
+<a class="sourceLine" id="orga6b862b-157" title="157">                    <span class="co"># `tensor.get_scalar_constant_value` doesn&#39;t really work.</span></a>
+<a class="sourceLine" id="orga6b862b-158" title="158">                    s_x, s_idx <span class="op">=</span> s.owner.inputs</a>
+<a class="sourceLine" id="orga6b862b-159" title="159">                    s_idx <span class="op">=</span> tt.get_scalar_constant_value(s_idx)</a>
+<a class="sourceLine" id="orga6b862b-160" title="160">                    <span class="cf">if</span> <span class="bu">isinstance</span>(s_x.owner.op, tt.Shape):</a>
+<a class="sourceLine" id="orga6b862b-161" title="161">                        x_obj, <span class="op">=</span> s_x.owner.inputs</a>
+<a class="sourceLine" id="orga6b862b-162" title="162">                        s_val <span class="op">=</span> x_obj.<span class="bu">type</span>.broadcastable[s_idx]</a>
+<a class="sourceLine" id="orga6b862b-163" title="163">                    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="orga6b862b-164" title="164">                        <span class="co"># </span><span class="al">TODO</span><span class="co">: Could go for an existing broadcastable here, too, no?</span></a>
+<a class="sourceLine" id="orga6b862b-165" title="165">                        s_val <span class="op">=</span> <span class="va">False</span></a>
+<a class="sourceLine" id="orga6b862b-166" title="166">                <span class="cf">else</span>:</a>
+<a class="sourceLine" id="orga6b862b-167" title="167">                    s_val <span class="op">=</span> tt.get_scalar_constant_value(s)</a>
+<a class="sourceLine" id="orga6b862b-168" title="168">            <span class="cf">except</span> tt.NotScalarConstantError:</a>
+<a class="sourceLine" id="orga6b862b-169" title="169">                s_val <span class="op">=</span> <span class="va">False</span></a>
+<a class="sourceLine" id="orga6b862b-170" title="170"></a>
+<a class="sourceLine" id="orga6b862b-171" title="171">            bcast <span class="op">+=</span> [s_val <span class="op">==</span> <span class="dv">1</span>]</a>
+<a class="sourceLine" id="orga6b862b-172" title="172"></a>
+<a class="sourceLine" id="orga6b862b-173" title="173">        outtype <span class="op">=</span> tt.TensorType(dtype<span class="op">=</span>dtype, broadcastable<span class="op">=</span>bcast)</a>
+<a class="sourceLine" id="orga6b862b-174" title="174"></a>
+<a class="sourceLine" id="orga6b862b-175" title="175">        out_var <span class="op">=</span> outtype(name<span class="op">=</span>name)</a>
+<a class="sourceLine" id="orga6b862b-176" title="176"></a>
+<a class="sourceLine" id="orga6b862b-177" title="177">        inputs <span class="op">=</span> (rng, size) <span class="op">+</span> dist_params</a>
+<a class="sourceLine" id="orga6b862b-178" title="178">        outputs <span class="op">=</span> (rng.<span class="bu">type</span>(), out_var)</a>
+<a class="sourceLine" id="orga6b862b-179" title="179"></a>
+<a class="sourceLine" id="orga6b862b-180" title="180">        <span class="cf">return</span> theano.gof.Apply(<span class="va">self</span>, inputs, outputs)</a>
+<a class="sourceLine" id="orga6b862b-181" title="181"></a>
+<a class="sourceLine" id="orga6b862b-182" title="182">    <span class="kw">def</span> infer_shape(<span class="va">self</span>, node, input_shapes):</a>
+<a class="sourceLine" id="orga6b862b-183" title="183">        size <span class="op">=</span> node.inputs[<span class="dv">1</span>]</a>
+<a class="sourceLine" id="orga6b862b-184" title="184">        dist_params <span class="op">=</span> <span class="bu">tuple</span>(node.inputs[<span class="dv">2</span>:])</a>
+<a class="sourceLine" id="orga6b862b-185" title="185">        shape <span class="op">=</span> <span class="va">self</span>._infer_shape(size, dist_params,</a>
+<a class="sourceLine" id="orga6b862b-186" title="186">                                  param_shapes<span class="op">=</span>input_shapes[<span class="dv">2</span>:])</a>
+<a class="sourceLine" id="orga6b862b-187" title="187"></a>
+<a class="sourceLine" id="orga6b862b-188" title="188">        <span class="cf">return</span> [<span class="va">None</span>, [s <span class="cf">for</span> s <span class="kw">in</span> shape]]</a>
+<a class="sourceLine" id="orga6b862b-189" title="189"></a>
+<a class="sourceLine" id="orga6b862b-190" title="190">    <span class="kw">def</span> perform(<span class="va">self</span>, node, inputs, outputs):</a>
+<a class="sourceLine" id="orga6b862b-191" title="191">        <span class="co">&quot;&quot;&quot;Uses `self.rng_fn` to draw random numbers.&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="orga6b862b-192" title="192">        rng_out, smpl_out <span class="op">=</span> outputs</a>
+<a class="sourceLine" id="orga6b862b-193" title="193"></a>
+<a class="sourceLine" id="orga6b862b-194" title="194">        <span class="co"># Draw from `rng` if `self.inplace` is `True`, and from a</span></a>
+<a class="sourceLine" id="orga6b862b-195" title="195">        <span class="co"># copy of `rng` otherwise.</span></a>
+<a class="sourceLine" id="orga6b862b-196" title="196">        rng, size, args <span class="op">=</span> inputs[<span class="dv">0</span>], inputs[<span class="dv">1</span>], inputs[<span class="dv">2</span>:]</a>
+<a class="sourceLine" id="orga6b862b-197" title="197"></a>
+<a class="sourceLine" id="orga6b862b-198" title="198">        <span class="cf">assert</span> <span class="bu">type</span>(rng) <span class="op">==</span> np.random.RandomState, (<span class="bu">type</span>(rng), rng)</a>
+<a class="sourceLine" id="orga6b862b-199" title="199"></a>
+<a class="sourceLine" id="orga6b862b-200" title="200">        rng_out[<span class="dv">0</span>] <span class="op">=</span> rng</a>
+<a class="sourceLine" id="orga6b862b-201" title="201"></a>
+<a class="sourceLine" id="orga6b862b-202" title="202">        <span class="co"># The symbolic output variable corresponding to value produced here.</span></a>
+<a class="sourceLine" id="orga6b862b-203" title="203">        out_var <span class="op">=</span> node.outputs[<span class="dv">1</span>]</a>
+<a class="sourceLine" id="orga6b862b-204" title="204"></a>
+<a class="sourceLine" id="orga6b862b-205" title="205">        <span class="co"># If `size == []`, that means no size is enforced, and NumPy is</span></a>
+<a class="sourceLine" id="orga6b862b-206" title="206">        <span class="co"># trusted to draw the appropriate number of samples, NumPy uses</span></a>
+<a class="sourceLine" id="orga6b862b-207" title="207">        <span class="co"># `size=None` to represent that.  Otherwise, NumPy expects a tuple.</span></a>
+<a class="sourceLine" id="orga6b862b-208" title="208">        <span class="cf">if</span> np.size(size) <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="orga6b862b-209" title="209">            size <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="orga6b862b-210" title="210">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="orga6b862b-211" title="211">            size <span class="op">=</span> <span class="bu">tuple</span>(size)</a>
+<a class="sourceLine" id="orga6b862b-212" title="212"></a>
+<a class="sourceLine" id="orga6b862b-213" title="213">        <span class="cf">if</span> <span class="kw">not</span> <span class="va">self</span>.inplace:</a>
+<a class="sourceLine" id="orga6b862b-214" title="214">            rng <span class="op">=</span> copy(rng)</a>
+<a class="sourceLine" id="orga6b862b-215" title="215"></a>
+<a class="sourceLine" id="orga6b862b-216" title="216">        smpl_val <span class="op">=</span> <span class="va">self</span>.rng_fn(rng, <span class="op">*</span>(args <span class="op">+</span> [size]))</a>
+<a class="sourceLine" id="orga6b862b-217" title="217"></a>
+<a class="sourceLine" id="orga6b862b-218" title="218">        <span class="cf">if</span> (<span class="kw">not</span> <span class="bu">isinstance</span>(smpl_val, np.ndarray) <span class="kw">or</span></a>
+<a class="sourceLine" id="orga6b862b-219" title="219">            <span class="bu">str</span>(smpl_val.dtype) <span class="op">!=</span> out_var.<span class="bu">type</span>.dtype):</a>
+<a class="sourceLine" id="orga6b862b-220" title="220">            smpl_val <span class="op">=</span> theano._asarray(smpl_val, dtype<span class="op">=</span>out_var.<span class="bu">type</span>.dtype)</a>
+<a class="sourceLine" id="orga6b862b-221" title="221"></a>
+<a class="sourceLine" id="orga6b862b-222" title="222">        <span class="co"># When `size` is `None`, NumPy has a tendency to unexpectedly</span></a>
+<a class="sourceLine" id="orga6b862b-223" title="223">        <span class="co"># return a scalar instead of a higher-dimension array containing</span></a>
+<a class="sourceLine" id="orga6b862b-224" title="224">        <span class="co"># only one element. This value should be reshaped</span></a>
+<a class="sourceLine" id="orga6b862b-225" title="225">        <span class="co"># </span><span class="al">TODO</span><span class="co">: Really?  Why shouldn&#39;t the output correctly correspond to</span></a>
+<a class="sourceLine" id="orga6b862b-226" title="226">        <span class="co"># the returned NumPy value?  Sounds more like a mis-specification of</span></a>
+<a class="sourceLine" id="orga6b862b-227" title="227">        <span class="co"># the symbolic output variable.</span></a>
+<a class="sourceLine" id="orga6b862b-228" title="228">        <span class="cf">if</span> size <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> smpl_val.ndim <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> out_var.ndim <span class="op">&gt;</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="orga6b862b-229" title="229">            smpl_val <span class="op">=</span> smpl_val.reshape([<span class="dv">1</span>] <span class="op">*</span> out_var.ndim)</a>
+<a class="sourceLine" id="orga6b862b-230" title="230"></a>
+<a class="sourceLine" id="orga6b862b-231" title="231">        smpl_out[<span class="dv">0</span>] <span class="op">=</span> smpl_val</a>
+<a class="sourceLine" id="orga6b862b-232" title="232"></a>
+<a class="sourceLine" id="orga6b862b-233" title="233">    <span class="kw">def</span> grad(<span class="va">self</span>, inputs, outputs):</a>
+<a class="sourceLine" id="orga6b862b-234" title="234">        <span class="cf">return</span> [theano.gradient.grad_undefined(<span class="va">self</span>, k, inp,</a>
+<a class="sourceLine" id="orga6b862b-235" title="235">                                               <span class="st">&#39;No gradient defined through raw random numbers op&#39;</span>)</a>
+<a class="sourceLine" id="orga6b862b-236" title="236">                <span class="cf">for</span> k, inp <span class="kw">in</span> <span class="bu">enumerate</span>(inputs)]</a>
+<a class="sourceLine" id="orga6b862b-237" title="237"></a>
+<a class="sourceLine" id="orga6b862b-238" title="238">    <span class="kw">def</span> R_op(<span class="va">self</span>, inputs, eval_points):</a>
+<a class="sourceLine" id="orga6b862b-239" title="239">        <span class="cf">return</span> [<span class="va">None</span> <span class="cf">for</span> i <span class="kw">in</span> eval_points]</a></code></pre></div>
 <div class="example" data-markdown="">
 <p>Here are some examples of <code>RandomVariable</code> in action.</p>
-<div class="sourceCode" id="random_variable_example"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="random_variable_example-1" title="1">NormalRV <span class="op">=</span> RandomVariable(<span class="st">&#39;normal&#39;</span>, <span class="dv">0</span>, [<span class="dv">0</span>, <span class="dv">0</span>], <span class="st">&#39;normal&#39;</span>)</a>
-<a class="sourceLine" id="random_variable_example-2" title="2">MvNormalRV <span class="op">=</span> RandomVariable(<span class="st">&#39;multivariate_normal&#39;</span>, <span class="dv">1</span>, [<span class="dv">1</span>, <span class="dv">2</span>], <span class="st">&#39;multivariate_normal&#39;</span>)</a>
-<a class="sourceLine" id="random_variable_example-3" title="3"></a>
-<a class="sourceLine" id="random_variable_example-4" title="4"><span class="bu">print</span>(<span class="st">&quot;NormalRV([0., 100.], 30, size=[4, 2]):</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
-<a class="sourceLine" id="random_variable_example-5" title="5">    NormalRV([<span class="fl">0.</span>, <span class="fl">100.</span>], <span class="dv">30</span>, size<span class="op">=</span>[<span class="dv">4</span>, <span class="dv">2</span>]).<span class="bu">eval</span>()))</a>
-<a class="sourceLine" id="random_variable_example-6" title="6"></a>
-<a class="sourceLine" id="random_variable_example-7" title="7"><span class="bu">print</span>(<span class="st">&quot;MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):</span><span class="ch">\n</span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
-<a class="sourceLine" id="random_variable_example-8" title="8">    MvNormalRV([<span class="dv">0</span>, <span class="fl">1e2</span>, <span class="fl">2e3</span>], np.diag([<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>]), size<span class="op">=</span>[<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>]).<span class="bu">eval</span>()))</a></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1">NormalRV([<span class="fl">0.</span>, <span class="fl">100.</span>], <span class="dv">30</span>, size<span class="op">=</span>[<span class="dv">4</span>, <span class="dv">2</span>]):</a>
-<a class="sourceLine" id="cb3-2" title="2">[[ <span class="fl">27.43632901</span>  <span class="fl">93.39441318</span>]</a>
-<a class="sourceLine" id="cb3-3" title="3"> [ <span class="fl">15.85959218</span> <span class="fl">133.70107347</span>]</a>
-<a class="sourceLine" id="cb3-4" title="4"> [ <span class="fl">-9.36097104</span>  <span class="fl">68.13953575</span>]</a>
-<a class="sourceLine" id="cb3-5" title="5"> [ <span class="fl">13.41389074</span> <span class="fl">102.36908493</span>]]</a>
-<a class="sourceLine" id="cb3-6" title="6"></a>
-<a class="sourceLine" id="cb3-7" title="7">MvNormalRV([<span class="dv">0</span>, <span class="fl">1e2</span>, <span class="fl">2e3</span>], np.diag([<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>]), size<span class="op">=</span>[<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>]):</a>
-<a class="sourceLine" id="cb3-8" title="8">[[[[<span class="op">-</span><span class="fl">1.95386446e+00</span>  <span class="fl">1.00395353e+02</span>  <span class="fl">2.00061885e+03</span>]</a>
-<a class="sourceLine" id="cb3-9" title="9">   [ <span class="fl">1.05345467e-02</span>  <span class="fl">1.00488854e+02</span>  <span class="fl">2.00075391e+03</span>]</a>
-<a class="sourceLine" id="cb3-10" title="10">   [<span class="op">-</span><span class="fl">2.96094820e-01</span>  <span class="fl">9.97791115e+01</span>  <span class="fl">2.00039472e+03</span>]]</a>
-<a class="sourceLine" id="cb3-11" title="11"></a>
-<a class="sourceLine" id="cb3-12" title="12">  [[ <span class="fl">1.09725296e+00</span>  <span class="fl">1.00481658e+02</span>  <span class="fl">2.00168402e+03</span>]</a>
-<a class="sourceLine" id="cb3-13" title="13">   [<span class="op">-</span><span class="fl">5.97706814e-01</span>  <span class="fl">9.84007224e+01</span>  <span class="fl">1.99998250e+03</span>]</a>
-<a class="sourceLine" id="cb3-14" title="14">   [ <span class="fl">6.05551705e-01</span>  <span class="fl">1.00905256e+02</span>  <span class="fl">1.99904533e+03</span>]]]</a>
-<a class="sourceLine" id="cb3-15" title="15"></a>
-<a class="sourceLine" id="cb3-16" title="16"></a>
-<a class="sourceLine" id="cb3-17" title="17"> [[[ <span class="fl">3.13777265e-01</span>  <span class="fl">9.73407662e+01</span>  <span class="fl">1.99854117e+03</span>]</a>
-<a class="sourceLine" id="cb3-18" title="18">   [<span class="op">-</span><span class="fl">8.54227150e-01</span>  <span class="fl">1.01332597e+02</span>  <span class="fl">1.99945623e+03</span>]</a>
-<a class="sourceLine" id="cb3-19" title="19">   [<span class="op">-</span><span class="fl">4.71493054e-01</span>  <span class="fl">9.98134334e+01</span>  <span class="fl">2.00121111e+03</span>]]</a>
-<a class="sourceLine" id="cb3-20" title="20"></a>
-<a class="sourceLine" id="cb3-21" title="21">  [[<span class="op">-</span><span class="fl">3.61516595e-01</span>  <span class="fl">9.99772061e+01</span>  <span class="fl">1.99853933e+03</span>]</a>
-<a class="sourceLine" id="cb3-22" title="22">   [ <span class="fl">5.17271791e-01</span>  <span class="fl">9.74970520e+01</span>  <span class="fl">2.00052296e+03</span>]</a>
-<a class="sourceLine" id="cb3-23" title="23">   [ <span class="fl">2.15904894e-01</span>  <span class="fl">9.99694385e+01</span>  <span class="fl">2.00021462e+03</span>]]]</a>
-<a class="sourceLine" id="cb3-24" title="24"></a>
-<a class="sourceLine" id="cb3-25" title="25"></a>
-<a class="sourceLine" id="cb3-26" title="26"> [[[<span class="op">-</span><span class="fl">9.61903721e-01</span>  <span class="fl">1.00569645e+02</span>  <span class="fl">1.99858826e+03</span>]</a>
-<a class="sourceLine" id="cb3-27" title="27">   [<span class="op">-</span><span class="fl">6.72526622e-01</span>  <span class="fl">1.00277177e+02</span>  <span class="fl">2.00036283e+03</span>]</a>
-<a class="sourceLine" id="cb3-28" title="28">   [ <span class="fl">2.58608351e-01</span>  <span class="fl">1.01020520e+02</span>  <span class="fl">1.99866678e+03</span>]]</a>
-<a class="sourceLine" id="cb3-29" title="29"></a>
-<a class="sourceLine" id="cb3-30" title="30">  [[ <span class="fl">8.70002780e-02</span>  <span class="fl">1.01020608e+02</span>  <span class="fl">1.99975983e+03</span>]</a>
-<a class="sourceLine" id="cb3-31" title="31">   [ <span class="fl">8.56671014e-01</span>  <span class="fl">9.97595247e+01</span>  <span class="fl">2.00094824e+03</span>]</a>
-<a class="sourceLine" id="cb3-32" title="32">   [ <span class="fl">6.17426596e-01</span>  <span class="fl">1.01919972e+02</span>  <span class="fl">1.99914348e+03</span>]]]]</a>
-<a class="sourceLine" id="cb3-33" title="33"></a></code></pre></div>
+<div class="sourceCode" id="org0cd31de"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org0cd31de-1" title="1">NormalRV <span class="op">=</span> RandomVariable(<span class="st">&#39;normal&#39;</span>, <span class="dv">0</span>, [<span class="dv">0</span>, <span class="dv">0</span>], <span class="st">&#39;normal&#39;</span>)</a>
+<a class="sourceLine" id="org0cd31de-2" title="2">MvNormalRV <span class="op">=</span> RandomVariable(<span class="st">&#39;multivariate_normal&#39;</span>, <span class="dv">1</span>, [<span class="dv">1</span>, <span class="dv">2</span>], <span class="st">&#39;multivariate_normal&#39;</span>)</a>
+<a class="sourceLine" id="org0cd31de-3" title="3"></a>
+<a class="sourceLine" id="org0cd31de-4" title="4"><span class="bu">print</span>(<span class="st">&quot;NormalRV([0., 100.], 30, size=[4, 2]):</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
+<a class="sourceLine" id="org0cd31de-5" title="5">    NormalRV([<span class="fl">0.</span>, <span class="fl">100.</span>], <span class="dv">30</span>, size<span class="op">=</span>[<span class="dv">4</span>, <span class="dv">2</span>]).<span class="bu">eval</span>()))</a>
+<a class="sourceLine" id="org0cd31de-6" title="6"></a>
+<a class="sourceLine" id="org0cd31de-7" title="7"><span class="bu">print</span>(<span class="st">&quot;MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):</span><span class="ch">\n</span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
+<a class="sourceLine" id="org0cd31de-8" title="8">    MvNormalRV([<span class="dv">0</span>, <span class="fl">1e2</span>, <span class="fl">2e3</span>], np.diag([<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>]), size<span class="op">=</span>[<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>]).<span class="bu">eval</span>()))</a></code></pre></div>
+<div class="sourceCode" id="org43f5458"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org43f5458-1" title="1">NormalRV([<span class="fl">0.</span>, <span class="fl">100.</span>], <span class="dv">30</span>, size<span class="op">=</span>[<span class="dv">4</span>, <span class="dv">2</span>]):</a>
+<a class="sourceLine" id="org43f5458-2" title="2">[[ <span class="fl">27.43632901</span>  <span class="fl">93.39441318</span>]</a>
+<a class="sourceLine" id="org43f5458-3" title="3"> [ <span class="fl">15.85959218</span> <span class="fl">133.70107347</span>]</a>
+<a class="sourceLine" id="org43f5458-4" title="4"> [ <span class="fl">-9.36097104</span>  <span class="fl">68.13953575</span>]</a>
+<a class="sourceLine" id="org43f5458-5" title="5"> [ <span class="fl">13.41389074</span> <span class="fl">102.36908493</span>]]</a>
+<a class="sourceLine" id="org43f5458-6" title="6"></a>
+<a class="sourceLine" id="org43f5458-7" title="7">MvNormalRV([<span class="dv">0</span>, <span class="fl">1e2</span>, <span class="fl">2e3</span>], np.diag([<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>]), size<span class="op">=</span>[<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>]):</a>
+<a class="sourceLine" id="org43f5458-8" title="8">[[[[<span class="op">-</span><span class="fl">1.95386446e+00</span>  <span class="fl">1.00395353e+02</span>  <span class="fl">2.00061885e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-9" title="9">   [ <span class="fl">1.05345467e-02</span>  <span class="fl">1.00488854e+02</span>  <span class="fl">2.00075391e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-10" title="10">   [<span class="op">-</span><span class="fl">2.96094820e-01</span>  <span class="fl">9.97791115e+01</span>  <span class="fl">2.00039472e+03</span>]]</a>
+<a class="sourceLine" id="org43f5458-11" title="11"></a>
+<a class="sourceLine" id="org43f5458-12" title="12">  [[ <span class="fl">1.09725296e+00</span>  <span class="fl">1.00481658e+02</span>  <span class="fl">2.00168402e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-13" title="13">   [<span class="op">-</span><span class="fl">5.97706814e-01</span>  <span class="fl">9.84007224e+01</span>  <span class="fl">1.99998250e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-14" title="14">   [ <span class="fl">6.05551705e-01</span>  <span class="fl">1.00905256e+02</span>  <span class="fl">1.99904533e+03</span>]]]</a>
+<a class="sourceLine" id="org43f5458-15" title="15"></a>
+<a class="sourceLine" id="org43f5458-16" title="16"></a>
+<a class="sourceLine" id="org43f5458-17" title="17"> [[[ <span class="fl">3.13777265e-01</span>  <span class="fl">9.73407662e+01</span>  <span class="fl">1.99854117e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-18" title="18">   [<span class="op">-</span><span class="fl">8.54227150e-01</span>  <span class="fl">1.01332597e+02</span>  <span class="fl">1.99945623e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-19" title="19">   [<span class="op">-</span><span class="fl">4.71493054e-01</span>  <span class="fl">9.98134334e+01</span>  <span class="fl">2.00121111e+03</span>]]</a>
+<a class="sourceLine" id="org43f5458-20" title="20"></a>
+<a class="sourceLine" id="org43f5458-21" title="21">  [[<span class="op">-</span><span class="fl">3.61516595e-01</span>  <span class="fl">9.99772061e+01</span>  <span class="fl">1.99853933e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-22" title="22">   [ <span class="fl">5.17271791e-01</span>  <span class="fl">9.74970520e+01</span>  <span class="fl">2.00052296e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-23" title="23">   [ <span class="fl">2.15904894e-01</span>  <span class="fl">9.99694385e+01</span>  <span class="fl">2.00021462e+03</span>]]]</a>
+<a class="sourceLine" id="org43f5458-24" title="24"></a>
+<a class="sourceLine" id="org43f5458-25" title="25"></a>
+<a class="sourceLine" id="org43f5458-26" title="26"> [[[<span class="op">-</span><span class="fl">9.61903721e-01</span>  <span class="fl">1.00569645e+02</span>  <span class="fl">1.99858826e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-27" title="27">   [<span class="op">-</span><span class="fl">6.72526622e-01</span>  <span class="fl">1.00277177e+02</span>  <span class="fl">2.00036283e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-28" title="28">   [ <span class="fl">2.58608351e-01</span>  <span class="fl">1.01020520e+02</span>  <span class="fl">1.99866678e+03</span>]]</a>
+<a class="sourceLine" id="org43f5458-29" title="29"></a>
+<a class="sourceLine" id="org43f5458-30" title="30">  [[ <span class="fl">8.70002780e-02</span>  <span class="fl">1.01020608e+02</span>  <span class="fl">1.99975983e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-31" title="31">   [ <span class="fl">8.56671014e-01</span>  <span class="fl">9.97595247e+01</span>  <span class="fl">2.00094824e+03</span>]</a>
+<a class="sourceLine" id="org43f5458-32" title="32">   [ <span class="fl">6.17426596e-01</span>  <span class="fl">1.01919972e+02</span>  <span class="fl">1.99914348e+03</span>]]]]</a>
+<a class="sourceLine" id="org43f5458-33" title="33"></a></code></pre></div>
 </div>
 <p>As we’ve mentioned, there are a few difficulties surrounding the use and determination of shape information in PyMC3. <code>RandomVariable</code> doesn’t suffer the same limitations.</p>
-<div class="example" data-markdown="" data-title-name="">
+<div class="example" data-markdown="">
 <p>A multivariate normal random variable cannot be created without explicit shape information.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> traceback</a>
-<a class="sourceLine" id="cb4-2" title="2"></a>
-<a class="sourceLine" id="cb4-3" title="3">test_mean <span class="op">=</span> tt.vector(<span class="st">&#39;test_mean&#39;</span>)</a>
-<a class="sourceLine" id="cb4-4" title="4">test_mean.tag.test_value <span class="op">=</span> np.asarray([<span class="dv">1</span>])</a>
-<a class="sourceLine" id="cb4-5" title="5"></a>
-<a class="sourceLine" id="cb4-6" title="6">test_cov <span class="op">=</span> tt.matrix(<span class="st">&#39;test_cov&#39;</span>)</a>
-<a class="sourceLine" id="cb4-7" title="7">test_cov.tag.test_value <span class="op">=</span> np.asarray([[<span class="dv">1</span>]])</a>
-<a class="sourceLine" id="cb4-8" title="8"></a>
-<a class="sourceLine" id="cb4-9" title="9"><span class="cf">try</span>:</a>
-<a class="sourceLine" id="cb4-10" title="10">  <span class="cf">with</span> pm.Model():</a>
-<a class="sourceLine" id="cb4-11" title="11">    test_rv <span class="op">=</span> pm.MvNormal(<span class="st">&#39;test_rv&#39;</span>, test_mean, test_cov)</a>
-<a class="sourceLine" id="cb4-12" title="12"><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
-<a class="sourceLine" id="cb4-13" title="13">  <span class="bu">print</span>(<span class="st">&quot;&quot;</span>.join(traceback.format_exception_only(<span class="bu">type</span>(e), e)))</a></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="pp">ValueError</span>: Invalid dimension <span class="cf">for</span> value: <span class="dv">0</span></a>
-<a class="sourceLine" id="cb5-2" title="2"></a></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="cf">try</span>:</a>
-<a class="sourceLine" id="cb6-2" title="2">  <span class="cf">with</span> pm.Model():</a>
-<a class="sourceLine" id="cb6-3" title="3">    test_rv <span class="op">=</span> pm.MvNormal(<span class="st">&#39;test_rv&#39;</span>, test_mean, test_cov, shape<span class="op">=</span><span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb6-4" title="4">    <span class="bu">print</span>(<span class="st">&quot;test_rv.distribution.shape = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_rv.distribution.shape))</a>
-<a class="sourceLine" id="cb6-5" title="5">    <span class="bu">print</span>(<span class="st">&quot;test_rv.tag.test_value = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_rv.tag.test_value))</a>
-<a class="sourceLine" id="cb6-6" title="6"><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
-<a class="sourceLine" id="cb6-7" title="7">  <span class="bu">print</span>(<span class="st">&quot;&quot;</span>.join(traceback.format_exception_only(<span class="bu">type</span>(e), e)))</a></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1">test_rv.distribution.shape <span class="op">=</span> [<span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb7-2" title="2">test_rv.tag.test_value <span class="op">=</span> [<span class="fl">1.</span>]</a>
-<a class="sourceLine" id="cb7-3" title="3"></a></code></pre></div>
+<div class="sourceCode" id="orgdb81332"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgdb81332-1" title="1"><span class="im">import</span> traceback</a>
+<a class="sourceLine" id="orgdb81332-2" title="2"></a>
+<a class="sourceLine" id="orgdb81332-3" title="3">test_mean <span class="op">=</span> tt.vector(<span class="st">&#39;test_mean&#39;</span>)</a>
+<a class="sourceLine" id="orgdb81332-4" title="4">test_mean.tag.test_value <span class="op">=</span> np.asarray([<span class="dv">1</span>])</a>
+<a class="sourceLine" id="orgdb81332-5" title="5"></a>
+<a class="sourceLine" id="orgdb81332-6" title="6">test_cov <span class="op">=</span> tt.matrix(<span class="st">&#39;test_cov&#39;</span>)</a>
+<a class="sourceLine" id="orgdb81332-7" title="7">test_cov.tag.test_value <span class="op">=</span> np.asarray([[<span class="dv">1</span>]])</a>
+<a class="sourceLine" id="orgdb81332-8" title="8"></a>
+<a class="sourceLine" id="orgdb81332-9" title="9"><span class="cf">try</span>:</a>
+<a class="sourceLine" id="orgdb81332-10" title="10">  <span class="cf">with</span> pm.Model():</a>
+<a class="sourceLine" id="orgdb81332-11" title="11">    test_rv <span class="op">=</span> pm.MvNormal(<span class="st">&#39;test_rv&#39;</span>, test_mean, test_cov)</a>
+<a class="sourceLine" id="orgdb81332-12" title="12"><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="orgdb81332-13" title="13">  <span class="bu">print</span>(<span class="st">&quot;&quot;</span>.join(traceback.format_exception_only(<span class="bu">type</span>(e), e)))</a></code></pre></div>
+<div class="sourceCode" id="org21f8a15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org21f8a15-1" title="1"><span class="pp">ValueError</span>: Invalid dimension <span class="cf">for</span> value: <span class="dv">0</span></a>
+<a class="sourceLine" id="org21f8a15-2" title="2"></a></code></pre></div>
+<div class="sourceCode" id="orge7083a7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orge7083a7-1" title="1"><span class="cf">try</span>:</a>
+<a class="sourceLine" id="orge7083a7-2" title="2">  <span class="cf">with</span> pm.Model():</a>
+<a class="sourceLine" id="orge7083a7-3" title="3">    test_rv <span class="op">=</span> pm.MvNormal(<span class="st">&#39;test_rv&#39;</span>, test_mean, test_cov, shape<span class="op">=</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="orge7083a7-4" title="4">    <span class="bu">print</span>(<span class="st">&quot;test_rv.distribution.shape = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_rv.distribution.shape))</a>
+<a class="sourceLine" id="orge7083a7-5" title="5">    <span class="bu">print</span>(<span class="st">&quot;test_rv.tag.test_value = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_rv.tag.test_value))</a>
+<a class="sourceLine" id="orge7083a7-6" title="6"><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="orge7083a7-7" title="7">  <span class="bu">print</span>(<span class="st">&quot;&quot;</span>.join(traceback.format_exception_only(<span class="bu">type</span>(e), e)))</a></code></pre></div>
+<div class="sourceCode" id="orgb41267f"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgb41267f-1" title="1">test_rv.distribution.shape <span class="op">=</span> [<span class="dv">1</span>]</a>
+<a class="sourceLine" id="orgb41267f-2" title="2">test_rv.tag.test_value <span class="op">=</span> [<span class="fl">1.</span>]</a>
+<a class="sourceLine" id="orgb41267f-3" title="3"></a></code></pre></div>
 <p>Using <code>RandomVariable</code>, we do not have to specify a shape, nor implement any sampling code outside of <code>RandomVariable.perform</code> to draw random variables and generate valid test values.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1">test_mv_rv <span class="op">=</span> MvNormalRV(test_mean, test_cov)</a>
-<a class="sourceLine" id="cb8-2" title="2">test_mv_rv_2 <span class="op">=</span> MvNormalRV(test_mv_rv, test_cov)</a>
-<a class="sourceLine" id="cb8-3" title="3"></a>
-<a class="sourceLine" id="cb8-4" title="4"><span class="co"># Observe the automatically generated test values</span></a>
-<a class="sourceLine" id="cb8-5" title="5"><span class="bu">print</span>(<span class="st">&quot;test_mv_rv.tag.test_value = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_mv_rv.tag.test_value))</a>
-<a class="sourceLine" id="cb8-6" title="6"><span class="bu">print</span>(<span class="st">&quot;test_mv_rv_2.tag.test_value = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_mv_rv_2.tag.test_value))</a>
-<a class="sourceLine" id="cb8-7" title="7"></a>
-<a class="sourceLine" id="cb8-8" title="8"><span class="co"># Sample some values under specific parameter values</span></a>
-<a class="sourceLine" id="cb8-9" title="9"><span class="bu">print</span>(<span class="st">&quot;test_mv_rv.eval() = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_mv_rv.<span class="bu">eval</span>(</a>
-<a class="sourceLine" id="cb8-10" title="10">    {test_mean: [<span class="dv">1</span>, <span class="dv">2</span>], test_cov: np.diag([<span class="dv">1</span>, <span class="dv">2</span>])})))</a>
-<a class="sourceLine" id="cb8-11" title="11"><span class="bu">print</span>(<span class="st">&quot;test_mv_rv_2.eval() = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_mv_rv_2.<span class="bu">eval</span>(</a>
-<a class="sourceLine" id="cb8-12" title="12">    {test_mean: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], test_cov: np.diag([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">70</span>])})))</a></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1">test_mv_rv.tag.test_value <span class="op">=</span> [<span class="fl">0.90661799</span>]</a>
-<a class="sourceLine" id="cb9-2" title="2">test_mv_rv_2.tag.test_value <span class="op">=</span> [<span class="fl">1.10201953</span>]</a>
-<a class="sourceLine" id="cb9-3" title="3">test_mv_rv.<span class="bu">eval</span>() <span class="op">=</span> [<span class="op">-</span><span class="fl">1.90184227</span>  <span class="fl">1.8679379</span> ]</a>
-<a class="sourceLine" id="cb9-4" title="4">test_mv_rv_2.<span class="bu">eval</span>() <span class="op">=</span> [ <span class="fl">2.05659828</span> <span class="fl">-1.33638943</span>  <span class="fl">3.85355663</span>]</a>
-<a class="sourceLine" id="cb9-5" title="5"></a></code></pre></div>
+<div class="sourceCode" id="orgc0ba549"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgc0ba549-1" title="1">test_mv_rv <span class="op">=</span> MvNormalRV(test_mean, test_cov)</a>
+<a class="sourceLine" id="orgc0ba549-2" title="2">test_mv_rv_2 <span class="op">=</span> MvNormalRV(test_mv_rv, test_cov)</a>
+<a class="sourceLine" id="orgc0ba549-3" title="3"></a>
+<a class="sourceLine" id="orgc0ba549-4" title="4"><span class="co"># Observe the automatically generated test values</span></a>
+<a class="sourceLine" id="orgc0ba549-5" title="5"><span class="bu">print</span>(<span class="st">&quot;test_mv_rv.tag.test_value = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_mv_rv.tag.test_value))</a>
+<a class="sourceLine" id="orgc0ba549-6" title="6"><span class="bu">print</span>(<span class="st">&quot;test_mv_rv_2.tag.test_value = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_mv_rv_2.tag.test_value))</a>
+<a class="sourceLine" id="orgc0ba549-7" title="7"></a>
+<a class="sourceLine" id="orgc0ba549-8" title="8"><span class="co"># Sample some values under specific parameter values</span></a>
+<a class="sourceLine" id="orgc0ba549-9" title="9"><span class="bu">print</span>(<span class="st">&quot;test_mv_rv.eval() = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_mv_rv.<span class="bu">eval</span>(</a>
+<a class="sourceLine" id="orgc0ba549-10" title="10">    {test_mean: [<span class="dv">1</span>, <span class="dv">2</span>], test_cov: np.diag([<span class="dv">1</span>, <span class="dv">2</span>])})))</a>
+<a class="sourceLine" id="orgc0ba549-11" title="11"><span class="bu">print</span>(<span class="st">&quot;test_mv_rv_2.eval() = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(test_mv_rv_2.<span class="bu">eval</span>(</a>
+<a class="sourceLine" id="orgc0ba549-12" title="12">    {test_mean: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], test_cov: np.diag([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">70</span>])})))</a></code></pre></div>
+<div class="sourceCode" id="org1a1c95a"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org1a1c95a-1" title="1">test_mv_rv.tag.test_value <span class="op">=</span> [<span class="fl">0.90661799</span>]</a>
+<a class="sourceLine" id="org1a1c95a-2" title="2">test_mv_rv_2.tag.test_value <span class="op">=</span> [<span class="fl">1.10201953</span>]</a>
+<a class="sourceLine" id="org1a1c95a-3" title="3">test_mv_rv.<span class="bu">eval</span>() <span class="op">=</span> [<span class="op">-</span><span class="fl">1.90184227</span>  <span class="fl">1.8679379</span> ]</a>
+<a class="sourceLine" id="org1a1c95a-4" title="4">test_mv_rv_2.<span class="bu">eval</span>() <span class="op">=</span> [ <span class="fl">2.05659828</span> <span class="fl">-1.33638943</span>  <span class="fl">3.85355663</span>]</a>
+<a class="sourceLine" id="org1a1c95a-5" title="5"></a></code></pre></div>
 </div>
 </section>
 </section>
 <section id="a-problem-with-pymc3-broadcast-dimensions" class="level1">
 <h1>A Problem with PyMC3 Broadcast Dimensions</h1>
 <p>As in <sup id="24875a2c31fa7f94ce562adddedc0bf8"><a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }">WillardSymbolicMathPyMC32018</a></sup>, we can create mappings between existing PyMC3 random variables and their new <code>RandomVariable</code> equivalents.</p>
-<div class="sourceCode" id="pymc_theano_rv_equivs"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="pymc_theano_rv_equivs-1" title="1">pymc_theano_rv_equivs <span class="op">=</span> {</a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-2" title="2">    pm.Normal:</a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-3" title="3">    <span class="kw">lambda</span> dist, rand_state:</a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-4" title="4">    (<span class="va">None</span>,</a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-5" title="5">     <span class="co"># PyMC3 shapes aren&#39;t NumPy-like size parameters, so we attempt to</span></a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-6" title="6">     <span class="co"># adjust for that.</span></a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-7" title="7">     NormalRV(dist.mu, dist.sd, size<span class="op">=</span>dist.shape[<span class="dv">1</span>:], rng<span class="op">=</span>rand_state)),</a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-8" title="8">    pm.MvNormal:</a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-9" title="9">    <span class="kw">lambda</span> dist, rand_state:</a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-10" title="10">    (<span class="va">None</span>, NormalRV(dist.mu, dist.cov, size<span class="op">=</span>dist.shape[<span class="dv">1</span>:], rng<span class="op">=</span>rand_state)),</a>
-<a class="sourceLine" id="pymc_theano_rv_equivs-11" title="11">}</a></code></pre></div>
+<div class="sourceCode" id="orgf097520"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgf097520-1" title="1">pymc_theano_rv_equivs <span class="op">=</span> {</a>
+<a class="sourceLine" id="orgf097520-2" title="2">    pm.Normal:</a>
+<a class="sourceLine" id="orgf097520-3" title="3">    <span class="kw">lambda</span> dist, rand_state:</a>
+<a class="sourceLine" id="orgf097520-4" title="4">    (<span class="va">None</span>,</a>
+<a class="sourceLine" id="orgf097520-5" title="5">     <span class="co"># PyMC3 shapes aren&#39;t NumPy-like size parameters, so we attempt to</span></a>
+<a class="sourceLine" id="orgf097520-6" title="6">     <span class="co"># adjust for that.</span></a>
+<a class="sourceLine" id="orgf097520-7" title="7">     NormalRV(dist.mu, dist.sd, size<span class="op">=</span>dist.shape[<span class="dv">1</span>:], rng<span class="op">=</span>rand_state)),</a>
+<a class="sourceLine" id="orgf097520-8" title="8">    pm.MvNormal:</a>
+<a class="sourceLine" id="orgf097520-9" title="9">    <span class="kw">lambda</span> dist, rand_state:</a>
+<a class="sourceLine" id="orgf097520-10" title="10">    (<span class="va">None</span>, NormalRV(dist.mu, dist.cov, size<span class="op">=</span>dist.shape[<span class="dv">1</span>:], rng<span class="op">=</span>rand_state)),</a>
+<a class="sourceLine" id="orgf097520-11" title="11">}</a></code></pre></div>
 <p>However, if we attempt the same PymC3 graph conversion approach as before (i.e. convert a PyMC3 model to a Theano <code>FunctionGraph</code> using <code>model_graph</code>, then replace PyMC3 random variable nodes with our new random variable types using <code>create_theano_rvs</code>), we’re likely to run into a problem involving mismatching broadcastable dimensions.</p>
 <p>The problem arises because <strong>PyMC3 “knows” more broadcast information than it should</strong>, since it uses the Theano variables’ test values in order to obtain concrete shapes for the random variables it creates. Using concrete, non-symbolic shapes, it can exactly determine what would otherwise be ambiguous <a href="http://deeplearning.net/software/theano/library/tensor/basic.html?highlight=broadcastable#theano.tensor.TensorType.broadcastable">broadcastable dimensions</a> at the symbolic level.</p>
 <p>More specifically, broadcast information is required during the construction of a Theano <code>TensorType</code>, so PyMC3 random variable types can be inconsistent (unnecessarily restrictive, really) causing Theano to complain when we try to construct a <code>FunctionGraph</code>.</p>
 <div class="example" data-markdown="">
 <p>Consider the following example; it constructs two purely symbolic Theano vectors: one with broadcasting and one without.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1">y_tt <span class="op">=</span> tt.row(<span class="st">&#39;y&#39;</span>)</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="bu">print</span>(<span class="st">&quot;y_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(y_tt.broadcastable))</a>
-<a class="sourceLine" id="cb10-3" title="3">x_tt <span class="op">=</span> tt.matrix(<span class="st">&#39;x&#39;</span>)</a>
-<a class="sourceLine" id="cb10-4" title="4"><span class="bu">print</span>(<span class="st">&quot;x_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(x_tt.broadcastable))</a></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1">y_tt.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">False</span>)</a>
-<a class="sourceLine" id="cb11-2" title="2">x_tt.broadcastable <span class="op">=</span> (<span class="va">False</span>, <span class="va">False</span>)</a>
-<a class="sourceLine" id="cb11-3" title="3"></a></code></pre></div>
+<div class="sourceCode" id="org75ac1d5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org75ac1d5-1" title="1">y_tt <span class="op">=</span> tt.row(<span class="st">&#39;y&#39;</span>)</a>
+<a class="sourceLine" id="org75ac1d5-2" title="2"><span class="bu">print</span>(<span class="st">&quot;y_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(y_tt.broadcastable))</a>
+<a class="sourceLine" id="org75ac1d5-3" title="3">x_tt <span class="op">=</span> tt.matrix(<span class="st">&#39;x&#39;</span>)</a>
+<a class="sourceLine" id="org75ac1d5-4" title="4"><span class="bu">print</span>(<span class="st">&quot;x_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(x_tt.broadcastable))</a></code></pre></div>
+<div class="sourceCode" id="orgb63c12a"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgb63c12a-1" title="1">y_tt.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">False</span>)</a>
+<a class="sourceLine" id="orgb63c12a-2" title="2">x_tt.broadcastable <span class="op">=</span> (<span class="va">False</span>, <span class="va">False</span>)</a>
+<a class="sourceLine" id="orgb63c12a-3" title="3"></a></code></pre></div>
 <p>Notice that it–by default–signifies no broadcasting on its first and only dimension.</p>
 <p>If we wish–or if <a href="http://deeplearning.net/software/theano/library/config.html#config.compute_test_value">Theano’s configuration demands</a> it–we can assign the symbolic vector arbitrary test values, as long as they’re consistent with its type (i.e. a vector, or 1-dimensional array).</p>
 <p>In the following, we assign both a broadcastable (i.e. first–and only–dimension has size 1) and non-broadcastable test value.</p>
 <p>Test value is broadcastable:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1">x_tt.tag.test_value <span class="op">=</span> np.array([[<span class="dv">5</span>]])</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="bu">print</span>(<span class="st">&quot;test_value.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
-<a class="sourceLine" id="cb12-3" title="3">    tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))</a>
-<a class="sourceLine" id="cb12-4" title="4"><span class="bu">print</span>(<span class="st">&quot;x_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(x_tt.broadcastable))</a>
-<a class="sourceLine" id="cb12-5" title="5"></a>
-<a class="sourceLine" id="cb12-6" title="6"><span class="co"># Compute this to run internal checks</span></a>
-<a class="sourceLine" id="cb12-7" title="7"><span class="cf">try</span>:</a>
-<a class="sourceLine" id="cb12-8" title="8">    x_tt.shape</a>
-<a class="sourceLine" id="cb12-9" title="9">    <span class="bu">print</span>(<span class="st">&quot;shape checks out!&quot;</span>)</a>
-<a class="sourceLine" id="cb12-10" title="10"><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</a>
-<a class="sourceLine" id="cb12-11" title="11">    <span class="bu">print</span>(<span class="bu">str</span>(e))</a></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1">test_value.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">True</span>)</a>
-<a class="sourceLine" id="cb13-2" title="2">x_tt.broadcastable <span class="op">=</span> (<span class="va">False</span>, <span class="va">False</span>)</a>
-<a class="sourceLine" id="cb13-3" title="3">shape checks out<span class="op">!</span></a>
-<a class="sourceLine" id="cb13-4" title="4"></a></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1">y_tt.tag.test_value <span class="op">=</span> np.array([[<span class="dv">5</span>]])</a>
-<a class="sourceLine" id="cb14-2" title="2"><span class="bu">print</span>(<span class="st">&quot;test_value.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
-<a class="sourceLine" id="cb14-3" title="3">    tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))</a>
-<a class="sourceLine" id="cb14-4" title="4"><span class="bu">print</span>(<span class="st">&quot;y_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(y_tt.broadcastable))</a>
-<a class="sourceLine" id="cb14-5" title="5"></a>
-<a class="sourceLine" id="cb14-6" title="6"><span class="co"># Compute this to run internal checks</span></a>
-<a class="sourceLine" id="cb14-7" title="7"><span class="cf">try</span>:</a>
-<a class="sourceLine" id="cb14-8" title="8">    y_tt.shape</a>
-<a class="sourceLine" id="cb14-9" title="9">    <span class="bu">print</span>(<span class="st">&quot;shape checks out!&quot;</span>)</a>
-<a class="sourceLine" id="cb14-10" title="10"><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</a>
-<a class="sourceLine" id="cb14-11" title="11">    <span class="bu">print</span>(<span class="bu">str</span>(e))</a></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" title="1">test_value.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">True</span>)</a>
-<a class="sourceLine" id="cb15-2" title="2">y_tt.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">False</span>)</a>
-<a class="sourceLine" id="cb15-3" title="3">shape checks out<span class="op">!</span></a>
-<a class="sourceLine" id="cb15-4" title="4"></a></code></pre></div>
+<div class="sourceCode" id="org6b58505"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org6b58505-1" title="1">x_tt.tag.test_value <span class="op">=</span> np.array([[<span class="dv">5</span>]])</a>
+<a class="sourceLine" id="org6b58505-2" title="2"><span class="bu">print</span>(<span class="st">&quot;test_value.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
+<a class="sourceLine" id="org6b58505-3" title="3">    tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))</a>
+<a class="sourceLine" id="org6b58505-4" title="4"><span class="bu">print</span>(<span class="st">&quot;x_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(x_tt.broadcastable))</a>
+<a class="sourceLine" id="org6b58505-5" title="5"></a>
+<a class="sourceLine" id="org6b58505-6" title="6"><span class="co"># Compute this to run internal checks</span></a>
+<a class="sourceLine" id="org6b58505-7" title="7"><span class="cf">try</span>:</a>
+<a class="sourceLine" id="org6b58505-8" title="8">    x_tt.shape</a>
+<a class="sourceLine" id="org6b58505-9" title="9">    <span class="bu">print</span>(<span class="st">&quot;shape checks out!&quot;</span>)</a>
+<a class="sourceLine" id="org6b58505-10" title="10"><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="org6b58505-11" title="11">    <span class="bu">print</span>(<span class="bu">str</span>(e))</a></code></pre></div>
+<div class="sourceCode" id="org17f0623"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org17f0623-1" title="1">test_value.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">True</span>)</a>
+<a class="sourceLine" id="org17f0623-2" title="2">x_tt.broadcastable <span class="op">=</span> (<span class="va">False</span>, <span class="va">False</span>)</a>
+<a class="sourceLine" id="org17f0623-3" title="3">shape checks out<span class="op">!</span></a>
+<a class="sourceLine" id="org17f0623-4" title="4"></a></code></pre></div>
+<div class="sourceCode" id="org1a96a68"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org1a96a68-1" title="1">y_tt.tag.test_value <span class="op">=</span> np.array([[<span class="dv">5</span>]])</a>
+<a class="sourceLine" id="org1a96a68-2" title="2"><span class="bu">print</span>(<span class="st">&quot;test_value.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
+<a class="sourceLine" id="org1a96a68-3" title="3">    tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))</a>
+<a class="sourceLine" id="org1a96a68-4" title="4"><span class="bu">print</span>(<span class="st">&quot;y_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(y_tt.broadcastable))</a>
+<a class="sourceLine" id="org1a96a68-5" title="5"></a>
+<a class="sourceLine" id="org1a96a68-6" title="6"><span class="co"># Compute this to run internal checks</span></a>
+<a class="sourceLine" id="org1a96a68-7" title="7"><span class="cf">try</span>:</a>
+<a class="sourceLine" id="org1a96a68-8" title="8">    y_tt.shape</a>
+<a class="sourceLine" id="org1a96a68-9" title="9">    <span class="bu">print</span>(<span class="st">&quot;shape checks out!&quot;</span>)</a>
+<a class="sourceLine" id="org1a96a68-10" title="10"><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="org1a96a68-11" title="11">    <span class="bu">print</span>(<span class="bu">str</span>(e))</a></code></pre></div>
+<div class="sourceCode" id="orgbd6cded"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgbd6cded-1" title="1">test_value.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">True</span>)</a>
+<a class="sourceLine" id="orgbd6cded-2" title="2">y_tt.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">False</span>)</a>
+<a class="sourceLine" id="orgbd6cded-3" title="3">shape checks out<span class="op">!</span></a>
+<a class="sourceLine" id="orgbd6cded-4" title="4"></a></code></pre></div>
 <p>Test value is <strong>not</strong> broadcastable:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" title="1">x_tt.tag.test_value <span class="op">=</span> np.array([[<span class="dv">5</span>, <span class="dv">4</span>]])</a>
-<a class="sourceLine" id="cb16-2" title="2"><span class="bu">print</span>(<span class="st">&quot;test_value.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
-<a class="sourceLine" id="cb16-3" title="3">    tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))</a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="bu">print</span>(<span class="st">&quot;x_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(x_tt.broadcastable))</a>
-<a class="sourceLine" id="cb16-5" title="5"></a>
-<a class="sourceLine" id="cb16-6" title="6"><span class="co"># Compute this to run internal checks</span></a>
-<a class="sourceLine" id="cb16-7" title="7"><span class="cf">try</span>:</a>
-<a class="sourceLine" id="cb16-8" title="8">    x_tt.shape</a>
-<a class="sourceLine" id="cb16-9" title="9">    <span class="bu">print</span>(<span class="st">&quot;shape checks out!&quot;</span>)</a>
-<a class="sourceLine" id="cb16-10" title="10"><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</a>
-<a class="sourceLine" id="cb16-11" title="11">    <span class="bu">print</span>(<span class="bu">str</span>(e))</a></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" title="1">test_value.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">False</span>)</a>
-<a class="sourceLine" id="cb17-2" title="2">x_tt.broadcastable <span class="op">=</span> (<span class="va">False</span>, <span class="va">False</span>)</a>
-<a class="sourceLine" id="cb17-3" title="3">shape checks out<span class="op">!</span></a>
-<a class="sourceLine" id="cb17-4" title="4"></a></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" title="1">y_tt.tag.test_value <span class="op">=</span> np.array([[<span class="dv">5</span>, <span class="dv">4</span>], [<span class="dv">3</span>, <span class="dv">2</span>]])</a>
-<a class="sourceLine" id="cb18-2" title="2"><span class="bu">print</span>(<span class="st">&quot;test_value.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
-<a class="sourceLine" id="cb18-3" title="3">    tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))</a>
-<a class="sourceLine" id="cb18-4" title="4"><span class="bu">print</span>(<span class="st">&quot;y_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(y_tt.broadcastable))</a>
-<a class="sourceLine" id="cb18-5" title="5"></a>
-<a class="sourceLine" id="cb18-6" title="6"><span class="co"># Compute this to run internal checks</span></a>
-<a class="sourceLine" id="cb18-7" title="7"><span class="cf">try</span>:</a>
-<a class="sourceLine" id="cb18-8" title="8">    y_tt.shape</a>
-<a class="sourceLine" id="cb18-9" title="9">    <span class="bu">print</span>(<span class="st">&quot;shape checks out!&quot;</span>)</a>
-<a class="sourceLine" id="cb18-10" title="10"><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</a>
-<a class="sourceLine" id="cb18-11" title="11">    <span class="bu">print</span>(<span class="bu">str</span>(e))</a></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1">test_value.broadcastable <span class="op">=</span> (<span class="va">False</span>, <span class="va">False</span>)</a>
-<a class="sourceLine" id="cb19-2" title="2">y_tt.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">False</span>)</a>
-<a class="sourceLine" id="cb19-3" title="3">For compute_test_value, one <span class="bu">input</span> test value does <span class="kw">not</span> have the requested <span class="bu">type</span>.</a>
-<a class="sourceLine" id="cb19-4" title="4"></a>
-<a class="sourceLine" id="cb19-5" title="5">Backtrace when that variable <span class="kw">is</span> created:</a>
-<a class="sourceLine" id="cb19-6" title="6"></a>
-<a class="sourceLine" id="cb19-7" title="7">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/terminal/interactiveshell.py&quot;</span>, line <span class="dv">485</span>, <span class="kw">in</span> mainloop</a>
-<a class="sourceLine" id="cb19-8" title="8">    <span class="va">self</span>.interact()</a>
-<a class="sourceLine" id="cb19-9" title="9">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/terminal/interactiveshell.py&quot;</span>, line <span class="dv">476</span>, <span class="kw">in</span> interact</a>
-<a class="sourceLine" id="cb19-10" title="10">    <span class="va">self</span>.run_cell(code, store_history<span class="op">=</span><span class="va">True</span>)</a>
-<a class="sourceLine" id="cb19-11" title="11">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&quot;</span>, line <span class="dv">2662</span>, <span class="kw">in</span> run_cell</a>
-<a class="sourceLine" id="cb19-12" title="12">    raw_cell, store_history, silent, shell_futures)</a>
-<a class="sourceLine" id="cb19-13" title="13">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&quot;</span>, line <span class="dv">2785</span>, <span class="kw">in</span> _run_cell</a>
-<a class="sourceLine" id="cb19-14" title="14">    interactivity<span class="op">=</span>interactivity, compiler<span class="op">=</span>compiler, result<span class="op">=</span>result)</a>
-<a class="sourceLine" id="cb19-15" title="15">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&quot;</span>, line <span class="dv">2909</span>, <span class="kw">in</span> run_ast_nodes</a>
-<a class="sourceLine" id="cb19-16" title="16">    <span class="cf">if</span> <span class="va">self</span>.run_code(code, result):</a>
-<a class="sourceLine" id="cb19-17" title="17">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&quot;</span>, line <span class="dv">2963</span>, <span class="kw">in</span> run_code</a>
-<a class="sourceLine" id="cb19-18" title="18">    <span class="bu">exec</span>(code_obj, <span class="va">self</span>.user_global_ns, <span class="va">self</span>.user_ns)</a>
-<a class="sourceLine" id="cb19-19" title="19">  File <span class="st">&quot;&lt;ipython-input-163-7eec6ac09cb0&gt;&quot;</span>, line <span class="dv">1</span>, <span class="kw">in</span> <span class="op">&lt;</span>module<span class="op">&gt;</span></a>
-<a class="sourceLine" id="cb19-20" title="20">    __org_babel_python_fname <span class="op">=</span> <span class="st">&#39;/tmp/user/1000/babel-f5w2XO/python-Cjuz3L&#39;</span><span class="op">;</span> __org_babel_python_fh <span class="op">=</span> <span class="bu">open</span>(__org_babel_python_fname)<span class="op">;</span> <span class="bu">exec</span>(<span class="bu">compile</span>(__org_babel_python_fh.read(), __org_babel_python_fname, <span class="st">&#39;exec&#39;</span>))<span class="op">;</span> __org_babel_python_fh.close()</a>
-<a class="sourceLine" id="cb19-21" title="21">  File <span class="st">&quot;/tmp/user/1000/babel-f5w2XO/python-Cjuz3L&quot;</span>, line <span class="dv">1</span>, <span class="kw">in</span> <span class="op">&lt;</span>module<span class="op">&gt;</span></a>
-<a class="sourceLine" id="cb19-22" title="22">    y_tt <span class="op">=</span> tt.row(<span class="st">&#39;y&#39;</span>)</a>
-<a class="sourceLine" id="cb19-23" title="23"></a>
-<a class="sourceLine" id="cb19-24" title="24">The error when converting the test value to that variable <span class="bu">type</span>:</a>
-<a class="sourceLine" id="cb19-25" title="25">Non<span class="op">-</span>unit value on shape on a broadcastable dimension.</a>
-<a class="sourceLine" id="cb19-26" title="26">(<span class="dv">2</span>, <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb19-27" title="27">(<span class="va">True</span>, <span class="va">False</span>)</a>
-<a class="sourceLine" id="cb19-28" title="28"></a></code></pre></div>
+<div class="sourceCode" id="org030252b"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org030252b-1" title="1">x_tt.tag.test_value <span class="op">=</span> np.array([[<span class="dv">5</span>, <span class="dv">4</span>]])</a>
+<a class="sourceLine" id="org030252b-2" title="2"><span class="bu">print</span>(<span class="st">&quot;test_value.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
+<a class="sourceLine" id="org030252b-3" title="3">    tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))</a>
+<a class="sourceLine" id="org030252b-4" title="4"><span class="bu">print</span>(<span class="st">&quot;x_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(x_tt.broadcastable))</a>
+<a class="sourceLine" id="org030252b-5" title="5"></a>
+<a class="sourceLine" id="org030252b-6" title="6"><span class="co"># Compute this to run internal checks</span></a>
+<a class="sourceLine" id="org030252b-7" title="7"><span class="cf">try</span>:</a>
+<a class="sourceLine" id="org030252b-8" title="8">    x_tt.shape</a>
+<a class="sourceLine" id="org030252b-9" title="9">    <span class="bu">print</span>(<span class="st">&quot;shape checks out!&quot;</span>)</a>
+<a class="sourceLine" id="org030252b-10" title="10"><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="org030252b-11" title="11">    <span class="bu">print</span>(<span class="bu">str</span>(e))</a></code></pre></div>
+<div class="sourceCode" id="orge1689e1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orge1689e1-1" title="1">test_value.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">False</span>)</a>
+<a class="sourceLine" id="orge1689e1-2" title="2">x_tt.broadcastable <span class="op">=</span> (<span class="va">False</span>, <span class="va">False</span>)</a>
+<a class="sourceLine" id="orge1689e1-3" title="3">shape checks out<span class="op">!</span></a>
+<a class="sourceLine" id="orge1689e1-4" title="4"></a></code></pre></div>
+<div class="sourceCode" id="org72d0493"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org72d0493-1" title="1">y_tt.tag.test_value <span class="op">=</span> np.array([[<span class="dv">5</span>, <span class="dv">4</span>], [<span class="dv">3</span>, <span class="dv">2</span>]])</a>
+<a class="sourceLine" id="org72d0493-2" title="2"><span class="bu">print</span>(<span class="st">&quot;test_value.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(</a>
+<a class="sourceLine" id="org72d0493-3" title="3">    tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))</a>
+<a class="sourceLine" id="org72d0493-4" title="4"><span class="bu">print</span>(<span class="st">&quot;y_tt.broadcastable = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(y_tt.broadcastable))</a>
+<a class="sourceLine" id="org72d0493-5" title="5"></a>
+<a class="sourceLine" id="org72d0493-6" title="6"><span class="co"># Compute this to run internal checks</span></a>
+<a class="sourceLine" id="org72d0493-7" title="7"><span class="cf">try</span>:</a>
+<a class="sourceLine" id="org72d0493-8" title="8">    y_tt.shape</a>
+<a class="sourceLine" id="org72d0493-9" title="9">    <span class="bu">print</span>(<span class="st">&quot;shape checks out!&quot;</span>)</a>
+<a class="sourceLine" id="org72d0493-10" title="10"><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="org72d0493-11" title="11">    <span class="bu">print</span>(<span class="bu">str</span>(e))</a></code></pre></div>
+<div class="sourceCode" id="org75feef9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org75feef9-1" title="1">test_value.broadcastable <span class="op">=</span> (<span class="va">False</span>, <span class="va">False</span>)</a>
+<a class="sourceLine" id="org75feef9-2" title="2">y_tt.broadcastable <span class="op">=</span> (<span class="va">True</span>, <span class="va">False</span>)</a>
+<a class="sourceLine" id="org75feef9-3" title="3">For compute_test_value, one <span class="bu">input</span> test value does <span class="kw">not</span> have the requested <span class="bu">type</span>.</a>
+<a class="sourceLine" id="org75feef9-4" title="4"></a>
+<a class="sourceLine" id="org75feef9-5" title="5">Backtrace when that variable <span class="kw">is</span> created:</a>
+<a class="sourceLine" id="org75feef9-6" title="6"></a>
+<a class="sourceLine" id="org75feef9-7" title="7">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/terminal/interactiveshell.py&quot;</span>, line <span class="dv">485</span>, <span class="kw">in</span> mainloop</a>
+<a class="sourceLine" id="org75feef9-8" title="8">    <span class="va">self</span>.interact()</a>
+<a class="sourceLine" id="org75feef9-9" title="9">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/terminal/interactiveshell.py&quot;</span>, line <span class="dv">476</span>, <span class="kw">in</span> interact</a>
+<a class="sourceLine" id="org75feef9-10" title="10">    <span class="va">self</span>.run_cell(code, store_history<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="org75feef9-11" title="11">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&quot;</span>, line <span class="dv">2662</span>, <span class="kw">in</span> run_cell</a>
+<a class="sourceLine" id="org75feef9-12" title="12">    raw_cell, store_history, silent, shell_futures)</a>
+<a class="sourceLine" id="org75feef9-13" title="13">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&quot;</span>, line <span class="dv">2785</span>, <span class="kw">in</span> _run_cell</a>
+<a class="sourceLine" id="org75feef9-14" title="14">    interactivity<span class="op">=</span>interactivity, compiler<span class="op">=</span>compiler, result<span class="op">=</span>result)</a>
+<a class="sourceLine" id="org75feef9-15" title="15">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&quot;</span>, line <span class="dv">2909</span>, <span class="kw">in</span> run_ast_nodes</a>
+<a class="sourceLine" id="org75feef9-16" title="16">    <span class="cf">if</span> <span class="va">self</span>.run_code(code, result):</a>
+<a class="sourceLine" id="org75feef9-17" title="17">  File <span class="st">&quot;/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/IPython/core/interactiveshell.py&quot;</span>, line <span class="dv">2963</span>, <span class="kw">in</span> run_code</a>
+<a class="sourceLine" id="org75feef9-18" title="18">    <span class="bu">exec</span>(code_obj, <span class="va">self</span>.user_global_ns, <span class="va">self</span>.user_ns)</a>
+<a class="sourceLine" id="org75feef9-19" title="19">  File <span class="st">&quot;&lt;ipython-input-163-7eec6ac09cb0&gt;&quot;</span>, line <span class="dv">1</span>, <span class="kw">in</span> <span class="op">&lt;</span>module<span class="op">&gt;</span></a>
+<a class="sourceLine" id="org75feef9-20" title="20">    __org_babel_python_fname <span class="op">=</span> <span class="st">&#39;/tmp/user/1000/babel-f5w2XO/python-Cjuz3L&#39;</span><span class="op">;</span> __org_babel_python_fh <span class="op">=</span> <span class="bu">open</span>(__org_babel_python_fname)<span class="op">;</span> <span class="bu">exec</span>(<span class="bu">compile</span>(__org_babel_python_fh.read(), __org_babel_python_fname, <span class="st">&#39;exec&#39;</span>))<span class="op">;</span> __org_babel_python_fh.close()</a>
+<a class="sourceLine" id="org75feef9-21" title="21">  File <span class="st">&quot;/tmp/user/1000/babel-f5w2XO/python-Cjuz3L&quot;</span>, line <span class="dv">1</span>, <span class="kw">in</span> <span class="op">&lt;</span>module<span class="op">&gt;</span></a>
+<a class="sourceLine" id="org75feef9-22" title="22">    y_tt <span class="op">=</span> tt.row(<span class="st">&#39;y&#39;</span>)</a>
+<a class="sourceLine" id="org75feef9-23" title="23"></a>
+<a class="sourceLine" id="org75feef9-24" title="24">The error when converting the test value to that variable <span class="bu">type</span>:</a>
+<a class="sourceLine" id="org75feef9-25" title="25">Non<span class="op">-</span>unit value on shape on a broadcastable dimension.</a>
+<a class="sourceLine" id="org75feef9-26" title="26">(<span class="dv">2</span>, <span class="dv">2</span>)</a>
+<a class="sourceLine" id="org75feef9-27" title="27">(<span class="va">True</span>, <span class="va">False</span>)</a>
+<a class="sourceLine" id="org75feef9-28" title="28"></a></code></pre></div>
 <p>Simply put: non-broadcastable Theano tensor variable types can take broadcastable and non-broadcastable values, while broadcastable types can only take broadcastable values.</p>
 </div>
 <p>What we can take from the example above is that if we determine that a vector has broadcastable dimensions using test values–as PyMC3 does–we unnecessarily introduce restrictions and potential inconsistencies down the line. One point of origin for such issues is <strong>shared variables</strong>.</p>
@@ -753,78 +753,84 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="optimizations-using-randomvariable" class="level1">
 <h1>Optimizations Using <code>RandomVariable</code></h1>
 <p>With our new <code>RandomVariable</code>, we can alter the replacement patterns used by <code>tt.gof.opt.PatternSub</code> in <sup id="24875a2c31fa7f94ce562adddedc0bf8"><a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }">WillardSymbolicMathPyMC32018</a></sup> and implement a slightly better parameter lifting for affine transforms of scalar normal random variables.</p>
-<div class="sourceCode" id="rv_optimizations"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="rv_optimizations-1" title="1"><span class="co"># Create random variable constructors.</span></a>
-<a class="sourceLine" id="rv_optimizations-2" title="2">NormalRV <span class="op">=</span> RandomVariable(<span class="st">&#39;normal&#39;</span>, <span class="dv">0</span>, [<span class="dv">0</span>, <span class="dv">0</span>], <span class="st">&#39;normal&#39;</span>)</a>
-<a class="sourceLine" id="rv_optimizations-3" title="3">MvNormalRV <span class="op">=</span> RandomVariable(<span class="st">&#39;multivariate_normal&#39;</span>, <span class="dv">1</span>, [<span class="dv">1</span>, <span class="dv">2</span>], <span class="st">&#39;multivariate_normal&#39;</span>)</a>
-<a class="sourceLine" id="rv_optimizations-4" title="4"></a>
-<a class="sourceLine" id="rv_optimizations-5" title="5"><span class="co"># We use the following to handle keyword arguments.</span></a>
-<a class="sourceLine" id="rv_optimizations-6" title="6">construct_rv <span class="op">=</span> <span class="kw">lambda</span> rng, size, mu, sd: NormalRV(mu, sd, size<span class="op">=</span>size, rng<span class="op">=</span>rng)</a>
-<a class="sourceLine" id="rv_optimizations-7" title="7"></a>
-<a class="sourceLine" id="rv_optimizations-8" title="8">norm_lift_pats <span class="op">=</span> [</a>
-<a class="sourceLine" id="rv_optimizations-9" title="9">    <span class="co"># Lift element-wise multiplication</span></a>
-<a class="sourceLine" id="rv_optimizations-10" title="10">    tt.gof.opt.PatternSub(</a>
-<a class="sourceLine" id="rv_optimizations-11" title="11">        (tt.mul,</a>
-<a class="sourceLine" id="rv_optimizations-12" title="12">         <span class="st">&#39;a_x&#39;</span>,</a>
-<a class="sourceLine" id="rv_optimizations-13" title="13">         (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;size_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>)),</a>
-<a class="sourceLine" id="rv_optimizations-14" title="14">        (construct_rv,</a>
-<a class="sourceLine" id="rv_optimizations-15" title="15">         <span class="st">&#39;rs_x&#39;</span>,</a>
-<a class="sourceLine" id="rv_optimizations-16" title="16">         <span class="co"># XXX: Is this really consistent?  How will it handle broadcasting?</span></a>
-<a class="sourceLine" id="rv_optimizations-17" title="17">         <span class="st">&#39;size_x&#39;</span>,</a>
-<a class="sourceLine" id="rv_optimizations-18" title="18">         (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>),</a>
-<a class="sourceLine" id="rv_optimizations-19" title="19">         (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
-<a class="sourceLine" id="rv_optimizations-20" title="20">        )),</a>
-<a class="sourceLine" id="rv_optimizations-21" title="21">    <span class="co"># Lift element-wise addition</span></a>
-<a class="sourceLine" id="rv_optimizations-22" title="22">    tt.gof.opt.PatternSub(</a>
-<a class="sourceLine" id="rv_optimizations-23" title="23">        (tt.add,</a>
-<a class="sourceLine" id="rv_optimizations-24" title="24">         (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;size_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
-<a class="sourceLine" id="rv_optimizations-25" title="25">         <span class="st">&#39;b_x&#39;</span>),</a>
-<a class="sourceLine" id="rv_optimizations-26" title="26">        (construct_rv,</a>
-<a class="sourceLine" id="rv_optimizations-27" title="27">         <span class="st">&#39;rs_x&#39;</span>,</a>
-<a class="sourceLine" id="rv_optimizations-28" title="28">         <span class="co"># XXX: Is this really consistent?  How will it handle broadcasting?</span></a>
-<a class="sourceLine" id="rv_optimizations-29" title="29">         <span class="st">&#39;size_x&#39;</span>,</a>
-<a class="sourceLine" id="rv_optimizations-30" title="30">         (tt.add, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;b_x&#39;</span>),</a>
-<a class="sourceLine" id="rv_optimizations-31" title="31">         <span class="st">&#39;sd_x&#39;</span>,</a>
-<a class="sourceLine" id="rv_optimizations-32" title="32">        )),</a>
-<a class="sourceLine" id="rv_optimizations-33" title="33">]</a>
-<a class="sourceLine" id="rv_optimizations-34" title="34"></a>
-<a class="sourceLine" id="rv_optimizations-35" title="35">norm_lift_opts <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(</a>
-<a class="sourceLine" id="rv_optimizations-36" title="36">    norm_lift_pats, max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a></code></pre></div>
+<div class="sourceCode" id="orgb112483"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgb112483-1" title="1"><span class="co"># Create random variable constructors.</span></a>
+<a class="sourceLine" id="orgb112483-2" title="2">NormalRV <span class="op">=</span> RandomVariable(<span class="st">&#39;normal&#39;</span>, <span class="dv">0</span>, [<span class="dv">0</span>, <span class="dv">0</span>], <span class="st">&#39;normal&#39;</span>)</a>
+<a class="sourceLine" id="orgb112483-3" title="3">MvNormalRV <span class="op">=</span> RandomVariable(<span class="st">&#39;multivariate_normal&#39;</span>, <span class="dv">1</span>, [<span class="dv">1</span>, <span class="dv">2</span>], <span class="st">&#39;multivariate_normal&#39;</span>)</a>
+<a class="sourceLine" id="orgb112483-4" title="4"></a>
+<a class="sourceLine" id="orgb112483-5" title="5"><span class="co"># We use the following to handle keyword arguments.</span></a>
+<a class="sourceLine" id="orgb112483-6" title="6">construct_rv <span class="op">=</span> <span class="kw">lambda</span> rng, size, mu, sd: NormalRV(mu, sd, size<span class="op">=</span>size, rng<span class="op">=</span>rng)</a>
+<a class="sourceLine" id="orgb112483-7" title="7"></a>
+<a class="sourceLine" id="orgb112483-8" title="8">norm_lift_pats <span class="op">=</span> [</a>
+<a class="sourceLine" id="orgb112483-9" title="9">    <span class="co"># Lift element-wise multiplication</span></a>
+<a class="sourceLine" id="orgb112483-10" title="10">    tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="orgb112483-11" title="11">        (tt.mul,</a>
+<a class="sourceLine" id="orgb112483-12" title="12">         <span class="st">&#39;a_x&#39;</span>,</a>
+<a class="sourceLine" id="orgb112483-13" title="13">         (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;size_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>)),</a>
+<a class="sourceLine" id="orgb112483-14" title="14">        (construct_rv,</a>
+<a class="sourceLine" id="orgb112483-15" title="15">         <span class="st">&#39;rs_x&#39;</span>,</a>
+<a class="sourceLine" id="orgb112483-16" title="16">         <span class="co"># XXX: Is this really consistent?  How will it handle broadcasting?</span></a>
+<a class="sourceLine" id="orgb112483-17" title="17">         <span class="st">&#39;size_x&#39;</span>,</a>
+<a class="sourceLine" id="orgb112483-18" title="18">         (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>),</a>
+<a class="sourceLine" id="orgb112483-19" title="19">         (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
+<a class="sourceLine" id="orgb112483-20" title="20">        )),</a>
+<a class="sourceLine" id="orgb112483-21" title="21">    <span class="co"># Lift element-wise addition</span></a>
+<a class="sourceLine" id="orgb112483-22" title="22">    tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="orgb112483-23" title="23">        (tt.add,</a>
+<a class="sourceLine" id="orgb112483-24" title="24">         (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;size_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
+<a class="sourceLine" id="orgb112483-25" title="25">         <span class="st">&#39;b_x&#39;</span>),</a>
+<a class="sourceLine" id="orgb112483-26" title="26">        (construct_rv,</a>
+<a class="sourceLine" id="orgb112483-27" title="27">         <span class="st">&#39;rs_x&#39;</span>,</a>
+<a class="sourceLine" id="orgb112483-28" title="28">         <span class="co"># XXX: Is this really consistent?  How will it handle broadcasting?</span></a>
+<a class="sourceLine" id="orgb112483-29" title="29">         <span class="st">&#39;size_x&#39;</span>,</a>
+<a class="sourceLine" id="orgb112483-30" title="30">         (tt.add, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;b_x&#39;</span>),</a>
+<a class="sourceLine" id="orgb112483-31" title="31">         <span class="st">&#39;sd_x&#39;</span>,</a>
+<a class="sourceLine" id="orgb112483-32" title="32">        )),</a>
+<a class="sourceLine" id="orgb112483-33" title="33">]</a>
+<a class="sourceLine" id="orgb112483-34" title="34"></a>
+<a class="sourceLine" id="orgb112483-35" title="35">norm_lift_opts <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(</a>
+<a class="sourceLine" id="orgb112483-36" title="36">    norm_lift_pats, max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a></code></pre></div>
 <div class="example" data-markdown="">
-<div class="sourceCode" id="mat_mul_scaling_rv_exa"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="mat_mul_scaling_rv_exa-1" title="1"><span class="im">from</span> theano.gof <span class="im">import</span> FunctionGraph, Feature, NodeFinder</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-2" title="2"><span class="im">from</span> theano.gof.graph <span class="im">import</span> inputs <span class="im">as</span> tt_inputs, clone_get_equiv</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-3" title="3"></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-4" title="4">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-5" title="5">sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-6" title="6"></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-7" title="7">mu_X.tag.test_value <span class="op">=</span> np.array([<span class="dv">0</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-8" title="8">sd_X.tag.test_value <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">2</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-9" title="9"></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-10" title="10"><span class="co"># </span><span class="al">TODO</span><span class="co">: Defining the offset, `b_tt`, using `tt.vector` will err-out because of</span></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-11" title="11"><span class="co"># non-matching dimensions and no default broadcasting.</span></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-12" title="12"><span class="co"># This is another good reason for broadcasting inputs in `make_node`.</span></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-13" title="13"><span class="co"># E.g.</span></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-14" title="14"><span class="co"># b_tt = tt.vector(&#39;b&#39;)</span></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-15" title="15"><span class="co"># b_tt.tag.test_value = np.array([1, 2], dtype=tt.config.floatX)</span></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-16" title="16"><span class="co"># or</span></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-17" title="17"><span class="co"># b_tt.tag.test_value = np.array([1], dtype=tt.config.floatX)</span></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-18" title="18"></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-19" title="19">b_tt <span class="op">=</span> tt.as_tensor_variable([<span class="fl">5.</span>], name<span class="op">=</span><span class="st">&#39;b&#39;</span>)</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-20" title="20"></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-21" title="21">X_rv <span class="op">=</span> NormalRV(mu_X, sd_X, name<span class="op">=</span><span class="st">&#39;~X_rv&#39;</span>)</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-22" title="22">Z_rv <span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> X_rv <span class="op">+</span> b_tt</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-23" title="23"></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-24" title="24">Z_graph <span class="op">=</span> FunctionGraph(tt_inputs([Z_rv]), [Z_rv])</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-25" title="25"></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-26" title="26">Z_graph_opt <span class="op">=</span> Z_graph.clone()</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-27" title="27"></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-28" title="28">_ <span class="op">=</span> norm_lift_opts.optimize(Z_graph_opt)</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-29" title="29"></a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-30" title="30"><span class="bu">print</span>(<span class="st">&#39;Before: </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(Z_graph.outputs[<span class="dv">0</span>])))</a>
-<a class="sourceLine" id="mat_mul_scaling_rv_exa-31" title="31"><span class="bu">print</span>(<span class="st">&#39;After: </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(Z_graph_opt.outputs[<span class="dv">0</span>])))</a></code></pre></div>
-<pre class="text"><code>Before: ((TensorConstant{5} * normal_rv(&lt;RandomStateType&gt;, TensorConstant{[]}, mu_X, sd_X)) + TensorConstant{(1,) of 5.0})
+<div class="sourceCode" id="orgc33f7e1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgc33f7e1-1" title="1"><span class="im">from</span> theano.gof <span class="im">import</span> FunctionGraph, Feature, NodeFinder</a>
+<a class="sourceLine" id="orgc33f7e1-2" title="2"><span class="im">from</span> theano.gof.graph <span class="im">import</span> inputs <span class="im">as</span> tt_inputs, clone_get_equiv</a>
+<a class="sourceLine" id="orgc33f7e1-3" title="3"></a>
+<a class="sourceLine" id="orgc33f7e1-4" title="4">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)</a>
+<a class="sourceLine" id="orgc33f7e1-5" title="5">sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)</a>
+<a class="sourceLine" id="orgc33f7e1-6" title="6"></a>
+<a class="sourceLine" id="orgc33f7e1-7" title="7">mu_X.tag.test_value <span class="op">=</span> np.array([<span class="dv">0</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="orgc33f7e1-8" title="8">sd_X.tag.test_value <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">2</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="orgc33f7e1-9" title="9"></a>
+<a class="sourceLine" id="orgc33f7e1-10" title="10"><span class="co"># </span><span class="al">TODO</span><span class="co">: Defining the offset, `b_tt`, using `tt.vector` will err-out because of</span></a>
+<a class="sourceLine" id="orgc33f7e1-11" title="11"><span class="co"># non-matching dimensions and no default broadcasting.</span></a>
+<a class="sourceLine" id="orgc33f7e1-12" title="12"><span class="co"># This is another good reason for broadcasting inputs in `make_node`.</span></a>
+<a class="sourceLine" id="orgc33f7e1-13" title="13"><span class="co"># E.g.</span></a>
+<a class="sourceLine" id="orgc33f7e1-14" title="14"><span class="co"># b_tt = tt.vector(&#39;b&#39;)</span></a>
+<a class="sourceLine" id="orgc33f7e1-15" title="15"><span class="co"># b_tt.tag.test_value = np.array([1, 2], dtype=tt.config.floatX)</span></a>
+<a class="sourceLine" id="orgc33f7e1-16" title="16"><span class="co"># or</span></a>
+<a class="sourceLine" id="orgc33f7e1-17" title="17"><span class="co"># b_tt.tag.test_value = np.array([1], dtype=tt.config.floatX)</span></a>
+<a class="sourceLine" id="orgc33f7e1-18" title="18"></a>
+<a class="sourceLine" id="orgc33f7e1-19" title="19">b_tt <span class="op">=</span> tt.as_tensor_variable([<span class="fl">5.</span>], name<span class="op">=</span><span class="st">&#39;b&#39;</span>)</a>
+<a class="sourceLine" id="orgc33f7e1-20" title="20"></a>
+<a class="sourceLine" id="orgc33f7e1-21" title="21">X_rv <span class="op">=</span> NormalRV(mu_X, sd_X, name<span class="op">=</span><span class="st">&#39;~X_rv&#39;</span>)</a>
+<a class="sourceLine" id="orgc33f7e1-22" title="22">Z_rv <span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> X_rv <span class="op">+</span> b_tt</a>
+<a class="sourceLine" id="orgc33f7e1-23" title="23"></a>
+<a class="sourceLine" id="orgc33f7e1-24" title="24">Z_graph <span class="op">=</span> FunctionGraph(tt_inputs([Z_rv]), [Z_rv])</a>
+<a class="sourceLine" id="orgc33f7e1-25" title="25"></a>
+<a class="sourceLine" id="orgc33f7e1-26" title="26">Z_graph_opt <span class="op">=</span> Z_graph.clone()</a>
+<a class="sourceLine" id="orgc33f7e1-27" title="27"></a>
+<a class="sourceLine" id="orgc33f7e1-28" title="28">_ <span class="op">=</span> norm_lift_opts.optimize(Z_graph_opt)</a>
+<a class="sourceLine" id="orgc33f7e1-29" title="29"></a>
+<a class="sourceLine" id="orgc33f7e1-30" title="30"><span class="bu">print</span>(<span class="st">&#39;Before: </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(Z_graph.outputs[<span class="dv">0</span>])))</a>
+<a class="sourceLine" id="orgc33f7e1-31" title="31"><span class="bu">print</span>(<span class="st">&#39;After: </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(Z_graph_opt.outputs[<span class="dv">0</span>])))</a></code></pre></div>
+<pre id="org00a3832" class="text"><code>Before: ((TensorConstant{5} * normal_rv(&lt;RandomStateType&gt;, TensorConstant{[]}, mu_X, sd_X)) + TensorConstant{(1,) of 5.0})
 After: normal_rv(&lt;RandomStateType&gt;, TensorConstant{[]}, ((TensorConstant{5} * mu_X) + TensorConstant{(1,) of 5.0}), (TensorConstant{5} * sd_X))
 
 </code></pre>
+</div>
+<div class="todo" data-markdown="">
+<ul>
+<li>What about division and subtraction? These can be addressed using</li>
+</ul>
+<p>canonicalization?</p>
 </div>
 <p>Now, what if we wanted to handle affine transformations of a multivariate normal random variable? Specifically, consider implementing the following:</p>
 <p><span class="math display">\[\begin{equation*}
@@ -833,75 +839,120 @@ After: normal_rv(&lt;RandomStateType&gt;, TensorConstant{[]}, ((TensorConstant{5
  \;.
 \end{equation*}\]</span></p>
 <p>At first, the following substitution pattern might seem reasonable:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb21-1" title="1"><span class="co"># Vector multiplication</span></a>
-<a class="sourceLine" id="cb21-2" title="2">tt.gof.opt.PatternSub(</a>
-<a class="sourceLine" id="cb21-3" title="3">    (tt.dot,</a>
-<a class="sourceLine" id="cb21-4" title="4">     <span class="st">&#39;A_x&#39;</span>,</a>
-<a class="sourceLine" id="cb21-5" title="5">     (MvNormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;size_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;cov_x&#39;</span>)),</a>
-<a class="sourceLine" id="cb21-6" title="6">    (construct_rv,</a>
-<a class="sourceLine" id="cb21-7" title="7">     MvNormalRV,</a>
-<a class="sourceLine" id="cb21-8" title="8">     <span class="st">&#39;rs_x&#39;</span>,</a>
-<a class="sourceLine" id="cb21-9" title="9">     <span class="st">&#39;size_x&#39;</span>,</a>
-<a class="sourceLine" id="cb21-10" title="10">     (tt.dot, <span class="st">&#39;A_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>),</a>
-<a class="sourceLine" id="cb21-11" title="11">     (tt.dot,</a>
-<a class="sourceLine" id="cb21-12" title="12">      (tt.dot, <span class="st">&#39;A_x&#39;</span>, <span class="st">&#39;cov_x&#39;</span>)</a>
-<a class="sourceLine" id="cb21-13" title="13">      (tt.transpose, <span class="st">&#39;A_x&#39;</span>)),</a>
-<a class="sourceLine" id="cb21-14" title="14">    ))</a></code></pre></div>
+<div class="sourceCode" id="orgaa8a57f"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgaa8a57f-1" title="1"><span class="co"># Vector multiplication</span></a>
+<a class="sourceLine" id="orgaa8a57f-2" title="2">tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="orgaa8a57f-3" title="3">    (tt.dot,</a>
+<a class="sourceLine" id="orgaa8a57f-4" title="4">     <span class="st">&#39;A_x&#39;</span>,</a>
+<a class="sourceLine" id="orgaa8a57f-5" title="5">     (MvNormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;size_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;cov_x&#39;</span>)),</a>
+<a class="sourceLine" id="orgaa8a57f-6" title="6">    (construct_rv,</a>
+<a class="sourceLine" id="orgaa8a57f-7" title="7">     MvNormalRV,</a>
+<a class="sourceLine" id="orgaa8a57f-8" title="8">     <span class="st">&#39;rs_x&#39;</span>,</a>
+<a class="sourceLine" id="orgaa8a57f-9" title="9">     <span class="st">&#39;size_x&#39;</span>,</a>
+<a class="sourceLine" id="orgaa8a57f-10" title="10">     (tt.dot, <span class="st">&#39;A_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>),</a>
+<a class="sourceLine" id="orgaa8a57f-11" title="11">     (tt.dot,</a>
+<a class="sourceLine" id="orgaa8a57f-12" title="12">      (tt.dot, <span class="st">&#39;A_x&#39;</span>, <span class="st">&#39;cov_x&#39;</span>)</a>
+<a class="sourceLine" id="orgaa8a57f-13" title="13">      (tt.transpose, <span class="st">&#39;A_x&#39;</span>)),</a>
+<a class="sourceLine" id="orgaa8a57f-14" title="14">    ))</a></code></pre></div>
 <p>Unfortunately, the combination of size parameter and broadcasting complicates the scenario. Both parameters indirectly affect the distribution parameters, making the un-lifted dot-product consistent, but not necessarily the lifted products.</p>
 <p>The following example demonstrates the lifting issues brought on by broadcasting.</p>
 <div class="example" data-markdown="">
 <p>First, we create a simple multivariate normal.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb22-1" title="1">mu_X <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">10</span>]</a>
-<a class="sourceLine" id="cb22-2" title="2">cov_X <span class="op">=</span> np.diag([<span class="dv">1</span>, <span class="fl">1e-2</span>])</a>
-<a class="sourceLine" id="cb22-3" title="3">size_X_rv <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">3</span>]</a>
-<a class="sourceLine" id="cb22-4" title="4">X_rv <span class="op">=</span> MvNormalRV(mu_X, cov_X, size<span class="op">=</span>size_X_rv)</a>
-<a class="sourceLine" id="cb22-5" title="5"></a>
-<a class="sourceLine" id="cb22-6" title="6"><span class="bu">print</span>(<span class="st">&#39;X_rv sample:</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&#39;</span>.<span class="bu">format</span>(X_rv.tag.test_value))</a></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb23-1" title="1">X_rv sample:</a>
-<a class="sourceLine" id="cb23-2" title="2">[[[<span class="op">-</span><span class="fl">0.49226543</span>  <span class="fl">9.98771301</span>]</a>
-<a class="sourceLine" id="cb23-3" title="3">  [<span class="op">-</span><span class="fl">0.22713441</span> <span class="fl">10.00124952</span>]</a>
-<a class="sourceLine" id="cb23-4" title="4">  [ <span class="fl">1.21604812</span> <span class="fl">10.0386737</span> ]]</a>
-<a class="sourceLine" id="cb23-5" title="5"></a>
-<a class="sourceLine" id="cb23-6" title="6"> [[ <span class="fl">1.61758857</span>  <span class="fl">9.98456418</span>]</a>
-<a class="sourceLine" id="cb23-7" title="7">  [ <span class="fl">1.26945358</span>  <span class="fl">9.9205853</span> ]</a>
-<a class="sourceLine" id="cb23-8" title="8">  [ <span class="fl">1.25295917</span> <span class="fl">10.09953858</span>]]]</a>
-<a class="sourceLine" id="cb23-9" title="9"></a></code></pre></div>
+<div class="sourceCode" id="orgda5c0a5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="orgda5c0a5-1" title="1">mu_X <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">10</span>]</a>
+<a class="sourceLine" id="orgda5c0a5-2" title="2">cov_X <span class="op">=</span> np.diag([<span class="dv">1</span>, <span class="fl">1e-2</span>])</a>
+<a class="sourceLine" id="orgda5c0a5-3" title="3">size_X_rv <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">3</span>]</a>
+<a class="sourceLine" id="orgda5c0a5-4" title="4">X_rv <span class="op">=</span> MvNormalRV(mu_X, cov_X, size<span class="op">=</span>size_X_rv)</a>
+<a class="sourceLine" id="orgda5c0a5-5" title="5"></a>
+<a class="sourceLine" id="orgda5c0a5-6" title="6"><span class="bu">print</span>(<span class="st">&#39;X_rv sample:</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&#39;</span>.<span class="bu">format</span>(X_rv.tag.test_value))</a></code></pre></div>
+<div class="sourceCode" id="org8376809"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org8376809-1" title="1">X_rv sample:</a>
+<a class="sourceLine" id="org8376809-2" title="2">[[[<span class="op">-</span><span class="fl">0.49226543</span>  <span class="fl">9.98771301</span>]</a>
+<a class="sourceLine" id="org8376809-3" title="3">  [<span class="op">-</span><span class="fl">0.22713441</span> <span class="fl">10.00124952</span>]</a>
+<a class="sourceLine" id="org8376809-4" title="4">  [ <span class="fl">1.21604812</span> <span class="fl">10.0386737</span> ]]</a>
+<a class="sourceLine" id="org8376809-5" title="5"></a>
+<a class="sourceLine" id="org8376809-6" title="6"> [[ <span class="fl">1.61758857</span>  <span class="fl">9.98456418</span>]</a>
+<a class="sourceLine" id="org8376809-7" title="7">  [ <span class="fl">1.26945358</span>  <span class="fl">9.9205853</span> ]</a>
+<a class="sourceLine" id="org8376809-8" title="8">  [ <span class="fl">1.25295917</span> <span class="fl">10.09953858</span>]]]</a>
+<a class="sourceLine" id="org8376809-9" title="9"></a></code></pre></div>
 <p>Next, we create a simple matrix operator to apply to the multivariate normal.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb24-1" title="1">A_tt <span class="op">=</span> tt.as_tensor_variable([[<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>], [<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">9</span>]])</a>
-<a class="sourceLine" id="cb24-2" title="2"><span class="co"># or A_tt = tt.as_tensor_variable([[2, 5, 8]])</span></a>
-<a class="sourceLine" id="cb24-3" title="3"></a>
-<a class="sourceLine" id="cb24-4" title="4"><span class="co"># It&#39;s really just `mu_X`...</span></a>
-<a class="sourceLine" id="cb24-5" title="5">E_X_rv <span class="op">=</span> X_rv.owner.inputs[<span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb24-6" title="6"></a>
-<a class="sourceLine" id="cb24-7" title="7"><span class="bu">print</span>(<span class="st">&#39;A * X_rv =</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.dot(A_tt, X_rv).tag.test_value))</a></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" title="1">A <span class="op">*</span> X_rv <span class="op">=</span></a>
-<a class="sourceLine" id="cb25-2" title="2">[[[  <span class="fl">7.60818207</span> <span class="fl">150.2910632</span> ]</a>
-<a class="sourceLine" id="cb25-3" title="3">  [ <span class="fl">19.60611837</span> <span class="fl">150.36836345</span>]]</a>
-<a class="sourceLine" id="cb25-4" title="4"></a>
-<a class="sourceLine" id="cb25-5" title="5"> [[  <span class="fl">8.55909917</span> <span class="fl">160.31620039</span>]</a>
-<a class="sourceLine" id="cb25-6" title="6">  [ <span class="fl">21.20721252</span> <span class="fl">160.53188091</span>]]]</a>
-<a class="sourceLine" id="cb25-7" title="7"></a></code></pre></div>
+<div class="sourceCode" id="org2c01c8c"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org2c01c8c-1" title="1">A_tt <span class="op">=</span> tt.as_tensor_variable([[<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>], [<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">9</span>]])</a>
+<a class="sourceLine" id="org2c01c8c-2" title="2"><span class="co"># or A_tt = tt.as_tensor_variable([[2, 5, 8]])</span></a>
+<a class="sourceLine" id="org2c01c8c-3" title="3"></a>
+<a class="sourceLine" id="org2c01c8c-4" title="4"><span class="co"># It&#39;s really just `mu_X`...</span></a>
+<a class="sourceLine" id="org2c01c8c-5" title="5">E_X_rv <span class="op">=</span> X_rv.owner.inputs[<span class="dv">2</span>]</a>
+<a class="sourceLine" id="org2c01c8c-6" title="6"></a>
+<a class="sourceLine" id="org2c01c8c-7" title="7"><span class="bu">print</span>(<span class="st">&#39;A * X_rv =</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.dot(A_tt, X_rv).tag.test_value))</a></code></pre></div>
+<div class="sourceCode" id="org296900d"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org296900d-1" title="1">A <span class="op">*</span> X_rv <span class="op">=</span></a>
+<a class="sourceLine" id="org296900d-2" title="2">[[[  <span class="fl">7.60818207</span> <span class="fl">150.2910632</span> ]</a>
+<a class="sourceLine" id="org296900d-3" title="3">  [ <span class="fl">19.60611837</span> <span class="fl">150.36836345</span>]]</a>
+<a class="sourceLine" id="org296900d-4" title="4"></a>
+<a class="sourceLine" id="org296900d-5" title="5"> [[  <span class="fl">8.55909917</span> <span class="fl">160.31620039</span>]</a>
+<a class="sourceLine" id="org296900d-6" title="6">  [ <span class="fl">21.20721252</span> <span class="fl">160.53188091</span>]]]</a>
+<a class="sourceLine" id="org296900d-7" title="7"></a></code></pre></div>
 <p>As we can see, the multivariate normal’s test/sampled value has the correct shape for our matrix operator.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" title="1"><span class="im">import</span> traceback</a>
-<a class="sourceLine" id="cb26-2" title="2"><span class="cf">try</span>:</a>
-<a class="sourceLine" id="cb26-3" title="3">    <span class="bu">print</span>(<span class="st">&#39;A * E[X_rv] =</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.dot(A_tt, E_X_rv).tag.test_value))</a>
-<a class="sourceLine" id="cb26-4" title="4"><span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> e:</a>
-<a class="sourceLine" id="cb26-5" title="5">    <span class="bu">print</span>(<span class="st">&quot;&quot;</span>.join(traceback.format_exception_only(<span class="bu">type</span>(e), e)))</a></code></pre></div>
-<div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb27-1" title="1"><span class="pp">ValueError</span>: shapes (<span class="dv">2</span>,<span class="dv">3</span>) <span class="kw">and</span> (<span class="dv">2</span>,) <span class="kw">not</span> aligned: <span class="dv">3</span> (dim <span class="dv">1</span>) <span class="op">!=</span> <span class="dv">2</span> (dim <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb27-2" title="2"></a></code></pre></div>
-<p>However, we see that the multivariate normal’s inputs (i.e. the <code>Op</code> inputs)–specifically the mean parameter–do not directly reflect the support’s shape, as intuitively would suggest.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb28-1" title="1">size_tile <span class="op">=</span> <span class="bu">tuple</span>(size_X_rv) <span class="op">+</span> (<span class="dv">1</span>,)</a>
-<a class="sourceLine" id="cb28-2" title="2">E_X_rv_ <span class="op">=</span> tt.tile(E_X_rv, size_tile, X_rv.ndim)</a>
-<a class="sourceLine" id="cb28-3" title="3"></a>
-<a class="sourceLine" id="cb28-4" title="4"><span class="bu">print</span>(<span class="st">&#39;A * E[X_rv] =</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.dot(A_tt, E_X_rv_).tag.test_value))</a></code></pre></div>
-<div class="sourceCode" id="cb29"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb29-1" title="1">A <span class="op">*</span> E[X_rv] <span class="op">=</span></a>
-<a class="sourceLine" id="cb29-2" title="2">[[[  <span class="dv">0</span> <span class="dv">150</span>]</a>
-<a class="sourceLine" id="cb29-3" title="3">  [  <span class="dv">0</span> <span class="dv">150</span>]]</a>
-<a class="sourceLine" id="cb29-4" title="4"></a>
-<a class="sourceLine" id="cb29-5" title="5"> [[  <span class="dv">0</span> <span class="dv">160</span>]</a>
-<a class="sourceLine" id="cb29-6" title="6">  [  <span class="dv">0</span> <span class="dv">160</span>]]]</a>
-<a class="sourceLine" id="cb29-7" title="7"></a></code></pre></div>
+<div class="sourceCode" id="org5014109"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org5014109-1" title="1"><span class="im">import</span> traceback</a>
+<a class="sourceLine" id="org5014109-2" title="2"><span class="cf">try</span>:</a>
+<a class="sourceLine" id="org5014109-3" title="3">    <span class="bu">print</span>(<span class="st">&#39;A * E[X_rv] =</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.dot(A_tt, E_X_rv).tag.test_value))</a>
+<a class="sourceLine" id="org5014109-4" title="4"><span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="org5014109-5" title="5">    <span class="bu">print</span>(<span class="st">&quot;&quot;</span>.join(traceback.format_exception_only(<span class="bu">type</span>(e), e)))</a></code></pre></div>
+<div class="sourceCode" id="org6f0682c"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org6f0682c-1" title="1"><span class="pp">ValueError</span>: shapes (<span class="dv">2</span>,<span class="dv">3</span>) <span class="kw">and</span> (<span class="dv">2</span>,) <span class="kw">not</span> aligned: <span class="dv">3</span> (dim <span class="dv">1</span>) <span class="op">!=</span> <span class="dv">2</span> (dim <span class="dv">0</span>)</a>
+<a class="sourceLine" id="org6f0682c-2" title="2"></a></code></pre></div>
+<p>However, we see that the multivariate normal’s inputs (i.e. the <code>Op</code> inputs)–specifically the mean parameter–do not directly reflect the support’s shape, as one might expect.</p>
+<div class="sourceCode" id="org2014f51"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org2014f51-1" title="1">size_tile <span class="op">=</span> <span class="bu">tuple</span>(size_X_rv) <span class="op">+</span> (<span class="dv">1</span>,)</a>
+<a class="sourceLine" id="org2014f51-2" title="2">E_X_rv_ <span class="op">=</span> tt.tile(E_X_rv, size_tile, X_rv.ndim)</a>
+<a class="sourceLine" id="org2014f51-3" title="3"></a>
+<a class="sourceLine" id="org2014f51-4" title="4"><span class="bu">print</span>(<span class="st">&#39;A * E[X_rv] =</span><span class="ch">\n</span><span class="sc">{}</span><span class="ch">\n</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.dot(A_tt, E_X_rv_).tag.test_value))</a></code></pre></div>
+<div class="sourceCode" id="org6279eec"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org6279eec-1" title="1">A <span class="op">*</span> E[X_rv] <span class="op">=</span></a>
+<a class="sourceLine" id="org6279eec-2" title="2">[[[  <span class="dv">0</span> <span class="dv">150</span>]</a>
+<a class="sourceLine" id="org6279eec-3" title="3">  [  <span class="dv">0</span> <span class="dv">150</span>]]</a>
+<a class="sourceLine" id="org6279eec-4" title="4"></a>
+<a class="sourceLine" id="org6279eec-5" title="5"> [[  <span class="dv">0</span> <span class="dv">160</span>]</a>
+<a class="sourceLine" id="org6279eec-6" title="6">  [  <span class="dv">0</span> <span class="dv">160</span>]]]</a>
+<a class="sourceLine" id="org6279eec-7" title="7"></a></code></pre></div>
 <p>We can manually replicate the inputs so that they match the output shape, but a solution to the general problem requires a more organized response.</p>
+</div>
+<div class="testing" data-markdown="">
+<div class="sourceCode" id="org8c455a1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="org8c455a1-1" title="1"><span class="kw">def</span> replicate_expr(param, rep_size, dist_op, param_idx):</a>
+<a class="sourceLine" id="org8c455a1-2" title="2">    <span class="cf">return</span> tt.tile(param, <span class="bu">tuple</span>(rep_size) <span class="op">+</span> (<span class="dv">1</span>,), dist_op.ndims_params[param_idx] <span class="op">+</span> <span class="bu">len</span>(rep_size))</a>
+<a class="sourceLine" id="org8c455a1-3" title="3"></a>
+<a class="sourceLine" id="org8c455a1-4" title="4">mvnorm_lift_pats <span class="op">=</span> tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="org8c455a1-5" title="5">    (tt.dot,</a>
+<a class="sourceLine" id="org8c455a1-6" title="6">     <span class="st">&#39;A_x&#39;</span>,</a>
+<a class="sourceLine" id="org8c455a1-7" title="7">     (MvNormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;size_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;cov_x&#39;</span>)),</a>
+<a class="sourceLine" id="org8c455a1-8" title="8">    (construct_rv,</a>
+<a class="sourceLine" id="org8c455a1-9" title="9">     MvNormalRV,</a>
+<a class="sourceLine" id="org8c455a1-10" title="10">     <span class="st">&#39;rs_x&#39;</span>,</a>
+<a class="sourceLine" id="org8c455a1-11" title="11">     <span class="st">&#39;size_x&#39;</span>,</a>
+<a class="sourceLine" id="org8c455a1-12" title="12">     (tt.dot, <span class="st">&#39;A_x&#39;</span>,</a>
+<a class="sourceLine" id="org8c455a1-13" title="13">      (replicate_expr, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;size_x&#39;</span>, MvNormalRV, <span class="dv">0</span>)),</a>
+<a class="sourceLine" id="org8c455a1-14" title="14">     (tt.dot,</a>
+<a class="sourceLine" id="org8c455a1-15" title="15">      (tt.dot, <span class="st">&#39;A_x&#39;</span>,</a>
+<a class="sourceLine" id="org8c455a1-16" title="16">       (replicate_expr, <span class="st">&#39;cov_x&#39;</span>, <span class="st">&#39;size_x&#39;</span>, MvNormalRV, <span class="dv">1</span>)),</a>
+<a class="sourceLine" id="org8c455a1-17" title="17">      (tt.transpose, <span class="st">&#39;A_x&#39;</span>))),</a>
+<a class="sourceLine" id="org8c455a1-18" title="18">)</a>
+<a class="sourceLine" id="org8c455a1-19" title="19"></a>
+<a class="sourceLine" id="org8c455a1-20" title="20">mvnorm_lift_opts <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(</a>
+<a class="sourceLine" id="org8c455a1-21" title="21">    [ mvnorm_lift_pats ], max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a>
+<a class="sourceLine" id="org8c455a1-22" title="22"></a>
+<a class="sourceLine" id="org8c455a1-23" title="23">mu_X <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">10</span>]</a>
+<a class="sourceLine" id="org8c455a1-24" title="24">cov_X <span class="op">=</span> np.diag([<span class="dv">1</span>, <span class="fl">1e-2</span>])</a>
+<a class="sourceLine" id="org8c455a1-25" title="25">X_rv <span class="op">=</span> MvNormalRV(mu_X, cov_X, size<span class="op">=</span>[<span class="dv">2</span>, <span class="dv">3</span>])</a>
+<a class="sourceLine" id="org8c455a1-26" title="26"></a>
+<a class="sourceLine" id="org8c455a1-27" title="27">A_tt <span class="op">=</span> tt.as_tensor_variable([[<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>], [<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">9</span>]])</a>
+<a class="sourceLine" id="org8c455a1-28" title="28"></a>
+<a class="sourceLine" id="org8c455a1-29" title="29">Z_rv <span class="op">=</span> tt.dot(A_tt, X_rv)</a>
+<a class="sourceLine" id="org8c455a1-30" title="30"></a>
+<a class="sourceLine" id="org8c455a1-31" title="31">Z_graph <span class="op">=</span> FunctionGraph(tt_inputs([Z_rv]), [Z_rv])</a>
+<a class="sourceLine" id="org8c455a1-32" title="32"></a>
+<a class="sourceLine" id="org8c455a1-33" title="33">tt.printing.debugprint(Z_graph)</a>
+<a class="sourceLine" id="org8c455a1-34" title="34"></a>
+<a class="sourceLine" id="org8c455a1-35" title="35">Z_graph_opt <span class="op">=</span> Z_graph.clone()</a>
+<a class="sourceLine" id="org8c455a1-36" title="36"></a>
+<a class="sourceLine" id="org8c455a1-37" title="37"><span class="co"># This won&#39;t work because `tt.dot` uses `tensor_dot`, which does some</span></a>
+<a class="sourceLine" id="org8c455a1-38" title="38"><span class="co"># reshaping and dim-shuffling.</span></a>
+<a class="sourceLine" id="org8c455a1-39" title="39"><span class="co"># We need to account for those, as well.</span></a>
+<a class="sourceLine" id="org8c455a1-40" title="40"><span class="co"># </span><span class="al">TODO</span><span class="co">: We need to implement something like `local_dimshuffle_lift` for some RVs.</span></a>
+<a class="sourceLine" id="org8c455a1-41" title="41">_ <span class="op">=</span> mvnorm_lift_opts.optimize(Z_graph_opt)</a>
+<a class="sourceLine" id="org8c455a1-42" title="42"></a>
+<a class="sourceLine" id="org8c455a1-43" title="43">tt.printing.debugprint(Z_graph_opt)</a></code></pre></div>
 </div>
 </section>
 <section id="discussion" class="level1">
@@ -913,6 +964,9 @@ After: normal_rv(&lt;RandomStateType&gt;, TensorConstant{[]}, ((TensorConstant{5
 <li>canonicalization of graphs containing <code>RandomVariable</code> terms,</li>
 <li>and optimizations that specifically benefit MCMC schemes (e.g. automatic conversion to scale mixture decompositions that improve sampling/covariance structure).</li>
 </ul>
+<div class="todo" data-markdown="">
+<p>Talk about <code>supp_shape_fn</code>.</p>
+</div>
 </section>
 <section id="bibliography" class="level1">
 <h1>Bibliography</h1>
@@ -1003,7 +1057,7 @@ MathJax.Hub.Config({
    <div class="container">
       <hr>
       <div class="row">
-         <div class="col-xs-10">&copy; 2018 Brandon T. Willard
+         <div class="col-xs-10">&copy; 2019 Brandon T. Willard
             &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>                <p><small>  <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
