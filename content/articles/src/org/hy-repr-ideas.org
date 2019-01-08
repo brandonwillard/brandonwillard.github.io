@@ -5,7 +5,7 @@
 #+FILETAGS: :hy:relational programming:python:
 
 #+STARTUP: hideblocks indent hidestars
-#+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:results html-preamble:t
+#+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:(not todo notes logbook) html-preamble:t
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
 
@@ -35,7 +35,7 @@ provides a generic src_python[:eval never]{repr} function--with limited Python
 "readability" guarantees--and a src_python[:eval never]{__repr__} property for
 object/class-level customization.
 
-#+HTML: <div class="example" markdown="">
+:EXAMPLE:
 #+NAME: repr-demo
 #+BEGIN_SRC python :eval never-export :results output :wrap "SRC python :eval never"
 test_obj = {"a": 1, "b": [2, 3]}
@@ -59,8 +59,7 @@ True
 
 
 #+END_SRC
-
-#+HTML: </div>
+:END:
 
 There's already a src_hy[:eval never]{hy.contrib.hy-repr} module that gets most
 of the way there, but it doesn't implement the Python standard
@@ -76,7 +75,7 @@ Python standard library to Hy--I decided to try a quick refactoring
 of src_hy[:eval never]{hy.contrib.hy-repr} that implements
 src_python[:eval never]{reprlib.Repr}.
 
-** The Problem(s)
+* The Hy src_python{repr} Problem(s)
 The translation of Hy AST to string form is fairly straight-forward.  In most cases,
 one only needs to change the src_python{repr}s for Python primitives and basic function
 calls (e.g. from src_python[:eval never]{func(1)} to src_hy[:eval never]{(func 1)});
@@ -112,7 +111,7 @@ function src_python[:eval never]{ast.parse} effectively handles the regex work
 and yields the bulk of information needed for a Hy src_python[:eval never]{repr}
 string: the function name and its (positional and keyword) arguments.
 
-#+HTML: <div class="example" markdown="">
+:EXAMPLE:
 Let's say we implement our own object and src_python[:eval never]{repr}.
 #+NAME: test-obj
 #+BEGIN_SRC hy :eval never-export :results output :wrap "SRC python :eval never"
@@ -155,10 +154,8 @@ Expression(
               keywords=[keyword(arg='kwarg1', value=Num(n=1)),
                         keyword(arg='kwarg2', value=Str(s='ok'))]))
 #+END_SRC
-
-#+HTML: </div>
-
-* An Implemented Partial Solution
+:END:
+** A Generalized Hy src_python{repr} Prototype
 
 With existing src_python{repr} output converted to Python AST by Python itself
 (using src_python{ast.parse}), we can produce readable Hy strings from the
@@ -182,7 +179,7 @@ built-in src_python{repr} on their arguments, so attempts to salvage
 already-converted src_python{repr} output are undeniably fraught with
 complications.
 
-#+HTML: <div class="example" markdown="">
+:EXAMPLE:
 Working from the src_python[:eval never]{repr}-produced AST above, I mocked-up a
 quick prototype for a generic Python-to-Hy conversion function.
 
@@ -263,9 +260,8 @@ conversion of its Python src_python{__repr__} implementation.
 before: TestClass(1, {'a': 2, 'b': 3}, kwarg1=1, kwarg2='ok')
 after: (TestClass 1 {"a" 2  "b" 3} :kwarg1 1 :kwarg2 "ok")
 #+END_SRC
-
-#+HTML: </div>
-* A use for relational programming
+:END:
+* Relational Programming
 While considering all this, I kept thinking about how nice it would be to have
 a "bijective" compiler; in other words, the existing Hy compiler, which translates
 Hy-to-Python, *and* a Python-to-Hy (de)compiler.  With a Python-to-Hy AST
@@ -309,79 +305,488 @@ been using it to perform static code analysis and refactoring in the project
 [[https://github.com/hylang/hydiomatic][=hydiomatic=]], so there's also a precedent for parsing Hy syntax in a relational
 context.
 
-The missing/next step would be to output Python AST (instead of more Hy forms, like
-=hydiomatic= produces, for example).
+The missing/next step would be to output Python AST (instead of more Hy forms,
+like =hydiomatic= produces, for example).  In the following sections, we will
+construct a small relational Hy/Python compiler as a proof-of-concept.
 
-Perhaps, in a follow-up, I'll illustrate how this can be done.
+** A Prototype Relational Compiler
 
-# #+HTML: <div class="example" markdown="">
+Creating a bi-directional Hy/Python AST compiler in miniKanren involves the
+construction of goals "relating" the two AST forms.  For simplicity, we'll just
+consider function call expressions, like src_python{func(args)}
+and src_hy{(func args)}.
 
-#+BEGIN_SRC hy :eval never-export :exports none :results none
+:remark:
+Also, since these kinds of relations are more easy to specify using constraints
+and subtle unification adjustments, we'll use a prototype microKanren
+implementation in Hy that provides immediate access to those: [[https://github.com/brandonwillard/hypoKanren][src_hy{hypoKanren}]].
+
+Regardless, given the universality of miniKanren, the goals we construct should
+be directly translate-able to other implementations of miniKanren (even in
+completely different host languages).
+
+The only obvious caveat to such translation is the availability of
+traditional src_hy{cons} semantics in the host language (i.e. the standard Lisp
+behavior of src_hy{cons}, src_hy{car}, src_hy{cdr}, and improper
+lists/src_hy{cons} pairs).
+:END:
+
+#+NAME: miniKanren-imports
+#+BEGIN_SRC hy :eval never-export :exports code :results silent
 (import ast)
-(import [collections [Callable]])
+(import astor)
 (import types)
+(import [collections [Callable]])
+
+(import hy.models)
 (import [hy.compiler [asty hy-eval hy-compile]])
 
-(import [adderall.dsl [*]])
-(import [adderall.extra.misc [typeo]])
-(require [adderall.dsl [*]])
+(import [hypoKanren.goals [*]])
+(import [hypoKanren.core [*]])
 
 
-(defn typeo [u v]
-  (defn -type-or-self [x]
-    (if (= type (type x))
-        x
-        (type x)))
-  (condᵉ
-    [(project [u] (if (instance? LVar u)
-                      fail
-                      (≡ v (-type-or-self u))))]
-    [(project [v] (if (instance? LVar v)
-                      fail
-                      (≡ u (-type-or-self v))))]
-    (else (project [u v]
-                   (≡ (-type-or-self u) (-type-or-self v))))))
-
-(ast.dump (ast.parse "if x:\n\ty\n\tz" :mode "single"))
-;; Interactive(body=[If(test=Name(id='x', ctx=Load()), body=[Expr(value=Name(id='y', ctx=Load())), Expr(value=Name(id='z', ctx=Load()))], orelse=[])])
-
-(ast.dump (ast.parse "func(x, y=z)" :mode "single"))
-;; Expression(body=Call(func=Name(id='func', ctx=Load()), args=[Name(id='x', ctx=Load())], keywords=[keyword(arg='y', value=Name(id='z', ctx=Load()))]))
-
-;; (asty.Call :func
-;;            (asty.Name :id "func"
-;;                       :args [...]
-;;                       :keywords [(asty.keyword :arg "kwarg" :value (asty.Name :id "y"))]))
-
-(quote (> 5 (+ 1 x)))
-
-;; function calls
-(defn hy-callo [hy-form hy-ast]
-  (fresh [op args]
-         (== (cons op args) hy-form)
-         (typeo op types.FunctionType)
-         (== hy-ast `(ast.Expression :body
-                                     (ast.Call :func (ast.Name :id (name ~op))
-                                               ;; TODO
-                                               :args []
-                                               :kwargs [])))))
-
-(run* [op] (== 1 op) (typeo op types.FunctionType))
-
-(setv hy-exa `(+ 1 2))
-(setv ast-exa (. (ast.parse "hyx_Xplus_signX(1, 2)" :mode "single") body [0]))
-
-(setv ast-res (eval (first (run* [out] (hy-callo hy-exa out)))))
-(ast.dump ast-res)
-
-
-;; `if` statement
-(setv hy-exa `(if (> 5 (+ 1 x)) (print x) False))
-(run* [out] (fresh [c s f]
-                 (== `(if ~c ~s ~f) hy-exa)
-                 (== out `(asty.If :test ~c))))
+(require [hy.contrib.walk [let]])
+(require [hypoKanren.goals [*]])
+(require [hypoKanren.core [*]])
 #+END_SRC
-# #+HTML: </div>
+
+First, let's examine the general structure of the Python AST output generated by
+the Hy compiler for the Hy function-call given by src_hy{`(func x :y z)}.
+#+NAME: fn_form_ast
+#+BEGIN_SRC hy :eval never-export :results value :exports both :wrap "SRC python :eval never"
+(astor.dump (hy-compile `(func x :y z) "__console__"))
+#+END_SRC
+
+#+RESULTS: fn_form_ast
+#+begin_SRC python :eval never
+Module(
+    body=[Expr(value=Call(func=Name(id='func'), args=[Name(id='x')], keywords=[keyword(arg='y', value=Name(id='z'))]))])
+#+end_SRC
+
+In what follows, we'll exclude the src_python{ast.Module} and focus only on
+the src_python{src.Expr} and its children.
+
+*** AST Object Unification
+
+To make existing Python AST objects amenable to the [[https://en.wikipedia.org/wiki/Unification_(computer_science)][unification]] used by
+miniKanren, we implement src_hy{unify} specializations for src_python{ast.AST}
+types.  Our implementation simply generates unevaluated Hy forms, or Hy AST,
+that--when evaluated--would (re)create the src_python{ast.AST} objects.
+
+#+BEGIN_REMARK
+Alternatively, we could only ever use and create unevaluated Hy forms for Python AST.
+Providing unification for AST objects allows for more immediate integration with existing
+Python code and/or what it would most likely produce.
+#+END_REMARK
+
+src_hy{hypoKanren} uses [[https://github.com/mrocklin/multipledispatch][src_python{multipledispatch}]], so augmenting the
+unification process is easy.  This is how we'll add support for AST objects.
+
+#+BEGIN_REMARK
+There's already a good pure Python library for unification built
+upon src_python{multipledispatch}, [[https://github.com/mrocklin/unification][src_python{unfication}]].  At a later time, it
+might be worthwhile to simply add support for Hy objects and use that library
+instead.
+#+END_REMARK
+
+#+NAME: py-ast-to-expr
+#+BEGIN_SRC hy :eval never-export :exports code :results silent
+(import [multipledispatch [dispatch]])
+(import [hypoKanren.unify [*]])
+(import [hy.models [*]])
+(import [hy.contrib.walk [prewalk]])
+
+
+(defmacro/g! dispatch-unify-trans [disp-type trans-func &optional [func 'unify]]
+  `(do
+     #@((dispatch ~disp-type object object)
+        (defn unify-post-walk [~g!u ~g!v ~g!s]
+          (~func (~trans-func ~g!u) ~g!v ~g!s)))
+     #@((dispatch object ~disp-type object)
+        (defn unify-post-walk [~g!u ~g!v ~g!s]
+          (~func ~g!u (~trans-func ~g!v) ~g!s)))
+     #@((dispatch ~disp-type ~disp-type object)
+        (defn unify-post-walk [~g!u ~g!v ~g!s]
+          (~func (~trans-func ~g!u) (~trans-func ~g!v) ~g!s)))))
+
+(defn py-ast-to-expr [x]
+  (defn -py-ast-to-expr [u]
+    (setv ast-expr
+          `(~(HySymbol (+ "ast." (name (type u))))
+            ~@(chain.from-iterable
+                (lfor f u.-fields
+                      :if (hasattr u f)
+                      [(HyKeyword f) (getattr u f)]))))
+    ast-expr)
+  (prewalk (fn [y] (if (instance? ast.AST y)
+                       (-py-ast-to-expr y)
+                       y))
+           x))
+
+;; Python AST expansion pre-unification
+(dispatch-unify-trans ast.AST (fn [x] (py-ast-to-expr x)))
+#+END_SRC
+
+:example:
+#+NAME: ast-to-expr-exa
+#+BEGIN_SRC hy :eval never-export :results value :wrap "SRC python :eval never"
+;; One is an `ast.AST` object, the other an unevaluated `ast.AST`
+;; object-generating form.
+(setv unify-exa-1 (unify (ast.Expr :value [])
+                         `(ast.Expr :value ~(var 0))
+                         {}))
+
+;; Both are `ast.AST` objects
+(setv unify-exa-2 (unify (ast.Expr :value [])
+                         (ast.Expr :value (var 0))
+                         {}))
+
+(= (.get unify-exa-1 (var 0))
+   (.get unify-exa-2 (var 0))
+   [])
+#+END_SRC
+
+#+RESULTS: ast-to-expr-exa
+#+begin_SRC python :eval never
+True
+#+end_SRC
+
+Listing [[ast-to-expr-exa]] illustrates unification of two src_python{ast.AST}
+forms.  The src_hy{(var 0)} objects are "logic variables" taking the value of
+sub-expressions that cause the two src_hy{unify} arguments to, well, unify.  The
+third argument to src_hy{unify} is simply a src_python{dict} that stores the logic
+variable/sub-expression mappings.
+
+In other words, logic variables are like unknowns that src_hy{unify(u, v, s)}
+will "solve" in order to make src_hy{u} and src_hy{v} equal.
+:END:
+
+:example:
+#+NAME: ast-to-expr-exa-2
+#+BEGIN_SRC hy :eval never-export :results value :wrap "SRC python :eval never"
+(unify (cons 'ast.Expr (var 0))
+       (ast.Expr :value [(ast.Name :id "a")])
+       {})
+#+END_SRC
+
+#+RESULTS: ast-to-expr-exa-2
+#+begin_SRC python :eval never
+{(LVar 0): HyExpression([
+  HyKeyword('value'),
+  [HyExpression([
+    HySymbol('ast.Name'),
+    HyKeyword('id'),
+    'a'])]])}
+#+end_SRC
+
+Listing [[ast-to-expr-exa-2]] is a more interesting example that demonstrates
+partial/improper list unification.  Since src_python{ast.AST} objects are
+expanded into equal object-instantiating Hy AST
+forms, src_hy{(cons 'ast.Expr (var 0))} is ultimately unified with
+a src_python{HyExpression} (a subclass of src_python{list}).  Under
+the src_hy{cons} abstraction, src_hy{(var 0)} can be anything
+that--when src_hy{cons}ed with the symbol src_hy{ast.Expr}--will produce the
+expression src_hy{(ast.Expr :value [(ast.Name :id "a")])}.  The result is the
+partial src_python{HyExpression} comprising the arguments to
+the src_python{ast.Expr} constructor--in other words, the src_hy{cdr} of
+the src_python{ast.AST} form.
+:END:
+
+We will also need to unify some limited Hy AST forms;
+specifically, src_python{HySymbol}s.  We will want to extract only the name part
+of a Hy symbol and relate that to Python src_python{ast.Name}s via one of the
+latter's constructor arguments.
+
+Similar to Python AST nodes, we will expand/lift/abstract src_python{HySymbol}s
+to Hy expressions that--when src_hy{eval}'ed--would construct them.  We can only do
+this in very limited cases; otherwise, we could end up producing ever-expanding forms.
+#+NAME: hy-obj-to-expr
+#+BEGIN_SRC hy :eval never-export :exports code :results silent
+;; Hy AST expansion pre-unification
+(defn unify-hysymbol [u v s]
+  (cond
+    [(= (first v) 'HySymbol)
+     (print )
+     (unify `(HySymbol ~(name u)) v s)]
+    [True
+     (unify u v s)]))
+
+#@((dispatch HySymbol HyExpression object)
+   (defn unify-post-walk [u v s]
+     (unify-hysymbol u v s)))
+
+#@((dispatch HyExpression HySymbol object)
+   (defn unify-post-walk [u v s]
+     (unify-hysymbol v u s)))
+#+END_SRC
+
+:example:
+#+NAME: hy-ast-to-expr-exa
+#+BEGIN_SRC hy :eval never-export :results value :wrap "SRC python :eval never"
+(unify 'a `(HySymbol ~(var 0)) {})
+#+END_SRC
+
+#+RESULTS: hy-ast-to-expr-exa
+#+begin_SRC python :eval never
+{(LVar 0): 'a'}
+#+end_SRC
+
+Listing [[hy-obj-to-expr]] demonstrates the expansion and unification of Hy AST symbols.
+:END:
+
+*** Call-expression Goals
+Next, we create the miniKanren goals that encapsulate the relationships between
+simple Hy and Python AST forms.  In particular, we'll limit ourselves to only
+variable reference and function call forms.
+
+#+NAME: hy_py_goals_setup
+#+BEGIN_SRC hy :eval never-export :exports code :results silent
+(defn listo [l]
+  "A goal stating that `l` is a list."
+  (conde
+    [(== l []) s#]
+    [(fresh [lcar lcdr]
+            (== l (cons lcar lcdr))
+            (listo lcdr))]
+    [s# u#]))
+#+END_SRC
+
+The first AST relation is a simple one between src_python{HySymbol}s
+and src_python{ast.Name}s.  This is where the src_python{HySymbol} unification
+implemented above is used.
+#+NAME: hy_py_symbolo
+#+BEGIN_SRC hy :eval never-export :exports code :results silent
+(defn hy-py-symbolo [hy-ast py-ast]
+  "A goal relating Hy and Python AST symbol/name objects (e.g. variable and
+ function references)."
+  (fresh [symbol-name py-ctx]
+         (== hy-ast `(HySymbol ~symbol-name))
+         (== py-ast `(ast.Name :id ~symbol-name
+                               :ctx (ast.Load)))))
+#+END_SRC
+
+#+NAME: hy_py_symbolo_tests
+#+BEGIN_SRC hy :eval never-export :exports none :results none
+(defn test-hy-py-symbolo []
+  ;; XXX: `ast` objects do not have field-based equality!
+  (assert (= [[`(ast.Name :id "a" :ctx (ast.Load))]]
+             (run 1 [res] (hy-py-symbolo 'a res))))
+  (assert (= [[`(HySymbol "x")]]
+             (run 1 [res] (hy-py-symbolo res (. (ast.parse "x" :mode "eval") body))))))
+(test-hy-py-symbolo)
+#+END_SRC
+
+Some Python src_python{ast.AST} types have fields consisting of lists containing
+other src_python{ast.AST} objects (e.g. the src_python{ast.Call} expressions below).
+We need a goal that enforces a relation between the Hy and Python AST forms of
+each element in such lists.
+#+NAME: hy_py_lapplyo
+#+BEGIN_SRC hy :eval never-export :exports code :results silent
+(defn lapplyo [func l-in l-out]
+  "A goal that applies the goal `func` between all elements in lists `l-in` and
+ `l-out`."
+  (conj+
+    (listo l-in)
+    (conde
+      [(fresh [lcar lcdr lout-car lout-cdr]
+              (== l-in (cons lcar lcdr))
+              (hy-py-symbolo lcar lout-car)
+              (lapplyo func lcdr lout-cdr)
+              (== l-out (cons lout-car lout-cdr)))]
+      [(== l-in [])
+       (== l-out l-in)])))
+#+END_SRC
+
+#+NAME: hy_py_lapplyo_tests
+#+BEGIN_SRC hy :eval never-export :exports none :results none
+(defn test-lapplyo []
+  ;; Two LVars should generate increasing lists of elements satisfying the
+  ;; `func`/relational predicate.
+  (assert (= [[[] []]
+              [[`(ast.Name :id "_.0" :ctx "_.1")] [`(HySymbol "_.0")]]]
+            (run 2 [res l] (lapplyo hy-py-symbolo l res))))
+
+  ;; Check only one side of the `func`/relational predicate.
+  (assert (= [] (get (run 1 [res] (lapplyo hy-py-symbolo [] res)) 0 0)))
+  (assert (= [`(ast.Name :id "a" :ctx "_.0")]
+             (get (run 1 [res] (lapplyo hy-py-symbolo ['a] res)) 0 0)))
+  (assert (= [`(ast.Name :id "a" :ctx "_.0") `(ast.Name :id "b" :ctx "_.1")]
+             (get (run 1 [res] (lapplyo hy-py-symbolo ['a 'b] res)) 0 0)))
+
+  ;; Now, the other side.
+  (assert (= [] (get (run 1 [res] (lapplyo hy-py-symbolo res [])) 0 0)))
+  (assert (= [`(HySymbol "a")]
+             (get (run 1 [res] (lapplyo hy-py-symbolo
+                                        res
+                                        [`(ast.Name :id "a" :ctx (ast.Load))])) 0 0)))
+  (assert (= [`(HySymbol "a") `(HySymbol "b")]
+             (get (run 1 [res] (lapplyo hy-py-symbolo
+                                        res
+                                        [`(ast.Name :id "a" :ctx (ast.Load))
+                                         `(ast.Name :id "b" :ctx (ast.Load))])) 0 0))))
+(test-lapplyo)
+#+END_SRC
+
+Finally, we create a goal for the AST of call expressions
+like src_python{func(x, y, z)} and src_hy{(func x y z)}.
+#+NAME: hy_py_callo
+#+BEGIN_SRC hy :eval never-export :exports code :results silent
+(defn hy-py-callo [hy-ast py-ast]
+  "A goal relating call expressions in Python and Hy AST."
+  (fresh [hy-op hy-args py-op py-args]
+         ;; Hy AST form
+         (== (cons hy-op hy-args) hy-ast)
+         ;; Py AST form
+         (== py-ast `(ast.Expr :value
+                               (ast.Call :func
+                                         ~py-op
+                                         :args
+                                         ~py-args
+                                         :keywords
+                                         [])))
+         ;; These two must be related symbols
+         (hy-py-symbolo hy-op py-op)
+         ;; The arguments are related lists containing more of each AST type.
+         (lapplyo hy-py-asto hy-args py-args)))
+
+(defn hy-py-asto [hy-ast py-ast]
+  "A goal for a 'branching' relation between multiple types of forms and their
+ corresponding Python AST."
+  (conde
+    [(hy-py-symbolo hy-ast py-ast)]
+    [(hy-py-callo hy-ast py-ast)]))
+#+END_SRC
+
+#+NAME: hy_py_callo_tests
+#+BEGIN_SRC hy :eval never-export :exports none :results silent
+;; (project [hy-ast py-ast hy-args py-args]
+;;         (do
+;;           (print (.format "\n----hy-args: {0!r} ----" hy-args))
+;;           (print (.format "\n----py-args: {0!r} ----" py-args))
+;;           (print (.format "\n----hy-ast: {0!r} ----" hy-ast))
+;;           (print (.format "\n----py-ast: {0!r} ----" py-ast))
+;;           s#))
+
+(defn test-hy-py-asto []
+  (setv test-py-app-1
+        (py-ast-to-expr
+          (first (. (ast.parse "blah(x, y, z)") body))))
+  (setv test-hy-app-1
+        `((HySymbol "blah") (HySymbol "x") (HySymbol "y") (HySymbol "z")))
+
+  (assert (= [[test-hy-app-1]]
+             (run 1 [res] (hy-py-callo res test-py-app-1))))
+  (assert (= [[test-py-app-1]]
+             (run 1 [res] (hy-py-callo test-hy-app-1 res)))))
+
+(test-hy-py-asto)
+#+END_SRC
+
+:example:
+To demonstrate our [extremely] minimal relational compiler, we create a Hy
+function call expression and its corresponding Python AST.
+#+NAME: hy_expro_test_setup
+#+BEGIN_SRC hy :eval never-export :results value :exports both :wrap "SRC python :eval never"
+(setv hy-ast-exa `(print x y z))
+(setv py-ast-exa (. (hy-compile hy-ast-exa "__console__") body [0]))
+(.format "hy_ast_exa = {}\npy_ast_exa = {}"
+         hy-ast-exa
+         (astor.dump py-ast-exa))
+#+END_SRC
+
+#+RESULTS: hy_expro_test_setup
+#+begin_SRC python :eval never
+hy_ast_exa = HyExpression([
+  HySymbol('print'),
+  HySymbol('x'),
+  HySymbol('y'),
+  HySymbol('z')])
+py_ast_exa = Expr(value=Call(func=Name(id='print'), args=[Name(id='x'), Name(id='y'), Name(id='z')], keywords=[]))
+#+end_SRC
+
+We first run the Hy-to-Python direction by providing src_hy{hy-expro}
+the src_hy{hy-ast-exa} value above and a logic variable (i.e. an "unknown") for
+the Python AST term.
+#+NAME: hy_py_asto_from_hy_exa
+#+BEGIN_SRC hy :eval never-export :exports both :results value :wrap "SRC python :eval never"
+(setv rel-res (run 1 [py-ast] (hy-py-asto hy-ast-exa py-ast)))
+(setv ast-res (get rel-res 0 0))
+ast-res
+#+END_SRC
+
+#+RESULTS: hy_py_asto_from_hy_exa
+#+begin_SRC python :eval never
+HyExpression([
+  HySymbol('ast.Expr'),
+  HyKeyword('value'),
+  HyExpression([
+    HySymbol('ast.Call'),
+    HyKeyword('func'),
+    HyExpression([
+      HySymbol('ast.Name'),
+      HyKeyword('id'),
+      'print',
+      HyKeyword('ctx'),
+      HyExpression([
+        HySymbol('ast.Load')])]),
+    HyKeyword('args'),
+    HyExpression([
+      HyExpression([
+        HySymbol('ast.Name'),
+        HyKeyword('id'),
+        'x',
+        HyKeyword('ctx'),
+        HyExpression([
+          HySymbol('ast.Load')])]),
+      HyExpression([
+        HySymbol('ast.Name'),
+        HyKeyword('id'),
+        'y',
+        HyKeyword('ctx'),
+        HyExpression([
+          HySymbol('ast.Load')])]),
+      HyExpression([
+        HySymbol('ast.Name'),
+        HyKeyword('id'),
+        'z',
+        HyKeyword('ctx'),
+        HyExpression([
+          HySymbol('ast.Load')])])]),
+    HyKeyword('keywords'),
+    HyList()])])
+#+end_SRC
+
+And, now, the other direction (i.e. known Python AST, unknown Hy AST).
+#+NAME: hy_py_asto_from_py_exa
+#+BEGIN_SRC hy :eval never-export :exports both :results value :wrap "SRC python :eval never"
+(setv rel-res (run 1 [hy-ast] (hy-py-asto hy-ast py-ast-exa)))
+(setv ast-res (get rel-res 0 0))
+ast-res
+#+END_SRC
+
+#+RESULTS: hy_py_asto_from_py_exa
+#+begin_SRC python :eval never
+[HyExpression([
+  HySymbol('HySymbol'),
+  'print']), HyExpression([
+  HySymbol('HySymbol'),
+  'x']), HyExpression([
+  HySymbol('HySymbol'),
+  'y']), HyExpression([
+  HySymbol('HySymbol'),
+  'z'])]
+#+end_SRC
+
+:END:
+
+# #+BEGIN_SRC hy :eval never-export :exports both :wrap "SRC python :eval never"
+# ;; `if` statement
+# (setv hy-exa `(if (> 5 (+ 1 x)) (print x) False))
+# (run* [out] (fresh [c s f]
+#                  (== `(if ~c ~s ~f) hy-exa)
+#                  (== out `(asty.If :test ~c))))
+# #+END_SRC
+
 # [[citet:someref]].
 #
 # #+BIBLIOGRAPHY: ../tex/post.bib

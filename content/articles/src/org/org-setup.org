@@ -136,14 +136,26 @@ For Pandoc, use with 'fenced_code_attributes'
 "
   (let* ((lang (org-element-property :language src-block))
          (code (org-export-format-code-default src-block info))
-         (name (org-element-property :name src-block))
-         (prefix (if name
-                     (concat "```{#" name " ." lang "}\n")
+         (link-id (org-export-get-reference src-block info))
+         ;; (name (org-element-property :name src-block))
+         (prefix (if link-id
+                     ;; TODO: Add a class for result blocks?
+                     (concat "```{#" link-id " ." lang "}\n")
                    (concat "```{." lang "}\n")))
          (suffix "```"))
     (concat prefix code suffix)))
 
 (advice-add #'org-gfm-src-block :around #'btw--org-gfm-src-block)
+
+
+(defun btw--org-html-format-drawer (name contents)
+  "Turn drawers into HTML divs."
+  ;; TODO: Add a class for result blocks?
+  (format "<div class=\"%s\" markdown=\"\">\n%s\n</div>" (downcase name) contents))
+
+(setq org-html-format-drawer-function #'btw--org-html-format-drawer)
+
+;; TODO: Might want to do the same for `org-latex-format-drawer-function'.
 #+END_SRC
 
 #+NAME: org-publish-modifications
