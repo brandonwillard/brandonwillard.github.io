@@ -1,7 +1,7 @@
 ---
 bibliography:
 - 'tex/symbolic-pymc3.bib'
-modified: '2018-12-28'
+modified: '2019-1-8'
 tags: 'pymc3,theano,statistics,symbolic computation,python,probability theory'
 title: Random Variables in Theano
 date: '2018-12-28'
@@ -25,17 +25,16 @@ Specifically, by using the `Op` interface, we're able to do the following:
 1.  Reduce/remove the need for an explicitly specified shape parameter.
 
     <div class="example" markdown="">
-
     For example, definitions like
 
-    ```{.python}
+    ```{#org9a167d6 .python}
     with pm.Model():
         X_rv = pm.Normal('X_rv', mu_X, sd=sd_X, shape=(1,))
     ```
 
     reduce to
 
-    ```{.python}
+    ```{#org7baf18b .python}
     with pm.Model():
         X_rv = pm.Normal('X_rv', mu_X, sd=sd_X)
     ```
@@ -50,7 +49,7 @@ The main points of entry in our `Op`, are `Op.make_node` and `Op.perform`. `Op.m
 
 ## Implementation
 
-```{#import_theano_pymc3 .python}
+```{#org4a5aef2 .python}
 import sys
 import os
 
@@ -70,7 +69,7 @@ theano.config.compute_test_value = 'raise'
 import pymc3 as pm
 ```
 
-```{#supp_shape_fn .python}
+```{#org8ed8038 .python}
 from collections.abc import Iterable, ByteString
 from warnings import warn
 from copy import copy
@@ -107,7 +106,7 @@ def matched_supp_shape_fn(ndim_supp, ndims_params, dist_params,
         return (ref_shape[-ndim_supp],)
 ```
 
-```{#new_rv_op .python}
+```{#orga6b862b .python}
 class RandomVariable(tt.gof.Op):
     """This is essentially `RandomFunction`, except that it removes the `outtype`
     dependency and handles shape dimension information more directly.
@@ -350,10 +349,9 @@ class RandomVariable(tt.gof.Op):
 ```
 
 <div class="example" markdown="">
-
 Here are some examples of `RandomVariable` in action.
 
-```{#random_variable_example .python}
+```{#org0cd31de .python}
 NormalRV = RandomVariable('normal', 0, [0, 0], 'normal')
 MvNormalRV = RandomVariable('multivariate_normal', 1, [1, 2], 'multivariate_normal')
 
@@ -364,7 +362,7 @@ print("MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):\n{}".forma
     MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]).eval()))
 ```
 
-```{.python}
+```{#org43f5458 .python}
 NormalRV([0., 100.], 30, size=[4, 2]):
 [[ 27.43632901  93.39441318]
  [ 15.85959218 133.70107347]
@@ -405,11 +403,10 @@ MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):
 
 As we've mentioned, there are a few difficulties surrounding the use and determination of shape information in PyMC3. `RandomVariable` doesn't suffer the same limitations.
 
-<div class="example" markdown="" title-name="">
-
+<div class="example" markdown="">
 A multivariate normal random variable cannot be created without explicit shape information.
 
-```{.python}
+```{#orgdb81332 .python}
 import traceback
 
 test_mean = tt.vector('test_mean')
@@ -425,13 +422,13 @@ except Exception as e:
   print("".join(traceback.format_exception_only(type(e), e)))
 ```
 
-```{.python}
+```{#org21f8a15 .python}
 ValueError: Invalid dimension for value: 0
 
 
 ```
 
-```{.python}
+```{#orge7083a7 .python}
 try:
   with pm.Model():
     test_rv = pm.MvNormal('test_rv', test_mean, test_cov, shape=1)
@@ -441,7 +438,7 @@ except Exception as e:
   print("".join(traceback.format_exception_only(type(e), e)))
 ```
 
-```{.python}
+```{#orgb41267f .python}
 test_rv.distribution.shape = [1]
 test_rv.tag.test_value = [1.]
 
@@ -450,7 +447,7 @@ test_rv.tag.test_value = [1.]
 
 Using `RandomVariable`, we do not have to specify a shape, nor implement any sampling code outside of `RandomVariable.perform` to draw random variables and generate valid test values.
 
-```{.python}
+```{#orgc0ba549 .python}
 test_mv_rv = MvNormalRV(test_mean, test_cov)
 test_mv_rv_2 = MvNormalRV(test_mv_rv, test_cov)
 
@@ -465,7 +462,7 @@ print("test_mv_rv_2.eval() = {}".format(test_mv_rv_2.eval(
     {test_mean: [1, 2, 3], test_cov: np.diag([1, 2, 70])})))
 ```
 
-```{.python}
+```{#org1a1c95a .python}
 test_mv_rv.tag.test_value = [0.90661799]
 test_mv_rv_2.tag.test_value = [1.10201953]
 test_mv_rv.eval() = [-1.90184227  1.8679379 ]
@@ -481,7 +478,7 @@ test_mv_rv_2.eval() = [ 2.05659828 -1.33638943  3.85355663]
 
 As in <sup id="24875a2c31fa7f94ce562adddedc0bf8"><a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }">WillardSymbolicMathPyMC32018</a></sup>, we can create mappings between existing PyMC3 random variables and their new `RandomVariable` equivalents.
 
-```{#pymc_theano_rv_equivs .python}
+```{#orgf097520 .python}
 pymc_theano_rv_equivs = {
     pm.Normal:
     lambda dist, rand_state:
@@ -502,17 +499,16 @@ The problem arises because **PyMC3 "knows" more broadcast information than it sh
 More specifically, broadcast information is required during the construction of a Theano `TensorType`, so PyMC3 random variable types can be inconsistent (unnecessarily restrictive, really) causing Theano to complain when we try to construct a `FunctionGraph`.
 
 <div class="example" markdown="">
-
 Consider the following example; it constructs two purely symbolic Theano vectors: one with broadcasting and one without.
 
-```{.python}
+```{#org75ac1d5 .python}
 y_tt = tt.row('y')
 print("y_tt.broadcastable = {}".format(y_tt.broadcastable))
 x_tt = tt.matrix('x')
 print("x_tt.broadcastable = {}".format(x_tt.broadcastable))
 ```
 
-```{.python}
+```{#orgb63c12a .python}
 y_tt.broadcastable = (True, False)
 x_tt.broadcastable = (False, False)
 
@@ -527,7 +523,7 @@ In the following, we assign both a broadcastable (i.e. first&#x2013;and only&#x2
 
 Test value is broadcastable:
 
-```{.python}
+```{#org6b58505 .python}
 x_tt.tag.test_value = np.array([[5]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))
@@ -541,7 +537,7 @@ except TypeError as e:
     print(str(e))
 ```
 
-```{.python}
+```{#org17f0623 .python}
 test_value.broadcastable = (True, True)
 x_tt.broadcastable = (False, False)
 shape checks out!
@@ -549,7 +545,7 @@ shape checks out!
 
 ```
 
-```{.python}
+```{#org1a96a68 .python}
 y_tt.tag.test_value = np.array([[5]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))
@@ -563,7 +559,7 @@ except TypeError as e:
     print(str(e))
 ```
 
-```{.python}
+```{#orgbd6cded .python}
 test_value.broadcastable = (True, True)
 y_tt.broadcastable = (True, False)
 shape checks out!
@@ -573,7 +569,7 @@ shape checks out!
 
 Test value is **not** broadcastable:
 
-```{.python}
+```{#org030252b .python}
 x_tt.tag.test_value = np.array([[5, 4]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))
@@ -587,7 +583,7 @@ except TypeError as e:
     print(str(e))
 ```
 
-```{.python}
+```{#orge1689e1 .python}
 test_value.broadcastable = (True, False)
 x_tt.broadcastable = (False, False)
 shape checks out!
@@ -595,7 +591,7 @@ shape checks out!
 
 ```
 
-```{.python}
+```{#org72d0493 .python}
 y_tt.tag.test_value = np.array([[5, 4], [3, 2]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))
@@ -609,7 +605,7 @@ except TypeError as e:
     print(str(e))
 ```
 
-```{.python}
+```{#org75feef9 .python}
 test_value.broadcastable = (False, False)
 y_tt.broadcastable = (True, False)
 For compute_test_value, one input test value does not have the requested type.
@@ -652,7 +648,7 @@ What we can take from the example above is that if we determine that a vector ha
 
 With our new `RandomVariable`, we can alter the replacement patterns used by `tt.gof.opt.PatternSub` in <sup id="24875a2c31fa7f94ce562adddedc0bf8"><a href="#WillardSymbolicMathPyMC32018" title="@misc{WillardSymbolicMathPyMC32018, title = {Symbolic {{Math}} in {{PyMC3}}}, urldate = {2018-12-27}, url = {https://brandonwillard.github.io/symbolic-math-in-pymc3.html}, author = {Willard, Brandon T.}, month = dec, year = {2018}, file = {/home/bwillard/Zotero/storage/6VVT4UNF/symbolic-math-in-pymc3.html} }">WillardSymbolicMathPyMC32018</a></sup> and implement a slightly better parameter lifting for affine transforms of scalar normal random variables.
 
-```{#rv_optimizations .python}
+```{#orgb112483 .python}
 # Create random variable constructors.
 NormalRV = RandomVariable('normal', 0, [0, 0], 'normal')
 MvNormalRV = RandomVariable('multivariate_normal', 1, [1, 2], 'multivariate_normal')
@@ -692,8 +688,7 @@ norm_lift_opts = tt.gof.opt.EquilibriumOptimizer(
 ```
 
 <div class="example" markdown="">
-
-```{#mat_mul_scaling_rv_exa .python}
+```{#orgc33f7e1 .python}
 from theano.gof import FunctionGraph, Feature, NodeFinder
 from theano.gof.graph import inputs as tt_inputs, clone_get_equiv
 
@@ -727,12 +722,19 @@ print('Before: {}'.format(tt.pprint(Z_graph.outputs[0])))
 print('After: {}'.format(tt.pprint(Z_graph_opt.outputs[0])))
 ```
 
-```{.text}
+```{#org00a3832 .text}
 Before: ((TensorConstant{5} * normal_rv(<RandomStateType>, TensorConstant{[]}, mu_X, sd_X)) + TensorConstant{(1,) of 5.0})
 After: normal_rv(<RandomStateType>, TensorConstant{[]}, ((TensorConstant{5} * mu_X) + TensorConstant{(1,) of 5.0}), (TensorConstant{5} * sd_X))
 
 
 ```
+
+</div>
+
+<div class="todo" markdown="">
+-   What about division and subtraction? These can be addressed using
+
+canonicalization?
 
 </div>
 
@@ -746,7 +748,7 @@ Now, what if we wanted to handle affine transformations of a multivariate normal
 
 At first, the following substitution pattern might seem reasonable:
 
-```{.python}
+```{#orgaa8a57f .python}
 # Vector multiplication
 tt.gof.opt.PatternSub(
     (tt.dot,
@@ -768,10 +770,9 @@ Unfortunately, the combination of size parameter and broadcasting complicates th
 The following example demonstrates the lifting issues brought on by broadcasting.
 
 <div class="example" markdown="">
-
 First, we create a simple multivariate normal.
 
-```{.python}
+```{#orgda5c0a5 .python}
 mu_X = [0, 10]
 cov_X = np.diag([1, 1e-2])
 size_X_rv = [2, 3]
@@ -780,7 +781,7 @@ X_rv = MvNormalRV(mu_X, cov_X, size=size_X_rv)
 print('X_rv sample:\n{}\n'.format(X_rv.tag.test_value))
 ```
 
-```{.python}
+```{#org8376809 .python}
 X_rv sample:
 [[[-0.49226543  9.98771301]
   [-0.22713441 10.00124952]
@@ -795,7 +796,7 @@ X_rv sample:
 
 Next, we create a simple matrix operator to apply to the multivariate normal.
 
-```{.python}
+```{#org2c01c8c .python}
 A_tt = tt.as_tensor_variable([[2, 5, 8], [3, 4, 9]])
 # or A_tt = tt.as_tensor_variable([[2, 5, 8]])
 
@@ -805,7 +806,7 @@ E_X_rv = X_rv.owner.inputs[2]
 print('A * X_rv =\n{}\n'.format(tt.dot(A_tt, X_rv).tag.test_value))
 ```
 
-```{.python}
+```{#org296900d .python}
 A * X_rv =
 [[[  7.60818207 150.2910632 ]
   [ 19.60611837 150.36836345]]
@@ -818,7 +819,7 @@ A * X_rv =
 
 As we can see, the multivariate normal's test/sampled value has the correct shape for our matrix operator.
 
-```{.python}
+```{#org5014109 .python}
 import traceback
 try:
     print('A * E[X_rv] =\n{}\n'.format(tt.dot(A_tt, E_X_rv).tag.test_value))
@@ -826,22 +827,22 @@ except ValueError as e:
     print("".join(traceback.format_exception_only(type(e), e)))
 ```
 
-```{.python}
+```{#org6f0682c .python}
 ValueError: shapes (2,3) and (2,) not aligned: 3 (dim 1) != 2 (dim 0)
 
 
 ```
 
-However, we see that the multivariate normal's inputs (i.e. the `Op` inputs)&#x2013;specifically the mean parameter&#x2013;do not directly reflect the support's shape, as intuitively would suggest.
+However, we see that the multivariate normal's inputs (i.e. the `Op` inputs)&#x2013;specifically the mean parameter&#x2013;do not directly reflect the support's shape, as one might expect.
 
-```{.python}
+```{#org2014f51 .python}
 size_tile = tuple(size_X_rv) + (1,)
 E_X_rv_ = tt.tile(E_X_rv, size_tile, X_rv.ndim)
 
 print('A * E[X_rv] =\n{}\n'.format(tt.dot(A_tt, E_X_rv_).tag.test_value))
 ```
 
-```{.python}
+```{#org6279eec .python}
 A * E[X_rv] =
 [[[  0 150]
   [  0 150]]
@@ -856,6 +857,55 @@ We can manually replicate the inputs so that they match the output shape, but a 
 
 </div>
 
+<div class="testing" markdown="">
+```{#org8c455a1 .python}
+def replicate_expr(param, rep_size, dist_op, param_idx):
+    return tt.tile(param, tuple(rep_size) + (1,), dist_op.ndims_params[param_idx] + len(rep_size))
+
+mvnorm_lift_pats = tt.gof.opt.PatternSub(
+    (tt.dot,
+     'A_x',
+     (MvNormalRV, 'rs_x', 'size_x', 'mu_x', 'cov_x')),
+    (construct_rv,
+     MvNormalRV,
+     'rs_x',
+     'size_x',
+     (tt.dot, 'A_x',
+      (replicate_expr, 'mu_x', 'size_x', MvNormalRV, 0)),
+     (tt.dot,
+      (tt.dot, 'A_x',
+       (replicate_expr, 'cov_x', 'size_x', MvNormalRV, 1)),
+      (tt.transpose, 'A_x'))),
+)
+
+mvnorm_lift_opts = tt.gof.opt.EquilibriumOptimizer(
+    [ mvnorm_lift_pats ], max_use_ratio=10)
+
+mu_X = [0, 10]
+cov_X = np.diag([1, 1e-2])
+X_rv = MvNormalRV(mu_X, cov_X, size=[2, 3])
+
+A_tt = tt.as_tensor_variable([[2, 5, 8], [3, 4, 9]])
+
+Z_rv = tt.dot(A_tt, X_rv)
+
+Z_graph = FunctionGraph(tt_inputs([Z_rv]), [Z_rv])
+
+tt.printing.debugprint(Z_graph)
+
+Z_graph_opt = Z_graph.clone()
+
+# This won't work because `tt.dot` uses `tensor_dot`, which does some
+# reshaping and dim-shuffling.
+# We need to account for those, as well.
+# TODO: We need to implement something like `local_dimshuffle_lift` for some RVs.
+_ = mvnorm_lift_opts.optimize(Z_graph_opt)
+
+tt.printing.debugprint(Z_graph_opt)
+```
+
+</div>
+
 
 # Discussion
 
@@ -865,6 +915,11 @@ In a follow-up, we'll address a few loose ends, such as
 -   decompositions/reductions of overlapping multivariate types (e.g. transforms between tensors of univariate normals and equivalent multivariate normals),
 -   canonicalization of graphs containing `RandomVariable` terms,
 -   and optimizations that specifically benefit MCMC schemes (e.g. automatic conversion to scale mixture decompositions that improve sampling/covariance structure).
+
+<div class="todo" markdown="">
+Talk about `supp_shape_fn`.
+
+</div>
 
 # Bibliography
 <a id="WillardSymbolicMathPyMC32018"></a>[WillardSymbolicMathPyMC32018] Willard, Symbolic Math in PyMC3, <i></i>, (2018). <a href="https://brandonwillard.github.io/symbolic-math-in-pymc3.html">link</a>. [↩](#24875a2c31fa7f94ce562adddedc0bf8)

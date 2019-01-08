@@ -5,7 +5,7 @@
 #+FILETAGS: :pymc3:theano:statistics:symbolic computation:python:probability theory:
 
 #+STARTUP: hideblocks indent hidestars
-#+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:(results) html-preamble:t
+#+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:(not todo logbook notes) html-preamble:t
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
 
@@ -39,7 +39,7 @@ Specifically, by using the src_python[]{Op} interface, we're able to do the
 following:
 
 1. Reduce/remove the need for an explicitly specified shape parameter.
-   #+HTML: <div class="example" markdown="">
+   :EXAMPLE:
    For example, definitions like
    #+BEGIN_SRC python
    with pm.Model():
@@ -50,17 +50,17 @@ following:
    with pm.Model():
        X_rv = pm.Normal('X_rv', mu_X, sd=sd_X)
    #+END_SRC
-   #+HTML: </div>
-2. Random variable nodes created by an src_python[]{Op} automatically implement
+   :END:
+1. Random variable nodes created by an src_python[]{Op} automatically implement
    src_python[]{Distribution.default}/src_python[]{Distribution.get_test_val}
    functionality and remove the reliance on initial values during random
    variable instantiation.  src_python[]{Op} automatically
    uses src_python[]{Op.perform}, which will draw a sample as a test value *and*
    propagate it throughout the graph to derived/down-stream tensor variables.
-3. Log-densities can be generated as secondary outputs of
+2. Log-densities can be generated as secondary outputs of
    src_python[]{Op.make_node}, which removes the need
    for src_python[]{Distribution.logp*} methods.
-4. src_python[]{pymc.distribution.draw_values} and related methods are no longer necessary;
+3. src_python[]{pymc.distribution.draw_values} and related methods are no longer necessary;
    their functionality is already covered within Theano's existing graph machinery--in the
    same way as src_python[]{pymc.distribution.Distribution.default/get_test_val}.
 
@@ -381,7 +381,7 @@ class RandomVariable(tt.gof.Op):
         return [None for i in eval_points]
 #+END_SRC
 
-#+HTML: <div class="example" markdown="">
+:EXAMPLE:
 Here are some examples of src_python[]{RandomVariable} in action.
 #+NAME: random_variable_example
 #+BEGIN_SRC python
@@ -432,14 +432,13 @@ MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):
 
 
 #+END_SRC
-
-#+HTML: </div>
+:END:
 
 As we've mentioned, there are a few difficulties surrounding the use and
 determination of shape information in PyMC3.  src_python[]{RandomVariable} doesn't
 suffer the same limitations.
 
-#+HTML: <div class="example" markdown="" title-name="">
+:EXAMPLE:
 A multivariate normal random variable cannot be created without
 explicit shape information.
 #+BEGIN_SRC python
@@ -510,8 +509,7 @@ test_mv_rv_2.eval() = [ 2.05659828 -1.33638943  3.85355663]
 
 
 #+END_SRC
-#+HTML: </div>
-
+:END:
 
 
 ** Testing src_python[]{RandomVariable}                             :noexport:
@@ -623,7 +621,7 @@ Theano src_python[]{TensorType}, so PyMC3 random variable types can be
 inconsistent (unnecessarily restrictive, really) causing Theano to complain when
 we try to construct a src_python[]{FunctionGraph}.
 
-#+HTML: <div class="example" markdown="">
+:EXAMPLE:
 Consider the following example; it constructs two purely symbolic
 Theano vectors: one with broadcasting and one without.
 #+ATTR_LATEX: :float t :placement h
@@ -773,8 +771,7 @@ Non-unit value on shape on a broadcastable dimension.
 Simply put: non-broadcastable Theano tensor variable types can take
 broadcastable and non-broadcastable values, while broadcastable types can only
 take broadcastable values.
-
-#+HTML: </div>
+:END:
 
 What we can take from the example above is that if we determine that a vector
 has broadcastable dimensions using test values--as PyMC3 does--we unnecessarily
@@ -828,8 +825,7 @@ norm_lift_opts = tt.gof.opt.EquilibriumOptimizer(
     norm_lift_pats, max_use_ratio=10)
 #+END_SRC
 
-#+HTML: <div class="example" markdown="">
-
+:EXAMPLE:
 #+ATTR_LATEX: :float nil
 #+CAPTION: Scaled normal random variable example using src_python[]{RandomVariable}.
 #+NAME: mat_mul_scaling_rv_exa
@@ -874,8 +870,7 @@ After: normal_rv(<RandomStateType>, TensorConstant{[]}, ((TensorConstant{5} * mu
 
 
 #+END_SRC
-
-#+HTML: </div>
+:END:
 
 :TODO:
 - What about division and subtraction?  These can be addressed using
@@ -916,7 +911,7 @@ making the un-lifted dot-product consistent, but not necessarily the lifted prod
 The following example demonstrates the lifting issues brought on by
 broadcasting.
 
-#+HTML: <div class="example" markdown="">
+:EXAMPLE:
 First, we create a simple multivariate normal.
 #+ATTR_LATEX: :float t :placement h
 #+BEGIN_SRC python
@@ -985,7 +980,7 @@ ValueError: shapes (2,3) and (2,) not aligned: 3 (dim 1) != 2 (dim 0)
 
 However, we see that the multivariate normal's inputs (i.e. the src_python[]{Op}
 inputs)--specifically the mean parameter--do not directly reflect the support's
-shape, as intuitively would suggest.
+shape, as one might expect.
 
 #+BEGIN_SRC python
 size_tile = tuple(size_X_rv) + (1,)
@@ -1008,8 +1003,7 @@ A * E[X_rv] =
 
 We can manually replicate the inputs so that they match the output shape, but
 a solution to the general problem requires a more organized response.
-
-#+HTML: </div>
+:END:
 
 :TESTING:
 #+BEGIN_SRC python
