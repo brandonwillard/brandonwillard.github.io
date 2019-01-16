@@ -3,60 +3,93 @@
 ;;
 ;; Run `org-publish-current-file' to write the .md file.
 ;;
+
+;; Add a format for "misc" reference types.
 (setq org-ref-bibliography-entry-format
           (add-to-list 'org-ref-bibliography-entry-format
                        '("misc" . "%a, %t, <i>%j</i>, %p (%y). <a href=\"%U\">link</a>.")))
 
 (defmacro create-org-ref-generic-format-function (link-type)
+  "A macro that turns `org-ref-format-*' functions into a generic methods, so
+ that they're easier to extend."
   (pcase (macroexpand-1 `(org-ref-make-format-function ,link-type))
     (`(defun ,name ,args ,doc . ,body)
      `(cl-defgeneric ,name ,args ,@body))))
 
-(create-org-ref-generic-format-function "citet")
+;; (fmakunbound #'org-ref-format-citet)
+;; (fmakunbound #'org-ref-format-citep)
+;; (fmakunbound #'btw--create-md-link)
 
-(defun btw--create-md-link (key)
-     (format "<sup id=\"%s\"><a href=\"#%s\">%s</a></sup>"
+(create-org-ref-generic-format-function "citet")
+(create-org-ref-generic-format-function "citep")
+
+(defun* btw--create-md-link (key &optional parens)
+  "A custom Markdown formatting for references."
+     (format "<a href=\"#%s\">%s</a>"
              (md5 key)
-             key
              (let ((org-ref-bibliography-files (org-ref-find-bibliography))
-                   (file)
+                   (bib-file)
+                   (author)
+                   (year)
                    (entry)
                    (bibtex-entry))
-               (setq file (catch 'result
-                            (cl-loop for
-                                     file
-                                     in
-                                     org-ref-bibliography-files
-                                     do
+               (setq bib-file (catch 'result
+                            (cl-loop for file in org-ref-bibliography-files do
                                      (if (org-ref-key-in-file-p key
                                                                 (file-truename file))
                                          (throw 'result file)
                                        (message "%s not found in %s"
                                                 key
                                                 (file-truename file))))))
-
                (with-temp-buffer
-                 (insert-file-contents file)
+                 (insert-file-contents bib-file)
                  (bibtex-set-dialect (parsebib-find-bibtex-dialect)
                                      t)
                  (bibtex-search-entry key nil 0)
                  (setq bibtex-entry (bibtex-parse-entry))
                  (dolist (cons-cell bibtex-entry)
                    (setf (car cons-cell) (downcase (car cons-cell))))
-                 ;; or "shorttitle"
-                 (setq entry (cdr (assoc "title" bibtex-entry))))
+                 (setq author (cdr (assoc "author" bibtex-entry)))
+                 (setq year (cdr (assoc "year" bibtex-entry)))
+                 (setq entry
+                       (if parens
+                           (format "(%s %s)" author year)
+                         (format "%s (%s)" author year))))
                (replace-regexp-in-string "[\"\{\}]"
                                          ""
                                          (htmlize-escape-or-link entry)))))
 
+
+;; These versions use `org-ref' for formatting.
 (cl-defmethod org-ref-format-citet (keyword desc (format (eql md)))
+  "A specialized method for citet (textual) links/references with Markdown
+ formatting."
   (mapconcat #'btw--create-md-link
              (s-split "," keyword)
-             "<sup>,</sup>"))
+             ", "))
+
+(cl-defmethod org-ref-format-citep (keyword desc (format (eql md)))
+  "A specialized method for citep (parenthetical) links/references with Markdown
+ formatting."
+  (mapconcat (lambda (x) (btw--create-md-link x t))
+             (s-split "," keyword)
+             ", "))
+
+;; (cl-defmethod org-ref-format-citet (keyword desc (format (eql md)))
+;;   "Use Pandoc's citation formatting instead of `org-ref''s."
+;;   (mapconcat (lambda (key) (format "@%s" key))
+;;              (s-split "," keyword)
+;;              ", "))
+
+;; (cl-defmethod org-ref-format-citep (keyword desc (format (eql md)))
+;;   "Use Pandoc's citation formatting instead of `org-ref''s."
+;;   (mapconcat (lambda (key) (format "[@%s]" key))
+;;              (s-split "," keyword)
+;;              ", "))
 
 ;; Test 'em out.
 ;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'html)
-;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'md)
+;; (org-ref-format-citet "WillardSymbolicMathPyMC32018" nil 'md)
 #+END_SRC
 
 #+NAME: org-md-export-adjustments
@@ -147,15 +180,30 @@ For Pandoc, use with 'fenced_code_attributes'
 
 (advice-add #'org-gfm-src-block :around #'btw--org-gfm-src-block)
 
+#+END_SRC
 
+#+NAME: org-html-export-modifications
+#+BEGIN_SRC elisp :eval export-only :exports none :results none
 (defun btw--org-html-format-drawer (name contents)
   "Turn drawers into HTML divs."
   ;; TODO: Add a class for result blocks?
   (format "<div class=\"%s\" markdown=\"\">\n%s\n</div>" (downcase name) contents))
 
 (setq org-html-format-drawer-function #'btw--org-html-format-drawer)
+#+END_SRC
 
-;; TODO: Might want to do the same for `org-latex-format-drawer-function'.
+#+NAME: org-latex-export-modifications
+#+BEGIN_SRC elisp :eval export-only :exports none :results none
+;; Don't attempt to convert the following drawers:
+(setq org-latex-format-non-env-drawers '("results"))
+
+(defun btw--org-latex-format-drawer-function (name contents)
+  "Turn drawers into custom LaTeX blocks."
+  (let ((name (downcase name)))
+    (unless (member name org-latex-format-non-env-drawers)
+      (format "\\begin{%s}\n%s\n\\end{%s}" name contents name))))
+
+(setq org-latex-format-drawer-function #'btw--org-latex-format-drawer-function)
 #+END_SRC
 
 #+NAME: org-publish-modifications

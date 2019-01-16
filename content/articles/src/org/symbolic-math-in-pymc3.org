@@ -117,11 +117,11 @@ tracks the model's log likelihood function when some variables are designated as
 specified an observed variable, so the context object won't be immediately
 useful.
 
-#+HTML: <div class="remark" markdown="">
+:REMARK:
 In what follows, we'll briefly introduce the internal aspects of PyMC3 that are
 immediately relevant for the topics addressed here; otherwise, see [[https://docs.pymc.io/developer_guide.html][the PyMC3
 developer's guide]] for an explanation of its design and internal workings.
-#+HTML: </div>
+:END:
 
 The terms src_python[]{X_rv}, src_python[]{Y_rv} are derived from both a PyMC3
 [[https://github.com/pymc-devs/pymc3/blob/v3.3/pymc3/model.py#L151][src_python[]{Factor}]] class and the standard
@@ -302,7 +302,7 @@ Nonetheless, using src_python[:eval never]{RandomFunction}, we can replace nodes
 corresponding to PyMC3 random variables with newly
 constructed src_python[:eval never]{Op} nodes.
 
-#+HTML: <div class="example" markdown="">
+:EXAMPLE:
 We can produce the types of graphs described above through conversion of
 existing PyMC3 models.
 
@@ -561,8 +561,7 @@ Elemwise{add,no_inplace} [id A] ''   10
 [[file:/home/bwillard/projects/websites/brandonwillard.github.io/content/articles/figures/Z_fgraph_rv_tt.png]]
 :END:
 
-
-#+HTML: </div>
+:END:
 
 Illustrations of the transformed graphs given in [[ref:random_op_mapping_exa]] and
 [[ref:fig:random_op_mapping_exa_graph]] show the full extent of our simple example model
@@ -633,8 +632,7 @@ sub-graphs for which we are able to replace existing nodes with a convolution no
 Theano provides some [[https://en.wikipedia.org/wiki/Unification_(computer_science)][unification]] tools that facilitate the search component.
 We'll use those to implement an extremely restrictive form of our convolution.
 
-#+HTML: <div class="example" markdown="">
-
+:EXAMPLE:
 In [[ref:normal_conv_pattern]], we create patterns for our expressions of interest
 that are unified against the elements in our graph and reified with a
 replacement expression.  The patterns are expressed as tuples in a LISP-like
@@ -697,8 +695,7 @@ Finally, we manually perform our Theano optimization.
 #+BEGIN_SRC python :results none
 _ = norm_conv_opt_tt.optimize(Z_fgraph_rv_tt)
 #+END_SRC
-
-#+HTML: </div>
+:END:
 
 The optimization was applied within our graph, as evidenced by
 the single new src_python[:eval never]{RandomFunction} node.

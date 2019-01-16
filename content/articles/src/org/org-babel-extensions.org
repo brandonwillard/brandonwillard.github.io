@@ -1,4 +1,4 @@
-#+TITLE: Custom Org-babel Extensions
+#+TITLE: Custom =org-babel= Extensions
 #+AUTHOR: Brandon T. Willard
 #+DATE: 2018-07-29
 #+EMAIL: brandonwillard@gmail.com
