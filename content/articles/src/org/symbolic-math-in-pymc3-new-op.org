@@ -12,13 +12,16 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 #+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 
-#+INCLUDE: org-setup.org
+# #+INCLUDE: org-setup.org
 #+BEGIN_SRC elisp :eval t :exports none :results none
+(org-babel-load-file "org-setup.org")
 (org-babel-lob-ingest "org-babel-extensions.org")
 #+END_SRC
 
 #+PROPERTY: header-args :eval never-export :exports both :results output drawer replace
 #+PROPERTY: header-args+ :session symbolic-math-pymc3-2
+
+#+PROPERTY: header-args:python :noweb-sep "\n\n"
 
 #+BEGIN_abstract
 Continuing from [[citet:WillardSymbolicMathPyMC32018]], we'll attempt to improve
@@ -27,7 +30,6 @@ PyMC3.
 #+END_abstract
 
 * Introduction
-
 
 We'll call the new src_python{Op} developed here src_python{RandomVariable}, since random
 variables are the abstraction we're primarily targeting.
@@ -1706,6 +1708,13 @@ In follow-ups to this series, we'll address a few loose ends, such as
 :TODO:
 Talk about src_python[]{supp_shape_fn}.
 :END:
+
+
+#+NAME: tangle-new-op
+#+BEGIN_SRC python :exports none :results none :noweb tangle :tangle theano-random-variable.py :comments link
+<<new-op-code>>
+#+END_SRC
+
 
 #+BIBLIOGRAPHY: ../tex/symbolic-pymc3.bib
 #+BIBLIOGRAPHYSTYLE: plainnat

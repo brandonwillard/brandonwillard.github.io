@@ -1,0 +1,808 @@
+#+TITLE: Graph Manipulation and MCMC
+#+AUTHOR: Brandon T. Willard
+#+DATE: 2019-01-15
+#+EMAIL: brandonwillard@gmail.com
+#+FILETAGS: :pymc3:theano:statistics:symbolic computation:python:probability theory:
+
+#+STARTUP: hideblocks indent hidestars
+#+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:(not "todo" "logbook" "note" "testing" "notes") html-preamble:t
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+#+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+
+#+BEGIN_SRC elisp :eval t :exports none :results none
+(org-babel-load-file "org-setup.org")
+(org-babel-lob-ingest "org-babel-extensions.org")
+#+END_SRC
+
+#+PROPERTY: header-args :eval never-export :exports both :results output drawer replace
+#+PROPERTY: header-args+ :session symbolic-math-pymc3-mcmc
+
+#+NAME: set-pelican-preamble
+#+BEGIN_SRC elisp :eval export-only :exports results :results value raw
+(org-pelican-create-yaml)
+#+END_SRC
+
+#+BEGIN_abstract
+Continuing from [[citet:WillardRandomVariablesTheano2018]], ...
+#+END_abstract
+
+* Introduction
+
+With a set of distributions defined more completely within a graph, we can much
+more easily produce MCMC samplers that use distribution-level domain knowledge.
+
+In the examples we'll use here, the model of interest will be the Horseshoe
+model [[citep:carvalho_horseshoe_2010]] given by
+\begin{equation}
+  \begin{aligned}
+    Y &\sim \mathop{\text{N}}\nolimits\left(\beta, 1\right)
+    \\
+    \beta &\sim \mathop{\text{N}}\nolimits\left(0, \tau^2\right)
+    \\
+    \tau &\sim \mathop{\text{C}^{+}}\nolimits\left(0, 1\right)
+    \;.
+  \end{aligned}
+\label{eq:hs_model}
+\end{equation}
+
+The Horseshoe prior quickly decays, so many generic sampling methods tend
+produce poor estimates for models using it.  However, under different parameter
+expansions, the prior can be sampled more efficiently.  Those expansions
+usually depend domain knowledge in the areas of probability theory and the
+integral calculus that is not easily accessible to primarily derivative-based
+approaches.
+
+As well, these reformulations are often very simplistic when formulated in terms
+of random variables, and that simplicity can translate to simpler
+implementations and lower computational costs.
+
+#+NAME: theano-random-function-load
+#+BEGIN_SRC python :exports none :results none :var src=(org-babel-eval-read-file "theano-random-variable.py")
+exec(src)
+#+END_SRC
+
+#+NAME: mcmc-requirements
+#+BEGIN_SRC python :exports none :results none :noweb strip-export
+# <<theano-random-function-load()>>
+
+from theano.gof import FunctionGraph, Feature, NodeFinder
+from theano.gof.graph import inputs as tt_inputs, clone_get_equiv
+
+theano.config.compute_test_value = 'ignore'
+#+END_SRC
+
+* Understanding the Problem(s)
+
+To start, we need to identify sub-graphs that match our considered
+reformulations, reason about them, and--when appropriate--replace them.
+
+For the first step, which involves searching a graph for specific Theano
+expressions, we'll consider two common approaches:
+- directly--by walking "walking" Python functions through a graph--and
+- pattern-matching--via some form of domain-specific language.
+
+Using a direct approach, it can be very straight-forward to implement simple
+search-and-replace objectives.  However, for modeling non-trivial systems
+of logic and mathematical frameworks--like probability theory, different
+algebras, and properties of function spaces--a direct approach will quickly
+become unscalable, error-prone, and impossibly difficult to maintain.
+
+The work we intend to do makes implicit use of nominal logic, field axioms,
+and aspects of the typed lambda calculus--among other things.
+
+Let's illustrate some of these points using an example.
+
+:EXAMPLE:
+We demonstrate automatic model reformulation using the variance expansion in
+\eqref{eq:hs_model} in [[citet:scott_parameter_2010]].
+
+This expansion works pushing the half-Cauchy variance term, $\tau$, out of the
+normal, $\beta$:
+\begin{equation}
+  \begin{aligned}
+    Y &\sim \mathop{\text{N}}\nolimits\left(\beta, 1\right)
+    \\
+    \beta &\sim \tau \cdot \mathop{\text{N}}\nolimits\left(0, 1\right)
+    \\
+    \tau &\sim \mathop{\text{C}^{+}}\nolimits\left(0, 1\right)
+    \;.
+  \end{aligned}
+\label{eq:norm_var_sink}
+\end{equation}
+
+An applicable reformulation rule might look like the following:
+\begin{equation}
+  \begin{aligned}
+    \mathop{\text{N}}\nolimits\left(a m, a^2 C\right)
+    &\to a \mathop{\text{N}}\nolimits\left(m, C\right)
+  \end{aligned}
+\label{eq:norm_replacement_exa}
+\;.
+\end{equation}
+:END:
+
+Now, what about an expression like $\mathop{\text{N}}\nolimits\left(0,
+a^2\right)$; should our replacement in \eqref{eq:norm_replacement_exa} produce
+$a \mathop{\text{N}}\nolimits\left(0, 1\right)$?
+
+Conventional mathematical reasoning might say so, but a term rewriting system
+will need to be designed to account for this explicitly.  The important
+questions have more to do with *where* and *how*: by requiring the addition of all
+necessary replacements, or by automatic reasoning using a relatively small set of
+axioms from which they can be derived?
+
+For instance, we could provide some rules that represent group/ring/field axioms
+(e.g. identity and zero elements) and allow such a system to consider them in
+tandem.
+
+For ease-of-use--especially with respect to developers working at the
+mathematics-level--it's more desirable to formulate rules at a high level
+(e.g. set and measure theory) and use a system with a generalized means
+of verifying and deriving these expectations.
+Even for general scalability, testing, and development, it can be much better to
+focus on well compartmentalized pieces of such a system that have direct
+mappings to well understood subjects.
+
+While such solutions are possible, they're not trivial to implement *correctly*.
+It shouldn't be surprising that there are very deep bodies of research on such
+systems--usually under the subjects *term rewriting* and *symbolic computation*.
+A good part of classical AI focused on the challenges induced by these automation
+objectives and their implementations.
+
+This doesn't mean--however--that they're prohibitively difficult to use or develop.
+As demonstrated in [[citet:WillardRandomVariablesTheano2018]], Theano provides
+some pattern-based graph manipulation using a form of unification.  This functionality
+shares some of the same fundamental abstraction(s) as the more sophisticated systems
+alluded to earlier, but it starts to fall short right where our objectives get started.
+
+In the following, we'll demonstrate the critical short-comings, and introduce some
+steps further into the direction of modern unification and term rewriting.
+# [[citet:ByrdRelationalProgrammingminiKanren2009]] [[citet:RocklinlogpyLogicProgramming2018]]
+# [[citet:WillardRoleSymbolicComputation2017]]
+* A Language for Graph Manipulation
+In this case, graph manipulation mostly consists of term rewriting in the
+context of a Theano graphs, and--as we've stated earlier--the term rewriting is
+mostly driven by algebraic considerations.
+
+The mechanical aspects of this work is largely generalizable in terms of
+orchestrated unification.  In the lead-up articles
+[[citet:WillardRandomVariablesTheano2018]] and
+[[citet:WillardSymbolicMathPyMC32018]], we used src_python{PatternSub}, which
+uses unification (and reification) to implement pattern matching and
+substitution (i.e. rewrite rules).
+
+:REMARK:
+In the context of Python, this sort of work has some fundamental limitations and
+unnecessarily confusing aspects.  Python doesn't lend itself to symbolic manipulation,
+making things like expression manipulation and traversal particularly onerous.
+:END:
+
+Beyond some small technical issues, src_python{PatternSub} only provides a
+limited form of unification, and doesn't provide a programmable context for
+controlling exactly how and when the unification is performed.
+
+:EXAMPLE:
+Let's attempt to implement the replacement in \eqref{eq:norm_var_sink}
+using src_python{PatternSub}.
+
+#+ATTR_LATEX: :float nil
+#+CAPTION: A naively specified Horseshoe model.
+#+NAME: hs_model_exa
+#+BEGIN_SRC python :results silent :noweb yes
+<<mcmc-requirements>>
+tau_rv = CauchyRV(0, 1, name='\\tau')
+beta_rv = NormalRV(0, tt.abs_(tau_rv), name='\\beta')
+Y_rv = NormalRV(beta_rv, 1, name='Y')
+#+END_SRC
+
+#+NAME: hs_var_expansion_opt
+#+BEGIN_SRC python :results output :wrap "SRC python :eval never"
+construct_norm_rv = lambda rng, size, mu, sd: NormalRV(mu, sd, size=size, rng=rng)
+
+norm_sink_pats = [
+    # N(0, a^2) -> a N(0, 1)
+    tt.gof.opt.PatternSub(
+        (NormalRV, 'rng_x', 'size_x',
+         'b_x', 'a_x'),
+        (tt.mul, 'a_x',
+         (construct_norm_rv, 'rng_x', 'size_x',
+          'b_x', tt.constant(1.0)))),
+]
+
+norm_sink_opts = tt.gof.opt.EquilibriumOptimizer(
+    norm_sink_pats, max_use_ratio=10)
+hs_Y_graph = FunctionGraph(tt_inputs([Y_rv]), [Y_rv])
+hs_Y_graph_opt = hs_Y_graph.clone()
+
+_ = norm_sink_opts.optimize(hs_Y_graph_opt)
+#+END_SRC
+
+We see in [[hs_var_expansion_opt]] that moving from a node that produces two outputs
+(i.e. a src_python{RandomVariable} outputs the symbolic RNG *and* a tensor from
+the sample space) to one that produces only a single output (i.e. a product)
+result in an error.  A work-around for this doesn't seem possible, and a fix for
+src_python{PatternSub.transform} is most likely necessary.
+
+#+RESULTS: hs_var_expansion_opt
+#+begin_SRC python :eval never
+/tmp/user/1000/babel-TfmXjk/python-5CWvpq in <module>()
+     16 hs_Y_graph_opt = hs_Y_graph.clone()
+     17
+---> 18 _ = norm_sink_opts.optimize(hs_Y_graph_opt)
+
+~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/opt.py in optimize(self, fgraph, *args, **kwargs)
+     95             orig = theano.tensor.basic.constant.enable
+     96             theano.tensor.basic.constant.enable = False
+---> 97             ret = self.apply(fgraph, *args, **kwargs)
+     98         finally:
+     99             theano.tensor.basic.constant.enable = orig
+
+~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/opt.py in apply(self, fgraph, start_from)
+   2511                         nb = change_tracker.nb_imported
+   2512                         t_opt = time.time()
+-> 2513                         lopt_change = self.process_node(fgraph, node, lopt)
+   2514                         time_opts[lopt] += time.time() - t_opt
+   2515                         if not lopt_change:
+
+~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/opt.py in process_node(self, fgraph, node, lopt)
+   2056         if len(old_vars) != len(replacements):
+   2057             raise ValueError('Optimizer %s gave wrong number of replacements'
+-> 2058                              % lopt)
+   2059         # None in the replacement mean that this variable isn't used
+   2060         # and we want to remove it
+
+ValueError: Optimizer normal_rv(rng_x, size_x, b_x, a_x) -> Elemwise{mul,no_inplace}(a_x, <function <lambda> at 0x7f509671d9d8>(rng_x, size_x, b_x, TensorConstant{1.0})) gave wrong number of replacements
+
+
+#+end_SRC
+:END:
+
+The [[citet:miniKanrenorg]] domain-specific language (DSL) provides an abstract
+platform upon which all the capabilities we seek are provided.  While most
+implementations are expressed seamlessly in a Lisp-like language, there are some
+for Python.  In particular, we will use src_python{kanren}
+[[citep:RocklinlogpyLogicProgramming2018]] .
+
+To get started, we'll create a new src_python{theano.gof.opt.LocalOptimizer} that uses
+src_python{kanren} in a limited capacity (e.g. only for implementing rewrite rules).
+
+* A miniKanren Theano Optimizer
+
+As in the example Hy compiler from
+[[citet:WillardReadableStringsRelational2018a]], we need to specify how
+unification occurs in the context of Theano objects.
+
+Throughout, we'll make extensive use of multiple-dispatch (implemented by the
+Python library src_python{multipledispatch}
+[[citep:RocklinMultipledispatchContribute2019]]).
+
+#+NAME: minikanren-opt-imports
+#+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
+from collections import Callable
+from warnings import warn
+
+import theano.tensor as tt
+
+from kanren import var, run, eq, conde, lall, fact, Relation, isvar
+from kanren.core import success, fail
+
+from kanren.term import (term, operator as term_operator, arguments as
+                         term_arguments, unifiable_with_term,
+                         unify_term, reify_term)
+
+from kanren.assoccomm import eq_assoccomm, eq_comm
+from kanren.assoccomm import commutative, associative
+
+from unification import variables
+from unification.core import unify, reify, _unify, _reify
+
+from theano.tensor import Elemwise
+from theano.scalar.basic import mul, add
+
+from multipledispatch import dispatch
+#+END_SRC
+
+** Theano Graph Unification and Reification
+
+In the following, we implement unification using src_python{unification}--itself
+using src_python{multipledispatch}.
+
+We start by defining "expression" forms of Theano graph objects.  These consist
+of tuples that represent function calls--src_python{(op, *args)}--that would
+effectively re-construct a given Theano graph object.  In essence, we're
+approximating a Lisp-like intermediate language.
+
+#+NAME: theano-object-expansion
+#+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
+class ExpressionTuple(tuple):
+    def __new__(cls, x, expr):
+        res = super().__new__(cls, x)
+        res.expr = expr
+        return res
+
+
+_reify.add((ExpressionTuple, dict), lambda x, s: x.expr)
+
+
+def expand_TensorType(x):
+    res = (tt.TensorType, x.dtype, x.broadcastable, x.name)
+    res = ExpressionTuple(res, x)
+    return res
+
+
+def expand_Apply(x):
+    res = (x.op,) + tuple(x.inputs)
+    res = ExpressionTuple(res, x)
+    return res
+
+
+def expand_TensorVariable(x):
+    if x.owner:
+        # A variable determined by an apply node.
+        return expand_Apply(x.owner)
+
+    # A stand-alone variable/`TensorType`.
+    if isinstance(x, tt.TensorConstant):
+        res = (tt.TensorConstant, x.type, x.data, x.name)
+    else:
+        res = (x.type, x.name)
+
+    res = ExpressionTuple(res, x)
+    return res
+#+END_SRC
+
+
+By creating dispatch functions for the src_python{kanren.terms} framework, we'll
+be able to use the src_python{kanren.term.operator}
+and src_python{kanren.term.arguments} functions on Theano objects.  Also, it
+enables the use of algebraically aware forms of
+unification--like src_python{kanren.assoccomm.eq_assoccomm} (i.e. associative
+and commutative equality/unification).
+
+#+NAME: theano-object-unify-and-terms
+#+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
+def _unifiable_with_term(cls):
+    _unify.add((cls, cls, dict), unify_term)
+    _unify.add((cls, (tuple, list), dict), unify_term)
+    _unify.add(((tuple, list), cls, dict), unify_term)
+
+
+for ttype in [tt.TensorVariable, tt.TensorConstant]:
+    term_operator.add((ttype,), lambda x: expand_TensorVariable(x)[0])
+    term_arguments.add((ttype,), lambda x: expand_TensorVariable(x)[1:])
+    _unifiable_with_term(ttype)
+
+
+term_operator.add((tt.Apply,), lambda x: expand_Apply(x)[0])
+term_arguments.add((tt.Apply,), lambda x: expand_Apply(x)[1:])
+_unifiable_with_term(tt.Apply)
+
+term_operator.add((tt.TensorType,), lambda x: expand_TensorType(x)[0])
+term_arguments.add((tt.TensorType,), lambda x: expand_TensorType(x)[1:])
+_unifiable_with_term(tt.TensorType)
+
+
+def tt_has_lvars(x):
+    """
+    TODO: It might be better if we tracked lvar status via a Theano object's `tag`
+    attribute, and/or used a `FunctionGraph`.
+    """
+    if isinstance(x, tt.Apply):
+        objs = tt.gof.graph.ancestors(x.outputs)
+    elif isinstance(x, tt.TensorVariable):
+        objs = tt.gof.graph.ancestors([x])
+    elif isinstance(x, tt.TensorType):
+        objs = [x.dtype, x.broadcastable, x.name]
+    else:
+        objs = [x]
+    return any(isvar(i) for i in objs)
+
+
+def tt_term(op, args):
+    if isinstance(op, Callable) and\
+       not tt_has_lvars(op) and\
+       not any(tt_has_lvars(a) for a in args):
+        try:
+            return op(*args)
+        except Exception:
+            pass
+    return (op, ) + tuple(args)
+
+
+term.add(((tt.TensorVariable, tt.Apply, tt.TensorType), (tuple, list)),
+         tt_term)
+
+#
+# These allow some Theano `Op`s to be unified associatively and commutatively.
+#
+fact(commutative, Elemwise(add))
+fact(commutative, Elemwise(mul))
+fact(associative, Elemwise(add))
+fact(associative, Elemwise(mul))
+#+END_SRC
+
+We will need to specify how reification is performed on expanded Theano objects
+(e.g. from src_python{(op, *args)} to src_python{op(*args)}).  In this case,
+reification just means "object [re]construction".
+
+#+NAME: theano-object-reify
+#+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
+def tt_reify_term(obj, s):
+    """
+    Objective: don't unnecessarily break apart/reconstruct Theano objects.
+    """
+    op, args = term_operator(obj), term_arguments(obj)
+    new_op = reify(op, s)
+    new_args = reify(args, s)
+
+    if new_op == op and new_args == args:
+        return obj
+    else:
+        return tt_term(new_op, new_args)
+
+
+_reify.add(((tt.TensorVariable, tt.TensorType, tt.Apply), dict),
+           tt_reify_term)
+#+END_SRC
+
+** Testing                                                        :noexport:
+
+Listing [[theano-object-equality]] provides a high-level form of graph object comparison
+(i.e. one that isn't point-equality-like).  This is especially useful during testing,
+and whenever we aren't concerned with objects being strictly identical.
+
+#+NAME: theano-object-equality
+#+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
+@dispatch(object, object)
+def graph_equal(x, y):
+    """Compare elements in a Theano graph using their object properties and not
+    just identity.
+    """
+    return x == y
+
+
+def equal_TensorConstant(x, y):
+    return x.data == y.data and equal_TensorVariable(x, y)
+
+
+def equal_TensorVariable(x, y):
+    return (type(x) == type(y) and
+            x.index == y.index and
+            x.name == y.name and
+            graph_equal(x.type, y.type) and
+            graph_equal(x.owner, y.owner))
+
+
+def equal_TensorType(x, y):
+    return (type(x) == type(y) and
+            x.dtype == y.dtype and
+            x.name == y.name and
+            x.broadcastable == y.broadcastable)
+
+
+def equal_Apply(x, y):
+    """
+    XXX: This doesn't check equality for outputs!
+
+    In general, this would be reach from a `TensorVariable.owner`
+    equality check, in which case only one output of this `Apply`
+    node would be checked.
+
+    This isn't necessarily a bad thing, since an apply nodes could
+    easily be considered equal--at a high-level--if only their `Op`s and
+    inputs are the same.
+    Plus, as far as the originating variable is concerned, those other outputs
+    are from unrelated, downstream [sub]graphs (in that they have no effect on
+    said variable and vice versa).
+    """
+    return (type(x) == type(y) and
+            x.op == y.op and
+            len(x.outputs) == len(y.outputs) and
+            len(x.inputs) == len(y.inputs) and
+            all(graph_equal(a, b) for a, b in zip(x.inputs, y.inputs)))
+
+
+def equal_SharedVariable(x, y):
+    return (type(x) == type(y) and
+            x.name == y.name and
+            x.index == y.index and
+            x.container.data == y.container.data and
+            graph_equal(x.type, y.type) and
+            graph_equal(x.owner, y.owner))
+
+
+graph_equal.add((theano.compile.sharedvalue.SharedVariable,
+                 theano.compile.sharedvalue.SharedVariable),
+                equal_SharedVariable)
+graph_equal.add((tt.Apply, tt.Apply), equal_Apply)
+graph_equal.add((tt.TensorType, tt.TensorType), equal_TensorType)
+graph_equal.add((tt.TensorVariable, tt.TensorVariable), equal_TensorVariable)
+graph_equal.add((tt.TensorConstant, tt.TensorConstant), equal_TensorConstant)
+#+END_SRC
+
+#+NAME: theano-unification-tests
+#+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
+def test_unification():
+    x = tt.vector('x')
+    a = tt.vector('a')
+    b = tt.vector('b')
+    c = tt.constant(1, 'c')
+
+    x_l = tt.vector('x_l')
+    with variables(x_l):
+        assert a == reify(x_l, {x_l: a})
+        test_expr = 1 + 2*x_l
+        assert graph_equal(reify(test_expr, {x_l: a}), 1 + 2*a)
+
+    assert a.type == term_operator(a)
+    assert type(a.type) == term_operator(term_operator(a))
+    assert (a.name,) == term_arguments(a)
+
+    a_reif = term_operator(a)(*term_arguments(a))
+    assert a_reif.type == a.type
+    assert a_reif.name == a.name
+
+    assert (a + b).owner.op == term_operator(a + b)
+    assert (a + b).owner.inputs == list(term_arguments(a + b))
+
+    with variables(x):
+        z = tt.add(b, a)
+        assert {x: z} == unify(x, z)
+        assert {x: b} == unify(tt.add(x, a), tt.add(b, a))
+
+    with variables('x'):
+        assert {'x': tt.add(b, a).owner.op} == unify(('x', b, a), tt.add(b, a))
+
+    l_x = var()
+    assert unify(l_x, b)[l_x] == b
+
+    with variables(x):
+        assert unify(x, b)[x] == b
+        assert unify([x], [b])[x] == b
+        assert unify((x,), (b,))[x] == b
+        assert unify(x + 1, b + 1)[x] == b
+        assert unify(x + a, b + a)[x] == b
+
+    with variables(x):
+        assert unify(a + b, a + x)[x] == b
+
+    with variables(x):
+        assert b == next(eq(a + b, a + x)({}))[x]
+
+
+test_unification()
+#+END_SRC
+
+#+NAME: theano-kanren-tests
+#+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
+def test_kanren():
+    x = tt.vector('x')
+    a = tt.vector('a')
+    b = tt.vector('b')
+    c = tt.constant(1, 'c')
+
+    with variables(x):
+        assert b == run(1, x, eq(a + b, a + x))[0]
+        assert b == run(1, x, eq(a * b, a * x))[0]
+
+
+    with variables(x):
+        assert (b,) == run(1, x, eq_comm((Elemwise(add), a, b), (Elemwise(add), x, a)))
+        assert (b,) == run(1, x, eq_comm(a + b, x + a))
+        assert (b,) == run(1, x, eq_comm(a * b, x * a))
+
+
+test_kanren()
+#+END_SRC
+
+
+** miniKanren Relations
+
+Now that we're able to unify objects, src_python{kanren} relations should work
+on Theano graphs.  We'll start with an example of some simple algebraic
+simplifications and a miniKanren goal that applies them to a Thean graph object.
+
+:EXAMPLE:
+#+NAME: reduces-relation
+#+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
+x_lvar = tt.vector('x_lvar')
+reduces_lvars = {x_lvar}
+reduces = Relation('reduces')
+
+fact(reduces, x_lvar + x_lvar, 2*x_lvar)
+# See `theano.tensor.opt.local_opt_alloc`.
+fact(reduces, x_lvar * x_lvar, x_lvar**2)
+# See `theano.tensor.opt.local_neg_neg`.
+fact(reduces, -(-x_lvar), x_lvar)
+fact(reduces, tt.exp(tt.log(x_lvar)), x_lvar)
+fact(reduces, tt.log(tt.exp(x_lvar)), x_lvar)
+#+END_SRC
+
+#+BEGIN_SRC python :exports none :results none :noweb-ref theano-minikaren-opt
+def project(vars, body_func):
+    "A goal constructor for projecting logic variables."
+    def goal(s):
+        proj_vars = reify(vars, s)
+        body_func(proj_vars)
+        yield s
+    return goal
+#+END_SRC
+
+#+NAME: kanren-reduce-example
+#+BEGIN_SRC python :exports code :results silent
+def kanren_reduce(input_expr, n=0):
+    with variables(*reduces_lvars):
+        def _reduce(in_expr, out_expr):
+            rdc_expr = var()
+            expr_rdcd = var()
+
+            match_goals = [(eq_assoccomm, in_expr, rdc_expr),
+                           (reduces, rdc_expr, expr_rdcd),
+                           # Reduces further?
+                           (_reduce, expr_rdcd, out_expr),
+            ]
+            return (conde,
+                    # It reduced...
+                    match_goals,
+                    # ...or it didn't, so return the expression as it was.
+                    [success, eq(out_expr, in_expr)])
+
+        reduced_expression = var()
+        res = run(n, reduced_expression,
+                  (_reduce, input_expr, reduced_expression))
+
+        return res
+#+END_SRC
+
+#+NAME: kanren-reduce-example-asserts
+#+BEGIN_SRC python :exports code :results silent
+assert a == kanren_reduce(tt.log(tt.exp(a)))[0]
+assert a == kanren_reduce(tt.exp(tt.log(a)))[0]
+assert graph_equal(2*a, kanren_reduce(a + a)[0])
+assert graph_equal(a**2, kanren_reduce(a * a)[0])
+#+END_SRC
+:END:
+** A miniKanren src_python{LocalOptimizer}
+
+#+NAME: kanren-theano-opt-imports
+#+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
+import theano
+from theano.gof import FunctionGraph, Feature, NodeFinder
+from theano.gof.graph import inputs as tt_inputs, clone_get_equiv
+from theano.gof.opt import LocalOptimizer, EquilibriumOptimizer
+#+END_SRC
+
+Listing [[kanren-theano-opt-class]] provides a src_python{LocalOptimizer} wrapper around
+the src_python{kanren} functionality.
+
+#+NAME: kanren-theano-opt-class
+#+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
+class KanrenRelationSub(LocalOptimizer):
+    reentrant = True
+
+    def __init__(self, kanren_relation, relation_lvars):
+        """
+        Parameters
+        ==========
+        kanren_relation: kanren.Relation
+            The miniKanren relation store to use.
+        relation_lvars: set
+            A set of term to be considered logic variables by miniKanren
+            (e.g. Theano terms used in `kanren_relation`).
+        """
+        self.kanren_relation = kanren_relation
+        self.relation_lvars = relation_lvars
+        super().__init__()
+
+    def transform(self, node):
+        """
+        TODO: Only uses *one* `run` result.
+        """
+        # TODO: Could do this with `self.tracks`?
+        if not isinstance(node, tt.Apply):
+            return False
+
+        input_expr = node.default_output()
+
+        with variables(*self.relation_lvars):
+            def _reduce(in_expr, out_expr):
+                rdc_expr = var()
+                match_goals = [(eq_assoccomm, in_expr, rdc_expr),
+                               (self.kanren_relation, rdc_expr, out_expr)]
+                return match_goals
+
+            reduced_expression = var()
+            res = run(1, reduced_expression,
+                      *_reduce(input_expr, reduced_expression))
+
+        if len(res) > 0:
+            new_node = res[0]
+            # Handle (some) nodes with multiple outputs
+            res = list(node.outputs)
+            res[getattr(node.op, 'default_output', 0) or 0] = new_node
+            return res
+        else:
+            return False
+
+
+#+END_SRC
+
+:EXAMPLE:
+In Listing [[theano-optimize-helper]] we create a helper function that returns an
+optimized version of its Theano tensor argument.
+
+#+NAME: theano-optimize-helper
+#+BEGIN_SRC python :exports code :results silent
+def optimize_graph(x, optimization):
+    if not isinstance(x, FunctionGraph):
+        inputs = tt_inputs([x])
+        outputs = [x]
+        model_memo = clone_get_equiv(inputs, outputs,
+                                     copy_orphans=False)
+        cloned_inputs = [model_memo[i] for i in inputs]
+        cloned_outputs = [model_memo[i] for i in outputs]
+
+        x_graph = FunctionGraph(cloned_inputs, cloned_outputs, clone=False)
+        x_graph.memo = model_memo
+    else:
+        x_graph = x
+
+    x_graph_opt = x_graph.clone()
+    optimization.optimize(x_graph_opt)
+    return x_graph_opt.outputs[0]
+#+END_SRC
+
+Applying the reductions from [[reduces-relation]], we see the rules applied in
+succession--as expected.
+#+NAME: theano-optimize-example
+#+BEGIN_SRC python :exports code :results silent
+reduces_opt = EquilibriumOptimizer([KanrenRelationSub(reduces,
+                                                      reduces_lvars)],
+                                   max_use_ratio=10)
+
+test_opt = optimize_graph(tt.log(tt.exp(a)), reduces_opt)
+assert graph_equal(a, test_opt)
+
+test_opt = optimize_graph(-tt.log(tt.exp(-a)), reduces_opt)
+assert graph_equal(a, test_opt)
+#+END_SRC
+:END:
+* MCMC Optimizations
+With the full capabilities of miniKanren, we're better prepared to implement
+general rewrite rules for MCMC models.
+
+:EXAMPLE:
+Let's re-attempt the replacement in \eqref{eq:norm_var_sink}.
+
+#+NAME: hs_model_exa
+#+BEGIN_SRC python :exports none :results silent :noweb strip-export
+<<hs_model_exa>>
+#+END_SRC
+
+#+NAME: kanren-normal-reduce-rule
+#+BEGIN_SRC python :exports code :results silent
+rng_lvar = random_state_type()
+# C_lvar = tt.scalar('C_lvar')
+C_lvar = tt.vector('C_lvar')
+
+reduces_lvars |= {rng_lvar, C_lvar}
+fact(reduces,
+     # Use un-evaluated forms
+     (NormalRV, 0.0, C_lvar * x_lvar),
+     (Elemwise(mul), C_lvar, (NormalRV, 0.0, x_lvar))
+)
+#+END_SRC
+
+#+NAME: kanren-normal-reduce-example
+#+BEGIN_SRC python :exports code :results output
+Y_rv_opt = optimize_graph(Y_rv, reduces_opt)
+tt_pprint(Y_rv_opt)
+#+END_SRC
+:END:
+* Discussion
+
+#+BIBLIOGRAPHY: ../tex/symbolic-pymc3.bib
+#+BIBLIOGRAPHYSTYLE: plainnat
