@@ -301,10 +301,10 @@ class RandomVariable(tt.gof.Op):
     __props__ = ('name', 'dtype', 'ndim_supp', 'inplace', 'ndims_params')
 
     def __init__(self, name, dtype, ndim_supp, ndims_params, rng_fn,
-                 *args,
+                 ,*args,
                  supp_shape_fn=param_supp_shape_fn,
                  inplace=False,
-                 **kwargs):
+                 ,**kwargs):
         """Create a random variable `Op`.
 
         Parameters
@@ -448,15 +448,19 @@ class RandomVariable(tt.gof.Op):
         return bcast
 
     def infer_shape(self, node, input_shapes):
-        size = node.inputs[1]
-        dist_params = tuple(node.inputs[2:])
+        size = node.inputs[-2]
+        dist_params = tuple(node.inputs[:-2])
         shape = self._infer_shape(size, dist_params,
-                                  param_shapes=input_shapes[2:])
+                                  param_shapes=input_shapes[:-2])
 
         return [None, [s for s in shape]]
 
     def make_node(self, *dist_params, size=None, rng=None, name=None):
-        """This will be the "constructor" called by users.
+        """Create a random variable node.
+
+        XXX: Unnamed/non-keyword arguments are considered distribution
+        parameters!  If you want to set `size`, `rng`, and/or `name`, use their
+        keywords.
 
         Parameters
         ==========
@@ -472,7 +476,9 @@ class RandomVariable(tt.gof.Op):
 
         Results
         =======
-        An `Apply` node with rng state and sample tensor outputs.
+        out: `Apply`
+            A node with inputs `dist_args + (size, in_rng, name)` and outputs
+            `(out_rng, sample_tensorvar)`.
         """
         if size is None:
             size = tt.constant([], dtype='int64')
@@ -499,18 +505,20 @@ class RandomVariable(tt.gof.Op):
 
         outtype = tt.TensorType(dtype=self.dtype, broadcastable=bcast)
         out_var = outtype(name=name)
-        inputs = (rng, size) + dist_params
+        inputs = dist_params + (size, rng)
         outputs = (rng.type(), out_var)
 
         return theano.gof.Apply(self, inputs, outputs)
 
     def perform(self, node, inputs, outputs):
-        """Uses `self.rng_fn` to draw random numbers."""
+        """Draw samples using Numpy/SciPy."""
         rng_out, smpl_out = outputs
 
-        # Draw from `rng` if `self.inplace` is `True`, and from a
-        # copy of `rng` otherwise.
-        rng, size, args = inputs[0], inputs[1], inputs[2:]
+        # Draw from `rng` if `self.inplace` is `True`, and from a copy of `rng`
+        # otherwise.
+        args = list(inputs)
+        rng = args.pop()
+        size = args.pop()
 
         assert isinstance(rng, np.random.RandomState), (type(rng), rng)
 
@@ -567,28 +575,111 @@ from functools import partial
 
 
 # Continuous Numpy-generated variates
-UniformRV = RandomVariable('uniform', theano.config.floatX, 0, [0, 0], 'uniform', inplace=True)
-NormalRV = RandomVariable('normal', theano.config.floatX, 0, [0, 0], 'normal', inplace=True)
-GammaRV = RandomVariable('gamma', theano.config.floatX, 0, [0, 0], 'gamma', inplace=True)
-ExponentialRV = RandomVariable('exponential', theano.config.floatX, 0, [0], 'exponential', inplace=True)
+class UniformRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('uniform', theano.config.floatX, 0, [0, 0], 'uniform', inplace=True)
+
+    def make_node(self, lower, upper, size=None, rng=None, name=None):
+        return super().make_node(lower, upper, size=size, rng=rng, name=name)
+
+UniformRV = UniformRVType()
+
+
+class NormalRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('normal', theano.config.floatX, 0, [0, 0], 'normal', inplace=True)
+
+    def make_node(self, mu, sigma, size=None, rng=None, name=None):
+        return super().make_node(mu, sigma, size=size, rng=rng, name=name)
+
+
+NormalRV = NormalRVType()
+
+
+class GammaRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('gamma', theano.config.floatX, 0, [0, 0], 'gamma', inplace=True)
+
+    def make_node(self, shape, scale, size=None, rng=None, name=None):
+        return super().make_node(shape, scale, size=size, rng=rng, name=name)
+
+
+GammaRV = GammaRVType()
+
+
+class ExponentialRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('exponential', theano.config.floatX, 0, [0], 'exponential', inplace=True)
+
+    def make_node(self, scale, size=None, rng=None, name=None):
+        return super().make_node(scale, size=size, rng=rng, name=name)
+
+
+ExponentialRV = ExponentialRVType()
+
 
 # One with multivariate support
-MvNormalRV = RandomVariable('multivariate_normal', theano.config.floatX, 1, [1, 2], 'multivariate_normal', inplace=True)
-DirichletRV = RandomVariable('dirichlet', theano.config.floatX, 1, [1], 'dirichlet', inplace=True)
+class MvNormalRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('multivariate_normal', theano.config.floatX, 1, [1, 2], 'multivariate_normal', inplace=True)
+
+    def make_node(self, mean, cov, size=None, rng=None, name=None):
+        return super().make_node(mean, cov, size=size, rng=rng, name=name)
+
+
+MvNormalRV = MvNormalRVType()
+
+
+class DirichletRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('dirichlet', theano.config.floatX, 1, [1], 'dirichlet', inplace=True)
+
+    def make_node(self, alpha, size=None, rng=None, name=None):
+        return super().make_node(alpha, size=size, rng=rng, name=name)
+
+
+DirichletRV = DirichletRVType()
+
 
 # A discrete Numpy-generated variate
-PoissonRV = RandomVariable('poisson', 'int64', 0, [0], 'poisson', inplace=True)
+class PoissonRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('poisson', 'int64', 0, [0], 'poisson', inplace=True)
+
+    def make_node(self, rate, size=None, rng=None, name=None):
+        return super().make_node(rate, size=size, rng=rng, name=name)
+
+
+PoissonRV = PoissonRVType()
+
 
 # A SciPy-generated variate
-CauchyRV = RandomVariable('cauchy', theano.config.floatX, 0, [0, 0],
-                          lambda rng, *args: scipy.stats.cauchy.rvs(*args, random_state=rng),
-                          inplace=True)
+class CauchyRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('cauchy', theano.config.floatX, 0, [0, 0],
+                         lambda rng, *args: scipy.stats.cauchy.rvs(*args, random_state=rng),
+                         inplace=True)
+
+    def make_node(self, loc, scale, size=None, rng=None, name=None):
+        return super().make_node(loc, scale, size=size, rng=rng, name=name)
+
+
+CauchyRV = CauchyRVType()
+
 
 # Support shape is determined by the first dimension in the *second* parameter (i.e.
 # the probabilities vector)
-MultinomialRV = RandomVariable('multinomial', 'int64', 1, [0, 1], 'multinomial',
-                               supp_shape_fn=partial(param_supp_shape_fn, rep_param_idx=1),
-                               inplace=True)
+class MultinomialRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('multinomial', 'int64', 1, [0, 1], 'multinomial',
+                         supp_shape_fn=partial(param_supp_shape_fn, rep_param_idx=1),
+                         inplace=True)
+
+    def make_node(self, n, pvals, size=None, rng=None, name=None):
+        return super().make_node(n, pvals, size=size, rng=rng, name=name)
+
+
+MultinomialRV = MultinomialRVType()
 #+END_SRC
 
 :EXAMPLE:
@@ -628,66 +719,66 @@ print("MultinomialRV(20, [1/6.]*6, size=[6, 2]):\n{}".format(
 #+RESULTS: random_variable_example
 #+begin_SRC python :eval never
 UniformRV(0., 30., size=[10]):
-[16.89369343 13.21988788 10.26918728  1.93879999 17.27410447  5.3058197
- 22.15578126 15.66637894 14.23980245 25.18733049]
+[ 5.83131933 28.56231204 20.73018065 17.21042461 25.53140341 23.76268637
+ 28.27629994  7.10457399 19.88378878 26.62382369]
 
 NormalRV([0., 100.], 30, size=[4, 2]):
-[[ -9.21735205 155.64498511]
- [ 28.4339851  105.18399789]
- [-44.42055013  97.90586798]
- [-26.55693327 115.39711945]]
+[[  0.73277898  98.26041204]
+ [-25.9810085   79.13385495]
+ [-23.17013683 130.86966242]
+ [-52.83756722  95.21829178]]
 
 GammaRV([2., 1.], 2., size=[4, 2]):
-[[3.49908312 1.91088775]
- [1.13233478 0.48482779]
- [2.25680547 0.92411033]
- [1.78299465 1.19593451]]
+[[5.09679154 0.6149213 ]
+ [2.64231927 0.7277265 ]
+ [5.98877316 0.41751667]
+ [3.77525439 1.11561567]]
 
 ExponentialRV([2., 50.], size=[4, 2]):
-[[  3.22763867   3.78135685]
- [  3.56648308   3.60405088]
- [  0.65872498  88.7571588 ]
- [  4.67451316 120.24080966]]
+[[ 2.29684191  7.12084933]
+ [ 0.39386731 38.79158981]
+ [ 1.11400165  4.31175303]
+ [ 1.50499115  9.65667649]]
 
 MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):
-[[[-4.75463905e-01  1.00402403e+02  2.00079552e+03]
-  [-2.59426266e-01  1.00970588e+02  1.99989382e+03]
-  [ 3.39161352e-01  1.00233588e+02  1.99935490e+03]]
+[[[-6.67447019e-01  9.88636435e+01  1.99973471e+03]
+  [ 6.06351715e-01  9.96429347e+01  1.99915978e+03]
+  [ 1.12246741e+00  9.96807860e+01  2.00201859e+03]]
 
- [[-9.90453947e-01  9.99983419e+01  1.99971327e+03]
-  [-6.82615151e-01  1.00704686e+02  1.99968969e+03]
-  [-2.21678226e+00  1.01142950e+02  2.00043834e+03]]]
+ [[ 3.61931404e-02  9.89907880e+01  2.00036910e+03]
+  [-1.61077330e+00  1.01905479e+02  2.00134565e+03]
+  [ 9.45854243e-01  1.00877071e+02  1.99914438e+03]]]
 
 DirichletRV([0.1, 10, 0.5], size=[3, 2, 3]):
-[[[4.30717537e-03 9.94067987e-01 1.62483727e-03]
-  [1.01466452e-06 9.78964356e-01 2.10346294e-02]
-  [3.30762555e-05 9.72405682e-01 2.75612413e-02]]
+[[[1.41863953e-06 9.35392908e-01 6.46056738e-02]
+  [4.50961569e-15 9.71338820e-01 2.86611803e-02]
+  [2.41299980e-05 9.94566812e-01 5.40905817e-03]]
 
- [[8.30072104e-06 9.99191757e-01 7.99941999e-04]
-  [2.03443491e-19 8.74258555e-01 1.25741445e-01]
-  [1.34671133e-07 9.99550242e-01 4.49623671e-04]]]
+ [[5.79850503e-08 9.73090671e-01 2.69092713e-02]
+  [4.17758767e-09 9.61671733e-01 3.83282630e-02]
+  [8.78921782e-03 9.54146972e-01 3.70638103e-02]]]
 
 PoissonRV([2., 1.], size=[4, 2]):
-[[ 2 22]
- [ 2 17]
- [ 0 17]
- [ 0 10]]
+[[ 1 15]
+ [ 1 12]
+ [ 2 21]
+ [ 1 14]]
 
 CauchyRV([1., 100.], 30, size=[4, 2]):
-[[-123.6213883   199.96370344]
- [ -24.53254923   90.83035835]
- [  22.09067095   75.31186146]
- [-323.54712455 -595.69091703]]
+[[ -86.93222925   79.9758127 ]
+ [  13.41882831 -374.41779179]
+ [  75.74505567   93.2944822 ]
+ [  30.0824262   130.40873511]]
 
 MultinomialRV(20, [1/6.]*6, size=[6, 2]):
-[[[3 5 1 5 2 4]
-  [1 6 4 5 0 4]]
+[[[2 4 4 2 4 4]
+  [2 5 2 4 3 4]]
 
- [[4 2 4 3 5 2]
-  [6 4 2 2 4 2]]
+ [[2 5 6 2 4 1]
+  [0 4 4 3 5 4]]
 
- [[3 6 2 2 2 5]
-  [2 4 2 7 3 2]]]
+ [[6 1 1 4 4 4]
+  [3 4 3 2 3 5]]]
 
 
 #+end_SRC
@@ -908,22 +999,43 @@ class RandomVariablePrinter:
             pstate.precedence = new_precedence
 
             op_name = self.name or node.op.name
+            # size = node.inputs[-2]
+
+            if output.dtype in tt.int_dtypes:
+                sspace_char = 'Z'
+            elif output.dtype in tt.uint_dtypes:
+                sspace_char = 'N'
+            elif output.dtype in tt.float_dtypes:
+                sspace_char = 'R'
+            else:
+                sspace_char = '?'
 
             if self.latex or getattr(pstate, 'latex', False):
                 sep = '&' if getattr(pstate, 'latex_aligned', False) else ''
                 dist_format = "{} %s\\sim \\text{{{}}}\\left({}\\right)" % sep
+                dist_format += ', \quad \\mathbb{{%s}}' % sspace_char
+                shapes_r = ' \\times '.join(pprinter.process(s, pstate)
+                                            for s in output.shape)
+                if shapes_r:
+                    dist_format += '^{{%s}}' % shapes_r
             else:
                 dist_format = "{} ~ {}({})"
+                dist_format += ', %s' % sspace_char
+                shapes_r = ' x '.join(pprinter.process(s, pstate)
+                                      for s in output.shape)
+                if shapes_r:
+                    dist_format += '**(%s)' % shapes_r
 
-            r = dist_format.format(
+            dist_params = node.inputs[:-2]
+
+            dist_params_r = dist_format.format(
                 out_name, op_name,
-                ", ".join([pprinter.process(input, pstate)
-                           # Skip the rng type and size parameters.
-                           for input in node.inputs[2:]]))
+                ", ".join([pprinter.process(i, pstate)
+                           for i in dist_params]))
         finally:
             pstate.precedence = old_precedence
 
-        pstate.preamble_lines += [r]
+        pstate.preamble_lines += [dist_params_r]
         pstate.memo[output] = out_name
 
         return out_name
@@ -1054,13 +1166,13 @@ tt_tex_pprint.assign(tt.pow, theano.printing.PatternPrinter(('{%(0)s}^{%(1)s}', 
 
 #+NAME: rv-pprinter-tests
 #+BEGIN_SRC python :eval never-export :exports none :results silent
-tt_normalrv_name_expr = tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma'), name='X')
+tt_normalrv_name_expr = tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma'), size=[2, 1], name='X')
 tt_normalrv_noname_expr = tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma'))
 tt_2_normalrv_noname_expr = NormalRV(tt.scalar('\mu_2'), tt.scalar('\sigma_2')) * (tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma')) + tt.scalar('c'))
 
-assert tt_pprint(tt_normalrv_name_expr) == "X ~ N(\mu, \sigma)\n(b * X)"
-assert tt_pprint(tt_normalrv_noname_expr) == "A ~ N(\mu, \sigma)\n(b * A)"
-assert tt_pprint(tt_2_normalrv_noname_expr) == "A ~ N(\mu_2, \sigma_2)\nB ~ N(\mu, \sigma)\n(A * ((b * B) + c))"
+assert tt_pprint(tt_normalrv_name_expr) == "X ~ N(\mu, \sigma), R**(A_u[0] x A_u[1])\n(b * X)"
+assert tt_pprint(tt_normalrv_noname_expr) == "A ~ N(\mu, \sigma), R\n(b * A)"
+assert tt_pprint(tt_2_normalrv_noname_expr) == "A ~ N(\mu_2, \sigma_2), R\nB ~ N(\mu, \sigma), R\n(A * ((b * B) + c))"
 #+END_SRC
 
 :EXAMPLE:
@@ -1079,8 +1191,8 @@ print(tt.pprint(W_tt))
 
 #+RESULTS: rv-theano-pprinter-exa
 #+begin_SRC text :eval never
-(normal_rv(<RandomStateType>, TensorConstant{[]}, uniform_rv(<RandomStateType>, TensorConstant{[]}, l_0, l_1), \sigma_1) * ((b * multivariate_normal_rv(<RandomStateType>, TensorConstant{[]}, \mu, (|normal_rv(<RandomStateType>, TensorConstant{[]}, uniform_rv(<RandomStateType>, TensorConstant{[]}, l_0, l_1), \sigma_1)| * TensorConstant{[[1 0]
- [0 2]]}))) + c))
+(normal_rv(uniform_rv(l_0, l_1, TensorConstant{[]}, <RandomStateType>), \sigma_1, TensorConstant{[]}, <RandomStateType>) * ((b * multivariate_normal_rv(\mu, (|normal_rv(uniform_rv(l_0, l_1, TensorConstant{[]}, <RandomStateType>), \sigma_1, TensorConstant{[]}, <RandomStateType>)| * TensorConstant{[[1 0]
+ [0 2]]}), TensorConstant{[]}, <RandomStateType>)) + c))
 
 
 #+end_SRC
@@ -1095,15 +1207,17 @@ print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
 #+RESULTS: rv-pprinter-exa
 \begin{equation*}
 \begin{aligned}
-Z &\sim \text{U}\left(l_0, l_1\right)
+Z &\sim \text{U}\left(l_0, l_1\right), \quad \mathbb{R}
 \\
-X &\sim \text{N}\left(Z, \sigma_1\right)
+X &\sim \text{N}\left(Z, \sigma_1\right), \quad \mathbb{R}
 \\
-Y &\sim \text{N}\left(\mu, (|X| \circ \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])\right)
+Y &\sim \text{N}\left(\mu, (|X| \circ \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])\right), \quad \mathbb{R}^{A_u[0]}
 \end{aligned}
 \\
 (X \circ ((b \circ Y) + c))
 \end{equation*}
+
+
 
 
 :END:
@@ -1181,7 +1295,7 @@ rv_numpy_test(MvNormalRV, [0, 1, 2], np.diag([1, 1, 1]))
 
 * Algebraic Manipulations
 With our new src_python[]{RandomVariable}, we can alter the replacement patterns
-used by src_python[]{tt.gof.opt.PatternSub} in
+used by src_python{tt.gof.opt.PatternSub} in
 [[citet:WillardSymbolicMathPyMC32018]] and implement a slightly better parameter
 lifting for affine transforms of scalar normal random variables in
 [[scalar_norm_affine_rv_opt]].
@@ -1193,33 +1307,28 @@ lifting for affine transforms of scalar normal random variables in
 
 #+NAME: scalar_norm_affine_rv_opt
 #+BEGIN_SRC python :exports code :results silent
-# We use the following to handle keyword arguments.
-construct_norm_rv = lambda rng, size, mu, sd: NormalRV(mu, sd, size=size, rng=rng)
-
 norm_lift_pats = [
     # Lift element-wise multiplication
     tt.gof.opt.PatternSub(
         (tt.mul,
          'a_x',
-         (NormalRV, 'rs_x', 'size_x', 'mu_x', 'sd_x')),
-        (construct_norm_rv,
-         'rs_x',
-         # XXX: Is this really consistent?  How will it handle broadcasting?
-         'size_x',
+         (NormalRV, 'mu_x', 'sd_x', 'size_x', 'rs_x')),
+        (NormalRV,
          (tt.mul, 'a_x', 'mu_x'),
          (tt.mul, 'a_x', 'sd_x'),
+         'size_x',
+         'rs_x',
         )),
     # Lift element-wise addition
     tt.gof.opt.PatternSub(
         (tt.add,
-         (NormalRV, 'rs_x', 'size_x', 'mu_x', 'sd_x'),
+         (NormalRV, 'mu_x', 'sd_x', 'size_x', 'rs_x'),
          'b_x'),
-        (construct_norm_rv,
-         'rs_x',
-         # XXX: Is this really consistent?  How will it handle broadcasting?
-         'size_x',
+        (NormalRV,
          (tt.add, 'mu_x', 'b_x'),
          'sd_x',
+         'size_x',
+         'rs_x',
         )),
 ]
 
@@ -1269,12 +1378,11 @@ Before applying the optimization:
 #+RESULTS: before_mat_mul_scaling_rv_exa
 \begin{equation*}
 \begin{aligned}
-X &\sim \text{N}\left(\mu, \sigma\right)
+X &\sim \text{N}\left(\mu, \sigma\right), \quad \mathbb{R}^{A_u[0]}
 \end{aligned}
 \\
 ((a \circ X) + b)
 \end{equation*}
-
 
 #+NAME: after_mat_mul_scaling_rv_exa
 #+BEGIN_SRC python :eval never-export :results output scalar raw replace
@@ -1286,12 +1394,11 @@ After applying the optimization:
 #+RESULTS: after_mat_mul_scaling_rv_exa
 \begin{equation*}
 \begin{aligned}
-A &\sim \text{N}\left(((a \circ \mu) + b), (a \circ \sigma)\right)
+A &\sim \text{N}\left(((a \circ \mu) + b), (a \circ \sigma)\right), \quad \mathbb{R}^{B_u[0]}
 \end{aligned}
 \\
 A
 \end{equation*}
-
 
 :END:
 
@@ -1314,17 +1421,15 @@ seem reasonable.
 #+BEGIN_SRC python :eval never :output code :results none
 # Vector multiplication
 tt.gof.opt.PatternSub(
-    (tt.dot,
-     'A_x',
-     (MvNormalRV, 'rs_x', 'size_x', 'mu_x', 'cov_x')),
-    (construct_rv,
-     MvNormalRV,
-     'rs_x',
-     'size_x',
+    (tt.dot, 'A_x',
+     (MvNormalRV, 'mu_x', 'cov_x', 'size_x', 'rs_x')),
+    (MvNormalRV,
      (tt.dot, 'A_x', 'mu_x'),
      (tt.dot,
       (tt.dot, 'A_x', 'cov_x')
       (tt.transpose, 'A_x')),
+     'size_x',
+     'rs_x',
     ))
 #+END_SRC
 
@@ -1345,19 +1450,18 @@ cov_X = np.diag([1, 1e-2])
 size_X_rv = [2, 3]
 X_rv = MvNormalRV(mu_X, cov_X, size=size_X_rv)
 
-print('X_rv sample:\n{}\n'.format(X_rv.tag.test_value))
+print('{} ~ X_rv\n'.format(X_rv.tag.test_value))
 #+END_SRC
 
 #+RESULTS: simple_mvnorm_exa
 #+begin_SRC python :eval never
-X_rv sample:
-[[[ 1.73535673 10.14604812]
-  [ 0.81111665 10.07573636]
-  [-0.79263131  9.95495907]]
+[[[-0.68284424  9.95587926]
+  [ 1.66236785  9.87590909]
+  [ 0.23449772 10.12455681]]
 
- [[-1.45442983 10.17411569]
-  [-0.13669398 10.02984376]
-  [ 0.58279226 10.02003365]]]
+ [[ 0.3342739  10.05580428]
+  [-0.18913408 10.0359336 ]
+  [-1.2463576   9.90671218]]] ~ X_rv
 
 
 #+end_SRC
@@ -1431,54 +1535,6 @@ A * E[X_rv] =
 
 We can manually replicate the inputs so that they match the output shape, but
 a solution to the general problem requires a more organized response.
-:END:
-
-:TESTING:
-#+BEGIN_SRC python :eval never :exports none :results none
-def replicate_expr(param, rep_size, dist_op, param_idx):
-    return tt.tile(param, tuple(rep_size) + (1,), dist_op.ndims_params[param_idx] + len(rep_size))
-
-mvnorm_lift_pats = tt.gof.opt.PatternSub(
-    (tt.dot,
-     'A_x',
-     (MvNormalRV, 'rs_x', 'size_x', 'mu_x', 'cov_x')),
-    (construct_rv,
-     MvNormalRV,
-     'rs_x',
-     'size_x',
-     (tt.dot, 'A_x',
-      (replicate_expr, 'mu_x', 'size_x', MvNormalRV, 0)),
-     (tt.dot,
-      (tt.dot, 'A_x',
-       (replicate_expr, 'cov_x', 'size_x', MvNormalRV, 1)),
-      (tt.transpose, 'A_x'))),
-)
-
-mvnorm_lift_opts = tt.gof.opt.EquilibriumOptimizer(
-    [ mvnorm_lift_pats ], max_use_ratio=10)
-
-mu_X = [0, 10]
-cov_X = np.diag([1, 1e-2])
-X_rv = MvNormalRV(mu_X, cov_X, size=[2, 3])
-
-A_tt = tt.as_tensor_variable([[2, 5, 8], [3, 4, 9]])
-
-Z_rv = tt.dot(A_tt, X_rv)
-
-Z_graph = FunctionGraph(tt_inputs([Z_rv]), [Z_rv])
-
-tt.printing.debugprint(Z_graph)
-
-Z_graph_opt = Z_graph.clone()
-
-# This won't work because `tt.dot` uses `tensor_dot`, which does some
-# reshaping and dim-shuffling.
-# We need to account for those, as well.
-# TODO: We need to implement something like `local_dimshuffle_lift` for some RVs.
-_ = mvnorm_lift_opts.optimize(Z_graph_opt)
-
-tt.printing.debugprint(Z_graph_opt)
-#+END_SRC
 :END:
 
 * A Problem with Conversion from PyMC3
