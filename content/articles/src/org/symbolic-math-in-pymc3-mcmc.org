@@ -25,6 +25,21 @@
 (org-pelican-create-yaml)
 #+END_SRC
 
+#+RESULTS: set-pelican-preamble
+#+BEGIN_EXPORT html
+---
+bibliography:
+- 'tex/symbolic-pymc3.bib'
+modified: '2019-1-28'
+tags: 'pymc3,theano,statistics,symbolic computation,python,probability theory'
+title: Graph Manipulation and MCMC
+date: '2019-01-15'
+author: 'Brandon T. Willard'
+figure_dir: '{attach}/articles/figures/'
+figure_ext: png
+---
+#+END_EXPORT
+
 #+BEGIN_abstract
 Continuing from [[citet:WillardRandomVariablesTheano2018]], ...
 #+END_abstract
@@ -170,7 +185,7 @@ mostly driven by algebraic considerations.
 The mechanical aspects of this work is largely generalizable in terms of
 orchestrated unification.  In the lead-up articles
 [[citet:WillardRandomVariablesTheano2018]] and
-[[citet:WillardSymbolicMathPyMC32018]], we used src_python{PatternSub}, which
+[[citet:WillardSymbolicMathPyMC32018]], we used src_python{PatternSub} {{{results(NameError: name 'PatternSub' is not defined)}}}, which
 uses unification (and reification) to implement pattern matching and
 substitution (i.e. rewrite rules).
 
@@ -180,13 +195,13 @@ unnecessarily confusing aspects.  Python doesn't lend itself to symbolic manipul
 making things like expression manipulation and traversal particularly onerous.
 :END:
 
-Beyond some small technical issues, src_python{PatternSub} only provides a
+Beyond some small technical issues, src_python{PatternSub} {{{results(NameError: name 'PatternSub' is not defined)}}} only provides a
 limited form of unification, and doesn't provide a programmable context for
 controlling exactly how and when the unification is performed.
 
 :EXAMPLE:
 Let's attempt to implement the replacement in \eqref{eq:norm_var_sink}
-using src_python{PatternSub}.
+using src_python{PatternSub} {{{results(NameError: name 'PatternSub' is not defined)}}}.
 
 #+ATTR_LATEX: :float nil
 #+CAPTION: A naively specified Horseshoe model.
@@ -228,17 +243,17 @@ _ = norm_sink_opts.optimize(hs_Y_graph_opt)
 #+END_SRC
 
 We see in [[hs_var_expansion_opt]] that moving from a node that produces two outputs
-(i.e. a src_python{RandomVariable} outputs the symbolic RNG *and* a tensor from
+(i.e. a src_python{RandomVariable} {{{results()}}} outputs the symbolic RNG *and* a tensor from
 the sample space) to one that produces only a single output (i.e. a product)
 result in an error.  A work-around for this doesn't seem possible, and a fix for
-src_python{PatternSub.transform} is most likely necessary.
+src_python{PatternSub.transform} {{{results(NameError: name 'PatternSub' is not defined)}}} is most likely necessary.
 
 #+RESULTS: hs_var_expansion_opt
 #+begin_SRC python :eval never
-/tmp/user/1000/babel-TfmXjk/python-5CWvpq in <module>()
-     16 hs_Y_graph_opt = hs_Y_graph.clone()
-     17
----> 18 _ = norm_sink_opts.optimize(hs_Y_graph_opt)
+/tmp/user/1000/babel-am345c/python-Q2wVRq in <module>()
+     21 hs_Y_graph_opt = hs_Y_graph.clone()
+     22
+---> 23 _ = norm_sink_opts.optimize(hs_Y_graph_opt)
 
 ~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/opt.py in optimize(self, fgraph, *args, **kwargs)
      95             orig = theano.tensor.basic.constant.enable
@@ -255,13 +270,64 @@ src_python{PatternSub.transform} is most likely necessary.
    2515                         if not lopt_change:
 
 ~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/opt.py in process_node(self, fgraph, node, lopt)
-   2056         if len(old_vars) != len(replacements):
-   2057             raise ValueError('Optimizer %s gave wrong number of replacements'
--> 2058                              % lopt)
-   2059         # None in the replacement mean that this variable isn't used
-   2060         # and we want to remove it
+   2032         lopt = lopt or self.local_opt
+   2033         try:
+-> 2034             replacements = lopt.transform(node)
+   2035         except Exception as e:
+   2036             if self.failure_callback is not None:
 
-ValueError: Optimizer normal_rv(rng_x, size_x, b_x, a_x) -> Elemwise{mul,no_inplace}(a_x, <function <lambda> at 0x7f509671d9d8>(rng_x, size_x, b_x, TensorConstant{1.0})) gave wrong number of replacements
+~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/opt.py in transform(self, node, get_nodes)
+   1796                     return pattern.clone()
+   1797             p = self.out_pattern
+-> 1798             ret = build(p, u)
+   1799             if self.values_eq_approx:
+   1800                 ret.tag.values_eq_approx = self.values_eq_approx
+
+~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/opt.py in build(pattern, u)
+   1787             def build(pattern, u):
+   1788                 if isinstance(pattern, (list, tuple)):
+-> 1789                     args = [build(p, u) for p in pattern[1:]]
+   1790                     return pattern[0](*args)
+   1791                 elif isinstance(pattern, string_types):
+
+~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/opt.py in <listcomp>(.0)
+   1787             def build(pattern, u):
+   1788                 if isinstance(pattern, (list, tuple)):
+-> 1789                     args = [build(p, u) for p in pattern[1:]]
+   1790                     return pattern[0](*args)
+   1791                 elif isinstance(pattern, string_types):
+
+~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/opt.py in build(pattern, u)
+   1788                 if isinstance(pattern, (list, tuple)):
+   1789                     args = [build(p, u) for p in pattern[1:]]
+-> 1790                     return pattern[0](*args)
+   1791                 elif isinstance(pattern, string_types):
+   1792                     return u[unify.Var(pattern)]
+
+/tmp/user/1000/babel-am345c/python-Q2wVRq in <lambda>(rng, size, mu, sd)
+      4 Y_rv = NormalRV(beta_rv, 1, name='Y')
+      5
+----> 6 construct_norm_rv = lambda rng, size, mu, sd: NormalRV(mu, sd, size=size, rng=rng)
+      7
+      8 norm_sink_pats = [
+
+~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/op.py in __call__(self, *inputs, **kwargs)
+    672                 thunk.outputs = [storage_map[v] for v in node.outputs]
+    673
+--> 674                 required = thunk()
+    675                 assert not required  # We provided all inputs
+    676
+
+~/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/theano/gof/op.py in rval(p, i, o, n)
+    890             # default arguments are stored in the closure of `rval`
+    891             def rval(p=p, i=node_input_storage, o=node_output_storage, n=node):
+--> 892                 r = p(n, [x[0] for x in i], o)
+    893                 for o in node.outputs:
+    894                     compute_map[o][0] = True
+
+<string> in perform(self, node, inputs, outputs)
+
+AssertionError: (<class 'numpy.ndarray'>, array(0.29952447))
 
 
 #+end_SRC
@@ -270,26 +336,31 @@ ValueError: Optimizer normal_rv(rng_x, size_x, b_x, a_x) -> Elemwise{mul,no_inpl
 The [[citet:miniKanrenorg]] domain-specific language (DSL) provides an abstract
 platform upon which all the capabilities we seek are provided.  While most
 implementations are expressed seamlessly in a Lisp-like language, there are some
-for Python.  In particular, we will use src_python{kanren}
+for Python.  In particular, we will use src_python{kanren} {{{results(' from '/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/kanren/__init__.py'>)}}}
 [[citep:RocklinlogpyLogicProgramming2018]] .
 
-To get started, we'll create a new src_python{theano.gof.opt.LocalOptimizer} that uses
-src_python{kanren} in a limited capacity (e.g. only for implementing rewrite rules).
+To get started, we'll create a new src_python{theano.gof.opt.LocalOptimizer} {{{results()}}} that uses
+src_python{kanren} {{{results(' from '/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/kanren/__init__.py'>)}}} in a limited capacity (e.g. only for implementing rewrite rules).
 
 * A miniKanren Theano Optimizer
+:PROPERTIES:
+# :header-args: :noweb-ref theano-minikanren-opt
+:END:
 
 As in the example Hy compiler from
 [[citet:WillardReadableStringsRelational2018a]], we need to specify how
 unification occurs in the context of Theano objects.
 
 Throughout, we'll make extensive use of multiple-dispatch (implemented by the
-Python library src_python{multipledispatch}
+Python library src_python{multipledispatch} {{{results(NameError: name 'multipledispatch' is not defined)}}}
 [[citep:RocklinMultipledispatchContribute2019]]).
 
 #+NAME: minikanren-opt-imports
 #+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
 from collections import Callable
 from warnings import warn
+
+import numpy as np
 
 import theano
 import theano.tensor as tt
@@ -315,249 +386,521 @@ from multipledispatch import dispatch
 
 ** Theano Graph Unification and Reification
 
-In the following, we implement unification using src_python{unification}--itself
-using src_python{multipledispatch}.
+In the following, we implement unification using src_python{unification} {{{results(NameError: name 'unification' is not defined)}}}--itself
+using src_python{multipledispatch} {{{results(NameError: name 'multipledispatch' is not defined)}}}.
 
-We start by defining "expression" forms of Theano graph objects.  These consist
-of tuples that represent function calls--src_python{(op, *args)}--that would
-effectively re-construct a given Theano graph object.  In essence, we're
-approximating a Lisp-like intermediate language.
+We start by defining meta objects that wrap the existing Theano graph objects.
+Using these meta objects, we can create graphs containing partially constructed
+objects--or logic variables--as well as define our own graph orderings and
+normal/canonical forms.
 
-#+NAME: theano-object-expansion
+#+NAME: theano-meta-objects
 #+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
-from collections import Callable
+import abc
+
+# TODO: Replace `from_obj` with a dispatched function?
+# from multipledispatch import dispatch
 
 
-def _maybe_reify(s):
-    if hasattr(s, 'reify') and isinstance(s.reify, Callable):
-        return s.reify()
-    else:
-        return s
+def meta_reify_all(rands):
+    # We want as many of the rands reified as possible,
+    any_unreified = False
+    reified_rands = []
+    for s in rands:
+        if isinstance(s, MetaSymbol):
+            rrand = s.reify()
+            reified_rands += [rrand]
+            any_unreified |= isinstance(rrand, MetaSymbol)
+            any_unreified |= isvar(rrand)
+        elif MetaSymbol.is_meta(s):
+            reified_rands += [s]
+            any_unreified |= True
+        else:
+            reified_rands += [s]
+
+    return reified_rands, any_unreified
 
 
-class AbstractSymbol(object):
+class MetaSymbol(abc.ABC):
+    """Meta objects for unification and such.
+    """
+    # TODO: Consider automatically registering base types.
+    # Might need to make this a `type`.
+    #
+    # def __new__(cls, base, **kwargs):
+    #     cls.register(base)
+    #     res = object.__new__(cls)
+    @property
+    @abc.abstractmethod
+    def base(self):
+        """The base type/rator for this meta object."""
+        pass
+
+    @classmethod
+    def is_meta(cls, obj):
+        return isinstance(obj, MetaSymbol) or isvar(obj)
+
     @classmethod
     def from_obj(cls, obj):
-        if (isinstance(obj, AbstractSymbol) or
-                isvar(obj) or obj is None):
+        """Create a meta object for a given base object.
+
+        XXX: Be careful when overriding this: `isvar` checks are necessary!
+        """
+        if cls.is_meta(obj) or obj is None:
             return obj
 
-        obj_cls = [s for s in AbstractSymbol.__subclasses__()
-                   if s.meta == type(obj)]
+        if isinstance(obj, (list, tuple)):
+            return type(obj)([cls.from_obj(o) for o in obj])
 
-        if len(obj_cls) == 0:
-            raise ValueError('Could not find a class for {}'.format(type(obj)))
-        elif len(obj_cls) > 1:
-            raise ValueError('More than one class for {}'.format(type(obj)))
+        try:
+            obj_cls = next(oo for oo in cls.__subclasses__()
+                           if isinstance(obj, oo.base))
+        except StopIteration:
+            if hasattr(cls, 'base') and isinstance(obj, cls.base):
+                res = cls(*[getattr(obj, s)
+                            for s in getattr(cls, '__slots__', [])],
+                          obj=obj)
+            else:
+                raise ValueError(
+                    'Could not find a MetaSymbol class for {}'.format(obj))
+        else:
+            res = obj_cls.from_obj(obj)
 
-        obj_cls = obj_cls[0]
-        res = obj_cls(*[getattr(obj, s) for s in obj_cls.__slots__])
-        res.obj = obj
         return res
 
-    def parameters(self):
-        return [getattr(self, s) for s in self.__slots__]
+    def __init__(self, obj=None):
+        self.obj = obj
+
+    def rators(self):
+        """Create a tuple of the meta object's operator parameters (i.e. "rators").
+        """
+        return tuple(getattr(self, s)
+                     for s in getattr(self, '__slots__', []))
 
     def reify(self):
-        if getattr(self, 'obj', None):
+        """Create a concrete base object from this meta object (and its
+        rators).
+        """
+        if self.obj is not None:
             return self.obj
         else:
-            return self.meta(*[_maybe_reify(getattr(self, s))
-                               for s in self.__slots__])
+            reified_rands, any_unreified = meta_reify_all(self.rators())
+
+            # If not all the rators reified, then create another meta
+            # object--albeit one with potentially more non-`None` `obj` fields.
+            rator = self.base if not any_unreified else type(self)
+            res = rator(*reified_rands)
+
+            if not any_unreified:
+                self.obj = res
+
+            return res
 
     def __eq__(self, other):
-        if (type(self) == type(other) and
-                self.meta == other.meta):
-            return all(getattr(self, attr) == getattr(other, attr)
-                       for attr in self.__slots__)
-        elif self.meta == type(other):
-            return all(getattr(self, attr) == getattr(other, attr)
-                       for attr in self.__slots__)
-        return False
+        """Syntactic equality between meta objects and their bases.
+        """
+        res = False
+        if ((type(self) == type(other) and
+             self.base == other.base) or
+                # Compare against base objects, as well
+                self.base == type(other)):
+            if hasattr(self, '__slots__') and self.__slots__:
+                # Are all the object rators equal?
+                res = all(getattr(self, attr) == getattr(other, attr)
+                          for attr in self.__slots__)
+            # TODO: Do we want these?  They're a bit limiting, since
+            # reified objects can construct their `obj`s and those
+            # won't be equal to other--potentially equivalent--base
+            # objects.
+            # elif self.base == type(other) and hasattr(self, 'obj'):
+            #     # Is our associated concrete object equal to the base object?
+            #     res = self.obj == other
+            elif hasattr(self, 'obj') and hasattr(other, 'obj'):
+                res = self.obj == other.obj
+            else:
+                # Are the objects identical?
+                res = self is other
+        return res
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
-        def _list_to_tuple(x):
+        def _make_hashable(x):
             if isinstance(x, list):
                 return tuple(x)
+            elif isinstance(x, np.ndarray):
+                return x.data.tobytes()
             else:
                 return x
-        return hash(tuple(_list_to_tuple(p) for p in self.parameters()))
+        return hash(tuple(_make_hashable(p) for p in self.rators()))
+
+    def __str__(self):
+        if self.obj is None:
+            params = self.rators()
+            args = ', '.join([str(p) for p in params])
+            res = '{}({})'.format(self.__class__.__name__, args)
+        else:
+            res = str(self.obj)
+        return res
+
+    def __repr__(self):
+        args = ', '.join([repr(p) for p in self.rators()] +
+                         ['obj={}'.format(repr(self.obj))])
+        return '{}({})'.format(
+            self.__class__.__name__, args)
 
 
-class AbstractTensorType(AbstractSymbol):
-    meta = tt.TensorType
+class MetaType(MetaSymbol):
+    base = theano.Type
+
+
+class MetaRandomStateType(MetaType):
+    base = tt.raw_random.RandomStateType
+
+
+class MetaTensorType(MetaType):
+    base = tt.TensorType
     __slots__ = ['dtype', 'broadcastable', 'name']
 
-    def __init__(self, dtype, broadcastable, name):
+    def __init__(self, dtype, broadcastable, name, obj=None):
+        super().__init__(obj=obj)
         self.dtype = dtype
         self.broadcastable = broadcastable
         self.name = name
 
 
-# class AbstractOp(AbstractSymbol):
-#     meta = tt.Op
-#     __slots__ = ['op']
-#
-#     def __init__(self, op):
-#         self.op = op
-#
-#     def reify(self):
-#         return self.op
-#
-#     def __call__(self, *args):
-#         return self.op(*args)
+class MetaOp(MetaSymbol):
+    base = tt.Op
+
+    def __call__(self, *args):
+        res_apply = MetaApply(self, args)
+        tt_apply = res_apply.reify()
+        if not self.is_meta(tt_apply):
+            return MetaVariable.from_obj(tt_apply.default_output())
+        res_var = MetaVariable(var(), tt_apply, var(), var())
+        return res_var
 
 
-class AbstractApply(AbstractSymbol):
-    meta = tt.Apply
+class MetaApply(MetaSymbol):
+    base = tt.Apply
     __slots__ = ['op', 'inputs']
 
-    def __init__(self, op, inputs, outputs=[]):
-        self.op = op
-        self.inputs = [self.from_obj(i) for i in inputs]
+    def __init__(self, op, inputs, outputs=None, obj=None):
+        super().__init__(obj=obj)
+        self.op = MetaOp.from_obj(op)
+        self.inputs = tuple(MetaSymbol.from_obj(i) for i in inputs)
+        self.outputs = outputs
 
     def reify(self):
-        return self.op(*[_maybe_reify(i) for i in self.inputs])
+        if getattr(self, 'obj', None):
+            return self.obj
+        else:
+            tt_op = self.op.reify()
+            if not self.is_meta(tt_op):
+                reified_rands, any_unreified = meta_reify_all(self.inputs)
+                if not any_unreified:
+                    tt_var = tt_op(*reified_rands)
+                    self.obj = tt_var.owner
+                    return tt_var.owner
+            return self
 
 
-class AbstractTensorVariable(AbstractSymbol):
-    meta = tt.TensorVariable
+class MetaVariable(MetaSymbol):
+    base = theano.Variable
     __slots__ = ['type', 'owner', 'index', 'name']
 
-    def __init__(self, type, owner, index, name):
-        self.type = self.from_obj(type)
-        self.owner = self.from_obj(owner)
+    def __init__(self, type, owner, index, name, obj=None):
+        super().__init__(obj=obj)
+        self.type = MetaType.from_obj(type)
+        self.owner = MetaApply.from_obj(owner)
         self.index = index
         self.name = name
 
     def reify(self):
-        """Having an `owner` causes issues.  Let the owning `Apply` create this
-        object."""
-        if self.owner:
-            res = self.owner.reify()
-            return res.owner.outputs[self.index]
+        # Having an `owner` causes issues (e.g. other, unrelated outputs).
+        # This function lets the owning `Apply` (well, it's `Op`, really)
+        # create the base object.
+        if getattr(self, 'obj', None):
+            return self.obj
+        elif getattr(self, 'owner', None):
+            tt_apply = self.owner.reify()
+            if not self.is_meta(tt_apply):
+                # If `tt_apply.nout == 1`, then `self.index` shouldn't matter.
+                tt_index = 0 if tt_apply.nout == 1 else self.index
+                if self.is_meta(tt_index):
+                    return self
+                tt_var = tt_apply.outputs[tt_index]
+                self.obj = tt_var
+                return tt_var
         return super().reify()
 
 
-class AbstractTensorConstant(AbstractSymbol):
-    meta = tt.TensorConstant
+class MetaTensorVariable(MetaVariable):
+    # TODO: Could extend `theano.tensor.var._tensor_py_operators`, too.
+    base = tt.TensorVariable
+
+
+class MetaConstant(MetaVariable):
+    base = theano.Constant
+    __slots__ = ['type', 'data']
+
+    def __init__(self, type, data, name=None, obj=None):
+        super().__init__(type, None, None, name, obj=obj)
+        self.data = data
+
+
+class MetaTensorConstant(MetaConstant):
+    # TODO: Could extend `theano.tensor.var._tensor_py_operators`, too.
+    base = tt.TensorConstant
     __slots__ = ['type', 'data', 'name']
 
-    def __init__(self, type, data, name):
-        self.type = self.from_obj(type)
-        self.data = data
-        self.name = name
+    def __init__(self, type, data, name=None, obj=None):
+        super().__init__(type, data, name, obj=obj)
 
+
+class MetaSharedVariable(MetaVariable):
+    base = tt.sharedvar.SharedVariable
+    __slots__ = ['name', 'type', 'data', 'strict']
+
+    @classmethod
+    def from_obj(cls, obj):
+        if isvar(obj):
+            return obj
+        res = cls(obj.name, obj.type, obj.container.data, obj.container.strict,
+                  obj=obj)
+        return res
+
+    def __init__(self, name, type, data, strict, obj=None):
+        super().__init__(type, None, None, name, obj=obj)
+        self.data = data
+        self.strict = strict
+
+
+class MetaTensorSharedVariable(MetaSharedVariable):
+    # TODO: Could extend `theano.tensor.var._tensor_py_operators`, too.
+    base = tt.sharedvar.TensorSharedVariable
+
+
+class MetaScalarSharedVariable(MetaSharedVariable):
+    base = tt.sharedvar.ScalarSharedVariable
 #+END_SRC
 
-Next, we need to create dispatch functions so that unification and reification
-works with our Theano meta object classes and ordinary Theano objects
-themselves.
-Also, by creating dispatch functions for src_python{kanren.term.operator}
-and src_python{kanren.term.arguments}, we're able to use the algebraically aware
-forms of unification--like src_python{kanren.assoccomm.eq_assoccomm}
-(i.e. associative and commutative equality/unification).
+In Listing [[theano-object-unify]] we create dispatch functions so that unification
+and reification works with our Theano meta object classes and ordinary Theano
+objects themselves.
 
-#+NAME: theano-object-unify-and-terms
+#+NAME: theano-object-unify
 #+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
-tt_class_abstractions = tuple(c.meta for c in AbstractSymbol.__subclasses__())
+tt_class_abstractions = tuple(c.base for c in MetaSymbol.__subclasses__())
 
-_unify.add((AbstractSymbol, AbstractSymbol, dict), unify_object)
-_unify.add((AbstractSymbol, tt_class_abstractions, dict),
-           lambda u, v, s: unify_object(u, AbstractSymbol.from_obj(v), s))
-_unify.add((tt_class_abstractions, AbstractSymbol, dict),
-           lambda u, v, s: unify_object(AbstractSymbol.from_obj(u), v, s))
+
+def unify_MetaSymbol(u, v, s):
+    # We need this, because `unify_object` only checks the object
+    # types and unifies the `__slots__` (or `__dict__`) attributes.
+    # Those steps miss the case when objects are equal (and unifiable)
+    # based on identity or other object-level criteria (e.g. other non-
+    # `__slots__` attributes).
+    if u == v:
+        return s
+    if hasattr(u, '__slots__'):
+        return unify([getattr(u, slot) for slot in u.__slots__],
+                     [getattr(v, slot) for slot in v.__slots__],
+                     s)
+    return False
+
+
+_unify.add((MetaSymbol, MetaSymbol, dict), unify_object)
+_unify.add((MetaSymbol, tt_class_abstractions, dict),
+           lambda u, v, s: unify_MetaSymbol(u, MetaSymbol.from_obj(v), s))
+_unify.add((tt_class_abstractions, MetaSymbol, dict),
+           lambda u, v, s: unify_MetaSymbol(MetaSymbol.from_obj(u), v, s))
 _unify.add((tt_class_abstractions, tt_class_abstractions, dict),
-           lambda u, v, s: unify_object(AbstractSymbol.from_obj(u),
-                                        AbstractSymbol.from_obj(v), s))
+           lambda u, v, s: unify_MetaSymbol(MetaSymbol.from_obj(u),
+                                            MetaSymbol.from_obj(v), s))
 
 
-def _reify_AbstractSymbol(o, s):
-    attrs = [getattr(o, attr) for attr in o.__slots__]
-    new_attrs = reify(attrs, s)
-    if attrs == new_attrs and o.obj:
-        return o.obj
+def _reify_MetaSymbol(o, s):
+    # `o.obj` could be a Theano object, but it could also be a logic variable,
+    # in which case the `rands` should not be the same.
+    # TODO: Seems like we could short-circuit some of the reification when
+    # `o.obj` is present.
+    rands = o.rators()
+    new_rands = reify(rands, s)
+    if rands == new_rands:
+        return o
     else:
-        newobj = type(o)(*new_attrs)
-        return newobj.reify()
+        newobj = type(o)(*new_rands)
+        return newobj
 
 
-_reify.add((AbstractSymbol, dict), _reify_AbstractSymbol)
+_reify.add((MetaSymbol, dict), _reify_MetaSymbol)
 
 
 def _reify_TheanoClasses(o, s):
-    meta_obj = AbstractSymbol.from_obj(o)
+    meta_obj = MetaSymbol.from_obj(o)
     return reify(meta_obj, s)
 
 
 _reify.add((tt_class_abstractions, dict), _reify_TheanoClasses)
 
 
-#
-# These allow some Theano `Op`s to be unified associatively and commutatively.
-#
-def operator_AbstractSymbol(x):
+_isvar = isvar.resolve((object,))
+
+isvar.add((MetaSymbol,), lambda x: _isvar(x) or isvar(x.obj))
+#+END_SRC
+
+The additions in Listing [[theano-object-terms]] create dispatch functions
+for src_python{kanren.term.operator} {{{results(AttributeError: 'Dispatcher' object has no attribute 'operator')}}} and src_python{kanren.term.arguments} {{{results(AttributeError: 'Dispatcher' object has no attribute 'arguments')}}},
+which allow us to use some algebraically aware forms of
+unification--like src_python{kanren.assoccomm.eq_assoccomm} {{{results((u\, v)>)}}} (i.e. associative
+and commutative equality/unification).
+#+NAME: theano-object-terms
+#+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
+def operator_MetaVariable(x):
     # Get an apply node, if any
-    res = getattr(x, 'owner', None)
-    if res and hasattr(res, 'op'):
-        return res.op
-    return x.meta
+    x_owner = getattr(x, 'owner', None)
+    if x_owner and hasattr(x_owner, 'op'):
+        return x_owner.op
+    return None
 
 
-operator.add((AbstractSymbol,), operator_AbstractSymbol)
-operator.add((tt_class_abstractions,), lambda x: operator(AbstractSymbol.from_obj(x)))
+operator.add((MetaVariable,), operator_MetaVariable)
+operator.add((tt.Variable,), lambda x: operator(MetaVariable.from_obj(x)))
 
 
-def arguments_AbstractSymbol(x):
+def arguments_MetaVariable(x):
     # Get an apply node, if any
-    res = getattr(x, 'owner', None)
-    if res and hasattr(res, 'op'):
-        return res.inputs
-    return res.parameters()
+    x_owner = getattr(x, 'owner', None)
+    if x_owner and hasattr(x_owner, 'op'):
+        return x_owner.inputs
+    return None
 
 
-arguments.add((AbstractSymbol,), arguments_AbstractSymbol)
-arguments.add((tt_class_abstractions,), lambda x: arguments(AbstractSymbol.from_obj(x)))
+arguments.add((MetaVariable,), arguments_MetaVariable)
+arguments.add((tt.Variable,), lambda x: arguments(MetaVariable.from_obj(x)))
 
-
-def term_Op(op, args):
-    r_args = reify(args, {})
-    return op(*r_args)
-
-
-term.add((tt.Op, (list, tuple)), term_Op)
+# Enable [re]construction of terms
+term.add((tt.Op, (list, tuple)), lambda op, args: term(MetaOp.from_obj(op), args))
+term.add((MetaOp, (list, tuple)), lambda op, args: op(*args))
 
 fact(commutative, tt.add)
 fact(commutative, tt.mul)
 fact(associative, tt.add)
 fact(associative, tt.mul)
+
+
+def meta_term(op, *args, ttype=None, index=None, name=None, var_prefix='r'):
+    """Construct a `MetaTensorVariable` object corresponding to the application
+    of an `Op` to some operands--with unspecified parameters replaced by
+    `kanren` logic variables.
+
+    Parameters
+    ==========
+    op: `Op`
+        The `Op` to be applied.
+    args: list of `TensorVariable`
+        The operands for `Op`
+    ttype: `TensorType` (optional)
+        The resulting `MetaTensorVariable`'s Theano tensor type.
+    index: int (optional)
+        The resulting `MetaTensorVariable`'s index value.
+    name: str (optional)
+        The resulting `MetaTensorVariable`'s name.
+    var_prefix: str (optional)
+        Prefix to use for the `kanren` logic variable names/IDs.
+
+    Results
+    =======
+    out: `MetaTensorVariable`
+    """
+    def _fix_args(x):
+        if MetaSymbol.is_meta(x):
+            return x
+        else:
+            return tt.as_tensor_variable(x)
+
+    meta_apply = MetaApply(MetaSymbol.from_obj(op),
+                           tuple(_fix_args(a) for a in args))
+
+    return MetaTensorVariable(
+        ttype or var('{}_type_lvar'.format(var_prefix)),
+        meta_apply,
+        index or var('{}_index_lvar'.format(var_prefix)),
+        name or var('{}_name_lvar'.format(var_prefix)))
+
 #+END_SRC
 
 ** Testing                                                        :noexport:
 
-Listing [[theano-object-equality]] provides a high-level form of graph object comparison
+Listing [[theano-object-tools]] provides a high-level form of graph object comparison
 (i.e. one that isn't point-equality-like).  This is especially useful during testing,
 and whenever we aren't concerned with objects being strictly identical.
 
-#+NAME: theano-object-equality
+#+NAME: theano-object-tools
 #+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
+from collections import OrderedDict
+
+
+to_meta = MetaSymbol.from_obj
+
+def expand_meta(x, tt_print=tt.pprint):
+    if isinstance(x, MetaSymbol):
+        return OrderedDict([('rator', x.base),
+                            ('rands', tuple(expand_meta(p)
+                                            for p in x.rators())),
+                            ('obj', expand_meta(getattr(x, 'obj', None)))])
+    elif tt_print and isinstance(x, theano.gof.op.Op):
+        return x.name
+    elif tt_print and isinstance(x, theano.gof.graph.Variable):
+        return tt_print(x)
+    else:
+        return x
+
+
 def graph_equal(x, y):
     """Compare elements in a Theano graph using their object properties and not
     just identity.
     """
-    return AbstractSymbol.from_obj(x) == AbstractSymbol.from_obj(y)
+    try:
+        if isinstance(x, (list, tuple)) and isinstance(y, (list, tuple)):
+            return (len(x) == len(y) and
+                    all(MetaSymbol.from_obj(xx) == MetaSymbol.from_obj(yy)
+                        for xx, yy in zip(x, y)))
+        return MetaSymbol.from_obj(x) == MetaSymbol.from_obj(y)
+    except ValueError:
+        return False
+
+#+END_SRC
+
+#+NAME: theano-meta-classes-tests
+#+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
+def test_meta_classes():
+    vec_tt = tt.vector('vec')
+    vec_m = MetaSymbol.from_obj(vec_tt)
+    assert vec_m.obj == vec_tt
+    assert type(vec_m) == MetaTensorVariable
+    vec_type_m = vec_m.type
+    assert type(vec_type_m) == MetaTensorType
+    assert vec_type_m.dtype == vec_tt.dtype
+    assert vec_type_m.broadcastable == vec_tt.type.broadcastable
+    assert vec_type_m.name == vec_tt.type.name
+
+    assert graph_equal(tt.add(1, 2), meta_term(tt.add, 1, 2).reify())
+
+    meta_var = meta_term(tt.add, 1, var()).reify()
+    assert isinstance(meta_var, MetaSymbol)
+    assert isinstance(meta_var.owner.op.obj, theano.Op)
+    assert isinstance(meta_var.owner.inputs[0].obj, tt.TensorConstant)
+
+
+test_meta_classes()
 #+END_SRC
 
 #+NAME: theano-unification-tests
 #+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
 def test_unification():
-    x = tt.vector('x')
-    y = tt.vector('y')
-    a = tt.vector('a')
-    b = tt.vector('b')
+    x, y, a, b = tt.dvectors('xyab')
     x_s = tt.scalar('x_s')
     y_s = tt.scalar('y_s')
     c = tt.constant(1, 'c')
@@ -599,31 +942,23 @@ def test_unification():
     type_lvar = var('type_lvar')
     index_lvar = var('index_lvar')
     name_lvar = var('name_lvar')
-    meta_add = AbstractTensorVariable(
-        type_lvar,
-        AbstractApply(tt.add, [x_lvar, y_lvar]),
-        index_lvar, name_lvar)
+    meta_add = meta_term(tt.add, x_lvar, y_lvar,
+                         ttype=type_lvar,
+                         index=index_lvar,
+                         name=name_lvar)
 
     # The parameters are vectors
     tt_expr_add_1 = tt.add(x, y)
-    expected_res = {type_lvar: tt_expr_add_1.type,
-                    x_lvar: x, y_lvar: y,
-                    index_lvar: 0, name_lvar: None}
-    assert expected_res == reify(unify(meta_add, tt_expr_add_1), {})
+    assert graph_equal(tt_expr_add_1, reify(meta_add, unify(meta_add, tt_expr_add_1)).reify())
 
     # The parameters are scalars
     tt_expr_add_2 = tt.add(x_s, y_s)
-    expected_res = {type_lvar: tt_expr_add_2.type,
-                    x_lvar: x_s, y_lvar: y_s,
-                    index_lvar: 0, name_lvar: None}
-    assert expected_res == reify(unify(meta_add, tt_expr_add_2), {})
+    assert graph_equal(tt_expr_add_2, reify(meta_add, unify(meta_add, tt_expr_add_2)).reify())
 
     # The parameters are constants
     tt_expr_add_3 = tt.add(c, d)
-    expected_res = {type_lvar: tt_expr_add_3.type,
-                    x_lvar: c, y_lvar: d,
-                    index_lvar: 0, name_lvar: None}
-    assert expected_res == reify(unify(meta_add, tt_expr_add_3), {})
+    assert graph_equal(tt_expr_add_3,
+                       reify(meta_add, unify(meta_add, tt_expr_add_3)).reify())
 
 
 test_unification()
@@ -632,10 +967,7 @@ test_unification()
 #+NAME: theano-term-tests
 #+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
 def test_terms():
-    x = tt.vector('x')
-    a = tt.vector('a')
-    b = tt.vector('b')
-
+    x, a, b = tt.dvectors('xab')
     test_expr = x + a * b
 
     assert test_expr.owner.op == operator(test_expr)
@@ -646,9 +978,7 @@ def test_terms():
 #+NAME: theano-kanren-tests
 #+BEGIN_SRC python :exports none :results silent :noweb-ref theano-minikaren-opt
 def test_kanren():
-    x = tt.vector('x')
-    a = tt.vector('a')
-    b = tt.vector('b')
+    x, a, b = tt.dvectors('xab')
 
     with variables(x):
         assert b == run(1, x, eq(a + b, a + x))[0]
@@ -656,27 +986,34 @@ def test_kanren():
 
 
 test_kanren()
+#+END_SRC
 
-
+#+HEADER: :noweb-ref theano-minikaren-opt
+#+NAME: theano-assoccomm-tests
+#+BEGIN_SRC python :exports none :results silent
 def test_assoccomm():
-    x = tt.vector('x')
-    a = tt.vector('a')
-    b = tt.vector('b')
-    c = tt.vector('c')
+    from kanren.assoccomm import buildo
+
+    x, a, b, c = tt.dvectors('xabc')
+    test_expr = x + 1
+    q = var('q')
+
+    assert q == run(1, q, buildo(tt.add, test_expr.owner.inputs, test_expr))[0]
+    assert tt.add == run(1, q, buildo(q, test_expr.owner.inputs, test_expr))[0].reify()
+    assert graph_equal(tuple(test_expr.owner.inputs), run(1, q, buildo(tt.add, q, test_expr))[0])
 
     with variables(x):
-        # TODO FIXME: One of the goals is failing (maybe `buildo`?)
+        assert (to_meta(a),) == run(0, x, (eq_comm, to_meta(a * b), to_meta(b * x)))
+        assert (to_meta(a),) == run(0, x, (eq_comm, to_meta(a + b), to_meta(b + x)))
 
-        # call = lambda x: x[0](*x[1:])
-        # eq_assoc(a + (b + c), ((a + b) + c))
-        # next(call(eq_assoc(a + (b + c), ((a + b) + c)))({}))
-        # next(call(call(eq_comm(a + b, b + a)))({}))
-        # run(1, x, eq_assoc(a + (b + c), ((a + x) + c)))
-
-        assert (b,) == run(1, x, eq_comm(a + (x + c), ((a + x) + c)))
-        assert (b,) == run(1, x, eq_comm(a * (x * c), ((a * x) * c)))
-        assert (b,) == run(1, x, eq_comm(a + b, x + a))
-        assert (b,) == run(1, x, eq_comm(a * b, x * a))
+    # XXX: This only works when the nested `Op`s have been collapsed
+    # (i.e. after canonization--and a `+ 0`/`* 1` for the currently broken
+    # Theano) See https://github.com/Theano/Theano/pull/6686
+    with variables(x):
+        res = run(0, x, (eq_assoc, to_meta(tt.add(a, b, c)), to_meta(tt.add(a, x))))
+        assert graph_equal(res[0], b + c)
+        res = run(0, x, (eq_assoc, to_meta(tt.mul(a, b, c)), to_meta(tt.mul(a, x))))
+        assert graph_equal(res[0], b * c)
 
 
 test_assoccomm()
@@ -684,26 +1021,50 @@ test_assoccomm()
 
 ** miniKanren Relations
 
-Now that we're able to unify objects, src_python{kanren} relations should work
+Now that we're able to unify objects, src_python{kanren} {{{results(' from '/home/bwillard/apps/anaconda3/envs/github-website/lib/python3.6/site-packages/kanren/__init__.py'>)}}} relations should work
 on Theano graphs.  We'll start with an example of some simple algebraic
-simplifications and a miniKanren goal that applies them to a Thean graph object.
+simplifications and a miniKanren goal that applies them to a Theano graph object.
 
-:EXAMPLE:
-#+NAME: reduces-relation
+Listing [[kanren-reduces-relation]] creates a set of relations in miniKanren that
+succinctly generalize a few algebraic and arithmetic properties.
+In this instance, the relations--expressed as miniKanren goals--are indirectly
+applied through the use of a src_python{Relation} {{{results()}}} object, which serves as a
+more efficient means of defining and applying simple replacement rules.
+
+#+NAME: kanren-reduces-relation
 #+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
-x_lvar = tt.vector('x_lvar')
-reduces_lvars = {x_lvar}
 reduces = Relation('reduces')
 
-fact(reduces, x_lvar + x_lvar, 2*x_lvar)
-# See `theano.tensor.opt.local_opt_alloc`.
-fact(reduces, x_lvar * x_lvar, x_lvar**2)
-# See `theano.tensor.opt.local_neg_neg`.
-fact(reduces, -(-x_lvar), x_lvar)
-fact(reduces, tt.exp(tt.log(x_lvar)), x_lvar)
-fact(reduces, tt.log(tt.exp(x_lvar)), x_lvar)
+x_lvar = var('x_lvar')
+y_lvar = var('y_lvar')
+z_lvar = var('z_lvar')
+
+
+fact(reduces,
+     meta_term(tt.add, x_lvar, x_lvar),
+     meta_term(tt.mul, tt.constant(2), x_lvar))
+fact(reduces,
+     meta_term(tt.mul, x_lvar, x_lvar),
+     meta_term(tt.pow, x_lvar, tt.constant(2)))
+fact(reduces,
+     meta_term(tt.neg,
+               meta_term(tt.neg, x_lvar, var_prefix='s')),
+     x_lvar)
+fact(reduces,
+     meta_term(tt.exp, meta_term(tt.log, x_lvar, var_prefix='s')),
+     x_lvar)
+fact(reduces,
+     meta_term(tt.log, meta_term(tt.exp, x_lvar, var_prefix='s')),
+     x_lvar)
+fact(reduces,
+     meta_term(tt.mul,
+               meta_term(tt.pow, x_lvar, y_lvar, var_prefix='s'),
+               meta_term(tt.pow, x_lvar, z_lvar, var_prefix='t')),
+     meta_term(tt.pow, x_lvar,
+               meta_term(tt.add, y_lvar, z_lvar, var_prefix='s')))
 #+END_SRC
 
+#+NAME: kanren-project-goal
 #+BEGIN_SRC python :exports none :results none :noweb-ref theano-minikaren-opt
 def project(vars, body_func):
     "A goal constructor for projecting logic variables."
@@ -714,39 +1075,104 @@ def project(vars, body_func):
     return goal
 #+END_SRC
 
-#+NAME: kanren-reduce-example
+A goal for the reduction process is given in Listing [[kanren-reduce-goal]].  It is
+a recursive goal that evaluates a single
+#+NAME: kanren-reduce-goal
 #+BEGIN_SRC python :exports code :results silent
 def kanren_reduce(input_expr, n=0):
-    with variables(*reduces_lvars):
-        def _reduce(in_expr, out_expr):
-            rdc_expr = var()
-            expr_rdcd = var()
+    def _reduce(in_expr, out_expr):
+        expr_rdcd = var()
+        return (conde,
+                # Attempt to apply a single reduction
+                [(reduces, in_expr, expr_rdcd),
+                 # If it succeeds, consider another
+                 (_reduce, expr_rdcd, out_expr)],
+                # Return the input unchanged
+                [eq(out_expr, in_expr)])
 
-            match_goals = [(eq_assoccomm, in_expr, rdc_expr),
-                           (reduces, rdc_expr, expr_rdcd),
-                           # Reduces further?
-                           (_reduce, expr_rdcd, out_expr),
-            ]
-            return (conde,
-                    # It reduced...
-                    match_goals,
-                    # ...or it didn't, so return the expression as it was.
-                    [success, eq(out_expr, in_expr)])
+    reduced_expression = var()
+    res = run(n, reduced_expression,
+              (_reduce, input_expr, reduced_expression))
 
-        reduced_expression = var()
-        res = run(n, reduced_expression,
-                  (_reduce, input_expr, reduced_expression))
-
-        return res
+    return res
 #+END_SRC
 
-#+NAME: kanren-reduce-example-asserts
-#+BEGIN_SRC python :exports code :results silent
-assert a == kanren_reduce(tt.log(tt.exp(a)))[0]
-assert a == kanren_reduce(tt.exp(tt.log(a)))[0]
-assert graph_equal(2*a, kanren_reduce(a + a)[0])
-assert graph_equal(a**2, kanren_reduce(a * a)[0])
+#+NAME: kanren-relation-tests
+#+BEGIN_SRC python :exports none :results silent
+def test_kanren_relation():
+    a = tt.vector('a')
+
+    def reify_all(x):
+        if isinstance(x, (tuple, list)):
+            return type(x)([r.reify() for r in x])
+        return x.reify()
+
+    # XXX: Expressions like `2*a` don't actually have inputs `2` and `a`;
+    # They have inputs like `InplaceDimShuffle`d `2` and `a`, which won't be
+    # properly represented by an equivalent meta object with inputs `2` and
+    # `a`.
+    # If we reify such meta objects, then the resulting object's inputs should
+    # match.
+    assert graph_equal((2*a, a + a), reify_all(kanren_reduce(a + a)))
+    assert graph_equal((a**2, a * a), reify_all(kanren_reduce(a * a)))
+    assert graph_equal((a, tt.log(tt.exp(a))), reify_all(kanren_reduce(tt.log(tt.exp(a)))))
+    assert graph_equal((a, tt.exp(tt.log(a))), reify_all(kanren_reduce(tt.exp(tt.log(a)))))
+
+
+test_kanren_relation()
 #+END_SRC
+
+
+:EXAMPLE:
+On of the advantages of miniKanren for these kinds of rewrite rules, is that
+it provides a stream of all the possible replacements.
+
+For example, \eqref{eq:kanren-reduce-example} shows all the replacement
+results for $x^{2} x^{2}$, which includes the original expression, combined
+powers, and a squaring.
+
+#+NAME: kanren-reduce-example
+#+BEGIN_SRC python :eval never-export :exports both :results output scalar raw replace
+import textwrap
+
+
+tt_tex_options = {'latex': True, 'latex_aligned': True}
+
+x = tt.vector('x')
+exa_expr = x**2 * x**2
+
+results = '\n\\\\\n'.join([
+    '&=' + tt_tex_pprint(s.reify(), tt_tex_options)
+    for s in kanren_reduce(exa_expr)
+    if not graph_equal(exa_expr, s)
+])
+
+print("""
+\\begin{{equation*}}
+\\begin{{aligned}}
+    {} &=
+    \\\\
+{}
+\\end{{aligned}}
+\\label{{eq:kanren-reduce-example}}
+\\end{{equation*}}
+""".format(tt_tex_pprint(exa_expr, tt_tex_options).strip('()'),
+           textwrap.indent(results, '\t\t')))
+#+END_SRC
+
+#+RESULTS: kanren-reduce-example
+\begin{equation*}
+\begin{aligned}
+    {x}^{2} \circ {x}^{2} &=
+    \\
+		&={{x}^{2}}^{2}
+		\\
+		&={x}^{(2 + 2)}
+\end{aligned}
+\label{eq:kanren-reduce-example}
+\end{equation*}
+
+
 :END:
 ** A miniKanren src_python{LocalOptimizer}
 
@@ -766,18 +1192,19 @@ the src_python{kanren} functionality.
 class KanrenRelationSub(LocalOptimizer):
     reentrant = True
 
-    def __init__(self, kanren_relation, relation_lvars):
+    def __init__(self, kanren_relation, relation_lvars=None):
         """
         Parameters
         ==========
-        kanren_relation: kanren.Relation
-            The miniKanren relation store to use.
-        relation_lvars: set
-            A set of term to be considered logic variables by miniKanren
+        kanren_relation: kanren.Relation or goal
+            The miniKanren relation store or goal (taking input and output
+            terms) to use.
+        relation_lvars: Iterable
+            A collection of term to be considered logic variables by miniKanren
             (e.g. Theano terms used in `kanren_relation`).
         """
         self.kanren_relation = kanren_relation
-        self.relation_lvars = relation_lvars
+        self.relation_lvars = relation_lvars or []
         super().__init__()
 
     def transform(self, node):
@@ -791,27 +1218,15 @@ class KanrenRelationSub(LocalOptimizer):
         input_expr = node.default_output()
 
         with variables(*self.relation_lvars):
-            def _reduce(in_expr, out_expr):
-                rdc_expr = var()
-                match_goals = [(eq_assoccomm, in_expr, rdc_expr),
-                               (self.kanren_relation, rdc_expr, out_expr)]
-                return match_goals
-
-            reduced_expression = var()
-            res = run(1, reduced_expression,
-                      ,*_reduce(input_expr, reduced_expression))
+            q = var()
+            res = run(1, q, (self.kanren_relation, input_expr, q))
 
         if len(res) > 0:
-            new_node = res[0]
+            new_node = res[0].reify()
 
-            if isinstance(res, (tuple, list)):
-                # In this case, the miniKanren results are (assumedly) unevaluated
-                # Theano object expressions.  This result is given when the replacement
-                # pattern is an unevaluated Theano object.
-                # We need to reify them.
-                new_node = reify(ExpressionTuple(new_node), {})
-
-                assert not isinstance(new_node, (tuple, list))
+            if MetaSymbol.is_meta(new_node):
+                raise ValueError(
+                    "Kanren results not fully reifiable: {}".format(new_node))
 
             # Handle (some) nodes with multiple outputs
             res = list(node.outputs)
@@ -847,12 +1262,11 @@ def optimize_graph(x, optimization):
     return x_graph_opt.outputs[0]
 #+END_SRC
 
-Applying the reductions from [[reduces-relation]], we see the rules applied in
+Applying the reductions from [[kanren-reduces-relation]], we see the rules applied in
 succession--as expected.
 #+NAME: theano-optimize-example
 #+BEGIN_SRC python :exports code :results silent
-reduces_opt = EquilibriumOptimizer([KanrenRelationSub(reduces,
-                                                      reduces_lvars)],
+reduces_opt = EquilibriumOptimizer([KanrenRelationSub(reduces)],
                                    max_use_ratio=10)
 
 test_opt = optimize_graph(tt.log(tt.exp(a)), reduces_opt)
@@ -878,62 +1292,50 @@ Let's re-attempt the replacement in \eqref{eq:norm_var_sink}.
 
 #+NAME: kanren-normal-reduce-rule
 #+BEGIN_SRC python :exports code :results silent :noweb yes
+from unification.utils import transitive_get as walk
+
+
 <<hs-model>>
 
-<<reduces-relation>>
+mcmc_transforms = Relation('mcmc_transforms')
 
-C_lvar = tt.scalar('C_lvar')
-shape_lvar = var('shape_lvar')
-rng_lvar = var('rng_lvar')
-zero_dtype_lvar = var('zero_dtype')
-zero_const_lvar = (tt.TensorConstant, zero_dtype_lvar, 0)
-
-reduces_lvars |= {rng_lvar, shape_lvar, C_lvar}
-fact(reduces,
-     # Use un-evaluated forms
-     (NormalRV, zero_dtype_lvar, C_lvar, shape_lvar, rng_lvar),
-     (Elemwise(mul), C_lvar,
-      (NormalRV, zero_dtype_lvar, (tt.TensorConstant, zero_dtype_lvar, 1), shape_lvar, rng_lvar))
-)
-#+END_SRC
-
-#+BEGIN_SRC python :exports none :results none
 C_lvar = var('C_lvar')
 shape_lvar = var('shape_lvar')
 rng_lvar = var('rng_lvar')
+zero_const_lvar = MetaTensorConstant(var('zero_type'), 0, var('zero_name'))
+one_const_lvar = MetaTensorConstant(var('zero_type'), 1)
 
-norm_term_expanded = (term_operator(beta_rv),) + term_arguments(beta_rv)
-norm_expr = (NormalRV, rng_lvar, shape_lvar, norm_term_expanded[3], C_lvar)
+fact(mcmc_transforms,
+     meta_term(NormalRV,
+               zero_const_lvar, C_lvar,
+               shape_lvar, rng_lvar),
+     meta_term(tt.mul, C_lvar,
+               meta_term(NormalRV,
+                         zero_const_lvar, one_const_lvar,
+                         shape_lvar, rng_lvar)))
 
 
-assert unify(norm_expr[1], norm_term_expanded[1], {}) is not False
-assert unify(norm_expr[2], norm_term_expanded[2], {}) is not False
-assert unify(norm_expr[3], norm_term_expanded[3], {}) is not False
+def not_eq(lvar, val):
+    def _goal(s):
+        lvar_val = walk(lvar, s)
+        if isinstance(lvar_val, (tt.Constant, MetaConstant)):
+            if lvar_val.data != val:
+                yield s
+        else:
+            yield s
+    return _goal
 
-term_operator(norm_expr[3]), term_arguments(norm_expr[3])
-term_operator(norm_term_expanded[3]), term_arguments(norm_term_expanded[3])
 
-term_arguments(norm_expr[3])[0] == term_arguments(norm_term_expanded[3])[0]
-
-unify(term_operator(norm_expr[3]), term_operator(norm_term_expanded[3]))
-unify(term_arguments(norm_expr[3]), term_arguments(norm_term_expanded[3]))
-
-_unify.resolve((type(norm_expr[3]), type(norm_term_expanded[3]), dict))
-
-_unify(norm_expr, norm_term_expanded, {})
-
-_unify.resolve((type(norm_expr), type(beta_rv), dict))
-_unify(norm_expr, beta_rv, {})
+mcmc_goals = lambda x, y: (conde, ((mcmc_transforms, x, y),
+                                   (not_eq, C_lvar, 1)))
 #+END_SRC
 
 #+NAME: kanren-normal-reduce-example
 #+BEGIN_SRC python :exports code :results none
-reduces_opt = EquilibriumOptimizer([KanrenRelationSub(reduces,
-                                                      reduces_lvars)],
-                                   max_use_ratio=10)
+mcmc_opt = EquilibriumOptimizer([KanrenRelationSub(mcmc_goals)],
+                                max_use_ratio=1)
 
-# Y_rv_opt = optimize_graph(Y_rv, reduces_opt)
-Y_rv_opt = optimize_graph(beta_rv, reduces_opt)
+Y_rv_opt = optimize_graph(Y_rv, mcmc_opt)
 #+END_SRC
 
 #+NAME: kanren-normal-reduce-example-print
@@ -941,6 +1343,20 @@ Y_rv_opt = optimize_graph(beta_rv, reduces_opt)
 print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
     tt_tex_pprint(Y_rv_opt, {'latex': True, 'latex_aligned': True})))
 #+END_SRC
+
+#+RESULTS: kanren-normal-reduce-example-print
+\begin{equation*}
+\begin{aligned}
+\tau &\sim \text{C}\left(0, 1\right), \quad \mathbb{R}
+\\
+A &\sim \text{N}\left(0, 1\right), \quad \mathbb{R}
+\\
+Y &\sim \text{N}\left((|\tau| \circ A), 1\right), \quad \mathbb{R}
+\end{aligned}
+\\
+Y
+\end{equation*}
+
 
 ** Normal-Gamma Gibbs Sampling
 [[citet:ZhangTraceclassMarkov2019]] provides a prescription for more efficient

@@ -48,7 +48,7 @@
 
   #+NAME: org_fig_wrap
   #+HEADER: :var org_attrs=":width 400"
-  #+HEADER: :var latex_attrs=":width 1.0\\textwidth :height 1.0\\textwidth :float t :options [angle=90,keepaspectratio] :placement [p!]"
+  #+HEADER: :var latex_attrs=":width 1.0\\textwidth :height 1.0\\textwidth :float t :options [keepaspectratio] :placement [p!]"
   #+HEADER: :var data="" :var label="" :var caption="" :var label_var=""
   #+BEGIN_SRC elisp :exports none :results raw value :noweb yes
 
@@ -75,8 +75,10 @@
          (org_attrs (org-babel-get-caller-var-value org_attrs))
          (caption (org-babel-get-caller-var-value caption))
          ;; TODO: Further customize filename output?
-         ;; (filename (if (org-export-derived-backend-p org-export-current-backend 'md)
-         ;;               ()
+         ;; (filename (if (org-export-derived-backend-p org-export-current-backend 'latex)
+         ;;               (let ((pdf-name (concat (file-name-sans-extension data) ".pdf")))
+         ;;                 (or (and (file-exists-p pdf-name) pdf-name)
+         ;;                     data))
          ;;             data))
          ;; TODO: Could number figures using `org-export-get-ordinal'.
          ;; See https://github.com/kawabata/ox-pandoc/blob/master/ox-pandoc.el
