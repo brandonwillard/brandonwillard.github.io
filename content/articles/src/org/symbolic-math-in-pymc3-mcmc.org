@@ -127,7 +127,7 @@ Let's illustrate some of these points using an example.
 
 :EXAMPLE:
 We demonstrate automatic model reformulation using the variance expansion in
-\eqref{eq:hs_model} in [[citet:scott_parameter_2010]].
+Equation [[eqref:eq:hs_model]] in [[citet:scott_parameter_2010]].
 
 This expansion works pushing the half-Cauchy variance term, $\tau$, out of the
 normal, $\beta$:
@@ -155,7 +155,7 @@ An applicable reformulation rule might look like the following:
 :END:
 
 Now, what about an expression like $\mathop{\text{N}}\nolimits\left(0,
-a^2\right)$; should our replacement in \eqref{eq:norm_replacement_exa} produce
+a^2\right)$; should our replacement in Equation [[eqref:eq:norm_replacement_exa]] produce
 $a \mathop{\text{N}}\nolimits\left(0, 1\right)$?
 
 Conventional mathematical reasoning might say so, but a term rewriting system
@@ -215,7 +215,7 @@ limited form of unification, and doesn't provide a programmable context for
 controlling exactly how and when the unification is performed.
 
 :EXAMPLE:
-Let's attempt to implement the replacement in \eqref{eq:norm_var_sink}
+Let's attempt to implement the replacement in Equation [[eqref:eq:norm_var_sink]]
 using src_python{PatternSub}.
 
 #+ATTR_LATEX: :float nil
@@ -1072,7 +1072,7 @@ applied through the use of a src_python{Relation} object, which serves as a
 more efficient means of defining and applying simple replacement rules.
 
 #+NAME: kanren-reduces-relation
-#+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
+#+BEGIN_SRC python :exports code :results silent
 reduces = Relation('reduces')
 
 x_lvar = var('x_lvar')
@@ -1084,23 +1084,29 @@ def mt_type_params(x):
     return {'ttype': x.type, 'index': x.index, 'name': x.name}
 
 
+# x + x -> 2 * x
 x_add_mt = mt.add(x_lvar, x_lvar)
 fact(reduces,
      x_add_mt,
      mt.mul(tt.constant(2), x_lvar, **mt_type_params(x_add_mt)))
+# x * x -> x**2
 pow_sum_mt = mt.mul(x_lvar, x_lvar)
 fact(reduces,
      pow_sum_mt,
      mt.pow(x_lvar, tt.constant(2), **mt_type_params(pow_sum_mt)))
+# -(-x) -> x
 fact(reduces,
      mt.neg(mt.neg(x_lvar)),
      x_lvar)
+# exp(log(x)) -> x
 fact(reduces,
      mt.exp(mt.log(x_lvar)),
      x_lvar)
+# log(exp(x)) -> x
 fact(reduces,
      mt.log(mt.exp(x_lvar)),
      x_lvar)
+# x**y * x**z -> x**(y + z)
 pow_mul_mt = mt.mul(mt.pow(x_lvar, y_lvar),
                     mt.pow(x_lvar, z_lvar))
 fact(reduces,
@@ -1109,6 +1115,16 @@ fact(reduces,
             mt.add(y_lvar, z_lvar,
                    ,**mt_type_params(pow_mul_mt.owner.inputs[0]))))
 #+END_SRC
+
+:REMARK:
+When we create a meta Theano variable using something
+like src_python{mt.add(x_lvar, x_lvar)}, the result has logic variables in place
+of the unknown tensor type, output index, and name values.
+If we want the replacement terms to be fully determined by their matching
+antecedent, we have to reference those variables in the replacement pattern.
+This is the reason for src_python{mt_type_params}; it simply extracts those
+variables and uses them in the replacement.
+:END:
 
 #+NAME: kanren-project-goal
 #+BEGIN_SRC python :exports none :results none :noweb-ref theano-minikaren-opt
@@ -1120,6 +1136,8 @@ def project(vars, body_func):
         yield s
     return goal
 #+END_SRC
+
+# TODO: Add checks for extrema.
 
 A goal for the reduction process is given in Listing [[kanren-reduce-goal]].  It is
 a recursive goal that evaluates a single
@@ -1169,10 +1187,10 @@ test_kanren_relation()
 #+END_SRC
 
 :EXAMPLE:
-On of the advantages of miniKanren for these kinds of rewrite rules, is that
-it provides a stream of all the possible replacements.
+One advantage to using miniKanren as a means of specifying rewrite rules, is
+that it provides a stream of all possible replacements.
 
-For example, \eqref{eq:kanren-reduce-example} shows all the replacement
+For example, Equation [[eqref:eq:kanren-reduce-example]] shows all the replacement
 results for $x^{2} x^{2}$, which includes the original expression, combined
 powers, and a squaring.
 
@@ -1216,7 +1234,6 @@ print("""
 \end{aligned}
 \label{eq:kanren-reduce-example}
 \end{equation*}
-
 
 :END:
 ** A miniKanren src_python{LocalOptimizer}
@@ -1323,10 +1340,15 @@ assert graph_equal(a, test_opt)
 :END:
 * MCMC Optimizations
 With the full capabilities of miniKanren, we're better prepared to implement
-general rewrite rules for MCMC models.
+general term rewriting rules for MCMC models.
+
+In the following sections, we'll use some simple examples to demonstrate a few
+term rewrites that are simple yet unautomated within most MCMC sampler
+implementations.  These examples will also serve to further demonstrate some
+relevant features of miniKanren.
 
 ** Simple Parameter Expansion
-Let's re-attempt the replacement in \eqref{eq:norm_var_sink}.
+Let's re-attempt the replacement in Equation [[eqref:eq:norm_var_sink]].
 
 #+NAME: kanren-normal-rescale-setup
 #+BEGIN_SRC python :eval never-export :exports none :results silent :noweb strip-export
@@ -1365,17 +1387,16 @@ fact(mcmc_transforms,
      mt.mul(C_lvar,
             mt.NormalRV(zero_const_lvar, one_const_lvar,
                         size_lvar, rng_lvar,
-                        ,**type_lvars)))
+                        **type_lvars)))
 #+END_SRC
 
-# TODO: Limit this replacement to cases in which `C_lvar` is Cauchy and/or has
-# an expectation ~0.
+We have to make sure that the optimizer doesn't get caught in an endless
+$1 \to 1 \cdot 1$ loop.  To do this, in Listing [[kanren-normal-rescale-guard]], we
+set up a naive constraint that projects the current miniKanren state
+(i.e. a src_python{dict} of logic variable replacements resulting from
+unification) and checks that the unified value of src_python{C_lvar} is never
+the identity element (i.e. ~1~).
 
-We have to make sure that the optimizer doesn't get caught in an endless $1 \to 1 \cdot 1$
-loop.  To do this, in Listing [[kanren-normal-rescale-guard]], we set up a naive
-constraint that projects the current miniKanren state (a src_path{dict} of logic
-variable replacements) and checks that the unified value of src_python{C_lvar}
-is never ~1~.
 #+NAME: kanren-normal-rescale-guard
 #+BEGIN_SRC python :exports code :results silent :noweb yes
 def not_eq(lvar, val):
@@ -1393,6 +1414,29 @@ mcmc_goals = lambda x, y: (conde, ((mcmc_transforms, x, y),
                                    (not_eq, C_lvar, 1)))
 #+END_SRC
 
+The code in Listing [[kanren-normal-rescale-guard]] is also a great example of the
+flexibility provided by the miniKanren framework.  In contrast to src_python{PatternSub},
+we are now able to control a stream of unification results.
+
+More specifically, in Listing [[kanren-normal-rescale-guard]], the
+variable src_python{s} is the current state--produced by all goals that preceded
+the present one--and, by not yielding the current state when our condition
+fails, we have effectively said that unification fails.
+
+While src_python{PatternSub} does provide nearly the same condition-checking
+capability, it doesn't make the entire state of unification available, so--for
+instance--one cannot easily write constraints that depend on the current value
+of two logic variables.  Similarly, one cannot manipulate the current set of
+unified values in the context of src_python{PatternSub}.
+
+:REMARK:
+It's also fairly straight-forward to apply this transform only
+when src_python{C_lvar} is descended from a Cauchy src_python{RandomVariable}.
+Taking this further, we could determine an expected value
+for src_python{C_lvar}--through similar means--and, when it's zero, apply scale
+parameter lifting/sinking transformations.
+:END:
+
 #+NAME: kanren-normal-rescale-example
 #+BEGIN_SRC python :exports code :results none
 mcmc_opt = EquilibriumOptimizer([KanrenRelationSub(mcmc_goals)],
@@ -1407,17 +1451,17 @@ import textwrap
 
 
 print("""
-\\begin{{equation*}}
+\\begin{{equation}}
 {}
 \\label{{eq:kanren-rescale-example}}
-\\end{{equation*}}
+\\end{{equation}}
 """.format(textwrap.indent(
     tt_tex_pprint(Y_rv_opt, {'latex': True, 'latex_aligned': True}), '\t\t')))
 #+END_SRC
 
 #+RESULTS: kanren-normal-rescale-example-print
 :results:
-\begin{equation*}
+\begin{equation}
 		\begin{aligned}
 		\tau &\sim \text{C}\left(0, 1\right), \quad \mathbb{R}
 		\\
@@ -1428,12 +1472,11 @@ print("""
 		\\
 		Y
 \label{eq:kanren-rescale-example}
-\end{equation*}
-
+\end{equation}
 
 :end:
 
-The resulting graph is shown in Equation \eqref{eq:kanren-rescale-example}.  As
+The resulting graph is shown in Equation [[eqref:eq:kanren-rescale-example]].  As
 expected, the $\tau$ term has been moved from the variance in $\beta$ to a
 product with $\beta$ that is now the mean of $Y$.
 
@@ -1468,15 +1511,17 @@ time_Y_rescaled = _e - _s
 
 # TODO: Add table of time comparisons for smaller variances.
 
-Furthermore, what makes a robust sampler that can handle scenarios like these?
-Surprisingly, transforms exactly like the one we've implemented!  The more
-context available to a sampler, the more opportunity it has to make a smarter
-choice for its sampling method.  Those choices are fundamentally limited
-when the context only consists of a distribution and its parameters.
-
-The rewrite rules we're considering have no such limitation.  They have the
-*entire* model to work with and--as a result--are not limited to
-distribution-specific sampling bottlenecks.
+Furthermore, what makes a sampler robust, so that it can handle scenarios like
+these?  Often, the answer involves transforms exactly like the one we've
+implemented!
+:REMARK:
+Another good example is the Gamma distribution with all its parameter
+edge-cases.
+:END:
+The more context available to a sampler, the more opportunity it has to make a
+smarter choice.  Those choices are fundamentally limited when the context only
+consists of a distribution and its parameters.  We have more context, because
+we're working with the entire model, and--as a result--more opportunity.
 
 #+NAME: kanren-normal-rescale-example-hist-calc
 #+BEGIN_SRC python :eval never-export :exports none :results silent
@@ -1494,7 +1539,7 @@ _ = Y_all.hist(bins=50, ax=ax)
 
 #+NAME: kanren-normal-rescale-example-hist
 #+HEADER: :var output_dir=(btw--org-publish-property :figure-dir)
-#+HEADER: :post org_fig_wrap(data=*this*, options="[keepaspectratio]", placement="[p!]", caption="Posterior predictive counts of paid sticker violations for the Binomial model in \\eqref{eq:binom_linear_effects}.")
+#+HEADER: :post org_fig_wrap(data=*this*, options="[keepaspectratio]", placement="[p!]", caption="")
 #+BEGIN_SRC python :eval never-export :exports results :results value raw
 fig_filenames = [os.path.join(output_dir, 'kanren-normal-rescale-example-hist')
                  + os.path.extsep + out_ext
@@ -1509,27 +1554,27 @@ _ = os.path.relpath(fig_filenames[-1])
 #+RESULTS: kanren-normal-rescale-example-hist
 #+ATTR_ORG: :width 400
 #+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
-#+CAPTION: Posterior predictive counts of paid sticker violations for the Binomial model in \eqref{eq:binom_linear_effects}.
+#+CAPTION:
 #+NAME: fig:kanren-normal-rescale-example-hist
 [[file:../../figures/kanren-normal-rescale-example-hist.png]]
 
-** AR Model
-In [[citet:GelmanTransformingparameterssimple2019]], a simple AR model is proposed:
-\begin{equation}
-\begin{gathered}
-  \eta_1 \sim \operatorname{N}\left(0, \frac{\sigma}{\sqrt{1 - \rho^{2}}} \right)
-  \\
-  \eta_t \sim \operatorname{N}\left(\rho \eta_{t-1}, \sigma\right), \quad t \in \left\{2, 3, \dots, T\right\}
-  \\
-  \rho \in \left[0, 1\right]
-\end{gathered}
-\label{eq:gelman-time-series-pre}
-\end{equation}
-
-According to the article, Equation \eqref{eq:gelman-time-series-pre} had slow
-mixing and needed to be re-parameterized.
-\begin{equation}
-\end{equation}
+# ** AR Model
+# In [[citet:GelmanTransformingparameterssimple2019]], a simple AR model is proposed:
+# \begin{equation}
+# \begin{gathered}
+#   \eta_1 \sim \operatorname{N}\left(0, \frac{\sigma}{\sqrt{1 - \rho^{2}}} \right)
+#   \\
+#   \eta_t \sim \operatorname{N}\left(\rho \eta_{t-1}, \sigma\right), \quad t \in \left\{2, 3, \dots, T\right\}
+#   \\
+#   \rho \in \left[0, 1\right]
+# \end{gathered}
+# \label{eq:gelman-time-series-pre}
+# \end{equation}
+#
+# According to the article, Equation [[eqref:eq:gelman-time-series-pre]] had slow
+# mixing and needed to be re-parameterized.
+# \begin{equation}
+# \end{equation}
 
 ** Normal-Gamma Gibbs Sampling
 [[citet:ZhangTraceclassMarkov2019]] provides a prescription for more efficient
