@@ -90,6 +90,16 @@
 ;; Test 'em out.
 ;; (org-ref-format-citet "WillardProgrammingIntelligentCity2018a" nil 'html)
 ;; (org-ref-format-citet "WillardSymbolicMathPyMC32018" nil 'md)
+
+;; TODO: Make `[[eqref:...]]` output `\(\eqref{...}\)` in Markdown output.
+;; Might be related to `org-ref-ref-html', but definetly involves `org-ref-eqref-export'.
+(defun btw--org-ref-eqref-export (old-fun keyword desc format)
+  (cond
+   ((or (eq format 'html) (eq format 'md))
+    (format "\\(\\eqref{%s}\\)" keyword))
+   (t (funcall old-fun keyword desc format))))
+
+(advice-add #'org-ref-eqref-export :around #'btw--org-ref-eqref-export)
 #+END_SRC
 
 #+NAME: org-md-export-adjustments
