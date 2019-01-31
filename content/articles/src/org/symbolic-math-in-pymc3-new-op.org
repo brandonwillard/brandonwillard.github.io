@@ -12,16 +12,19 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 #+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 
-# #+INCLUDE: org-setup.org
 #+BEGIN_SRC elisp :eval t :exports none :results none
 (org-babel-load-file "org-setup.org")
 (org-babel-lob-ingest "org-babel-extensions.org")
 #+END_SRC
 
 #+PROPERTY: header-args :eval never-export :exports both :results output drawer replace
-#+PROPERTY: header-args+ :session symbolic-math-pymc3-2
-
+#+PROPERTY: header-args+ :session symbolic-math-pymc3-2 :comments noweb
 #+PROPERTY: header-args:python :noweb-sep "\n\n"
+
+#+NAME: set-pelican-preamble
+#+BEGIN_SRC elisp :eval export-only :exports results :results value raw
+(org-pelican-create-yaml)
+#+END_SRC
 
 #+BEGIN_abstract
 Continuing from [[citet:WillardSymbolicMathPyMC32018]], we'll attempt to improve
@@ -123,7 +126,7 @@ np.shape(np.random.normal(loc=0, scale=1, size=None))
 
 Numpy also allows one to specify *independent* normal variates using one function
 call with each variate's parameters spanning dimensions higher than the variate's.
-In [[np_normal_ind_exa]] we specify three independent scalar normal variates, each with
+In Listing [[np_normal_ind_exa]] we specify three independent scalar normal variates, each with
 a different mean and scale parameter.  This time, the result's shape reflects
 *the number of independent random variates*, and not the dimension of the
 underlying distribution's support.
@@ -172,7 +175,7 @@ in the case of scalars.
 What about src_python{tt_normal(loc=tt.vector(), scale=tt.vector(), size=None)}?
 Since the inputs are purely symbolic, the resulting symbolic object's shape
 should be, too, but we should also know that the symbolic shape should have
-dimension equal to one.  Just as in [[np_normal_ind_exa]], each corresponding
+dimension equal to one.  Just as in Listing [[np_normal_ind_exa]], each corresponding
 element in the vector arguments of src_python{tt_normal} is an independent
 variate; in the symbolic case, we might not know exactly how many of them there
 are, yet, but we know that there's a vector's worth of them.
@@ -194,7 +197,7 @@ shape_parts
 (Subtensor{int64}.0, Subtensor{int64}.0)
 #+end_SRC
 
-When the matrix in [[tt_matrix_shape_iter_exa]] is "materialized" (i.e. given a value),
+When the matrix in Listing [[tt_matrix_shape_iter_exa]] is "materialized" (i.e. given a value),
 its corresponding shape object--and its components--will take their respective
 values.
 
@@ -1281,24 +1284,13 @@ assert tt_pprint(tt_2_normalrv_noname_expr) == "M in R**(n^M_0 x n^M_1)\n\\mu_2 
 Listing [[rv-pprinter-exa]], creates a graph with two random variables and prints the
 results with the default Theano pretty printer.
 #+NAME: rv-theano-pprinter-exa
-#+BEGIN_SRC python :eval never-export :results output :wrap "SRC text :eval never"
+#+BEGIN_SRC python :eval never-export :results none :wrap "SRC text :eval never"
 Z_tt = UniformRV(tt.scalar('l_0'), tt.scalar('l_1'), name='Z')
 X_tt = NormalRV(Z_tt, tt.scalar('\sigma_1'), name='X')
 Y_tt = MvNormalRV(tt.vector('\mu'), tt.abs_(X_tt) * tt.constant(np.diag([1, 2])), name='Y')
 
 W_tt = X_tt * (tt.scalar('b') * Y_tt + tt.scalar('c'))
-
-print(tt.pprint(W_tt))
 #+END_SRC
-
-#+RESULTS: rv-theano-pprinter-exa
-#+begin_SRC text :eval never
-(normal_rv(uniform_rv(l_0, l_1, TensorConstant{[]}, <RandomStateType>), \sigma_1, TensorConstant{[]}, <RandomStateType>) * ((b * multivariate_normal_rv(\mu, (|normal_rv(uniform_rv(l_0, l_1, TensorConstant{[]}, <RandomStateType>), \sigma_1, TensorConstant{[]}, <RandomStateType>)| * TensorConstant{[[1 0]
- [0 2]]}), TensorConstant{[]}, <RandomStateType>)) + c))
-
-
-#+end_SRC
-
 
 #+NAME: rv-pprinter-exa
 #+BEGIN_SRC python :eval never-export :results output scalar raw replace
@@ -1409,7 +1401,7 @@ rv_numpy_test(MvNormalRV, [0, 1, 2], np.diag([1, 1, 1]))
 With our new src_python[]{RandomVariable}, we can alter the replacement patterns
 used by src_python{tt.gof.opt.PatternSub} in
 [[citet:WillardSymbolicMathPyMC32018]] and implement a slightly better parameter
-lifting for affine transforms of scalar normal random variables in
+lifting for affine transforms of scalar normal random variables in Listing
 [[scalar_norm_affine_rv_opt]].
 
 #+NAME: algebra-requirements
@@ -1489,12 +1481,22 @@ print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
 Before applying the optimization:
 #+RESULTS: before_mat_mul_scaling_rv_exa
 \begin{equation*}
-\begin{aligned}
-X &\sim \text{N}\left(\mu, \sigma\right), \quad \mathbb{R}^{A_u[0]}
-\end{aligned}
+\begin{gathered}
+a \in \mathbb{R}
 \\
-((a \circ X) + b)
+\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
+\\
+\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
+\\
+X \sim \operatorname{N}\left(\mu, \sigma\right), \quad X \in \mathbb{R}^{{n^{X}}_{0}}
+\\
+b \in \mathbb{R}
+\end{gathered}
+\\
+((a \odot X) + b)
 \end{equation*}
+
+
 
 #+NAME: after_mat_mul_scaling_rv_exa
 #+BEGIN_SRC python :eval never-export :results output scalar raw replace
@@ -1505,12 +1507,22 @@ print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
 After applying the optimization:
 #+RESULTS: after_mat_mul_scaling_rv_exa
 \begin{equation*}
-\begin{aligned}
-A &\sim \text{N}\left(((a \circ \mu) + b), (a \circ \sigma)\right), \quad \mathbb{R}^{B_u[0]}
-\end{aligned}
+\begin{gathered}
+a \in \mathbb{R}
 \\
-A
+\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
+\\
+b \in \mathbb{R}
+\\
+\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
+\\
+u \sim \operatorname{N}\left(((a \odot \mu) + b), (a \odot \sigma)\right), \quad u \in \mathbb{R}^{{n^{u}}_{0}}
+\end{gathered}
+\\
+u
 \end{equation*}
+
+
 
 :END:
 
@@ -1872,10 +1884,6 @@ In follow-ups to this series, we'll address a few loose ends, such as
 - canonicalization of graphs containing src_python{RandomVariable} terms,
 - and more optimizations that specifically target MCMC schemes (e.g. automatic conversion to scale
   mixture decompositions).
-
-:TODO:
-Talk about src_python[]{supp_shape_fn}.
-:END:
 
 
 #+NAME: tangle-new-op

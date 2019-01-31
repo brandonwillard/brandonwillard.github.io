@@ -6,9 +6,9 @@ body {
                    definition 0
                    corollary 0
                    remark 0
-                   proposition 0;
+                   proposition 0
+                   listing 0;
 }
-
 figure {
     float: center;
     /* width: 30%; */
@@ -20,14 +20,12 @@ figure {
     margin: 0.5em;
     padding: 0.5em;
 }
-
 a.sourceLine{
     border-bottom-style: none !important
 }
 a.sourceCode{
     border-bottom-style: none !important
 }
-
 .project{
     display: block;
     margin: 12px 0;
@@ -41,7 +39,6 @@ a.sourceCode{
     font-weight: bold;
     font-style: normal;
 }
-
 ul.project-links {
   float: right;
   position: relative;
@@ -54,7 +51,16 @@ ul.project-links li {
   float: right;
   padding: 3px;
 }
-
+div.sourceCode:after {
+    display: flex;
+    justify-content: center;
+    data-title-name: "";
+    text-align: center;
+    counter-increment: listing;
+    content: "Listing " counter(listing) ". " attr(data-title-name);
+    /* font-weight: bold; */
+    font-style: normal;
+}
 /*
  *
  * The following was originally inspired by

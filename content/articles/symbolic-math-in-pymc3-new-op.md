@@ -1,7 +1,7 @@
 ---
 bibliography:
 - 'tex/symbolic-pymc3.bib'
-modified: '2019-1-15'
+modified: '2019-1-31'
 tags: 'pymc3,theano,statistics,symbolic computation,python,probability theory'
 title: Random Variables in Theano
 date: '2018-12-28'
@@ -27,14 +27,14 @@ Specifically, by using the `Op` interface, we're able to do the following:
     <div class="example" markdown="">
     For example, definitions like
 
-    ```{#org1509139 .python}
+    ```{#orgb28d042 .python}
     with pm.Model():
         X_rv = pm.Normal('X_rv', mu_X, sd=sd_X, shape=(1,))
     ```
 
     reduce to
 
-    ```{#org7166159 .python}
+    ```{#org0650889 .python}
     with pm.Model():
         X_rv = pm.Normal('X_rv', mu_X, sd=sd_X)
     ```
@@ -49,7 +49,7 @@ The main points of entry in our `Op`, are `Op.make_node` and `Op.perform`. `Op.m
 
 # A **new** Random Variable `Op`
 
-```{#org4a5aef2 .python}
+```{#org9c584cc .python}
 import sys
 import os
 
@@ -73,29 +73,29 @@ import pymc3 as pm
 Most of the work involved in generalizing `RandomFunction` has to do with symbolic shape handling and inference. We need to bridge the gaps between symbolic array/tensor broadcasting parameters and the way Numpy random variable functions allow distribution parameters to be specified.
 
 <div class="example" markdown="">
-Scalar normal random variates have a support and parameters with dimension zero. In Listing [4](#org27ef84e) we create a scalar normal random variate in Numpy and inspect its shape. The length of the shape corresponds to the dimension of the distribution's support (i.e. zero).
+Scalar normal random variates have a support and parameters with dimension zero. In Listing [4](#org352d751) we create a scalar normal random variate in Numpy and inspect its shape. The length of the shape corresponds to the dimension of the distribution's support (i.e. zero).
 
-```{#org27ef84e .python}
+```{#org352d751 .python}
 np.shape(np.random.normal(loc=0, scale=1, size=None))
 ```
 
-```{#orgc3600d3 .python}
+```{#orgf019ed0 .python}
 ()
 ```
 
-Numpy also allows one to specify **independent** normal variates using one function call with each variate's parameters spanning dimensions higher than the variate's. In [6](#org044f662) we specify three independent scalar normal variates, each with a different mean and scale parameter. This time, the result's shape reflects **the number of independent random variates**, and not the dimension of the underlying distribution's support.
+Numpy also allows one to specify **independent** normal variates using one function call with each variate's parameters spanning dimensions higher than the variate's. In Listing [6](#orgbabaa48) we specify three independent scalar normal variates, each with a different mean and scale parameter. This time, the result's shape reflects **the number of independent random variates**, and not the dimension of the underlying distribution's support.
 
-```{#org044f662 .python}
+```{#orgbabaa48 .python}
 np.shape(np.random.normal(loc=[0, 1, 2], scale=[1, 2, 3], size=None))
 ```
 
-```{#org63554f6 .python}
+```{#orgaaa61c5 .python}
 (3,)
 ```
 
-Distribution parameters can also be broadcasted, as in [8](#org1aaae9d). Now, each independent variate has the same scale value.
+Distribution parameters can also be broadcasted, as in [8](#org6643ee7). Now, each independent variate has the same scale value.
 
-```{#org1aaae9d .python}
+```{#org6643ee7 .python}
 np.shape(np.random.normal(loc=[0, 1, 2], scale=1, size=None))
 ```
 
@@ -105,38 +105,38 @@ When bridging these Numpy functions and Theano, we have to adapt the underlying 
 
 For instance, in Theano a **symbolic** scalar's shape is represented in nearly the same way.
 
-```{#orgab6fe60 .python}
+```{#orga6116d4 .python}
 test_scalar = tt.scalar()
 test_scalar.shape.eval({test_scalar: 1})
 ```
 
-```{#org7fe417b .python}
+```{#org17f42ea .python}
 []
 ```
 
 This means that our proposed Theano adaptation of `np.random.normal`, let's call it `tt_normal`, should return the same result as Numpy in the case of scalars.
 
-What about `tt_normal(loc=tt.vector(), scale=tt.vector(), size=None)`? Since the inputs are purely symbolic, the resulting symbolic object's shape should be, too, but we should also know that the symbolic shape should have dimension equal to one. Just as in [6](#org044f662), each corresponding element in the vector arguments of `tt_normal` is an independent variate; in the symbolic case, we might not know exactly how many of them there are, yet, but we know that there's a vector's worth of them.
+What about `tt_normal(loc=tt.vector(), scale=tt.vector(), size=None)`? Since the inputs are purely symbolic, the resulting symbolic object's shape should be, too, but we should also know that the symbolic shape should have dimension equal to one. Just as in Listing [6](#orgbabaa48), each corresponding element in the vector arguments of `tt_normal` is an independent variate; in the symbolic case, we might not know exactly how many of them there are, yet, but we know that there's a vector's worth of them.
 
-How exactly do we get that information from Theano, though? The type produced by `tt.vector` has an `ndim` parameter that provides this. Furthermore, there is some (intermittent) functionality that allows one to iterate over shapes. Listing [11](#org51b51db) demonstrates this.
+How exactly do we get that information from Theano, though? The type produced by `tt.vector` has an `ndim` parameter that provides this. Furthermore, there is some (intermittent) functionality that allows one to iterate over shapes. Listing [11](#org0d70518) demonstrates this.
 
-```{#org51b51db .python}
+```{#org0d70518 .python}
 test_matrix = tt.matrix()
 shape_parts = tuple(test_matrix.shape)
 shape_parts
 ```
 
-```{#orgfd5d182 .python}
+```{#org4709491 .python}
 (Subtensor{int64}.0, Subtensor{int64}.0)
 ```
 
-When the matrix in [11](#org51b51db) is "materialized" (i.e. given a value), its corresponding shape object&#x2013;and its components&#x2013;will take their respective values.
+When the matrix in Listing [11](#org0d70518) is "materialized" (i.e. given a value), its corresponding shape object&#x2013;and its components&#x2013;will take their respective values.
 
-```{#org81f178c .python}
+```{#org4d51e03 .python}
 tuple(p.eval({test_matrix: np.diag([1, 2])}) for p in shape_parts)
 ```
 
-```{#org55b65f3 .python}
+```{#org4d888c2 .python}
 (array(2), array(2))
 ```
 
@@ -146,7 +146,7 @@ If we knew that the support of this distribution was a scalar/vector/matrix, the
 
 To determine the shape parts (i.e. support, number of independent and replicated variates) of the symbolic random variables, we mimic the corresponding Numpy logic and use the Theano `ndim` shape information described above. The following function generalizes that work for many simple distributions.
 
-```{#org8ed8038 .python}
+```{#org03297c0 .python}
 from collections.abc import Iterable, ByteString
 from warnings import warn
 from copy import copy
@@ -212,7 +212,7 @@ def param_supp_shape_fn(ndim_supp, ndims_params, dist_params,
 
 Finally, we put everything together in a new random variable `Op` called `RandomVariable`.
 
-```{#orga6b862b .python}
+```{#orgb7517e4 .python}
 class RandomVariable(tt.gof.Op):
     """This is essentially `RandomFunction`, except that it removes the `outtype`
     dependency and handles shape dimension information more directly.
@@ -367,15 +367,19 @@ class RandomVariable(tt.gof.Op):
         return bcast
 
     def infer_shape(self, node, input_shapes):
-        size = node.inputs[1]
-        dist_params = tuple(node.inputs[2:])
+        size = node.inputs[-2]
+        dist_params = tuple(node.inputs[:-2])
         shape = self._infer_shape(size, dist_params,
-                                  param_shapes=input_shapes[2:])
+                                  param_shapes=input_shapes[:-2])
 
         return [None, [s for s in shape]]
 
     def make_node(self, *dist_params, size=None, rng=None, name=None):
-        """This will be the "constructor" called by users.
+        """Create a random variable node.
+
+        XXX: Unnamed/non-keyword arguments are considered distribution
+        parameters!  If you want to set `size`, `rng`, and/or `name`, use their
+        keywords.
 
         Parameters
         ==========
@@ -391,7 +395,9 @@ class RandomVariable(tt.gof.Op):
 
         Results
         =======
-        An `Apply` node with rng state and sample tensor outputs.
+        out: `Apply`
+            A node with inputs `dist_args + (size, in_rng, name)` and outputs
+            `(out_rng, sample_tensorvar)`.
         """
         if size is None:
             size = tt.constant([], dtype='int64')
@@ -418,18 +424,20 @@ class RandomVariable(tt.gof.Op):
 
         outtype = tt.TensorType(dtype=self.dtype, broadcastable=bcast)
         out_var = outtype(name=name)
-        inputs = (rng, size) + dist_params
+        inputs = dist_params + (size, rng)
         outputs = (rng.type(), out_var)
 
         return theano.gof.Apply(self, inputs, outputs)
 
     def perform(self, node, inputs, outputs):
-        """Uses `self.rng_fn` to draw random numbers."""
+        """Draw samples using Numpy/SciPy."""
         rng_out, smpl_out = outputs
 
-        # Draw from `rng` if `self.inplace` is `True`, and from a
-        # copy of `rng` otherwise.
-        rng, size, args = inputs[0], inputs[1], inputs[2:]
+        # Draw from `rng` if `self.inplace` is `True`, and from a copy of `rng`
+        # otherwise.
+        args = list(inputs)
+        rng = args.pop()
+        size = args.pop()
 
         assert isinstance(rng, np.random.RandomState), (type(rng), rng)
 
@@ -478,42 +486,125 @@ class RandomVariable(tt.gof.Op):
 
 # Using `RandomVariable`
 
-In Listing [17](#org0c9fe41) we create some `RandomVariable` `Op`s.
+In Listing [17](#orgf494cec) we create some `RandomVariable` `Op`s.
 
-```{#org0c9fe41 .python}
+```{#orgf494cec .python}
 import scipy
 from functools import partial
 
 
 # Continuous Numpy-generated variates
-UniformRV = RandomVariable('uniform', theano.config.floatX, 0, [0, 0], 'uniform', inplace=True)
-NormalRV = RandomVariable('normal', theano.config.floatX, 0, [0, 0], 'normal', inplace=True)
-GammaRV = RandomVariable('gamma', theano.config.floatX, 0, [0, 0], 'gamma', inplace=True)
-ExponentialRV = RandomVariable('exponential', theano.config.floatX, 0, [0], 'exponential', inplace=True)
+class UniformRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('uniform', theano.config.floatX, 0, [0, 0], 'uniform', inplace=True)
+
+    def make_node(self, lower, upper, size=None, rng=None, name=None):
+        return super().make_node(lower, upper, size=size, rng=rng, name=name)
+
+UniformRV = UniformRVType()
+
+
+class NormalRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('normal', theano.config.floatX, 0, [0, 0], 'normal', inplace=True)
+
+    def make_node(self, mu, sigma, size=None, rng=None, name=None):
+        return super().make_node(mu, sigma, size=size, rng=rng, name=name)
+
+
+NormalRV = NormalRVType()
+
+
+class GammaRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('gamma', theano.config.floatX, 0, [0, 0], 'gamma', inplace=True)
+
+    def make_node(self, shape, scale, size=None, rng=None, name=None):
+        return super().make_node(shape, scale, size=size, rng=rng, name=name)
+
+
+GammaRV = GammaRVType()
+
+
+class ExponentialRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('exponential', theano.config.floatX, 0, [0], 'exponential', inplace=True)
+
+    def make_node(self, scale, size=None, rng=None, name=None):
+        return super().make_node(scale, size=size, rng=rng, name=name)
+
+
+ExponentialRV = ExponentialRVType()
+
 
 # One with multivariate support
-MvNormalRV = RandomVariable('multivariate_normal', theano.config.floatX, 1, [1, 2], 'multivariate_normal', inplace=True)
-DirichletRV = RandomVariable('dirichlet', theano.config.floatX, 1, [1], 'dirichlet', inplace=True)
+class MvNormalRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('multivariate_normal', theano.config.floatX, 1, [1, 2], 'multivariate_normal', inplace=True)
+
+    def make_node(self, mean, cov, size=None, rng=None, name=None):
+        return super().make_node(mean, cov, size=size, rng=rng, name=name)
+
+
+MvNormalRV = MvNormalRVType()
+
+
+class DirichletRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('dirichlet', theano.config.floatX, 1, [1], 'dirichlet', inplace=True)
+
+    def make_node(self, alpha, size=None, rng=None, name=None):
+        return super().make_node(alpha, size=size, rng=rng, name=name)
+
+
+DirichletRV = DirichletRVType()
+
 
 # A discrete Numpy-generated variate
-PoissonRV = RandomVariable('poisson', 'int64', 0, [0], 'poisson', inplace=True)
+class PoissonRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('poisson', 'int64', 0, [0], 'poisson', inplace=True)
+
+    def make_node(self, rate, size=None, rng=None, name=None):
+        return super().make_node(rate, size=size, rng=rng, name=name)
+
+
+PoissonRV = PoissonRVType()
+
 
 # A SciPy-generated variate
-CauchyRV = RandomVariable('cauchy', theano.config.floatX, 0, [0, 0],
-                          lambda rng, *args: scipy.stats.cauchy.rvs(*args, random_state=rng),
-                          inplace=True)
+class CauchyRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('cauchy', theano.config.floatX, 0, [0, 0],
+                         lambda rng, *args: scipy.stats.cauchy.rvs(*args, random_state=rng),
+                         inplace=True)
+
+    def make_node(self, loc, scale, size=None, rng=None, name=None):
+        return super().make_node(loc, scale, size=size, rng=rng, name=name)
+
+
+CauchyRV = CauchyRVType()
+
 
 # Support shape is determined by the first dimension in the *second* parameter (i.e.
 # the probabilities vector)
-MultinomialRV = RandomVariable('multinomial', 'int64', 1, [0, 1], 'multinomial',
-                               supp_shape_fn=partial(param_supp_shape_fn, rep_param_idx=1),
-                               inplace=True)
+class MultinomialRVType(RandomVariable):
+    def __init__(self):
+        super().__init__('multinomial', 'int64', 1, [0, 1], 'multinomial',
+                         supp_shape_fn=partial(param_supp_shape_fn, rep_param_idx=1),
+                         inplace=True)
+
+    def make_node(self, n, pvals, size=None, rng=None, name=None):
+        return super().make_node(n, pvals, size=size, rng=rng, name=name)
+
+
+MultinomialRV = MultinomialRVType()
 ```
 
 <div class="example" markdown="">
-In Listing [18](#org0cd31de) we draw samples from instances of `RandomVariable`s.
+In Listing [18](#orged59f09) we draw samples from instances of `RandomVariable`s.
 
-```{#org0cd31de .python}
+```{#orged59f09 .python}
 print("UniformRV(0., 30., size=[10]):\n{}\n".format(
     UniformRV(0., 30., size=[10]).eval()
 ))
@@ -543,68 +634,68 @@ print("MultinomialRV(20, [1/6.]*6, size=[6, 2]):\n{}".format(
     MultinomialRV(20, [1 / 6.] * 6, size=[3, 2]).eval()))
 ```
 
-```{#orgecfed57 .python}
+```{#orgd754526 .python}
 UniformRV(0., 30., size=[10]):
-[16.89369343 13.21988788 10.26918728  1.93879999 17.27410447  5.3058197
- 22.15578126 15.66637894 14.23980245 25.18733049]
+[ 5.83131933 28.56231204 20.73018065 17.21042461 25.53140341 23.76268637
+ 28.27629994  7.10457399 19.88378878 26.62382369]
 
 NormalRV([0., 100.], 30, size=[4, 2]):
-[[ -9.21735205 155.64498511]
- [ 28.4339851  105.18399789]
- [-44.42055013  97.90586798]
- [-26.55693327 115.39711945]]
+[[  0.73277898  98.26041204]
+ [-25.9810085   79.13385495]
+ [-23.17013683 130.86966242]
+ [-52.83756722  95.21829178]]
 
 GammaRV([2., 1.], 2., size=[4, 2]):
-[[3.49908312 1.91088775]
- [1.13233478 0.48482779]
- [2.25680547 0.92411033]
- [1.78299465 1.19593451]]
+[[5.09679154 0.6149213 ]
+ [2.64231927 0.7277265 ]
+ [5.98877316 0.41751667]
+ [3.77525439 1.11561567]]
 
 ExponentialRV([2., 50.], size=[4, 2]):
-[[  3.22763867   3.78135685]
- [  3.56648308   3.60405088]
- [  0.65872498  88.7571588 ]
- [  4.67451316 120.24080966]]
+[[ 2.29684191  7.12084933]
+ [ 0.39386731 38.79158981]
+ [ 1.11400165  4.31175303]
+ [ 1.50499115  9.65667649]]
 
 MvNormalRV([0, 1e2, 2e3], np.diag([1, 1, 1]), size=[3, 2, 3]):
-[[[-4.75463905e-01  1.00402403e+02  2.00079552e+03]
-  [-2.59426266e-01  1.00970588e+02  1.99989382e+03]
-  [ 3.39161352e-01  1.00233588e+02  1.99935490e+03]]
+[[[-6.67447019e-01  9.88636435e+01  1.99973471e+03]
+  [ 6.06351715e-01  9.96429347e+01  1.99915978e+03]
+  [ 1.12246741e+00  9.96807860e+01  2.00201859e+03]]
 
- [[-9.90453947e-01  9.99983419e+01  1.99971327e+03]
-  [-6.82615151e-01  1.00704686e+02  1.99968969e+03]
-  [-2.21678226e+00  1.01142950e+02  2.00043834e+03]]]
+ [[ 3.61931404e-02  9.89907880e+01  2.00036910e+03]
+  [-1.61077330e+00  1.01905479e+02  2.00134565e+03]
+  [ 9.45854243e-01  1.00877071e+02  1.99914438e+03]]]
 
 DirichletRV([0.1, 10, 0.5], size=[3, 2, 3]):
-[[[4.30717537e-03 9.94067987e-01 1.62483727e-03]
-  [1.01466452e-06 9.78964356e-01 2.10346294e-02]
-  [3.30762555e-05 9.72405682e-01 2.75612413e-02]]
+[[[1.41863953e-06 9.35392908e-01 6.46056738e-02]
+  [4.50961569e-15 9.71338820e-01 2.86611803e-02]
+  [2.41299980e-05 9.94566812e-01 5.40905817e-03]]
 
- [[8.30072104e-06 9.99191757e-01 7.99941999e-04]
-  [2.03443491e-19 8.74258555e-01 1.25741445e-01]
-  [1.34671133e-07 9.99550242e-01 4.49623671e-04]]]
+ [[5.79850503e-08 9.73090671e-01 2.69092713e-02]
+  [4.17758767e-09 9.61671733e-01 3.83282630e-02]
+  [8.78921782e-03 9.54146972e-01 3.70638103e-02]]]
 
 PoissonRV([2., 1.], size=[4, 2]):
-[[ 2 22]
- [ 2 17]
- [ 0 17]
- [ 0 10]]
+[[ 1 15]
+ [ 1 12]
+ [ 2 21]
+ [ 1 14]]
 
 CauchyRV([1., 100.], 30, size=[4, 2]):
-[[-123.6213883   199.96370344]
- [ -24.53254923   90.83035835]
- [  22.09067095   75.31186146]
- [-323.54712455 -595.69091703]]
+[[ -86.93222925   79.9758127 ]
+ [  13.41882831 -374.41779179]
+ [  75.74505567   93.2944822 ]
+ [  30.0824262   130.40873511]]
 
 MultinomialRV(20, [1/6.]*6, size=[6, 2]):
-[[[3 5 1 5 2 4]
-  [1 6 4 5 0 4]]
+[[[2 4 4 2 4 4]
+  [2 5 2 4 3 4]]
 
- [[4 2 4 3 5 2]
-  [6 4 2 2 4 2]]
+ [[2 5 6 2 4 1]
+  [0 4 4 3 5 4]]
 
- [[3 6 2 2 2 5]
-  [2 4 2 7 3 2]]]
+ [[6 1 1 4 4 4]
+  [3 4 3 2 3 5]]]
 
 
 ```
@@ -614,9 +705,9 @@ MultinomialRV(20, [1/6.]*6, size=[6, 2]):
 As noted, there are a few long-standing difficulties surrounding the use and determination of shape information in PyMC3. `RandomVariable` doesn't suffer the same limitations.
 
 <div class="example" markdown="">
-In Listing [20](#orge48b8e9), we see that a multivariate normal random variable cannot be created in PyMC3 without explicit shape information.
+In Listing [20](#org77fdfa2), we see that a multivariate normal random variable cannot be created in PyMC3 without explicit shape information.
 
-```{#orge48b8e9 .python}
+```{#org77fdfa2 .python}
 import traceback
 
 test_mean = tt.vector('test_mean')
@@ -632,15 +723,15 @@ except Exception as e:
   print("".join(traceback.format_exception_only(type(e), e)))
 ```
 
-```{#org1e45b99 .python}
+```{#org748f851 .python}
 ValueError: Invalid dimension for value: 0
 
 
 ```
 
-As Listing [22](#orgf3e5285) demonstrates, the same construction is possible when one specifies an explicit size/shape.
+As Listing [22](#orgb7414f6) demonstrates, the same construction is possible when one specifies an explicit size/shape.
 
-```{#orgf3e5285 .python}
+```{#orgb7414f6 .python}
 try:
   with pm.Model():
     test_rv = pm.MvNormal('test_rv', test_mean, test_cov, shape=1)
@@ -650,7 +741,7 @@ except Exception as e:
   print("".join(traceback.format_exception_only(type(e), e)))
 ```
 
-```{#orgd82e302 .python}
+```{#orge3a93eb .python}
 test_rv.distribution.shape = [1]
 test_rv.tag.test_value = [1.]
 
@@ -662,9 +753,9 @@ test_rv.tag.test_value = [1.]
 Using `RandomVariable`, we do not have to specify a shape, nor implement any sampling code outside of `RandomVariable.perform` to draw random variables and generate valid test values.
 
 <div class="example" markdown="">
-Listings [24](#org5fb1766) and [26](#org9a06011) demonstrate how easy it is to create dependencies between random variates using `RandomVariable`, and how sampling and test values are automatic. It uses a multivariate normal as the mean of another multivariate normal.
+Listings [24](#org67b2727) and [26](#org56bde38) demonstrate how easy it is to create dependencies between random variates using `RandomVariable`, and how sampling and test values are automatic. It uses a multivariate normal as the mean of another multivariate normal.
 
-```{#org5fb1766 .python}
+```{#org67b2727 .python}
 theano.config.compute_test_value = 'ignore'
 
 mu_tt = tt.vector('mu')
@@ -680,14 +771,14 @@ print("{} ~ X\n{} ~ Y".format(
     Y_rv.eval({mu_tt: [1, 2], C_tt: np.diag([1, 2]), D_tt: np.diag([10, 20])})))
 ```
 
-```{#org856947e .python}
+```{#orgec2ca8b .python}
 [-1.25047147  4.87459955] ~ X
 [ 2.15486205 -3.3066946 ] ~ Y
 
 
 ```
 
-```{#org9a06011 .python}
+```{#org56bde38 .python}
 theano.config.compute_test_value = 'warn'
 
 mu_tt.tag.test_value = np.array([0, 30, 40])
@@ -704,7 +795,7 @@ print("X test value: {}\nY test value: {}".format(
 
 ```
 
-```{#org0301e4b .python}
+```{#orgb6f99f8 .python}
 X test value: [ 1.78826967 28.73266332 38.57297111]
 Y test value: [33.93703352 27.48925582 38.21563854]
 
@@ -714,7 +805,7 @@ Y test value: [33.93703352 27.48925582 38.21563854]
 </div>
 
 <div class="example" markdown="">
-In Listing [28](#orge5b1fa2), we specify the following hierarchical model:
+In Listing [28](#orge489ad8), we specify the following hierarchical model:
 
 \begin{equation*}
   \begin{aligned}
@@ -732,7 +823,7 @@ In Listing [28](#orge5b1fa2), we specify the following hierarchical model:
 
 This toy model is particularly interesting in how it specifies symbolic dependencies between continuous and discrete distributions and uses random variables to determine the shapes of other random variables.
 
-```{#orge5b1fa2 .python}
+```{#orge489ad8 .python}
 theano.config.compute_test_value = 'ignore'
 pois_rate = tt.dscalar('rate')
 test_pois_rv = PoissonRV(pois_rate)
@@ -747,7 +838,7 @@ print("test_multinom_rv draw 1: {}\ntest_multinom_rv draw 2: {}".format(
     test_multinom_draw(), test_multinom_draw()))
 ```
 
-```{#org18bef4d .python}
+```{#org65f2561 .python}
 test_multinom_rv draw 1: [0 2 0 0 1 0 2 1 0 0]
 test_multinom_rv draw 2: [5 2 1 0 0 0 1 0 1 1 0 1 0]
 
@@ -759,16 +850,14 @@ test_multinom_rv draw 2: [5 2 1 0 0 0 1 0 1 1 0 1 0]
 
 ## Random Variable Pretty Printing
 
-In Listing [30](#orgc495b9a), we implement a pretty printer that produces more readable forms of Theano graphs containing `RandomVariable` nodes.
+In Listing [30](#org52ecc27), we implement a pretty printer that produces more readable forms of Theano graphs containing `RandomVariable` nodes.
 
-```{#orgc495b9a .python}
+```{#org52ecc27 .python}
 class RandomVariablePrinter:
     """Pretty print random variables
 
     NOTE: When parsing LaTeX output (i.e. `self.latex=True`) in `self.process`,
-    the `pstate` object is checked for a boolean `latex` and `latex_aligned`.
-    The former enables LaTeX formatted output, and the latter, when `True`,
-    adds a "&" before the "\sim" in the LaTeX output.
+    the `pstate` object is checked for a boolean `latex`.
     """
     def __init__(self, name=None, latex=False):
         """
@@ -792,75 +881,180 @@ class RandomVariablePrinter:
 
         if node is None or not isinstance(node.op, RandomVariable):
             raise TypeError("function %s cannot represent a variable that is "
-                            "not the result of a RandomVariable operation" % self.name)
+                            "not the result of a RandomVariable operation" %
+                            self.name)
 
         new_precedence = -1000
-        out_name = output.name
-        if not out_name:
-            if hasattr(pstate, 'tag_generator'):
-                out_name = pstate.tag_generator.get_tag()
-            else:
-                out_name = output.auto_name
-
         try:
             old_precedence = getattr(pstate, 'precedence', None)
             pstate.precedence = new_precedence
+            out_name = VariableWithShapePrinter.process_variable_name(
+                output, pstate)
+            shape_info_str = VariableWithShapePrinter.process_shape_info(
+                output, pstate)
+            if self.latex or getattr(pstate, 'latex', False):
+                dist_format = "%s \\sim \\operatorname{%s}\\left(%s\\right)"
+                dist_format += ', \\quad {}'.format(shape_info_str)
+            else:
+                dist_format = "%s ~ %s(%s)"
+                dist_format += ',  {}'.format(shape_info_str)
 
             op_name = self.name or node.op.name
-
-            if self.latex or getattr(pstate, 'latex', False):
-                sep = '&' if getattr(pstate, 'latex_aligned', False) else ''
-                dist_format = "{} %s\\sim \\text{{{}}}\\left({}\\right)" % sep
-            else:
-                dist_format = "{} ~ {}({})"
-
-            r = dist_format.format(
+            dist_params = node.inputs[:-2]
+            dist_params_r = dist_format % (
                 out_name, op_name,
-                ", ".join([pprinter.process(input, pstate)
-                           # Skip the rng type and size parameters.
-                           for input in node.inputs[2:]]))
+                ", ".join([pprinter.process(i, pstate)
+                        for i in dist_params]))
         finally:
             pstate.precedence = old_precedence
 
-        pstate.preamble_lines += [r]
+        pstate.preamble_lines += [dist_params_r]
         pstate.memo[output] = out_name
 
         return out_name
 ```
 
-```{#orgbcc4ee1 .python}
+```{#org414cfc6 .python}
+import string
+
+from theano.compile.ops import Shape_i
+
 from sympy import Array as SympyArray
 from sympy.printing import latex as sympy_latex
 
 
-class VariableTagPrinter:
-    """Use readable character names for unamed variables (that aren't constant values).
-
-    TODO: Avoid naming collisions.
+class VariableWithShapePrinter:
+    """Print variable shape info in the preamble and use readable character
+    names for unamed variables.
     """
-    @staticmethod
-    def process(output, pstate):
+    available_names = set(string.ascii_letters)
+    default_printer = theano.printing.default_printer
+
+    @classmethod
+    def process(cls, output, pstate):
         if output in pstate.memo:
             return pstate.memo[output]
 
+        using_latex = getattr(pstate, 'latex', False)
+
         if isinstance(output, tt.gof.Constant):
-            if output.ndim > 0 and getattr(pstate, 'latex', False):
+            if output.ndim > 0 and using_latex:
                 out_name = sympy_latex(SympyArray(output.data))
             else:
                 out_name = str(output.data)
+        elif isinstance(output, tt.TensorVariable):
+            # Process name and shape
+            out_name = cls.process_variable_name(output, pstate)
+            shape_info = cls.process_shape_info(output, pstate)
+            pstate.preamble_lines += [shape_info]
         elif output.name:
             out_name = output.name
-        elif isinstance(output, tt.TensorVariable):
-            out_name = "{}_u".format(pstate.tag_generator.get_tag())
         else:
-            out_name = theano.printing.default_printer.process(output, pstate)
+            out_name = cls.default_printer.process(output, pstate)
 
         pstate.memo[output] = out_name
-
         return out_name
+
+    @classmethod
+    def process_shape_name(cls, output, pstate):
+        shape_of_var = output.owner.inputs[0]
+        shape_names = pstate.memo.setdefault('shape_names', {})
+        out_name = shape_names.setdefault(
+            shape_of_var, cls.process_variable_name(output, pstate))
+        return out_name
+
+    @classmethod
+    def process_variable_name(cls, output, pstate):
+        if output in pstate.memo:
+            return pstate.memo[output]
+
+        available_names = getattr(pstate, 'available_names', None)
+        if available_names is None:
+            # Initialize this state's available names
+            available_names = set(cls.available_names)
+            fgraph = getattr(output, 'fgraph', None)
+            if fgraph:
+                # Remove known names in the graph.
+                available_names -= {v.name for v in fgraph.variables}
+            setattr(pstate, 'available_names', available_names)
+
+        if output.name:
+            out_name = output.name
+            available_names.discard(out_name)
+        else:
+            out_name = available_names.pop()
+
+        pstate.memo[output] = out_name
+        return out_name
+
+    @classmethod
+    def process_shape_info(cls, output, pstate):
+        using_latex = getattr(pstate, 'latex', False)
+
+        if output.dtype in tt.int_dtypes:
+            sspace_char = 'Z'
+        elif output.dtype in tt.uint_dtypes:
+            sspace_char = 'N'
+        elif output.dtype in tt.float_dtypes:
+            sspace_char = 'R'
+        else:
+            sspace_char = '?'
+
+        fgraph = getattr(output, 'fgraph', None)
+        shape_feature = None
+        if fgraph:
+            if not hasattr(fgraph, 'shape_feature'):
+                fgraph.attach_feature(tt.opt.ShapeFeature())
+            shape_feature = fgraph.shape_feature
+
+        shape_dims = []
+        for i in range(output.ndim):
+            s_i_out = None
+            if using_latex:
+                s_i_pat = '{n^{%s}}' + ('_{%s}' % i)
+            else:
+                s_i_pat = 'n^%s' + ('_%s' % i)
+            if shape_feature:
+                new_precedence = -1000
+                try:
+                    old_precedence = getattr(pstate, 'precedence', None)
+                    pstate.precedence = new_precedence
+                    _s_i_out = shape_feature.get_shape(output, i)
+                    if _s_i_out.owner:
+                        if (isinstance(_s_i_out.owner.op, tt.Subtensor) and
+                            all(isinstance(i, tt.Constant)
+                                for i in _s_i_out.owner.inputs)):
+                            s_i_out = str(_s_i_out.owner.inputs[0].data[
+                                _s_i_out.owner.inputs[1].data])
+                        elif not isinstance(_s_i_out, tt.TensorVariable):
+                            s_i_out = pstate.pprinter.process(_s_i_out, pstate)
+                except KeyError:
+                    pass
+                finally:
+                    pstate.precedence = old_precedence
+
+            if not s_i_out:
+                s_i_out = cls.process_variable_name(output, pstate)
+                s_i_out = s_i_pat % s_i_out
+
+            shape_dims += [s_i_out]
+
+        shape_info = cls.process_variable_name(output, pstate)
+        if using_latex:
+            shape_info += ' \\in \\mathbb{%s}' % sspace_char
+            shape_dims = ' \\times '.join(shape_dims)
+            if shape_dims:
+                shape_info += '^{%s}' % shape_dims
+        else:
+            shape_info += ' in %s' % sspace_char
+            shape_dims = ' x '.join(shape_dims)
+            if shape_dims:
+                shape_info += '**(%s)' % shape_dims
+
+        return shape_info
 ```
 
-```{#org24b54eb .python}
+```{#orgccd5273 .python}
 class PreamblePPrinter(theano.printing.PPrinter):
     """Pretty printer that displays a preamble.
 
@@ -882,13 +1076,12 @@ class PreamblePPrinter(theano.printing.PPrinter):
         # FIXME: Find all the user-defined node names and make the tag
         # generator aware of them.
         if pstate is None:
-            pstate = theano.printing.PrinterState(pprinter=self,
-                                                  preamble_lines=[],
-                                                  tag_generator=theano.printing._TagGenerator(),
-                                                  **self.pstate_defaults)
+            pstate = theano.printing.PrinterState(
+                pprinter=self,
+                preamble_lines=[],
+                **self.pstate_defaults)
         elif isinstance(pstate, dict):
             pstate.setdefault('preamble_lines', [])
-            pstate.setdefault('tag_generator', theano.printing._TagGenerator())
             pstate.update(self.pstate_defaults)
             pstate = theano.printing.PrinterState(pprinter=self, **pstate)
 
@@ -905,31 +1098,48 @@ class PreamblePPrinter(theano.printing.PPrinter):
         assert pstate
         return super().process(r, pstate)
 
-    def __call__(self, *args):
-        if len(args) == 2 and isinstance(args[1], (theano.printing.PrinterState, dict)):
-            pstate = self.create_state(args[1])
-            args = (args[0], pstate)
-        elif len(args) == 1:
-            pstate = self.create_state(None)
-            args += (pstate,)
-        else:
-            # XXX: The graph processing doesn't pass around the printer state!
-            # TODO: We'll have to copy the code and fix it...
-            raise NotImplemented('No preambles for graph printing, yet.')
+    def process_graph(self, inputs, outputs, updates=None,
+                      display_inputs=False):
+        raise NotImplemented()
 
-        body_str = super().__call__(*args)
+    def __call__(self, *args):
+        var = args[0]
+        pstate = next(iter(args[1:]), None)
+        if isinstance(pstate, (theano.printing.PrinterState, dict)):
+            pstate = self.create_state(args[1])
+        elif pstate is None:
+            pstate = self.create_state(None)
+        # else:
+        #     # XXX: The graph processing doesn't pass around the printer state!
+        #     # TODO: We'll have to copy the code and fix it...
+        #     raise NotImplemented('No preambles for graph printing, yet.')
+
+        # This pretty printer needs more information about shapes and inputs,
+        # which it gets from a `FunctionGraph`.  Create one, if `var` isn't
+        # already assigned one.
+        fgraph = getattr(var, 'fgraph', None)
+        if not fgraph:
+            fgraph = tt.gof.fg.FunctionGraph(
+                tt.gof.graph.inputs([var]), [var])
+            var = fgraph.outputs[0]
+
+            # Use this to get better shape info
+            shape_feature = tt.opt.ShapeFeature()
+            fgraph.attach_feature(shape_feature)
+
+        body_str = super().__call__(var, pstate)
+
         if pstate.preamble_lines and getattr(pstate, 'latex', False):
             preamble_str = "\n\\\\\n".join(pstate.preamble_lines)
-            if getattr(pstate, 'latex_aligned', False):
-                preamble_str = "\\begin{{aligned}}\n{}\n\\end{{aligned}}".format(preamble_str)
+            preamble_str = "\\begin{gathered}\n%s\n\\end{gathered}" % (preamble_str)
             return "\n\\\\\n".join([preamble_str, body_str])
         else:
             return "\n".join(pstate.preamble_lines + [body_str])
 ```
 
-```{#org8df3d84 .python}
+```{#orgfc82717 .python}
 tt_pprint = PreamblePPrinter()
-tt_pprint.assign(lambda pstate, r: True, VariableTagPrinter)
+tt_pprint.assign(lambda pstate, r: True, VariableWithShapePrinter)
 tt_pprint.assign(UniformRV, RandomVariablePrinter('U'))
 tt_pprint.assign(NormalRV, RandomVariablePrinter('N'))
 tt_pprint.assign(GammaRV, RandomVariablePrinter('Gamma'))
@@ -940,49 +1150,52 @@ tt_pprint.assign(PoissonRV, RandomVariablePrinter('Pois'))
 tt_pprint.assign(CauchyRV, RandomVariablePrinter('C'))
 tt_pprint.assign(MultinomialRV, RandomVariablePrinter('MN'))
 
-tt_tex_pprint = PreamblePPrinter(pstate_defaults={'latex': True, 'latex_aligned': True})
+tt_tex_pprint = PreamblePPrinter(pstate_defaults={'latex': True})
 tt_tex_pprint.printers = copy(tt_pprint.printers)
 tt_tex_pprint.printers_dict = dict(tt_pprint.printers_dict)
-tt_tex_pprint.assign(tt.mul, theano.printing.OperatorPrinter('\\circ', -1, 'either'))
+tt_tex_pprint.assign(tt.mul, theano.printing.OperatorPrinter('\\odot', -1, 'either'))
 tt_tex_pprint.assign(tt.true_div, theano.printing.PatternPrinter(('\\frac{%(0)s}{%(1)s}', -1000)))
 tt_tex_pprint.assign(tt.pow, theano.printing.PatternPrinter(('{%(0)s}^{%(1)s}', -1000)))
 ```
 
 <div class="example" markdown="">
-Listing [36](#org9ff9161), creates a graph with two random variables and prints the results with the default Theano pretty printer.
+Listing [35](#org1ed4a46), creates a graph with two random variables and prints the results with the default Theano pretty printer.
 
-```{#org9dc8ecb .python}
+```{#org0e19f4e .python}
 Z_tt = UniformRV(tt.scalar('l_0'), tt.scalar('l_1'), name='Z')
 X_tt = NormalRV(Z_tt, tt.scalar('\sigma_1'), name='X')
 Y_tt = MvNormalRV(tt.vector('\mu'), tt.abs_(X_tt) * tt.constant(np.diag([1, 2])), name='Y')
 
 W_tt = X_tt * (tt.scalar('b') * Y_tt + tt.scalar('c'))
-
-print(tt.pprint(W_tt))
 ```
 
-```{#orgafee9ac .text}
-(normal_rv(<RandomStateType>, TensorConstant{[]}, uniform_rv(<RandomStateType>, TensorConstant{[]}, l_0, l_1), \sigma_1) * ((b * multivariate_normal_rv(<RandomStateType>, TensorConstant{[]}, \mu, (|normal_rv(<RandomStateType>, TensorConstant{[]}, uniform_rv(<RandomStateType>, TensorConstant{[]}, l_0, l_1), \sigma_1)| * TensorConstant{[[1 0]
- [0 2]]}))) + c))
-
-
-```
-
-```{#org9ff9161 .python}
+```{#org1ed4a46 .python}
 print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
     tt_tex_pprint(W_tt, {'latex': True, 'latex_aligned': True})))
 ```
 
 \begin{equation*}
-\begin{aligned}
-Z &\sim \text{U}\left(l_0, l_1\right)
+\begin{gathered}
+l_0 \in \mathbb{R}
 \\
-X &\sim \text{N}\left(Z, \sigma_1\right)
+l_1 \in \mathbb{R}
 \\
-Y &\sim \text{N}\left(\mu, (|X| \circ \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])\right)
-\end{aligned}
+Z \sim \operatorname{U}\left(l_0, l_1\right), \quad Z \in \mathbb{R}
 \\
-(X \circ ((b \circ Y) + c))
+\sigma_1 \in \mathbb{R}
+\\
+X \sim \operatorname{N}\left(Z, \sigma_1\right), \quad X \in \mathbb{R}
+\\
+b \in \mathbb{R}
+\\
+\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
+\\
+Y \sim \operatorname{N}\left(\mu, (|X| \odot \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])\right), \quad Y \in \mathbb{R}^{{n^{Y}}_{0}}
+\\
+c \in \mathbb{R}
+\end{gathered}
+\\
+(X \odot ((b \odot Y) + c))
 \end{equation*}
 
 </div>
@@ -990,36 +1203,31 @@ Y &\sim \text{N}\left(\mu, (|X| \circ \left[\begin{matrix}1 & 0\\0 & 2\end{matri
 
 # Algebraic Manipulations
 
-With our new `RandomVariable`, we can alter the replacement patterns used by `tt.gof.opt.PatternSub` in <a href="#24875a2c31fa7f94ce562adddedc0bf8">Willard, Brandon T. (2018)</a> and implement a slightly better parameter lifting for affine transforms of scalar normal random variables in [37](#org1423fdd).
+With our new `RandomVariable`, we can alter the replacement patterns used by `tt.gof.opt.PatternSub` in <a href="#24875a2c31fa7f94ce562adddedc0bf8">Willard, Brandon T. (2018)</a> and implement a slightly better parameter lifting for affine transforms of scalar normal random variables in Listing [36](#orgc483b75).
 
-```{#org1423fdd .python}
-# We use the following to handle keyword arguments.
-construct_norm_rv = lambda rng, size, mu, sd: NormalRV(mu, sd, size=size, rng=rng)
-
+```{#orgc483b75 .python}
 norm_lift_pats = [
     # Lift element-wise multiplication
     tt.gof.opt.PatternSub(
         (tt.mul,
          'a_x',
-         (NormalRV, 'rs_x', 'size_x', 'mu_x', 'sd_x')),
-        (construct_norm_rv,
-         'rs_x',
-         # XXX: Is this really consistent?  How will it handle broadcasting?
-         'size_x',
+         (NormalRV, 'mu_x', 'sd_x', 'size_x', 'rs_x')),
+        (NormalRV,
          (tt.mul, 'a_x', 'mu_x'),
          (tt.mul, 'a_x', 'sd_x'),
+         'size_x',
+         'rs_x',
         )),
     # Lift element-wise addition
     tt.gof.opt.PatternSub(
         (tt.add,
-         (NormalRV, 'rs_x', 'size_x', 'mu_x', 'sd_x'),
+         (NormalRV, 'mu_x', 'sd_x', 'size_x', 'rs_x'),
          'b_x'),
-        (construct_norm_rv,
-         'rs_x',
-         # XXX: Is this really consistent?  How will it handle broadcasting?
-         'size_x',
+        (NormalRV,
          (tt.add, 'mu_x', 'b_x'),
          'sd_x',
+         'size_x',
+         'rs_x',
         )),
 ]
 
@@ -1028,11 +1236,13 @@ norm_lift_opts = tt.gof.opt.EquilibriumOptimizer(
 ```
 
 <div class="example" markdown="">
-```{#orgc33f7e1 .python}
+```{#orgc69f52b .python}
+# [[file:~/projects/websites/brandonwillard.github.io/content/articles/src/org/symbolic-math-in-pymc3-new-op.org::graph-manipulation-setup][graph-manipulation-setup]]
 from theano.gof import FunctionGraph, Feature, NodeFinder
 from theano.gof.graph import inputs as tt_inputs, clone_get_equiv
 
 theano.config.compute_test_value = 'ignore'
+# graph-manipulation-setup ends here
 
 mu_X = tt.vector('\mu')
 sd_X = tt.vector('\sigma')
@@ -1051,7 +1261,7 @@ trans_X_graph_opt = trans_X_graph.clone()
 _ = norm_lift_opts.optimize(trans_X_graph_opt)
 ```
 
-```{#org224230f .python}
+```{#org2bd1258 .python}
 print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
     tt_tex_pprint(trans_X_graph.outputs[0])))
 ```
@@ -1059,14 +1269,22 @@ print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
 Before applying the optimization:
 
 \begin{equation*}
-\begin{aligned}
-X &\sim \text{N}\left(\mu, \sigma\right)
-\end{aligned}
+\begin{gathered}
+a \in \mathbb{R}
 \\
-((a \circ X) + b)
+\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
+\\
+\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
+\\
+X \sim \operatorname{N}\left(\mu, \sigma\right), \quad X \in \mathbb{R}^{{n^{X}}_{0}}
+\\
+b \in \mathbb{R}
+\end{gathered}
+\\
+((a \odot X) + b)
 \end{equation*}
 
-```{#orgfd83c7b .python}
+```{#orge71b0ac .python}
 print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
     tt_tex_pprint(trans_X_graph_opt.outputs[0])))
 ```
@@ -1074,11 +1292,19 @@ print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
 After applying the optimization:
 
 \begin{equation*}
-\begin{aligned}
-A &\sim \text{N}\left(((a \circ \mu) + b), (a \circ \sigma)\right)
-\end{aligned}
+\begin{gathered}
+a \in \mathbb{R}
 \\
-A
+\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
+\\
+b \in \mathbb{R}
+\\
+\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
+\\
+u \sim \operatorname{N}\left(((a \odot \mu) + b), (a \odot \sigma)\right), \quad u \in \mathbb{R}^{{n^{u}}_{0}}
+\end{gathered}
+\\
+u
 \end{equation*}
 
 </div>
@@ -1091,22 +1317,20 @@ Now, what if we wanted to handle affine transformations of a multivariate normal
  \;.
 \end{equation*}
 
-At first, the substitution pattern in Listing [41](#orge1f1fb7) might seem reasonable.
+At first, the substitution pattern in Listing [40](#org4a792de) might seem reasonable.
 
-```{#orge1f1fb7 .python}
+```{#org4a792de .python}
 # Vector multiplication
 tt.gof.opt.PatternSub(
-    (tt.dot,
-     'A_x',
-     (MvNormalRV, 'rs_x', 'size_x', 'mu_x', 'cov_x')),
-    (construct_rv,
-     MvNormalRV,
-     'rs_x',
-     'size_x',
+    (tt.dot, 'A_x',
+     (MvNormalRV, 'mu_x', 'cov_x', 'size_x', 'rs_x')),
+    (MvNormalRV,
      (tt.dot, 'A_x', 'mu_x'),
      (tt.dot,
       (tt.dot, 'A_x', 'cov_x')
       (tt.transpose, 'A_x')),
+     'size_x',
+     'rs_x',
     ))
 ```
 
@@ -1115,33 +1339,32 @@ Unfortunately, the combination of size parameter and broadcasting complicates th
 The following example demonstrates the lifting issues brought on by broadcasting.
 
 <div class="example" markdown="">
-We create a simple multivariate normal in Listing [42](#orgb25a065).
+We create a simple multivariate normal in Listing [41](#org7446c7b).
 
-```{#orgb25a065 .python}
+```{#org7446c7b .python}
 mu_X = [0, 10]
 cov_X = np.diag([1, 1e-2])
 size_X_rv = [2, 3]
 X_rv = MvNormalRV(mu_X, cov_X, size=size_X_rv)
 
-print('X_rv sample:\n{}\n'.format(X_rv.tag.test_value))
+print('{} ~ X_rv\n'.format(X_rv.tag.test_value))
 ```
 
-```{#org382d90c .python}
-X_rv sample:
-[[[ 1.73535673 10.14604812]
-  [ 0.81111665 10.07573636]
-  [-0.79263131  9.95495907]]
+```{#orgc7d92d4 .python}
+[[[-0.68284424  9.95587926]
+  [ 1.66236785  9.87590909]
+  [ 0.23449772 10.12455681]]
 
- [[-1.45442983 10.17411569]
-  [-0.13669398 10.02984376]
-  [ 0.58279226 10.02003365]]]
+ [[ 0.3342739  10.05580428]
+  [-0.18913408 10.0359336 ]
+  [-1.2463576   9.90671218]]] ~ X_rv
 
 
 ```
 
 Next, we create a simple matrix operator to apply to the multivariate normal.
 
-```{#org2187e20 .python}
+```{#org0f84661 .python}
 A_tt = tt.as_tensor_variable([[2, 5, 8], [3, 4, 9]])
 # or A_tt = tt.as_tensor_variable([[2, 5, 8]])
 
@@ -1151,7 +1374,7 @@ E_X_rv = X_rv.owner.inputs[2]
 print('A * X_rv =\n{}\n'.format(tt.dot(A_tt, X_rv).tag.test_value))
 ```
 
-```{#org35ddffc .python}
+```{#org2cb4213 .python}
 A * X_rv =
 [[[  1.18524621 150.31045062]
   [  1.07000851 150.65771936]]
@@ -1164,7 +1387,7 @@ A * X_rv =
 
 As we can see, the multivariate normal's test/sampled value has the correct shape for our matrix operator.
 
-```{#orgb37683f .python}
+```{#orgd95a139 .python}
 import traceback
 try:
     print('A * E[X_rv] =\n{}\n'.format(tt.dot(A_tt, E_X_rv).tag.test_value))
@@ -1172,7 +1395,7 @@ except ValueError as e:
     print("".join(traceback.format_exception_only(type(e), e)))
 ```
 
-```{#org6583c51 .python}
+```{#org46ec622 .python}
 ValueError: shapes (2,3) and (2,) not aligned: 3 (dim 1) != 2 (dim 0)
 
 
@@ -1180,14 +1403,14 @@ ValueError: shapes (2,3) and (2,) not aligned: 3 (dim 1) != 2 (dim 0)
 
 However, we see that the multivariate normal's inputs (i.e. the `Op` inputs)&#x2013;specifically the mean parameter&#x2013;do not directly reflect the support's shape, as one might expect.
 
-```{#org50d3925 .python}
+```{#org6e32649 .python}
 size_tile = tuple(size_X_rv) + (1,)
 E_X_rv_ = tt.tile(E_X_rv, size_tile, X_rv.ndim)
 
 print('A * E[X_rv] =\n{}\n'.format(tt.dot(A_tt, E_X_rv_).tag.test_value))
 ```
 
-```{#org8d5f523 .python}
+```{#orgc405b2a .python}
 A * E[X_rv] =
 [[[  0 150]
   [  0 150]]
@@ -1208,7 +1431,7 @@ We can manually replicate the inputs so that they match the output shape, but a 
 As in <a href="#24875a2c31fa7f94ce562adddedc0bf8">Willard, Brandon T. (2018)</a>, we can create mappings between existing PyMC3 random variables and their new `RandomVariable` equivalents.
 
 <div class="example" markdown="">
-```{#orgf097520 .python}
+```{#org8bffc80 .python}
 pymc_theano_rv_equivs = {
     pm.Normal:
     lambda dist, rand_state:
@@ -1233,7 +1456,7 @@ More specifically, broadcast information is required during the construction of 
 <div class="example" markdown="">
 Consider the following example; it constructs two purely symbolic Theano vectors: one with broadcasting and one without.
 
-```{#org9f946c6 .python}
+```{#orgbd54927 .python}
 y_tt = tt.row('y')
 print("y_tt.broadcastable = {}".format(y_tt.broadcastable))
 
@@ -1241,7 +1464,7 @@ x_tt = tt.matrix('x')
 print("x_tt.broadcastable = {}".format(x_tt.broadcastable))
 ```
 
-```{#org58c34eb .python}
+```{#orgad91de3 .python}
 y_tt.broadcastable = (True, False)
 x_tt.broadcastable = (False, False)
 
@@ -1256,7 +1479,7 @@ In the following, we assign both a broadcastable (i.e. first&#x2013;and only&#x2
 
 Test value is broadcastable:
 
-```{#org87ef0a0 .python}
+```{#orgaadc727 .python}
 from contextlib import contextmanager
 
 
@@ -1284,7 +1507,7 @@ with short_exception_msg(TypeError):
     print("shape checks out!")
 ```
 
-```{#org7cc6f84 .python}
+```{#org2e61ec5 .python}
 test_value.broadcastable = (True, True)
 x_tt.broadcastable = (False, False)
 shape checks out!
@@ -1292,7 +1515,7 @@ shape checks out!
 
 ```
 
-```{#orgcd3c397 .python}
+```{#org56323a0 .python}
 y_tt.tag.test_value = np.array([[5]])
 
 print("test_value.broadcastable = {}".format(
@@ -1304,7 +1527,7 @@ with short_exception_msg(TypeError):
     print("shape checks out!")
 ```
 
-```{#org7ac16be .python}
+```{#org0eb456d .python}
 test_value.broadcastable = (True, True)
 y_tt.broadcastable = (True, False)
 shape checks out!
@@ -1314,7 +1537,7 @@ shape checks out!
 
 Test value is **not** broadcastable:
 
-```{#orgf487f03 .python}
+```{#orge2d0568 .python}
 x_tt.tag.test_value = np.array([[5, 4]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(x_tt.tag.test_value).broadcastable))
@@ -1325,7 +1548,7 @@ with short_exception_msg(TypeError):
     print("shape checks out!")
 ```
 
-```{#org5fa2b05 .python}
+```{#org9673726 .python}
 test_value.broadcastable = (True, False)
 x_tt.broadcastable = (False, False)
 shape checks out!
@@ -1333,7 +1556,7 @@ shape checks out!
 
 ```
 
-```{#org4c4af68 .python}
+```{#org53e07ae .python}
 y_tt.tag.test_value = np.array([[5, 4], [3, 2]])
 print("test_value.broadcastable = {}".format(
     tt.as_tensor_variable(y_tt.tag.test_value).broadcastable))
@@ -1344,7 +1567,7 @@ with short_exception_msg(TypeError):
     print("shape checks out!")
 ```
 
-```{#org27c7f41 .python}
+```{#orge7e2254 .python}
 test_value.broadcastable = (False, False)
 y_tt.broadcastable = (True, False)
 TypeError: For compute_test_value, one input test value does not have the requested type.
