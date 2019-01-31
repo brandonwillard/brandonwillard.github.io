@@ -958,9 +958,7 @@ class RandomVariablePrinter:
     """Pretty print random variables
 
     NOTE: When parsing LaTeX output (i.e. `self.latex=True`) in `self.process`,
-    the `pstate` object is checked for a boolean `latex` and `latex_aligned`.
-    The former enables LaTeX formatted output, and the latter, when `True`,
-    adds a "&" before the "\sim" in the LaTeX output.
+    the `pstate` object is checked for a boolean `latex`.
     """
     def __init__(self, name=None, latex=False):
         """
@@ -984,54 +982,30 @@ class RandomVariablePrinter:
 
         if node is None or not isinstance(node.op, RandomVariable):
             raise TypeError("function %s cannot represent a variable that is "
-                            "not the result of a RandomVariable operation" % self.name)
+                            "not the result of a RandomVariable operation" %
+                            self.name)
 
         new_precedence = -1000
-        out_name = output.name
-        if not out_name:
-            if hasattr(pstate, 'tag_generator'):
-                out_name = pstate.tag_generator.get_tag()
-            else:
-                out_name = output.auto_name
-
         try:
             old_precedence = getattr(pstate, 'precedence', None)
             pstate.precedence = new_precedence
+            out_name = VariableWithShapePrinter.process_variable_name(
+                output, pstate)
+            shape_info_str = VariableWithShapePrinter.process_shape_info(
+                output, pstate)
+            if self.latex or getattr(pstate, 'latex', False):
+                dist_format = "%s \\sim \\operatorname{%s}\\left(%s\\right)"
+                dist_format += ', \\quad {}'.format(shape_info_str)
+            else:
+                dist_format = "%s ~ %s(%s)"
+                dist_format += ',  {}'.format(shape_info_str)
 
             op_name = self.name or node.op.name
-            # size = node.inputs[-2]
-
-            if output.dtype in tt.int_dtypes:
-                sspace_char = 'Z'
-            elif output.dtype in tt.uint_dtypes:
-                sspace_char = 'N'
-            elif output.dtype in tt.float_dtypes:
-                sspace_char = 'R'
-            else:
-                sspace_char = '?'
-
-            if self.latex or getattr(pstate, 'latex', False):
-                sep = '&' if getattr(pstate, 'latex_aligned', False) else ''
-                dist_format = "{} %s\\sim \\text{{{}}}\\left({}\\right)" % sep
-                dist_format += ', \quad \\mathbb{{%s}}' % sspace_char
-                shapes_r = ' \\times '.join(pprinter.process(s, pstate)
-                                            for s in output.shape)
-                if shapes_r:
-                    dist_format += '^{{%s}}' % shapes_r
-            else:
-                dist_format = "{} ~ {}({})"
-                dist_format += ', %s' % sspace_char
-                shapes_r = ' x '.join(pprinter.process(s, pstate)
-                                      for s in output.shape)
-                if shapes_r:
-                    dist_format += '**(%s)' % shapes_r
-
             dist_params = node.inputs[:-2]
-
-            dist_params_r = dist_format.format(
+            dist_params_r = dist_format % (
                 out_name, op_name,
                 ", ".join([pprinter.process(i, pstate)
-                           for i in dist_params]))
+                        for i in dist_params]))
         finally:
             pstate.precedence = old_precedence
 
@@ -1043,35 +1017,143 @@ class RandomVariablePrinter:
 
 #+NAME: variable-tag-printer-class
 #+BEGIN_SRC python :exports code :results none :noweb-ref new-op-code
+import string
+
+from theano.compile.ops import Shape_i
+
 from sympy import Array as SympyArray
 from sympy.printing import latex as sympy_latex
 
 
-class VariableTagPrinter:
-    """Use readable character names for unamed variables (that aren't constant values).
-
-    TODO: Avoid naming collisions.
+class VariableWithShapePrinter:
+    """Print variable shape info in the preamble and use readable character
+    names for unamed variables.
     """
-    @staticmethod
-    def process(output, pstate):
+    available_names = set(string.ascii_letters)
+    default_printer = theano.printing.default_printer
+
+    @classmethod
+    def process(cls, output, pstate):
         if output in pstate.memo:
             return pstate.memo[output]
 
+        using_latex = getattr(pstate, 'latex', False)
+
         if isinstance(output, tt.gof.Constant):
-            if output.ndim > 0 and getattr(pstate, 'latex', False):
+            if output.ndim > 0 and using_latex:
                 out_name = sympy_latex(SympyArray(output.data))
             else:
                 out_name = str(output.data)
+        elif isinstance(output, tt.TensorVariable):
+            # Process name and shape
+            out_name = cls.process_variable_name(output, pstate)
+            shape_info = cls.process_shape_info(output, pstate)
+            pstate.preamble_lines += [shape_info]
         elif output.name:
             out_name = output.name
-        elif isinstance(output, tt.TensorVariable):
-            out_name = "{}_u".format(pstate.tag_generator.get_tag())
         else:
-            out_name = theano.printing.default_printer.process(output, pstate)
+            out_name = cls.default_printer.process(output, pstate)
 
         pstate.memo[output] = out_name
-
         return out_name
+
+    @classmethod
+    def process_shape_name(cls, output, pstate):
+        shape_of_var = output.owner.inputs[0]
+        shape_names = pstate.memo.setdefault('shape_names', {})
+        out_name = shape_names.setdefault(
+            shape_of_var, cls.process_variable_name(output, pstate))
+        return out_name
+
+    @classmethod
+    def process_variable_name(cls, output, pstate):
+        if output in pstate.memo:
+            return pstate.memo[output]
+
+        available_names = getattr(pstate, 'available_names', None)
+        if available_names is None:
+            # Initialize this state's available names
+            available_names = set(cls.available_names)
+            fgraph = getattr(output, 'fgraph', None)
+            if fgraph:
+                # Remove known names in the graph.
+                available_names -= {v.name for v in fgraph.variables}
+            setattr(pstate, 'available_names', available_names)
+
+        if output.name:
+            out_name = output.name
+            available_names.discard(out_name)
+        else:
+            out_name = available_names.pop()
+
+        pstate.memo[output] = out_name
+        return out_name
+
+    @classmethod
+    def process_shape_info(cls, output, pstate):
+        using_latex = getattr(pstate, 'latex', False)
+
+        if output.dtype in tt.int_dtypes:
+            sspace_char = 'Z'
+        elif output.dtype in tt.uint_dtypes:
+            sspace_char = 'N'
+        elif output.dtype in tt.float_dtypes:
+            sspace_char = 'R'
+        else:
+            sspace_char = '?'
+
+        fgraph = getattr(output, 'fgraph', None)
+        shape_feature = None
+        if fgraph:
+            if not hasattr(fgraph, 'shape_feature'):
+                fgraph.attach_feature(tt.opt.ShapeFeature())
+            shape_feature = fgraph.shape_feature
+
+        shape_dims = []
+        for i in range(output.ndim):
+            s_i_out = None
+            if using_latex:
+                s_i_pat = '{n^{%s}}' + ('_{%s}' % i)
+            else:
+                s_i_pat = 'n^%s' + ('_%s' % i)
+            if shape_feature:
+                new_precedence = -1000
+                try:
+                    old_precedence = getattr(pstate, 'precedence', None)
+                    pstate.precedence = new_precedence
+                    _s_i_out = shape_feature.get_shape(output, i)
+                    if _s_i_out.owner:
+                        if (isinstance(_s_i_out.owner.op, tt.Subtensor) and
+                            all(isinstance(i, tt.Constant)
+                                for i in _s_i_out.owner.inputs)):
+                            s_i_out = str(_s_i_out.owner.inputs[0].data[
+                                _s_i_out.owner.inputs[1].data])
+                        elif not isinstance(_s_i_out, tt.TensorVariable):
+                            s_i_out = pstate.pprinter.process(_s_i_out, pstate)
+                except KeyError:
+                    pass
+                finally:
+                    pstate.precedence = old_precedence
+
+            if not s_i_out:
+                s_i_out = cls.process_variable_name(output, pstate)
+                s_i_out = s_i_pat % s_i_out
+
+            shape_dims += [s_i_out]
+
+        shape_info = cls.process_variable_name(output, pstate)
+        if using_latex:
+            shape_info += ' \\in \\mathbb{%s}' % sspace_char
+            shape_dims = ' \\times '.join(shape_dims)
+            if shape_dims:
+                shape_info += '^{%s}' % shape_dims
+        else:
+            shape_info += ' in %s' % sspace_char
+            shape_dims = ' x '.join(shape_dims)
+            if shape_dims:
+                shape_info += '**(%s)' % shape_dims
+
+        return shape_info
 #+END_SRC
 
 #+NAME: preamble-pprinter-class
@@ -1097,13 +1179,12 @@ class PreamblePPrinter(theano.printing.PPrinter):
         # FIXME: Find all the user-defined node names and make the tag
         # generator aware of them.
         if pstate is None:
-            pstate = theano.printing.PrinterState(pprinter=self,
-                                                  preamble_lines=[],
-                                                  tag_generator=theano.printing._TagGenerator(),
-                                                  ,**self.pstate_defaults)
+            pstate = theano.printing.PrinterState(
+                pprinter=self,
+                preamble_lines=[],
+                ,**self.pstate_defaults)
         elif isinstance(pstate, dict):
             pstate.setdefault('preamble_lines', [])
-            pstate.setdefault('tag_generator', theano.printing._TagGenerator())
             pstate.update(self.pstate_defaults)
             pstate = theano.printing.PrinterState(pprinter=self, **pstate)
 
@@ -1120,23 +1201,40 @@ class PreamblePPrinter(theano.printing.PPrinter):
         assert pstate
         return super().process(r, pstate)
 
-    def __call__(self, *args):
-        if len(args) == 2 and isinstance(args[1], (theano.printing.PrinterState, dict)):
-            pstate = self.create_state(args[1])
-            args = (args[0], pstate)
-        elif len(args) == 1:
-            pstate = self.create_state(None)
-            args += (pstate,)
-        else:
-            # XXX: The graph processing doesn't pass around the printer state!
-            # TODO: We'll have to copy the code and fix it...
-            raise NotImplemented('No preambles for graph printing, yet.')
+    def process_graph(self, inputs, outputs, updates=None,
+                      display_inputs=False):
+        raise NotImplemented()
 
-        body_str = super().__call__(*args)
+    def __call__(self, *args):
+        var = args[0]
+        pstate = next(iter(args[1:]), None)
+        if isinstance(pstate, (theano.printing.PrinterState, dict)):
+            pstate = self.create_state(args[1])
+        elif pstate is None:
+            pstate = self.create_state(None)
+        # else:
+        #     # XXX: The graph processing doesn't pass around the printer state!
+        #     # TODO: We'll have to copy the code and fix it...
+        #     raise NotImplemented('No preambles for graph printing, yet.')
+
+        # This pretty printer needs more information about shapes and inputs,
+        # which it gets from a `FunctionGraph`.  Create one, if `var` isn't
+        # already assigned one.
+        fgraph = getattr(var, 'fgraph', None)
+        if not fgraph:
+            fgraph = tt.gof.fg.FunctionGraph(
+                tt.gof.graph.inputs([var]), [var])
+            var = fgraph.outputs[0]
+
+            # Use this to get better shape info
+            shape_feature = tt.opt.ShapeFeature()
+            fgraph.attach_feature(shape_feature)
+
+        body_str = super().__call__(var, pstate)
+
         if pstate.preamble_lines and getattr(pstate, 'latex', False):
             preamble_str = "\n\\\\\n".join(pstate.preamble_lines)
-            if getattr(pstate, 'latex_aligned', False):
-                preamble_str = "\\begin{{aligned}}\n{}\n\\end{{aligned}}".format(preamble_str)
+            preamble_str = "\\begin{gathered}\n%s\n\\end{gathered}" % (preamble_str)
             return "\n\\\\\n".join([preamble_str, body_str])
         else:
             return "\n".join(pstate.preamble_lines + [body_str])
@@ -1145,7 +1243,7 @@ class PreamblePPrinter(theano.printing.PPrinter):
 #+NAME: instantiate-pprinter-classes
 #+BEGIN_SRC python :exports code :results none :noweb-ref new-op-code
 tt_pprint = PreamblePPrinter()
-tt_pprint.assign(lambda pstate, r: True, VariableTagPrinter)
+tt_pprint.assign(lambda pstate, r: True, VariableWithShapePrinter)
 tt_pprint.assign(UniformRV, RandomVariablePrinter('U'))
 tt_pprint.assign(NormalRV, RandomVariablePrinter('N'))
 tt_pprint.assign(GammaRV, RandomVariablePrinter('Gamma'))
@@ -1156,10 +1254,10 @@ tt_pprint.assign(PoissonRV, RandomVariablePrinter('Pois'))
 tt_pprint.assign(CauchyRV, RandomVariablePrinter('C'))
 tt_pprint.assign(MultinomialRV, RandomVariablePrinter('MN'))
 
-tt_tex_pprint = PreamblePPrinter(pstate_defaults={'latex': True, 'latex_aligned': True})
+tt_tex_pprint = PreamblePPrinter(pstate_defaults={'latex': True})
 tt_tex_pprint.printers = copy(tt_pprint.printers)
 tt_tex_pprint.printers_dict = dict(tt_pprint.printers_dict)
-tt_tex_pprint.assign(tt.mul, theano.printing.OperatorPrinter('\\circ', -1, 'either'))
+tt_tex_pprint.assign(tt.mul, theano.printing.OperatorPrinter('\\odot', -1, 'either'))
 tt_tex_pprint.assign(tt.true_div, theano.printing.PatternPrinter(('\\frac{%(0)s}{%(1)s}', -1000)))
 tt_tex_pprint.assign(tt.pow, theano.printing.PatternPrinter(('{%(0)s}^{%(1)s}', -1000)))
 #+END_SRC
@@ -1167,12 +1265,16 @@ tt_tex_pprint.assign(tt.pow, theano.printing.PatternPrinter(('{%(0)s}^{%(1)s}', 
 #+NAME: rv-pprinter-tests
 #+BEGIN_SRC python :eval never-export :exports none :results silent
 tt_normalrv_name_expr = tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma'), size=[2, 1], name='X')
-tt_normalrv_noname_expr = tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma'))
-tt_2_normalrv_noname_expr = NormalRV(tt.scalar('\mu_2'), tt.scalar('\sigma_2')) * (tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma')) + tt.scalar('c'))
+assert tt_pprint(tt_normalrv_name_expr) == "b in R\n\\mu in R\n\\sigma in R\nX ~ N(\\mu, \\sigma),  X in R**(2 x n^X_1)\n(b * X)"
 
-assert tt_pprint(tt_normalrv_name_expr) == "X ~ N(\mu, \sigma), R**(A_u[0] x A_u[1])\n(b * X)"
-assert tt_pprint(tt_normalrv_noname_expr) == "A ~ N(\mu, \sigma), R\n(b * A)"
-assert tt_pprint(tt_2_normalrv_noname_expr) == "A ~ N(\mu_2, \sigma_2), R\nB ~ N(\mu, \sigma), R\n(A * ((b * B) + c))"
+tt_normalrv_noname_expr = tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma'))
+assert tt_pprint(tt_normalrv_noname_expr) == "b in R\n\\mu in R\n\\sigma in R\nK ~ N(\\mu, \\sigma),  K in R\n(b * K)"
+
+tt_2_normalrv_noname_expr = tt.matrix('M') * NormalRV(tt.scalar('\mu_2'), tt.scalar('\sigma_2'))
+tt_2_normalrv_noname_expr *= (tt.scalar('b') *
+                              NormalRV(tt_2_normalrv_noname_expr, tt.scalar('\sigma')) +
+                              tt.scalar('c'))
+assert tt_pprint(tt_2_normalrv_noname_expr) == "M in R**(n^M_0 x n^M_1)\n\\mu_2 in R\n\\sigma_2 in R\nK ~ N(\\mu_2, \\sigma_2),  K in R\nb in R\n\\sigma in R\nP ~ N((M * K), \\sigma),  P in R**(n^P_0 x n^P_1)\nc in R\n((M * K) * ((b * P) + c))"
 #+END_SRC
 
 :EXAMPLE:
@@ -1206,18 +1308,28 @@ print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
 
 #+RESULTS: rv-pprinter-exa
 \begin{equation*}
-\begin{aligned}
-Z &\sim \text{U}\left(l_0, l_1\right), \quad \mathbb{R}
+\begin{gathered}
+l_0 \in \mathbb{R}
 \\
-X &\sim \text{N}\left(Z, \sigma_1\right), \quad \mathbb{R}
+l_1 \in \mathbb{R}
 \\
-Y &\sim \text{N}\left(\mu, (|X| \circ \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])\right), \quad \mathbb{R}^{A_u[0]}
-\end{aligned}
+Z \sim \operatorname{U}\left(l_0, l_1\right), \quad Z \in \mathbb{R}
 \\
-(X \circ ((b \circ Y) + c))
+\sigma_1 \in \mathbb{R}
+\\
+X \sim \operatorname{N}\left(Z, \sigma_1\right), \quad X \in \mathbb{R}
+\\
+b \in \mathbb{R}
+\\
+\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
+\\
+Y \sim \operatorname{N}\left(\mu, (|X| \odot \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])\right), \quad Y \in \mathbb{R}^{{n^{Y}}_{0}}
+\\
+c \in \mathbb{R}
+\end{gathered}
+\\
+(X \odot ((b \odot Y) + c))
 \end{equation*}
-
-
 
 
 :END:
