@@ -18,7 +18,8 @@
 #+END_SRC
 
 #+PROPERTY: header-args :eval never-export :exports both :results output drawer replace
-#+PROPERTY: header-args+ :session symbolic-math-pymc3-mcmc
+#+PROPERTY: header-args+ :session symbolic-math-pymc3-mcmc :comments noweb
+#+PROPERTY: header-args:python :noweb-sep "\n\n"
 
 #+NAME: set-pelican-preamble
 #+BEGIN_SRC elisp :eval export-only :exports results :results value raw
@@ -53,11 +54,11 @@ In the examples we'll use here, the model of interest will be the Horseshoe
 model [[citep:carvalho_horseshoe_2010]] given by
 \begin{equation}
   \begin{aligned}
-    Y &\sim \mathop{\text{N}}\nolimits\left(\beta, 1\right)
+    Y &\sim \operatorname{N}\left(\beta, 1\right)
     \\
-    \beta &\sim \mathop{\text{N}}\nolimits\left(0, \tau^2\right)
+    \beta &\sim \operatorname{N}\left(0, \tau^2\right)
     \\
-    \tau &\sim \mathop{\text{C}^{+}}\nolimits\left(0, 1\right)
+    \tau &\sim \operatorname{C^{+}}\left(0, 1\right)
     \;.
   \end{aligned}
 \label{eq:hs_model}
@@ -129,15 +130,15 @@ Let's illustrate some of these points using an example.
 We demonstrate automatic model reformulation using the variance expansion in
 Equation [[eqref:eq:hs_model]] in [[citet:scott_parameter_2010]].
 
-This expansion works pushing the half-Cauchy variance term, $\tau$, out of the
-normal, $\beta$:
+This expansion works pushing the half-Cauchy variance term, \(\tau\), out of the
+normal, \(\beta\):
 \begin{equation}
   \begin{aligned}
-    Y &\sim \mathop{\text{N}}\nolimits\left(\beta, 1\right)
+    Y &\sim \operatorname{N}\left(\beta, 1\right)
     \\
-    \beta &\sim \tau \cdot \mathop{\text{N}}\nolimits\left(0, 1\right)
+    \beta &\sim \tau \cdot \operatorname{N}\left(0, 1\right)
     \\
-    \tau &\sim \mathop{\text{C}^{+}}\nolimits\left(0, 1\right)
+    \tau &\sim \operatorname{C^{+}}\left(0, 1\right)
     \;.
   \end{aligned}
 \label{eq:norm_var_sink}
@@ -146,17 +147,17 @@ normal, $\beta$:
 An applicable reformulation rule might look like the following:
 \begin{equation}
   \begin{aligned}
-    \mathop{\text{N}}\nolimits\left(a m, a^2 C\right)
-    &\to a \mathop{\text{N}}\nolimits\left(m, C\right)
+    \operatorname{N}\left(a m, a^2 C\right)
+    &\to a \operatorname{N}\left(m, C\right)
   \end{aligned}
 \label{eq:norm_replacement_exa}
 \;.
 \end{equation}
 :END:
 
-Now, what about an expression like $\mathop{\text{N}}\nolimits\left(0,
-a^2\right)$; should our replacement in Equation [[eqref:eq:norm_replacement_exa]] produce
-$a \mathop{\text{N}}\nolimits\left(0, 1\right)$?
+Now, what about an expression like \(\operatorname{N}\left(0, a^2\right)\);
+should our replacement in Equation [[eqref:eq:norm_replacement_exa]] produce
+\(a \operatorname{N}\left(0, 1\right)\)?
 
 Conventional mathematical reasoning might say so, but a term rewriting system
 will need to be designed to account for this explicitly.  The important
@@ -361,6 +362,8 @@ normal/canonical forms.
 #+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
 import abc
 
+from itertools import chain
+
 # TODO: Replace `from_obj` with a dispatched function?
 # from multipledispatch import dispatch
 
@@ -384,19 +387,45 @@ def meta_reify_all(rands):
     return reified_rands, any_unreified
 
 
-class MetaSymbol(abc.ABC):
+class MetaSymbolType(abc.ABCMeta):
+    def __new__(cls, name, bases, clsdict):
+
+        all_slots = set(chain.from_iterable(
+            s.__all_slots__ for s in bases
+            if hasattr(s, '__all_slots__')))
+        all_slots |= set(clsdict.get('__slots__', []))
+        clsdict['__all_slots__'] = all_slots
+
+        def __setattr__(self, attr, obj):
+            """If a slot value is changed, discard the underlying non-meta
+            objects.
+            """
+            if (getattr(self, 'obj', None) is not None and
+                    attr in getattr(self, '__all_slots__', {}) and
+                    hasattr(self, attr) and getattr(self, attr) != obj):
+                self.obj = None
+            object.__setattr__(self, attr, obj)
+
+        clsdict['__setattr__'] = __setattr__
+
+        res = super().__new__(cls, name, bases, clsdict)
+
+        # TODO: Could register base classes as meta kinds...
+        # cls.register(bases)
+        return res
+
+
+class MetaSymbol(metaclass=MetaSymbolType):
     """Meta objects for unification and such.
     """
     # TODO: Consider automatically registering base types.
     # Might need to make this a `type`.
     #
-    # def __new__(cls, base, **kwargs):
-    #     cls.register(base)
-    #     res = object.__new__(cls)
     @property
     @abc.abstractmethod
     def base(self):
-        """The base type/rator for this meta object."""
+        """The base type/rator for this meta object.
+        """
         pass
 
     @classmethod
@@ -518,17 +547,19 @@ class MetaSymbol(abc.ABC):
         return hash(tuple(_make_hashable(p) for p in self.rands()))
 
     def __str__(self):
-        if self.obj is None:
+        obj = getattr(self, 'obj', None)
+        if obj is None:
             params = self.rands()
             args = ', '.join([str(p) for p in params])
             res = '{}({})'.format(self.__class__.__name__, args)
         else:
-            res = str(self.obj)
+            res = str(obj)
         return res
 
     def __repr__(self):
+        obj = getattr(self, 'obj', None)
         args = ', '.join([repr(p) for p in self.rands()] +
-                         ['obj={}'.format(repr(self.obj))])
+                         ['obj={}'.format(repr(obj))])
         return '{}({})'.format(
             self.__class__.__name__, args)
 
@@ -723,19 +754,30 @@ alias src_python{tt} in Listing [[theano-meta-accessor]].
 #+NAME: theano-meta-accessor
 #+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
 import types
+import __main__
+
+from functools import partial
 
 
 class TheanoMetaAccessor(object):
+    namespaces = [__main__, tt]
+
     def __getattr__(self, obj):
-        print('getattr')
-        theano_obj = getattr(tt, obj)
-        if isinstance(theano_obj, types.FunctionType):
+        ns_obj = next(getattr(ns, obj)
+                      for ns in self.namespaces
+                      if hasattr(ns, obj))
+
+        if isinstance(ns_obj, (types.FunctionType, partial)):
+            # It's a function, so let's provide a wrapper
+            # that converts to-and-from theano and meta objects.
             @staticmethod
             def meta_obj(*args, **kwargs):
-                res = theano_obj(*args, **kwargs)
+                args = [o.reify() if hasattr(o, 'reify') else o
+                        for o in args]
+                res = ns_obj(*args, **kwargs)
                 return MetaSymbol.from_obj(res)
         else:
-            meta_obj = MetaSymbol.from_obj(theano_obj)
+            meta_obj = MetaSymbol.from_obj(ns_obj)
 
         setattr(TheanoMetaAccessor, obj, meta_obj)
 
@@ -1191,7 +1233,7 @@ One advantage to using miniKanren as a means of specifying rewrite rules, is
 that it provides a stream of all possible replacements.
 
 For example, Equation [[eqref:eq:kanren-reduce-example]] shows all the replacement
-results for $x^{2} x^{2}$, which includes the original expression, combined
+results for \(x^{2} x^{2}\), which includes the original expression, combined
 powers, and a squaring.
 
 #+NAME: kanren-reduce-example
@@ -1211,29 +1253,29 @@ results = '\n\\\\\n'.join([
 ])
 
 print("""
-\\begin{{equation*}}
+\\begin{{equation}}
 \\begin{{aligned}}
     {} &=
     \\\\
 {}
 \\end{{aligned}}
 \\label{{eq:kanren-reduce-example}}
-\\end{{equation*}}
+\\end{{equation}}
 """.format(tt_tex_pprint(exa_expr, tt_tex_options).strip('()'),
            textwrap.indent(results, '\t\t')))
 #+END_SRC
 
 #+RESULTS: kanren-reduce-example
-\begin{equation*}
-\begin{aligned}
-    {x}^{2} \circ {x}^{2} &=
-    \\
-		&={{x}^{2}}^{2}
-		\\
-		&={x}^{(2 + 2)}
-\end{aligned}
+\begin{equation}
+  \begin{aligned}
+      {x}^{2} \circ {x}^{2} &=
+      \\
+      &={{x}^{2}}^{2}
+      \\
+      &={x}^{(2 + 2)}
+  \end{aligned}
 \label{eq:kanren-reduce-example}
-\end{equation*}
+\end{equation}
 
 :END:
 ** A miniKanren src_python{LocalOptimizer}
@@ -1391,7 +1433,7 @@ fact(mcmc_transforms,
 #+END_SRC
 
 We have to make sure that the optimizer doesn't get caught in an endless
-$1 \to 1 \cdot 1$ loop.  To do this, in Listing [[kanren-normal-rescale-guard]], we
+\(1 \to 1 \cdot 1\) loop.  To do this, in Listing [[kanren-normal-rescale-guard]], we
 set up a naive constraint that projects the current miniKanren state
 (i.e. a src_python{dict} of logic variable replacements resulting from
 unification) and checks that the unified value of src_python{C_lvar} is never
@@ -1477,12 +1519,12 @@ print("""
 :end:
 
 The resulting graph is shown in Equation [[eqref:eq:kanren-rescale-example]].  As
-expected, the $\tau$ term has been moved from the variance in $\beta$ to a
-product with $\beta$ that is now the mean of $Y$.
+expected, the \(\tau\) term has been moved from the variance in \(\beta\) to a
+product with \(\beta\) that is now the mean of \(Y\).
 
 While seemingly small, this sort of rewrite can significantly improve a
 difficult sampling problem.  In the original formulation, when sampled values of
-$\tau$ are near zero, $\beta$ will have a near zero variance--this is generally
+\(\tau\) are near zero, \(\beta\) will have a near zero variance--this is generally
 the intended effect of shrinkage models.  Unfortunately, sampling distributions in
 extreme parameter regions like this is often a problem.  A well-implemented
 sampler should be able to handle *some* extremes, but it's not reasonable
@@ -1560,16 +1602,16 @@ _ = os.path.relpath(fig_filenames[-1])
 
 # ** AR Model
 # In [[citet:GelmanTransformingparameterssimple2019]], a simple AR model is proposed:
-# \begin{equation}
-# \begin{gathered}
-#   \eta_1 \sim \operatorname{N}\left(0, \frac{\sigma}{\sqrt{1 - \rho^{2}}} \right)
-#   \\
-#   \eta_t \sim \operatorname{N}\left(\rho \eta_{t-1}, \sigma\right), \quad t \in \left\{2, 3, \dots, T\right\}
-#   \\
-#   \rho \in \left[0, 1\right]
-# \end{gathered}
-# \label{eq:gelman-time-series-pre}
-# \end{equation}
+# begin{equation}
+# begin{gathered}
+#  \eta_1 \sim \operatorname{N}\left(0, \frac{\sigma}{\sqrt{1 - \rho^{2}}} \right)
+#  \\
+#  \eta_t \sim \operatorname{N}\left(\rho \eta_{t-1}, \sigma\right), \quad t \in \left\{2, 3, \dots, T\right\}
+#  \\
+#  \rho \in \left[0, 1\right]
+# end{gathered}
+# label{eq:gelman-time-series-pre}
+# end{equation}
 #
 # According to the article, Equation [[eqref:eq:gelman-time-series-pre]] had slow
 # mixing and needed to be re-parameterized.
