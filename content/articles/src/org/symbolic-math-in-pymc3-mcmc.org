@@ -889,6 +889,21 @@ fact(commutative, meta_add)
 fact(commutative, meta_mul)
 fact(associative, meta_add)
 fact(associative, meta_mul)
+# Function application for tuples/lists starting with a function or partial
+term.add(((types.FunctionType, partial), (tuple, list)), lambda op, args: op(*args))
+
+
+def reify_all_terms(obj, s):
+    """Recursively reifies all terms tuples/lists."""
+    try:
+        op, args = operator(obj), arguments(obj)
+        op = reify_all_terms(op, s)
+        args = reify_all_terms(args, s)
+        return term(op, args)
+    except (IndexError, NotImplementedError):
+        return reify(obj, s)
+
+
 #+END_SRC
 
 ** Testing                                                        :noexport:
@@ -1308,7 +1323,8 @@ class KanrenRelationSub(LocalOptimizer):
             res = run(1, q, (self.kanren_relation, input_expr, q))
 
         if len(res) > 0:
-            new_node = res[0].reify()
+            new_node = reify_all_terms(res[0], {})
+            new_node = new_node.reify()
 
             if MetaSymbol.is_meta(new_node):
                 raise ValueError(
