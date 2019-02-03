@@ -1118,7 +1118,7 @@ applied through the use of a src_python{Relation} object, which serves as a
 more efficient means of defining and applying simple replacement rules.
 
 #+NAME: kanren-reduces-relation
-#+BEGIN_SRC python :exports code :results silent
+#+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
 reduces = Relation('reduces')
 
 x_lvar = var('x_lvar')
@@ -1373,14 +1373,16 @@ Applying the reductions from Listing [[kanren-reduces-relation]], we see the rul
 succession--as expected.
 #+NAME: theano-optimize-example
 #+BEGIN_SRC python :exports code :results silent
+a_tt = tt.vector('a')
+
 reduces_opt = EquilibriumOptimizer([KanrenRelationSub(reduces)],
                                    max_use_ratio=10)
 
-test_opt = optimize_graph(tt.log(tt.exp(a)), reduces_opt)
-assert graph_equal(a, test_opt)
+test_opt = optimize_graph(tt.log(tt.exp(a_tt)), reduces_opt)
+assert graph_equal(a_tt, test_opt)
 
-test_opt = optimize_graph(-tt.log(tt.exp(-a)), reduces_opt)
-assert graph_equal(a, test_opt)
+test_opt = optimize_graph(-tt.log(tt.exp(-a_tt)), reduces_opt)
+assert graph_equal(a_tt, test_opt)
 #+END_SRC
 :END:
 * MCMC Optimizations
@@ -1392,10 +1394,7 @@ term rewrites that are simple yet unautomated within most MCMC sampler
 implementations.  These examples will also serve to further demonstrate some
 relevant features of miniKanren.
 
-** Simple Parameter Expansion
-Let's re-attempt the replacement in Equation [[eqref:eq:norm_var_sink]].
-
-#+NAME: kanren-normal-rescale-setup
+#+NAME: kanren-examples-setup
 #+BEGIN_SRC python :eval never-export :exports none :results silent :noweb strip-export
 <<plotting-setup>>
 <<mcmc-requirements>>
@@ -1444,6 +1443,9 @@ the identity element (i.e. ~1~).
 
 #+NAME: kanren-normal-rescale-guard
 #+BEGIN_SRC python :exports code :results silent :noweb yes
+from unification.utils import transitive_get as walk
+
+
 def not_eq(lvar, val):
     def _goal(s):
         lvar_val = walk(lvar, s)
