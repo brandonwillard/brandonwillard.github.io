@@ -323,7 +323,6 @@ from unification.core import unify, reify, _unify, _reify
 from unification.more import unify_object
 
 from theano.tensor import Elemwise
-from theano.scalar.basic import mul, add
 
 from multipledispatch import dispatch
 #+END_SRC
@@ -341,7 +340,9 @@ normal/canonical forms.
 #+NAME: theano-meta-objects
 #+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
 import abc
+import types
 
+from functools import partial
 from itertools import chain
 
 # TODO: Replace `from_obj` with a dispatched function?
@@ -426,7 +427,8 @@ class MetaSymbol(metaclass=MetaSymbolType):
 
         XXX: Be careful when overriding this: `isvar` checks are necessary!
         """
-        if cls.is_meta(obj) or obj is None:
+        if (cls.is_meta(obj) or obj is None or
+                isinstance(obj, (types.FunctionType, partial))):
             return obj
 
         if isinstance(obj, (list, tuple)):
@@ -733,10 +735,9 @@ Just to make life a little bit easier, we create a mock analog of the module
 alias src_python{tt} in Listing [[theano-meta-accessor]].
 #+NAME: theano-meta-accessor
 #+BEGIN_SRC python :exports code :results silent :noweb-ref theano-minikaren-opt
-import types
-import __main__
+from functools import wraps
 
-from functools import partial
+import __main__
 
 
 class TheanoMetaAccessor(object):
@@ -751,6 +752,7 @@ class TheanoMetaAccessor(object):
             # It's a function, so let's provide a wrapper
             # that converts to-and-from theano and meta objects.
             @staticmethod
+            @wraps(ns_obj)
             def meta_obj(*args, **kwargs):
                 args = [o.reify() if hasattr(o, 'reify') else o
                         for o in args]
@@ -764,6 +766,8 @@ class TheanoMetaAccessor(object):
         return getattr(TheanoMetaAccessor, obj)
 
 mt = TheanoMetaAccessor()
+
+mt.dot = MetaSymbol.from_obj(tt.basic._dot)
 #+END_SRC
 
 In Listing [[theano-object-unify]] we create dispatch functions so that unification
