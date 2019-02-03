@@ -1290,7 +1290,7 @@ W_tt = X_tt * (tt.scalar('b') * Y_tt + tt.scalar('c'))
 #+NAME: rv-pprinter-exa
 #+BEGIN_SRC python :eval never-export :results output scalar raw replace
 print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
-    tt_tex_pprint(W_tt, {'latex': True, 'latex_aligned': True})))
+    tt_tex_pprint(W_tt)))
 #+END_SRC
 
 #+RESULTS: rv-pprinter-exa

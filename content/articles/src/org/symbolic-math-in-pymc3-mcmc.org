@@ -1225,13 +1225,11 @@ powers, and a squaring.
 import textwrap
 
 
-tt_tex_options = {'latex': True, 'latex_aligned': True}
-
 x = tt.vector('x')
 exa_expr = x**2 * x**2
 
 results = '\n\\\\\n'.join([
-    '&=' + tt_tex_pprint(s.reify(), tt_tex_options)
+    '&=' + tt_tex_pprint(s.reify())
     for s in kanren_reduce(exa_expr)
     if not graph_equal(exa_expr, s)
 ])
@@ -1245,7 +1243,7 @@ print("""
 \\end{{aligned}}
 \\label{{eq:kanren-reduce-example}}
 \\end{{equation}}
-""".format(tt_tex_pprint(exa_expr, tt_tex_options).strip('()'),
+""".format(tt_tex_pprint(exa_expr).strip('()'),
            textwrap.indent(results, '\t\t')))
 #+END_SRC
 
@@ -1481,8 +1479,7 @@ print("""
 {}
 \\label{{eq:kanren-rescale-example}}
 \\end{{equation}}
-""".format(textwrap.indent(
-    tt_tex_pprint(Y_rv_opt, {'latex': True, 'latex_aligned': True}), '\t\t')))
+""".format(textwrap.indent(tt_tex_pprint(Y_rv_opt), '\t\t')))
 #+END_SRC
 
 #+RESULTS: kanren-normal-rescale-example-print
