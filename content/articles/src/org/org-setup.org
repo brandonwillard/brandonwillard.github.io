@@ -102,24 +102,109 @@
 (advice-add #'org-ref-eqref-export :around #'btw--org-ref-eqref-export)
 #+END_SRC
 
-#+NAME: org-md-export-adjustments
+# TODO: Create a custom latex exporter with this setting.
+#+NAME: org-latex-export-modifications
 #+BEGIN_SRC emacs-lisp :eval export-only :exports none :results none :tangle yes
-;;
-;; An override that transcodes paragraphs/sections as custom divs.
-;;
-(defun btw--org-md-section (old-fun paragraph contents info)
-  ;; TODO: Set `:type' in `info' to th
-  (let ((block-type (org-element-property :type paragraph)))
-    (if block-type
-        (org-html-special-block paragraph contents info)
-      (funcall old-fun paragraph contents info))))
+;; Don't attempt to convert the following drawers:
+(setq org-latex-format-non-env-drawers '("results"))
 
-(advice-add #'org-md-section :around #'btw--org-md-section)
+(defun btw--org-latex-format-drawer-function (name contents)
+  "Turn drawers into custom LaTeX blocks."
+  (let ((name (downcase name)))
+    (unless (member name org-latex-format-non-env-drawers)
+      (format "\\begin{%s}\n%s\n\\end{%s}" name contents name))))
 
-;;
-;; Customize the output of markdown image links.
-;;
-(defun btw--org-md-link (old-fun link contents info)
+(setq org-latex-format-drawer-function #'btw--org-latex-format-drawer-function)
+#+END_SRC
+
+#+NAME: org-publish-tools
+#+BEGIN_SRC emacs-lisp :eval never :exports none :results none :tangle yes
+(defun btw--org-publish-property (prop)
+  "Get the publish property PROP (a tag/keyword like `:base-directory') for
+the current file's project."
+    (org-publish-property prop
+                          (org-publish-get-project-from-filename
+                           (buffer-file-name (buffer-base-buffer)))))
+#+END_SRC
+
+#+NAME: pelican-exporter-pkg
+#+BEGIN_SRC emacs-lisp :eval yes :exports none :results none :tangle "ox-pelican.el" :comments noweb :noweb yes
+;;; ox-pelican.el --- Pelican-friendly Markdown Back-End for Org Export Engine
+
+;; Copyright (C) 2018 Brandon T. Willard
+
+;; Author: Brandon T. Willard
+;; Keywords: org, pelican, markdown, github
+;; Package-Version: 20180101.0000
+
+;; This file is not part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This library extends the GitHub-flavored markdown backend
+;; with changes for Pelican processing.
+
+;;; Code:
+
+(require 'cl-lib)
+(require 'ox-md)
+(require 'ox-html)
+(require 'ox-gfm)
+(require 'ox-publish)
+
+;;; User-Configurable Variables
+
+(defgroup org-export-pelican nil
+  "Options specific to Markdown export back-end."
+  :tag "Org Pelican Markdown"
+  :group 'org-export
+  :version "24.4"
+  :package-version '(Org . "8.0"))
+
+
+;;; Define Back-End
+
+(org-export-define-derived-backend 'pelican 'gfm
+  :filters-alist '((:filter-parse-tree . org-md-separate-elements))
+  :menu-entry
+  '(?g "Export to Pelican Flavored Markdown"
+       ((?G "To temporary buffer"
+            (lambda (a s v b) (org-pelican-export-as-markdown a s v)))
+        (?g "To file" (lambda (a s v b) (org-pelican-export-to-markdown a s v)))
+        (?o "To file and open"
+            (lambda (a s v b)
+              (if a
+                  (org-pelican-export-to-markdown t s v)
+                (org-open-file (org-pelican-export-to-markdown nil s v)))))))
+  :translate-alist '((template . org-pelican-template)
+		                 (section . org-pelican-md-section)
+		                 (link . org-pelican-md-link)
+                     (src-block . org-pelican-src-block))
+  :options-alist '((:html-format-drawer-function nil nil #'org-pelican-html-format-drawer)
+                   (:figure-dir "FIGURE_DIR" nil nil t)))
+
+
+(defun org-pelican-html-format-drawer (name contents)
+  "Turn drawers into HTML divs."
+  ;; TODO: Add a class for result blocks?
+  (format "<div class=\"%s\" markdown=\"\">\n%s\n</div>" (downcase name) contents))
+
+
+;;; Transcode Functions
+(defun org-pelican-md-link (link contents info)
   (if (org-export-inline-image-p link org-html-inline-image-rules)
       (let* ((type (org-element-property :type link))
              (path (let ((raw-path (org-element-property :path link)))
@@ -165,79 +250,16 @@
                                                  "content")))
              path
            (format "%s \"%s\"" path caption))))
-    (funcall old-fun link contents info)))
+    (org-md-link link contents info)))
 
-(advice-add #'org-md-link :around #'btw--org-md-link)
+(defun org-pelican-md-section (paragraph contents info)
+  (let ((block-type (org-element-property :type paragraph)))
+    (if block-type
+        (org-html-special-block paragraph contents info)
+      (org-md-section paragraph contents info))))
 
-
-(defun btw--org-gfm-src-block (old-fun src-block contents info)
-  "Allow attributes (only name, for now) in fenced code block definitions.
-
-E.g., '```{#block-name .python}'
-
-For Pandoc, use with 'fenced_code_attributes'
-"
-  (let* ((lang (org-element-property :language src-block))
-         (code (org-export-format-code-default src-block info))
-         (link-id (org-export-get-reference src-block info))
-         ;; (name (org-element-property :name src-block))
-         (prefix (if link-id
-                     ;; TODO: Add a class for result blocks?
-                     (concat "```{#" link-id " ." lang "}\n")
-                   (concat "```{." lang "}\n")))
-         (suffix "```"))
-    (concat prefix code suffix)))
-
-(advice-add #'org-gfm-src-block :around #'btw--org-gfm-src-block)
-
-#+END_SRC
-
-#+NAME: org-html-export-modifications
-#+BEGIN_SRC emacs-lisp :eval export-only :exports none :results none :tangle yes
-(defun btw--org-html-format-drawer (name contents)
-  "Turn drawers into HTML divs."
-  ;; TODO: Add a class for result blocks?
-  (format "<div class=\"%s\" markdown=\"\">\n%s\n</div>" (downcase name) contents))
-
-(setq org-html-format-drawer-function #'btw--org-html-format-drawer)
-#+END_SRC
-
-#+NAME: org-latex-export-modifications
-#+BEGIN_SRC emacs-lisp :eval export-only :exports none :results none :tangle yes
-;; Don't attempt to convert the following drawers:
-(setq org-latex-format-non-env-drawers '("results"))
-
-(defun btw--org-latex-format-drawer-function (name contents)
-  "Turn drawers into custom LaTeX blocks."
-  (let ((name (downcase name)))
-    (unless (member name org-latex-format-non-env-drawers)
-      (format "\\begin{%s}\n%s\n\\end{%s}" name contents name))))
-
-(setq org-latex-format-drawer-function #'btw--org-latex-format-drawer-function)
-#+END_SRC
-
-#+NAME: org-publish-modifications
-#+BEGIN_SRC emacs-lisp :eval export-only :exports none :results none :tangle yes
-;;
-;; Add a org-publish project-specific figure directory setting
-;;
-(add-to-list 'org-export-options-alist '(:figure-dir "FIGURE_DIR" nil nil t))
-
-(defun btw--org-publish-property (prop)
-  "Get the publish property PROP (a tag/keyword like `:base-directory') for
-the current file's project."
-    (org-publish-property prop
-                          (org-publish-get-project-from-filename
-                           (buffer-file-name (buffer-base-buffer)))))
-#+END_SRC
-
-#+NAME: pelican-preamble
-#+BEGIN_SRC emacs-lisp :eval export-only :exports none :results none :tangle yes
-;;
-;; Set the YAML preamble.
-;;
-(defun org-pelican-create-yaml ()
-  (let* ((org-env (org-export-get-environment))
+(defun org-pelican-create-yaml (&optional info)
+  (let* ((org-env (or info (org-export-get-environment)))
          (res '())
          (author-str
           (format "author: '%s'"
@@ -272,93 +294,38 @@ the current file's project."
                                       (cdr (f-split (car bib-str)))))))
          (res (or (and bib-str
                        (cons bib-str res))
-                  res)))
-    (s-join "\n"
-            (append
-             '("#+BEGIN_EXPORT html"
-               "---")
-             res
-             '("figure_dir: '{attach}/articles/figures/'"
-               "figure_ext: png"
-               "---"
-               "#+END_EXPORT")))))
-#+END_SRC
+                  res))
+         (res (append '("---")
+                      res
+                      '("figure_dir: '{attach}/articles/figures/'"
+                        "figure_ext: png"
+                        "---"))))
+    (mapconcat 'identity res "\n")))
 
-#+NAME: pelican-exporter-pkg
-#+BEGIN_SRC emacs-lisp :eval never :exports none :results none :tangle "ox-pelican.el"
-;;; ox-pelican.el --- Pelican-friendly Markdown Back-End for Org Export Engine
-
-;; Copyright (C) 2018 Brandon T. Willard
-
-;; Author: Brandon T. Willard
-;; Keywords: org, pelican, markdown, github
-;; Package-Version: 20180101.0000
-
-;; This file is not part of GNU Emacs.
-
-;; This program is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation, either version 3 of the License, or
-;; (at your option) any later version.
-
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-
-;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-;;; Commentary:
-
-;; This library extends the GitHub-flavored markdown backend
-;; with changes for Pelican processing.
-
-;;; Code:
-
-(require 'ox-gfm)
-(require 'ox-publish)
-
-;;; User-Configurable Variables
-
-(defgroup org-export-pelican nil
-  "Options specific to Markdown export back-end."
-  :tag "Org Pelican Markdown"
-  :group 'org-export
-  :version "24.4"
-  :package-version '(Org . "8.0"))
-
-
-;;; Define Back-End
-
-(org-export-define-derived-backend 'pelican 'gfm
-  :filters-alist '((:filter-parse-tree . org-md-separate-elements))
-  :menu-entry
-  '(?g "Export to Pelican Flavored Markdown"
-       ((?G "To temporary buffer"
-            (lambda (a s v b) (org-pelican-export-as-markdown a s v)))
-        (?g "To file" (lambda (a s v b) (org-pelican-export-to-markdown a s v)))
-        (?o "To file and open"
-            (lambda (a s v b)
-              (if a
-                  (org-pelican-export-to-markdown t s v)
-                (org-open-file (org-pelican-export-to-markdown nil s v)))))))
-  ;; TODO
-  ;; :translate-alist '((template . org-pelican-template)
-  ;;                    (src-block . org-pelican-src-block))
-  :options-alist '(:figure-dir "FIGURE_DIR" nil nil t)
-  )
-
-
-
-;;; Transcode Functions
 (defun org-pelican-template (contents _info)
   "Return complete document string after Markdown conversion.
 CONTENTS is the transcoded contents string.  INFO is a plist used
 as a communication channel."
-  ;; TODO: Add YAML metadata.
-  contents)
+  (let ((preamble (org-pelican-create-yaml _info)))
+    (concat preamble "\n\n" contents)))
 
+(defun org-pelican-src-block (src-block _contents info)
+  "Allow attributes (only name, for now) in fenced code block definitions.
+
+E.g., '```{#block-name .python}'
+
+For Pandoc, use with 'fenced_code_attributes'
+"
+  (let* ((lang (org-element-property :language src-block))
+         (code (org-export-format-code-default src-block info))
+         (link-id (org-export-get-reference src-block info))
+         ;; (name (org-element-property :name src-block))
+         (prefix (if link-id
+                     ;; TODO: Add a class for result blocks?
+                     (concat "```{#" link-id " ." lang "}\n")
+                   (concat "```{." lang "}\n")))
+         (suffix "```"))
+    (concat prefix code suffix)))
 
 ;;; Interactive function
 

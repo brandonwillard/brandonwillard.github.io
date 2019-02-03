@@ -21,26 +21,6 @@
 #+PROPERTY: header-args+ :session symbolic-math-pymc3-mcmc :comments noweb
 #+PROPERTY: header-args:python :noweb-sep "\n\n"
 
-#+NAME: set-pelican-preamble
-#+BEGIN_SRC elisp :eval export-only :exports results :results value raw
-(org-pelican-create-yaml)
-#+END_SRC
-
-#+RESULTS: set-pelican-preamble
-#+BEGIN_EXPORT html
----
-bibliography:
-- 'tex/symbolic-pymc3.bib'
-modified: '2019-1-28'
-tags: 'pymc3,theano,statistics,symbolic computation,python,probability theory'
-title: Graph Manipulation and MCMC
-date: '2019-01-15'
-author: 'Brandon T. Willard'
-figure_dir: '{attach}/articles/figures/'
-figure_ext: png
----
-#+END_EXPORT
-
 #+BEGIN_abstract
 Continuing from [[citet:WillardRandomVariablesTheano2018]], ...
 #+END_abstract
