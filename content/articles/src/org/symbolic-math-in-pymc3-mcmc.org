@@ -1402,11 +1402,170 @@ relevant features of miniKanren.
 <<theano-optimize-helper>>
 #+END_SRC
 
+** Closed-form Posteriors
+
+#+NAME: kalman-posterior-rule-setup
+#+BEGIN_SRC python :exports code :results silent :noweb yes
+from theano.tensor.nlinalg import matrix_dot, matrix_inverse
+from theano.sandbox.linalg.ops import Hint, psd
+
+Observed = Hint()
+
+<<hs-model>>
+#+END_SRC
+
+:REMARK:
+The function src_python{theano.tensor.basic.transpose} requires tensor information
+that won't necessarily be available during the process of evaluating miniKanren goals.
+Specifically, it needs a concrete/non-logic-variable value for src_python{TensorType.broadcastable}.
+Because src_python{theano.tensor.basic.transpose} is a function, and not simply a
+Theano src_python{Op}, we either have to abstract the application of src_python{transpose}
+or work in terms of the objects src_python{transpose} ultimately produces
+(i.e. src_python{DimShuffle}d variables).
+
+Abstraction is pretty straight-forward and only involves creating a Lisp-like
+tuple representing an unevaluated expression
+(e.g. src_python{(tt.transpose, x_tt)} corresponding
+to src_python{tt.transpose(x_tt)}).  The src_python{kanren} library effectively
+uses this form of input to compensate for Python's symbolic/meta-programming
+deficiencies.
+
+#+NAME: transform-example
+#+BEGIN_SRC python :exports both :results value :wrap "SRC python :eval never"
+test_transforms = Relation('test_transforms')
+
+x_mt = mt.vector('x')
+
+fact(test_transforms, x_mt, (mt.transpose, x_mt))
+
+res, = run(1, var('q'), (test_transforms, x_mt, var('q')))
+
+evalt(res).reify()
+#+END_SRC
+
+#+RESULTS: transform-example
+#+begin_SRC python :eval never
+x.T
+#+end_SRC
+
+This approach is good for manipulating matched results, as is done in Listing
+[[transform-example]], but it's not good for matching, since a transposed
+result in a graph won't appear as src_python{(tt.transpose, x_tt)}.
+
+#+NAME: transpose-goal
+#+BEGIN_SRC python :eval never :exports none :results none
+from kanren.goals import goalify
+
+
+def mt_transpose(x):
+    _xt = x.type
+    axes = list(range((len(_xt.broadcastable) - 1), -1, -1))
+    ret = MetaDimShuffle(_xt.broadcastable, axes)(x)
+    return ret
+
+
+transposeo = goalify(mt_transpose)
+
+run(0, var('q'), (eq, ), (transposeo, var('r'), var('q')))[0].reify()
+#+END_SRC
+
+:END:
+
+In Listing [[mvnormal-posterior-rule]] we create a rule that computes
+the posterior for a multivariate normal distribution with a normal
+prior mean.
+#+NAME: mvnormal-posterior-rule
+#+BEGIN_SRC python :exports code :results silent :noweb yes
+# Prior normal distribution
+beta_name_lv = var('beta_name')
+beta_size_lv = var('beta_size')
+beta_rng_lv = var('beta_rng')
+a_lv = var('a')
+R_lv = var('R')
+beta_prior_mt = mt.MvNormalRV(a_lv, R_lv,
+                              beta_size_lv, beta_rng_lv,
+                              name=beta_name_lv)
+beta_type_lvars = mt_type_params(beta_prior_mt)
+
+y_name_lv = var('y_name')
+y_size_lv = var('y_size')
+y_rng_lv = var('y_rng')
+F_lv = var('f')
+V_lv = var('V')
+E_y_mt = mt.dot(F_lv, beta_prior_mt)
+y_mt = mt.MvNormalRV(E_y_mt, V_lv,
+                     y_size_lv, y_rng_lv,
+                     name=y_name_lv)
+
+# Mark as observed
+Y_mt = mt.Observed(y_mt)
+
+e_expr = mt.sub(y_mt, mt.dot(F_lv, a_lv))
+R_F_expr = mt.dot(R_lv, F_lv)
+Q_expr = (mt.add,
+          V_lv,
+          (mt.dot,
+           (mt.transpose, F_lv),
+           R_F_expr))
+A_expr = (mt.dot, R_F_expr, (mt.matrix_inverse, Q_expr))
+m_expr = (mt.add, a_lv, (mt.dot, A_expr, e_expr))
+C_expr = (mt.sub,
+          R_lv,
+          (mt.dot,
+           (mt.dot, A_expr, Q_expr),
+           (mt.transpose, A_expr)))
+
+norm_posterior_exprs = (mt.MvNormalRV,
+                        m_expr, C_expr,
+                        y_size_lv, y_rng_lv)
+
+posterior_transforms = Relation('posterior_transforms')
+
+fact(posterior_transforms,
+     Y_mt, norm_posterior_exprs)
+#+END_SRC
+
+:EXAMPLE:
+#+NAME: mvnormal-posterior-rule
+#+BEGIN_SRC python :exports code :results silent :noweb yes
+a_tt = tt.vector('a')
+R_tt = tt.matrix('R')
+F_tt = tt.matrix('F')
+V_tt = tt.matrix('V')
+beta_rv = MvNormalRV(a_tt, R_tt, name='\\beta')
+E_y_rv = F_tt.dot(beta_rv)
+y_rv = MvNormalRV(E_y_rv, V_tt, name='y')
+Y_rv = Observed(y_rv)
+
+
+posterior_goals = posterior_transforms
+# posterior_goals = lambda x, y: (conde, ((posterior_transforms, x, y),
+#                                    (not_eq, C_lvar, 1)))
+
+posterior_opt = EquilibriumOptimizer([KanrenRelationSub(posterior_goals)],
+                                     max_use_ratio=10)
+
+print(tt_pprint(y_rv))
+Y_rv_opt = optimize_graph(Y_rv, posterior_opt)
+print(tt_pprint(Y_rv_opt))
+#+END_SRC
+:END:
+
+# TODO: Apply Woodbury identity.
+# TODO: Allow F and/or V == I.
+# TODO: We need to handle
+# y = F.dot(beta) + v, v ~ N(0, V)
+# y = F.dot(beta) + V.T.dot(v), v ~ N(0, 1)
+# y ~ N(F.dot(beta), V) i.e. (y | beta)
+# Canonicalize should turn the others into the conditional.
+# TODO: Turn univariate normals into multivariate normals,
+# so that the relation can be applied.
+
+** Simple Parameter Expansion
+Let's re-attempt the replacement in Equation [[eqref:eq:norm_var_sink]].
+
 #+NAME: kanren-normal-rescale-rule
 #+BEGIN_SRC python :exports code :results silent :noweb yes
-from unification.utils import transitive_get as walk
-
-
 <<hs-model>>
 
 mcmc_transforms = Relation('mcmc_transforms')
