@@ -1,7 +1,7 @@
 ---
 bibliography:
 - 'tex/symbolic-pymc3.bib'
-modified: '2019-1-31'
+modified: '2019-2-4'
 tags: 'pymc3,theano,statistics,symbolic computation,python,probability theory'
 title: Random Variables in Theano
 date: '2018-12-28'
@@ -27,14 +27,14 @@ Specifically, by using the `Op` interface, we're able to do the following:
     <div class="example" markdown="">
     For example, definitions like
 
-    ```{#orgb28d042 .python}
+    ```{#org9f36fc6 .python}
     with pm.Model():
         X_rv = pm.Normal('X_rv', mu_X, sd=sd_X, shape=(1,))
     ```
 
     reduce to
 
-    ```{#org0650889 .python}
+    ```{#orgf62e7a4 .python}
     with pm.Model():
         X_rv = pm.Normal('X_rv', mu_X, sd=sd_X)
     ```
@@ -79,7 +79,7 @@ Scalar normal random variates have a support and parameters with dimension zero.
 np.shape(np.random.normal(loc=0, scale=1, size=None))
 ```
 
-```{#orgf019ed0 .python}
+```{#org96612e2 .python}
 ()
 ```
 
@@ -89,7 +89,7 @@ Numpy also allows one to specify **independent** normal variates using one funct
 np.shape(np.random.normal(loc=[0, 1, 2], scale=[1, 2, 3], size=None))
 ```
 
-```{#orgaaa61c5 .python}
+```{#orgef69d1e .python}
 (3,)
 ```
 
@@ -110,7 +110,7 @@ test_scalar = tt.scalar()
 test_scalar.shape.eval({test_scalar: 1})
 ```
 
-```{#org17f42ea .python}
+```{#orgb9018eb .python}
 []
 ```
 
@@ -126,7 +126,7 @@ shape_parts = tuple(test_matrix.shape)
 shape_parts
 ```
 
-```{#org4709491 .python}
+```{#orgd865db6 .python}
 (Subtensor{int64}.0, Subtensor{int64}.0)
 ```
 
@@ -136,7 +136,7 @@ When the matrix in Listing [11](#org0d70518) is "materialized" (i.e. given a val
 tuple(p.eval({test_matrix: np.diag([1, 2])}) for p in shape_parts)
 ```
 
-```{#org4d888c2 .python}
+```{#orgc53dece .python}
 (array(2), array(2))
 ```
 
@@ -634,7 +634,7 @@ print("MultinomialRV(20, [1/6.]*6, size=[6, 2]):\n{}".format(
     MultinomialRV(20, [1 / 6.] * 6, size=[3, 2]).eval()))
 ```
 
-```{#orgd754526 .python}
+```{#orga89dd83 .python}
 UniformRV(0., 30., size=[10]):
 [ 5.83131933 28.56231204 20.73018065 17.21042461 25.53140341 23.76268637
  28.27629994  7.10457399 19.88378878 26.62382369]
@@ -723,7 +723,7 @@ except Exception as e:
   print("".join(traceback.format_exception_only(type(e), e)))
 ```
 
-```{#org748f851 .python}
+```{#org9a55c25 .python}
 ValueError: Invalid dimension for value: 0
 
 
@@ -741,7 +741,7 @@ except Exception as e:
   print("".join(traceback.format_exception_only(type(e), e)))
 ```
 
-```{#orge3a93eb .python}
+```{#orga8cc629 .python}
 test_rv.distribution.shape = [1]
 test_rv.tag.test_value = [1.]
 
@@ -771,7 +771,7 @@ print("{} ~ X\n{} ~ Y".format(
     Y_rv.eval({mu_tt: [1, 2], C_tt: np.diag([1, 2]), D_tt: np.diag([10, 20])})))
 ```
 
-```{#orgec2ca8b .python}
+```{#orgd1cac3d .python}
 [-1.25047147  4.87459955] ~ X
 [ 2.15486205 -3.3066946 ] ~ Y
 
@@ -795,7 +795,7 @@ print("X test value: {}\nY test value: {}".format(
 
 ```
 
-```{#orgb6f99f8 .python}
+```{#orgecacfb5 .python}
 X test value: [ 1.78826967 28.73266332 38.57297111]
 Y test value: [33.93703352 27.48925582 38.21563854]
 
@@ -838,7 +838,7 @@ print("test_multinom_rv draw 1: {}\ntest_multinom_rv draw 2: {}".format(
     test_multinom_draw(), test_multinom_draw()))
 ```
 
-```{#org65f2561 .python}
+```{#orgff8bd09 .python}
 test_multinom_rv draw 1: [0 2 0 0 1 0 2 1 0 0]
 test_multinom_rv draw 2: [5 2 1 0 0 0 1 0 1 1 0 1 0]
 
@@ -854,23 +854,33 @@ In Listing [30](#org52ecc27), we implement a pretty printer that produces more r
 
 ```{#org52ecc27 .python}
 class RandomVariablePrinter:
-    """Pretty print random variables
-
-    NOTE: When parsing LaTeX output (i.e. `self.latex=True`) in `self.process`,
-    the `pstate` object is checked for a boolean `latex`.
+    """Pretty print random variables.
     """
-    def __init__(self, name=None, latex=False):
+    def __init__(self, name=None):
         """
         Parameters
         ==========
         name: str (optional)
             A fixed name to use for the random variables printed by this
             printer.  If not specified, use `RandomVariable.name`.
-        latex: boolean (optional)
-            Whether or not to print LaTeX strings.
         """
         self.name = name
-        self.latex = latex
+
+    def process_param(self, idx, sform, pstate):
+        """Special per-parameter post-formatting.
+
+        This can be used, for instance, to change a std. dev. into a variance.
+
+        Parameters
+        ==========
+        idx: int
+            The index value of the parameter.
+        sform: str
+            The pre-formatted string form of the parameter.
+        pstate: object
+            The printer state.
+        """
+        return sform
 
     def process(self, output, pstate):
         if output in pstate.memo:
@@ -892,7 +902,7 @@ class RandomVariablePrinter:
                 output, pstate)
             shape_info_str = VariableWithShapePrinter.process_shape_info(
                 output, pstate)
-            if self.latex or getattr(pstate, 'latex', False):
+            if getattr(pstate, 'latex', False):
                 dist_format = "%s \\sim \\operatorname{%s}\\left(%s\\right)"
                 dist_format += ', \\quad {}'.format(shape_info_str)
             else:
@@ -901,10 +911,14 @@ class RandomVariablePrinter:
 
             op_name = self.name or node.op.name
             dist_params = node.inputs[:-2]
-            dist_params_r = dist_format % (
-                out_name, op_name,
-                ", ".join([pprinter.process(i, pstate)
-                        for i in dist_params]))
+            formatted_params = [
+                self.process_param(i, pprinter.process(p, pstate), pstate)
+                for i, p in enumerate(dist_params)
+            ]
+
+            dist_params_r = dist_format % (out_name,
+                                           op_name,
+                                           ", ".join(formatted_params))
         finally:
             pstate.precedence = old_precedence
 
@@ -917,7 +931,8 @@ class RandomVariablePrinter:
 ```{#org414cfc6 .python}
 import string
 
-from theano.compile.ops import Shape_i
+from copy import copy
+from collections import OrderedDict
 
 from sympy import Array as SympyArray
 from sympy.printing import latex as sympy_latex
@@ -927,7 +942,7 @@ class VariableWithShapePrinter:
     """Print variable shape info in the preamble and use readable character
     names for unamed variables.
     """
-    available_names = set(string.ascii_letters)
+    available_names = OrderedDict.fromkeys(string.ascii_letters)
     default_printer = theano.printing.default_printer
 
     @classmethod
@@ -971,18 +986,21 @@ class VariableWithShapePrinter:
         available_names = getattr(pstate, 'available_names', None)
         if available_names is None:
             # Initialize this state's available names
-            available_names = set(cls.available_names)
+            available_names = copy(cls.available_names)
             fgraph = getattr(output, 'fgraph', None)
             if fgraph:
                 # Remove known names in the graph.
-                available_names -= {v.name for v in fgraph.variables}
+                _ = [available_names.pop(v.name, None)
+                     for v in fgraph.variables]
             setattr(pstate, 'available_names', available_names)
 
         if output.name:
+            # Observed an existing name; remove it.
             out_name = output.name
-            available_names.discard(out_name)
+            available_names.pop(out_name, None)
         else:
-            out_name = available_names.pop()
+            # Take an unused name.
+            out_name, _ = available_names.popitem(last=False)
 
         pstate.memo[output] = out_name
         return out_name
@@ -1055,6 +1073,9 @@ class VariableWithShapePrinter:
 ```
 
 ```{#orgccd5273 .python}
+import textwrap
+
+
 class PreamblePPrinter(theano.printing.PPrinter):
     """Pretty printer that displays a preamble.
 
@@ -1066,6 +1087,12 @@ class PreamblePPrinter(theano.printing.PPrinter):
     XXX: Not thread-safe!
     """
     def __init__(self, *args, pstate_defaults=None, **kwargs):
+        """
+        Parameters
+        ==========
+        pstate_defaults: dict (optional)
+            Default printer state parameters.
+        """
         super().__init__(*args, **kwargs)
         self.pstate_defaults = pstate_defaults or {}
         self.printers_dict = dict(tt.pprint.printers_dict)
@@ -1102,7 +1129,7 @@ class PreamblePPrinter(theano.printing.PPrinter):
                       display_inputs=False):
         raise NotImplemented()
 
-    def __call__(self, *args):
+    def __call__(self, *args, latex_env='equation', latex_label=None):
         var = args[0]
         pstate = next(iter(args[1:]), None)
         if isinstance(pstate, (theano.printing.PrinterState, dict)):
@@ -1129,22 +1156,50 @@ class PreamblePPrinter(theano.printing.PPrinter):
 
         body_str = super().__call__(var, pstate)
 
-        if pstate.preamble_lines and getattr(pstate, 'latex', False):
+        latex_out = getattr(pstate, 'latex', False)
+        if pstate.preamble_lines and latex_out:
             preamble_str = "\n\\\\\n".join(pstate.preamble_lines)
             preamble_str = "\\begin{gathered}\n%s\n\\end{gathered}" % (preamble_str)
-            return "\n\\\\\n".join([preamble_str, body_str])
+            res = "\n\\\\\n".join([preamble_str, body_str])
         else:
-            return "\n".join(pstate.preamble_lines + [body_str])
+            res = "\n".join(pstate.preamble_lines + [body_str])
+
+        if latex_out and latex_env:
+            label_out = f'\\label{{{latex_label}}}\n' if latex_label else ''
+            res = textwrap.indent(res, '\t\t')
+            res = (f"\\begin{{{latex_env}}}\n"
+                   f"{res}\n"
+                   f"{label_out}"
+                   f"\\end{{{latex_env}}}")
+
+        return res
 ```
 
 ```{#orgfc82717 .python}
 tt_pprint = PreamblePPrinter()
+
 tt_pprint.assign(lambda pstate, r: True, VariableWithShapePrinter)
 tt_pprint.assign(UniformRV, RandomVariablePrinter('U'))
-tt_pprint.assign(NormalRV, RandomVariablePrinter('N'))
 tt_pprint.assign(GammaRV, RandomVariablePrinter('Gamma'))
 tt_pprint.assign(ExponentialRV, RandomVariablePrinter('Exp'))
-tt_pprint.assign(MvNormalRV, RandomVariablePrinter('N'))
+
+
+class NormalRVPrinter(RandomVariablePrinter):
+    def __init__(self):
+        super().__init__('N')
+
+    def process_param(self, idx, sform, pstate):
+        if idx == 1:
+            if getattr(pstate, 'latex', False):
+                return f'{{{sform}}}^{{2}}'
+            else:
+                return f'{sform}**2'
+        else:
+            return sform
+
+tt_pprint.assign(NormalRV, NormalRVPrinter())
+tt_pprint.assign(MvNormalRV, NormalRVPrinter())
+
 tt_pprint.assign(DirichletRV, RandomVariablePrinter('Dir'))
 tt_pprint.assign(PoissonRV, RandomVariablePrinter('Pois'))
 tt_pprint.assign(CauchyRV, RandomVariablePrinter('C'))
@@ -1159,9 +1214,13 @@ tt_tex_pprint.assign(tt.pow, theano.printing.PatternPrinter(('{%(0)s}^{%(1)s}', 
 ```
 
 <div class="example" markdown="">
-Listing [35](#org1ed4a46), creates a graph with two random variables and prints the results with the default Theano pretty printer.
+Listing [35](#org1ed4a46), creates a graph with two random variables and prints the results with the default Theano pretty printer as Equation \(\eqref{eq:rv-pprinter-exa}\).
 
 ```{#org0e19f4e .python}
+
+
+tt.config.compute_test_value = 'ignore'
+
 Z_tt = UniformRV(tt.scalar('l_0'), tt.scalar('l_1'), name='Z')
 X_tt = NormalRV(Z_tt, tt.scalar('\sigma_1'), name='X')
 Y_tt = MvNormalRV(tt.vector('\mu'), tt.abs_(X_tt) * tt.constant(np.diag([1, 2])), name='Y')
@@ -1170,33 +1229,33 @@ W_tt = X_tt * (tt.scalar('b') * Y_tt + tt.scalar('c'))
 ```
 
 ```{#org1ed4a46 .python}
-print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
-    tt_tex_pprint(W_tt, {'latex': True, 'latex_aligned': True})))
+print(tt_tex_pprint(W_tt, latex_label='eq:rv-pprinter-exa'))
 ```
 
-\begin{equation*}
-\begin{gathered}
-l_0 \in \mathbb{R}
-\\
-l_1 \in \mathbb{R}
-\\
-Z \sim \operatorname{U}\left(l_0, l_1\right), \quad Z \in \mathbb{R}
-\\
-\sigma_1 \in \mathbb{R}
-\\
-X \sim \operatorname{N}\left(Z, \sigma_1\right), \quad X \in \mathbb{R}
-\\
-b \in \mathbb{R}
-\\
-\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
-\\
-Y \sim \operatorname{N}\left(\mu, (|X| \odot \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])\right), \quad Y \in \mathbb{R}^{{n^{Y}}_{0}}
-\\
-c \in \mathbb{R}
-\end{gathered}
-\\
-(X \odot ((b \odot Y) + c))
-\end{equation*}
+\begin{equation}
+		\begin{gathered}
+		l_0 \in \mathbb{R}
+		\\
+		l_1 \in \mathbb{R}
+		\\
+		Z \sim \operatorname{U}\left(l_0, l_1\right), \quad Z \in \mathbb{R}
+		\\
+		\sigma_1 \in \mathbb{R}
+		\\
+		X \sim \operatorname{N}\left(Z, {\sigma_1}^{2}\right), \quad X \in \mathbb{R}
+		\\
+		b \in \mathbb{R}
+		\\
+		\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
+		\\
+		Y \sim \operatorname{N}\left(\mu, {(|X| \odot \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])}^{2}\right), \quad Y \in \mathbb{R}^{{n^{Y}}_{0}}
+		\\
+		c \in \mathbb{R}
+		\end{gathered}
+		\\
+		(X \odot ((b \odot Y) + c))
+\label{eq:rv-pprinter-exa}
+\end{equation}
 
 </div>
 
@@ -1262,49 +1321,47 @@ _ = norm_lift_opts.optimize(trans_X_graph_opt)
 ```
 
 ```{#org2bd1258 .python}
-print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
-    tt_tex_pprint(trans_X_graph.outputs[0])))
+print(tt_tex_pprint(trans_X_graph.outputs[0], latex_env='equation*'))
 ```
 
 Before applying the optimization:
 
 \begin{equation*}
-\begin{gathered}
-a \in \mathbb{R}
-\\
-\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
-\\
-\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
-\\
-X \sim \operatorname{N}\left(\mu, \sigma\right), \quad X \in \mathbb{R}^{{n^{X}}_{0}}
-\\
-b \in \mathbb{R}
-\end{gathered}
-\\
-((a \odot X) + b)
+		\begin{gathered}
+		a \in \mathbb{R}
+		\\
+		\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
+		\\
+		\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
+		\\
+		X \sim \operatorname{N}\left(\mu, {\sigma}^{2}\right), \quad X \in \mathbb{R}^{{n^{X}}_{0}}
+		\\
+		b \in \mathbb{R}
+		\end{gathered}
+		\\
+		((a \odot X) + b)
 \end{equation*}
 
 ```{#orge71b0ac .python}
-print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
-    tt_tex_pprint(trans_X_graph_opt.outputs[0])))
+print(tt_tex_pprint(trans_X_graph_opt.outputs[0], latex_env='equation*'))
 ```
 
 After applying the optimization:
 
 \begin{equation*}
-\begin{gathered}
-a \in \mathbb{R}
-\\
-\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
-\\
-b \in \mathbb{R}
-\\
-\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
-\\
-u \sim \operatorname{N}\left(((a \odot \mu) + b), (a \odot \sigma)\right), \quad u \in \mathbb{R}^{{n^{u}}_{0}}
-\end{gathered}
-\\
-u
+		\begin{gathered}
+		a \in \mathbb{R}
+		\\
+		\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
+		\\
+		b \in \mathbb{R}
+		\\
+		\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
+		\\
+		c \sim \operatorname{N}\left(((a \odot \mu) + b), {(a \odot \sigma)}^{2}\right), \quad c \in \mathbb{R}^{{n^{c}}_{0}}
+		\end{gathered}
+		\\
+		c
 \end{equation*}
 
 </div>
@@ -1350,7 +1407,7 @@ X_rv = MvNormalRV(mu_X, cov_X, size=size_X_rv)
 print('{} ~ X_rv\n'.format(X_rv.tag.test_value))
 ```
 
-```{#orgc7d92d4 .python}
+```{#org9e35ff4 .python}
 [[[-0.68284424  9.95587926]
   [ 1.66236785  9.87590909]
   [ 0.23449772 10.12455681]]
@@ -1374,7 +1431,7 @@ E_X_rv = X_rv.owner.inputs[2]
 print('A * X_rv =\n{}\n'.format(tt.dot(A_tt, X_rv).tag.test_value))
 ```
 
-```{#org2cb4213 .python}
+```{#org05ebd11 .python}
 A * X_rv =
 [[[  1.18524621 150.31045062]
   [  1.07000851 150.65771936]]
@@ -1395,7 +1452,7 @@ except ValueError as e:
     print("".join(traceback.format_exception_only(type(e), e)))
 ```
 
-```{#org46ec622 .python}
+```{#org51f4e3a .python}
 ValueError: shapes (2,3) and (2,) not aligned: 3 (dim 1) != 2 (dim 0)
 
 
@@ -1410,7 +1467,7 @@ E_X_rv_ = tt.tile(E_X_rv, size_tile, X_rv.ndim)
 print('A * E[X_rv] =\n{}\n'.format(tt.dot(A_tt, E_X_rv_).tag.test_value))
 ```
 
-```{#orgc405b2a .python}
+```{#org7f64727 .python}
 A * E[X_rv] =
 [[[  0 150]
   [  0 150]]
@@ -1464,7 +1521,7 @@ x_tt = tt.matrix('x')
 print("x_tt.broadcastable = {}".format(x_tt.broadcastable))
 ```
 
-```{#orgad91de3 .python}
+```{#orga8f9d4c .python}
 y_tt.broadcastable = (True, False)
 x_tt.broadcastable = (False, False)
 
@@ -1507,7 +1564,7 @@ with short_exception_msg(TypeError):
     print("shape checks out!")
 ```
 
-```{#org2e61ec5 .python}
+```{#org9c02ec5 .python}
 test_value.broadcastable = (True, True)
 x_tt.broadcastable = (False, False)
 shape checks out!
@@ -1527,7 +1584,7 @@ with short_exception_msg(TypeError):
     print("shape checks out!")
 ```
 
-```{#org0eb456d .python}
+```{#orga78b1b0 .python}
 test_value.broadcastable = (True, True)
 y_tt.broadcastable = (True, False)
 shape checks out!
@@ -1548,7 +1605,7 @@ with short_exception_msg(TypeError):
     print("shape checks out!")
 ```
 
-```{#org9673726 .python}
+```{#org3ac23d5 .python}
 test_value.broadcastable = (True, False)
 x_tt.broadcastable = (False, False)
 shape checks out!
@@ -1567,7 +1624,7 @@ with short_exception_msg(TypeError):
     print("shape checks out!")
 ```
 
-```{#orge7e2254 .python}
+```{#org60e8d8f .python}
 test_value.broadcastable = (False, False)
 y_tt.broadcastable = (True, False)
 TypeError: For compute_test_value, one input test value does not have the requested type.
@@ -1614,6 +1671,3 @@ In follow-ups to this series, we'll address a few loose ends, such as
 -   decompositions/reductions of overlapping multivariate types (e.g. transforms between tensors of univariate normals and equivalent multivariate normals),
 -   canonicalization of graphs containing `RandomVariable` terms,
 -   and more optimizations that specifically target MCMC schemes (e.g. automatic conversion to scale mixture decompositions).
-
-# Bibliography
-<a id="WillardSymbolicMathPyMC32018"></a>[WillardSymbolicMathPyMC32018] Willard, Symbolic Math in PyMC3, <i></i>, (2018). <a href="https://brandonwillard.github.io/symbolic-math-in-pymc3.html">link</a>. [↩](#24875a2c31fa7f94ce562adddedc0bf8)

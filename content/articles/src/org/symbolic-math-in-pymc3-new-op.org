@@ -953,23 +953,33 @@ forms of Theano graphs containing src_python{RandomVariable} nodes.
 #+NAME: rv-pprinter-imp
 #+BEGIN_SRC python :exports code :results none :noweb-ref new-op-code
 class RandomVariablePrinter:
-    """Pretty print random variables
-
-    NOTE: When parsing LaTeX output (i.e. `self.latex=True`) in `self.process`,
-    the `pstate` object is checked for a boolean `latex`.
+    """Pretty print random variables.
     """
-    def __init__(self, name=None, latex=False):
+    def __init__(self, name=None):
         """
         Parameters
         ==========
         name: str (optional)
             A fixed name to use for the random variables printed by this
             printer.  If not specified, use `RandomVariable.name`.
-        latex: boolean (optional)
-            Whether or not to print LaTeX strings.
         """
         self.name = name
-        self.latex = latex
+
+    def process_param(self, idx, sform, pstate):
+        """Special per-parameter post-formatting.
+
+        This can be used, for instance, to change a std. dev. into a variance.
+
+        Parameters
+        ==========
+        idx: int
+            The index value of the parameter.
+        sform: str
+            The pre-formatted string form of the parameter.
+        pstate: object
+            The printer state.
+        """
+        return sform
 
     def process(self, output, pstate):
         if output in pstate.memo:
@@ -991,7 +1001,7 @@ class RandomVariablePrinter:
                 output, pstate)
             shape_info_str = VariableWithShapePrinter.process_shape_info(
                 output, pstate)
-            if self.latex or getattr(pstate, 'latex', False):
+            if getattr(pstate, 'latex', False):
                 dist_format = "%s \\sim \\operatorname{%s}\\left(%s\\right)"
                 dist_format += ', \\quad {}'.format(shape_info_str)
             else:
@@ -1000,10 +1010,14 @@ class RandomVariablePrinter:
 
             op_name = self.name or node.op.name
             dist_params = node.inputs[:-2]
-            dist_params_r = dist_format % (
-                out_name, op_name,
-                ", ".join([pprinter.process(i, pstate)
-                        for i in dist_params]))
+            formatted_params = [
+                self.process_param(i, pprinter.process(p, pstate), pstate)
+                for i, p in enumerate(dist_params)
+            ]
+
+            dist_params_r = dist_format % (out_name,
+                                           op_name,
+                                           ", ".join(formatted_params))
         finally:
             pstate.precedence = old_precedence
 
@@ -1017,7 +1031,8 @@ class RandomVariablePrinter:
 #+BEGIN_SRC python :exports code :results none :noweb-ref new-op-code
 import string
 
-from theano.compile.ops import Shape_i
+from copy import copy
+from collections import OrderedDict
 
 from sympy import Array as SympyArray
 from sympy.printing import latex as sympy_latex
@@ -1027,7 +1042,7 @@ class VariableWithShapePrinter:
     """Print variable shape info in the preamble and use readable character
     names for unamed variables.
     """
-    available_names = set(string.ascii_letters)
+    available_names = OrderedDict.fromkeys(string.ascii_letters)
     default_printer = theano.printing.default_printer
 
     @classmethod
@@ -1071,18 +1086,21 @@ class VariableWithShapePrinter:
         available_names = getattr(pstate, 'available_names', None)
         if available_names is None:
             # Initialize this state's available names
-            available_names = set(cls.available_names)
+            available_names = copy(cls.available_names)
             fgraph = getattr(output, 'fgraph', None)
             if fgraph:
                 # Remove known names in the graph.
-                available_names -= {v.name for v in fgraph.variables}
+                _ = [available_names.pop(v.name, None)
+                     for v in fgraph.variables]
             setattr(pstate, 'available_names', available_names)
 
         if output.name:
+            # Observed an existing name; remove it.
             out_name = output.name
-            available_names.discard(out_name)
+            available_names.pop(out_name, None)
         else:
-            out_name = available_names.pop()
+            # Take an unused name.
+            out_name, _ = available_names.popitem(last=False)
 
         pstate.memo[output] = out_name
         return out_name
@@ -1111,9 +1129,9 @@ class VariableWithShapePrinter:
         for i in range(output.ndim):
             s_i_out = None
             if using_latex:
-                s_i_pat = '{n^{%s}}' + ('_{%s}' % i)
+                s_i_pat = 'N^{%s}' + ('_{%s}' % i)
             else:
-                s_i_pat = 'n^%s' + ('_%s' % i)
+                s_i_pat = 'N^%s' + ('_%s' % i)
             if shape_feature:
                 new_precedence = -1000
                 try:
@@ -1156,6 +1174,9 @@ class VariableWithShapePrinter:
 
 #+NAME: preamble-pprinter-class
 #+BEGIN_SRC python :exports code :results none :noweb-ref new-op-code
+import textwrap
+
+
 class PreamblePPrinter(theano.printing.PPrinter):
     """Pretty printer that displays a preamble.
 
@@ -1167,6 +1188,12 @@ class PreamblePPrinter(theano.printing.PPrinter):
     XXX: Not thread-safe!
     """
     def __init__(self, *args, pstate_defaults=None, **kwargs):
+        """
+        Parameters
+        ==========
+        pstate_defaults: dict (optional)
+            Default printer state parameters.
+        """
         super().__init__(*args, **kwargs)
         self.pstate_defaults = pstate_defaults or {}
         self.printers_dict = dict(tt.pprint.printers_dict)
@@ -1203,7 +1230,7 @@ class PreamblePPrinter(theano.printing.PPrinter):
                       display_inputs=False):
         raise NotImplemented()
 
-    def __call__(self, *args):
+    def __call__(self, *args, latex_env='equation', latex_label=None):
         var = args[0]
         pstate = next(iter(args[1:]), None)
         if isinstance(pstate, (theano.printing.PrinterState, dict)):
@@ -1230,23 +1257,51 @@ class PreamblePPrinter(theano.printing.PPrinter):
 
         body_str = super().__call__(var, pstate)
 
-        if pstate.preamble_lines and getattr(pstate, 'latex', False):
+        latex_out = getattr(pstate, 'latex', False)
+        if pstate.preamble_lines and latex_out:
             preamble_str = "\n\\\\\n".join(pstate.preamble_lines)
             preamble_str = "\\begin{gathered}\n%s\n\\end{gathered}" % (preamble_str)
-            return "\n\\\\\n".join([preamble_str, body_str])
+            res = "\n\\\\\n".join([preamble_str, body_str])
         else:
-            return "\n".join(pstate.preamble_lines + [body_str])
+            res = "\n".join(pstate.preamble_lines + [body_str])
+
+        if latex_out and latex_env:
+            label_out = f'\\label{{{latex_label}}}\n' if latex_label else ''
+            res = textwrap.indent(res, '\t\t')
+            res = (f"\\begin{{{latex_env}}}\n"
+                   f"{res}\n"
+                   f"{label_out}"
+                   f"\\end{{{latex_env}}}")
+
+        return res
 #+END_SRC
 
 #+NAME: instantiate-pprinter-classes
 #+BEGIN_SRC python :exports code :results none :noweb-ref new-op-code
 tt_pprint = PreamblePPrinter()
+
 tt_pprint.assign(lambda pstate, r: True, VariableWithShapePrinter)
 tt_pprint.assign(UniformRV, RandomVariablePrinter('U'))
-tt_pprint.assign(NormalRV, RandomVariablePrinter('N'))
 tt_pprint.assign(GammaRV, RandomVariablePrinter('Gamma'))
 tt_pprint.assign(ExponentialRV, RandomVariablePrinter('Exp'))
-tt_pprint.assign(MvNormalRV, RandomVariablePrinter('N'))
+
+
+class NormalRVPrinter(RandomVariablePrinter):
+    def __init__(self):
+        super().__init__('N')
+
+    def process_param(self, idx, sform, pstate):
+        if idx == 1:
+            if getattr(pstate, 'latex', False):
+                return f'{{{sform}}}^{{2}}'
+            else:
+                return f'{sform}**2'
+        else:
+            return sform
+
+tt_pprint.assign(NormalRV, NormalRVPrinter())
+tt_pprint.assign(MvNormalRV, NormalRVPrinter())
+
 tt_pprint.assign(DirichletRV, RandomVariablePrinter('Dir'))
 tt_pprint.assign(PoissonRV, RandomVariablePrinter('Pois'))
 tt_pprint.assign(CauchyRV, RandomVariablePrinter('C'))
@@ -1262,24 +1317,30 @@ tt_tex_pprint.assign(tt.pow, theano.printing.PatternPrinter(('{%(0)s}^{%(1)s}', 
 
 #+NAME: rv-pprinter-tests
 #+BEGIN_SRC python :eval never-export :exports none :results silent
+tt.config.compute_test_value = 'ignore'
+
 tt_normalrv_name_expr = tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma'), size=[2, 1], name='X')
-assert tt_pprint(tt_normalrv_name_expr) == "b in R\n\\mu in R\n\\sigma in R\nX ~ N(\\mu, \\sigma),  X in R**(2 x n^X_1)\n(b * X)"
+assert tt_pprint(tt_normalrv_name_expr) == "b in R\n\\mu in R\n\\sigma in R\nX ~ N(\\mu, \\sigma**2),  X in R**(2 x N^X_1)\n(b * X)"
 
 tt_normalrv_noname_expr = tt.scalar('b') * NormalRV(tt.scalar('\mu'), tt.scalar('\sigma'))
-assert tt_pprint(tt_normalrv_noname_expr) == "b in R\n\\mu in R\n\\sigma in R\nK ~ N(\\mu, \\sigma),  K in R\n(b * K)"
+assert tt_pprint(tt_normalrv_noname_expr) == "b in R\n\\mu in R\n\\sigma in R\na ~ N(\\mu, \\sigma**2),  a in R\n(b * a)"
 
 tt_2_normalrv_noname_expr = tt.matrix('M') * NormalRV(tt.scalar('\mu_2'), tt.scalar('\sigma_2'))
 tt_2_normalrv_noname_expr *= (tt.scalar('b') *
                               NormalRV(tt_2_normalrv_noname_expr, tt.scalar('\sigma')) +
                               tt.scalar('c'))
-assert tt_pprint(tt_2_normalrv_noname_expr) == "M in R**(n^M_0 x n^M_1)\n\\mu_2 in R\n\\sigma_2 in R\nK ~ N(\\mu_2, \\sigma_2),  K in R\nb in R\n\\sigma in R\nP ~ N((M * K), \\sigma),  P in R**(n^P_0 x n^P_1)\nc in R\n((M * K) * ((b * P) + c))"
+assert tt_pprint(tt_2_normalrv_noname_expr) == 'M in R**(N^M_0 x N^M_1)\n\\mu_2 in R\n\\sigma_2 in R\na ~ N(\\mu_2, \\sigma_2**2),  a in R\nb in R\n\\sigma in R\nd ~ N((M * a), \\sigma**2),  d in R**(N^d_0 x N^d_1)\nc in R\n((M * a) * ((b * d) + c))'
 #+END_SRC
 
 :EXAMPLE:
 Listing [[rv-pprinter-exa]], creates a graph with two random variables and prints the
-results with the default Theano pretty printer.
+results with the default Theano pretty printer as Equation [[eqref:eq:rv-pprinter-exa]].
 #+NAME: rv-theano-pprinter-exa
-#+BEGIN_SRC python :eval never-export :results none :wrap "SRC text :eval never"
+#+BEGIN_SRC python :eval never-export :results none :wrap "SRC text :eval never" :noweb strip-export
+<<new-op-code>>
+
+tt.config.compute_test_value = 'ignore'
+
 Z_tt = UniformRV(tt.scalar('l_0'), tt.scalar('l_1'), name='Z')
 X_tt = NormalRV(Z_tt, tt.scalar('\sigma_1'), name='X')
 Y_tt = MvNormalRV(tt.vector('\mu'), tt.abs_(X_tt) * tt.constant(np.diag([1, 2])), name='Y')
@@ -1289,34 +1350,35 @@ W_tt = X_tt * (tt.scalar('b') * Y_tt + tt.scalar('c'))
 
 #+NAME: rv-pprinter-exa
 #+BEGIN_SRC python :eval never-export :results output scalar raw replace
-print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
-    tt_tex_pprint(W_tt)))
+print(tt_tex_pprint(W_tt, latex_label='eq:rv-pprinter-exa'))
 #+END_SRC
 
 #+RESULTS: rv-pprinter-exa
-\begin{equation*}
-\begin{gathered}
-l_0 \in \mathbb{R}
-\\
-l_1 \in \mathbb{R}
-\\
-Z \sim \operatorname{U}\left(l_0, l_1\right), \quad Z \in \mathbb{R}
-\\
-\sigma_1 \in \mathbb{R}
-\\
-X \sim \operatorname{N}\left(Z, \sigma_1\right), \quad X \in \mathbb{R}
-\\
-b \in \mathbb{R}
-\\
-\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
-\\
-Y \sim \operatorname{N}\left(\mu, (|X| \odot \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])\right), \quad Y \in \mathbb{R}^{{n^{Y}}_{0}}
-\\
-c \in \mathbb{R}
-\end{gathered}
-\\
-(X \odot ((b \odot Y) + c))
-\end{equation*}
+\begin{equation}
+		\begin{gathered}
+		l_0 \in \mathbb{R}
+		\\
+		l_1 \in \mathbb{R}
+		\\
+		Z \sim \operatorname{U}\left(l_0, l_1\right), \quad Z \in \mathbb{R}
+		\\
+		\sigma_1 \in \mathbb{R}
+		\\
+		X \sim \operatorname{N}\left(Z, {\sigma_1}^{2}\right), \quad X \in \mathbb{R}
+		\\
+		b \in \mathbb{R}
+		\\
+		\mu \in \mathbb{R}^{N^{\mu}_{0}}
+		\\
+		Y \sim \operatorname{N}\left(\mu, {(|X| \odot \left[\begin{matrix}1 & 0\\0 & 2\end{matrix}\right])}^{2}\right), \quad Y \in \mathbb{R}^{N^{Y}_{0}}
+		\\
+		c \in \mathbb{R}
+		\end{gathered}
+		\\
+		(X \odot ((b \odot Y) + c))
+\label{eq:rv-pprinter-exa}
+\end{equation}
+
 
 
 :END:
@@ -1469,54 +1531,50 @@ _ = norm_lift_opts.optimize(trans_X_graph_opt)
 
 #+NAME: before_mat_mul_scaling_rv_exa
 #+BEGIN_SRC python :eval never-export :results output scalar raw replace
-print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
-    tt_tex_pprint(trans_X_graph.outputs[0])))
+print(tt_tex_pprint(trans_X_graph.outputs[0], latex_env='equation*'))
 #+END_SRC
 
 Before applying the optimization:
 #+RESULTS: before_mat_mul_scaling_rv_exa
 \begin{equation*}
-\begin{gathered}
-a \in \mathbb{R}
-\\
-\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
-\\
-\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
-\\
-X \sim \operatorname{N}\left(\mu, \sigma\right), \quad X \in \mathbb{R}^{{n^{X}}_{0}}
-\\
-b \in \mathbb{R}
-\end{gathered}
-\\
-((a \odot X) + b)
+		\begin{gathered}
+		a \in \mathbb{R}
+		\\
+		\mu \in \mathbb{R}^{N^{\mu}_{0}}
+		\\
+		\sigma \in \mathbb{R}^{N^{\sigma}_{0}}
+		\\
+		X \sim \operatorname{N}\left(\mu, {\sigma}^{2}\right), \quad X \in \mathbb{R}^{N^{X}_{0}}
+		\\
+		b \in \mathbb{R}
+		\end{gathered}
+		\\
+		((a \odot X) + b)
 \end{equation*}
-
 
 
 #+NAME: after_mat_mul_scaling_rv_exa
 #+BEGIN_SRC python :eval never-export :results output scalar raw replace
-print("\\begin{{equation*}}\n{}\n\\end{{equation*}}".format(
-    tt_tex_pprint(trans_X_graph_opt.outputs[0])))
+print(tt_tex_pprint(trans_X_graph_opt.outputs[0], latex_env='equation*'))
 #+END_SRC
 
 After applying the optimization:
 #+RESULTS: after_mat_mul_scaling_rv_exa
 \begin{equation*}
-\begin{gathered}
-a \in \mathbb{R}
-\\
-\mu \in \mathbb{R}^{{n^{\mu}}_{0}}
-\\
-b \in \mathbb{R}
-\\
-\sigma \in \mathbb{R}^{{n^{\sigma}}_{0}}
-\\
-u \sim \operatorname{N}\left(((a \odot \mu) + b), (a \odot \sigma)\right), \quad u \in \mathbb{R}^{{n^{u}}_{0}}
-\end{gathered}
-\\
-u
+		\begin{gathered}
+		a \in \mathbb{R}
+		\\
+		\mu \in \mathbb{R}^{N^{\mu}_{0}}
+		\\
+		b \in \mathbb{R}
+		\\
+		\sigma \in \mathbb{R}^{N^{\sigma}_{0}}
+		\\
+		c \sim \operatorname{N}\left(((a \odot \mu) + b), {(a \odot \sigma)}^{2}\right), \quad c \in \mathbb{R}^{N^{c}_{0}}
+		\end{gathered}
+		\\
+		c
 \end{equation*}
-
 
 
 :END:
