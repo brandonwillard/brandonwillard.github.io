@@ -91,7 +91,7 @@ def tt_soft_threshold(beta_, lambda_):
 
 <div class="remark" markdown="" title-name="">
 
-This operator can take other forms, and the one used here is likely not the best. The `maximum` can be replaced by other conditional-like statements–such as $$\begin{equation*}
+This operator can take other forms and the one used here is not particularly special. For instance, the `maximum` can be replaced by other conditional-like statements–such as $$\begin{equation*}
 \operatorname{S}(z, \lambda) =
     \begin{cases}
      {\mathop{\mathrm{sgn}}}(\beta) (\beta - \lambda) & \beta > \lambda
@@ -99,15 +99,15 @@ This operator can take other forms, and the one used here is likely not the best
      0 & \text{otherwise}
     \end{cases}
     \;.
-\end{equation*}$$ If we were to–say–multiply the output of this operator with another, more difficult to compute result, then we might also wish to extend this multiplication into the definition of the operator and avoid its computation in the $\beta \leq \lambda$ case.
+\end{equation*}$$ If we were to–say–multiply the output of this operator with another more difficult to compute result, then we might also wish to “optimize” this implementation by pushing the multiplication into the definition of the operator and altogether avoid its computation in the $\beta \leq \lambda$ case.
 
-Barring any reuses of this quantity, or a need to preserve undefined results produced by an expensive product with zero, we would ideally like a “compiler” to make such an optimization itself. It isn’t clear how a standard compiler–or interpreter/hybrid–could safely make this optimization, whereas it does seem more reasonable as a symbolic/Theano optimization.
+Barring any reuses of this quantity, or a need to preserve undefined results produced by an expensive product with zero, we would really like a “compiler” to make such an optimization itself. It isn’t clear how a standard compiler–or interpreter/hybrid–could safely make this optimization, whereas it does seem more reasonable as a symbolic/Theano optimization.
 
-Optimizations like this are–I think–a necessary step to enable expressive, generalized methods, truly rapid prototyping at the math level.
+Optimizations like this are–I think–a necessary step to enable expressive, generalized methods and truly rapid prototyping at the math level.
 
 </div>
 
-Now, assuming that we’ve obtained the relevant loss and penalty functions–for example, in PyMC3–then we can proceed to setting up the exact context of our proximal problem.
+Now, assuming that we’ve obtained the relevant loss and penalty functions–for example, in PyMC3–then we can proceed by setting up the exact context of our proximal problem.
 
 ``` python
 from theano import clone as tt_clone
@@ -224,15 +224,16 @@ TensorVariable
 Step Sizes
 ----------
 
-A critical aspect of the proximal gradient approach–and most optimization–involves the use of appropriate step sizes, $\alpha$. They needn’t always be fixed values, and, because of this, we can search for a suitable value during estimation. Furthermore, in some cases, step sizes can be sequences amenable to acceleration techniques [@beck_fast_2014].
+A critical aspect of the proximal gradient approach–and most optimizations–involves the use of an appropriate step size, $\alpha$. The step sizes needn’t always be fixed values and, because of this, we can search for a suitable value during estimation. Furthermore, in some cases, step sizes can be sequences amenable to acceleration techniques [@beck_fast_2014].
 
-These values have obvious connections to the performance of an optimization method–beyond basic guarantees of convergence, so the power of any implementation will depend on how much support it has for various types of step size sequences.
+Step sizes–and the values that drive them–have critical connections to the performance of an optimization method and do not simply ensure convergence.  In that sense, the power of an implementation can depend on how much support it has for various types of step size sequences and when they can be/are used.
 
-Often acceptable ranges of step size values are derived from Lipschitz and related properties of the functions involved–and/or their gradients. Similar considerations underlie the classical line-search methods in optimization, and give meaning to what some call “tuning parameters”. These connections between function-analytic properties and “tuning parameters” themselves highlight the need for more mathematical coverage within implementations–by which we imply their place in a fully computational, symbolic setting.
+Often, acceptable ranges of step size values are derived from broad properties of the functions involved and their gradients (e.g. Lipschitz). When explicitly parameterized, these properties can give meaning to what some call “tuning parameters”. The connections between function-analytic properties and “tuning parameters” themselves highlight the need for more mathematical coverage/symbolic assessment within implementations.  Currently, most tuning parameter act as stand-ins for information that's theoretically obtained from the know functions.
 
-In this spirit, one particularly relevant direction of work can be found in Theano’s experimental matrix “Hints”. The ideas behind `theano.sandbox.linalg.ops.{psd, spectral_radius_bound}` examples of the machinery needed to automatically determine applicable and efficient $\alpha$ constants and sequences.
+In this spirit, one particularly relevant direction of work can be found in Theano’s experimental matrix “Hints”. Matrix-property hints like `theano.sandbox.linalg.ops.{psd, spectral_radius_bound}` are good examples of the machinery needed to automatically determine applicable and efficient $\alpha$ constants and sequences.
 
-In our example, we use the standard backtracking line-search.
+
+For our example, we will simply use backtracking line-search.
 
 ``` python
 def backtracking_search(beta_, alpha_,
@@ -264,20 +265,20 @@ loss_grad_start_.T.dot(step_diff))
 
 <div class="remark" markdown="" title-name="">
 
-Routines like this that make use of the gradient and other quantities might also be good candidates for execution in Theano, if only because of the graph optimizations that are able to remedy obviously redundant computations.
+Routines–like this–that make use of the gradient and other quantities might also be good candidates for execution in Theano, if only for the graph optimizations that are able to remedy obviously redundant computations.
 
-In this vein, we could consider performing the line-search, and/or the entire optimization loop, within a Theano `scan` operation. We could also create `Op`s that represents gradient and line-search step. These might make graph construction much simpler, and be more suited for the current optimization framework.
+In this vein, we could consider performing the line-search, and/or the entire optimization loop, within a Theano `scan` operation. We could also create an `Op` that represents gradient and line-search steps. These might make graph construction much simpler and be more suited for the current optimization framework.
 
-Although `scan` and tighter Theano integration may not on average produce better results than our current use of its compiled functions, we still wish to emphasize the possibilities.
+Although there's no guarantee that `scan` and tighter Theano integrations will always produce better results than our current implementation, we wish to emphasize that it's possible–given work in these symbolic directions.
 
-Likewise, an `Op` for the proximal operator might also be necessary for solving proximal operators automatically in closed-form (when possible) within a graph. This is based on the standard use of lookup tables combined with sets of algebraic relationships and identities used in symbolic algebra libraries for automatic differentiation and integration. The same can be done to extend the coverage of known closed-form solutions to proximal operators in an automated setting.
+Likewise, an `Op` for the proximal operator might also be necessary for solving many proximal operators found within a log-likelihood/objective function graph automatically and in closed-form. An effective implementation could be as simple as the use of lookup tables combined with some algebraic relationships/identities. State-of-the-art symbolic algebra libraries effectively use the same approach for symbolic integration.
 
 </div>
 
 Examples
 ========
 
-First, we need to set up the basic functions, which–in this case–are constructed from the Theano graphs.
+First, to compute anything from our Theano graphs, we need to compile them to Theano functions.
 
 ``` python
 lambda_tt = tt.scalar('lambda')
@@ -393,9 +394,9 @@ From a statistical perspective, the basics of coordinate-wise methods begin with
   \;.
   \end{aligned}
   \label{eq:partial_resid}
-\end{equation}$$ The last expression hints at the most basic idea behind the coordinate-wise approach: conditional minimization in each $m$. Its exact solution in each coordinate is given by the aforementioned soft thresholding function, which–as we’ve already stated–is a proximal operator. In symbols, $\operatorname*{prox}_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)$, where the latter is the soft thresholding operator.
+\end{equation}$$ The last expression hints at the most basic idea behind the coordinate-wise approach: conditional minimization in each $m$. Its exact solution in each coordinate is given by the aforementioned soft-thresholding function, which–as we’ve already stated–is a proximal operator. In symbols, $\operatorname*{prox}_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)$, where the latter is the soft-thresholding operator.
 
-Now, if we wanted to relate Equation $\eqref{eq:partial_resid}$ a proximal method via the statement of a proximal gradient fixed-point solution–i.e. Equation $\eqref{eq:forward-backward}$–we might use the following property of proximal operators:
+Now, we can relate Equation $\eqref{eq:partial_resid}$ to proximal methods through the proximal gradient fixed-point solution–i.e. Equation $\eqref{eq:forward-backward}$–and the following property of proximal operators:
 
 <div id="lem:prox_ortho_basis" class="lemma" markdown="" title-name="">
 
@@ -479,7 +480,7 @@ We start with an expansion of the terms in $\operatorname*{prox}_{\lambda \phi} 
 
 <span id="rem:bases_span" style="display:none;visibility:hidden">$$\begin{equation}\tag{3}\label{rem:bases}\end{equation}$$</span>
 
-The property in Lemma $\eqref{lem:prox_ortho_basis}$ can used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques [@chaux_variational_2007]. Also, this property provides a neat way to think about $X$-based orthogonalizations in estimations for regression and grouped-penalization problems.
+The property in Lemma $\eqref{lem:prox_ortho_basis}$ can be used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques [@chaux_variational_2007]. Also, this property provides a neat way to think about $X$-based orthogonalizations in estimations for regression and grouped-penalization problems.
 
 </div>
 

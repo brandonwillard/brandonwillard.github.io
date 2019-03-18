@@ -271,7 +271,7 @@ example above--to a src_python[:eval never]{repr}/readable string in Hy.
 The idea isn't too crazy, especially since one can easily work backward from a
 lot of the logic in the existing Hy compiler.  There will be some
 edge cases that result in non-bijective translations (i.e. some round-trip
-Hy/Python translations might only be *equal* and not exactly *equivalent*), but
+Hy/Python translations might only be *equivalent* and not exactly *equal*), but
 this isn't necessarily a blocking issue.  Decisions regarding "canonical" or
 reduced forms of Hy/Python AST might be necessary, especially if the resulting AST
 is intended to be more human readable than not.

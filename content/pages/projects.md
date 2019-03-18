@@ -6,6 +6,32 @@ Check [Github](https://github.com/brandonwillard) and
 [Bitbucket](https://bitbucket.io/brandonwillard) to see what I've been up to.  Otherwise, here's
 a quick roundup...
 
+<div class='project' name="symbolic-pymc" markdown>
+<ul class='project-links'>
+  <li><a href="https://github.com/pymc-devs/symbolic-pymc">github</a></li>
+</ul>
+A Python package with tools for the symbolic manipulation of the graphs created by PyMC.
+
+These tools are designed to help automate the mathematics used in statistics and
+probability theory, especially the kind employed to produce specialized MCMC
+routines.
+</div>
+
+<div class='project' name="Hy" markdown>
+<ul class='project-links'>
+  <li><a href="https://github.com/hylang/hy">github</a></li>
+  <li><a href="http://docs.hylang.org/en/stable/">website</a></li>
+</ul>
+Hy is a wonderful dialect of Lisp that’s embedded in Python.
+</div>
+
+<div class='project' name="hypoKanren" markdown>
+<ul class='project-links'>
+  <li><a href="https://github.com/brandonwillard/hypoKanren">github</a></li>
+</ul>
+An implementation of [`microKanren`](http://minikanren.org/) with constraints in Hy.
+</div>
+
 <div class='project' name="hsplus" markdown>
 <ul class='project-links'>
   <li><a href="https://bitbucket.org/bayes-horseshoe-plus/hsplus-python-pkg">python-code</a></li>

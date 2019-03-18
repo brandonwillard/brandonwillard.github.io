@@ -17,7 +17,7 @@
     <div class="entry-content"> {{ publications.content }} </div>
     <ul>
       {% for key, text, bibtex, sk in publications %}
-        <li id="{{ key }}">{{ text }} 
+        <li id="{{ key }}">{{ text }}
         [&nbsp;<a href="javascript:disp('{{ bibtex|replace('\n', '\\n')|escape|forceescape }}');">Bibtex</a>&nbsp;]
         </li>
       {% endfor %}
@@ -26,10 +26,19 @@
     <div class="entry-content"> {{ reports.content }} </div>
     <ul>
       {% for key, text, bibtex, sk in reports %}
-        <li id="{{ key }}">{{ text }} 
+        <li id="{{ key }}">{{ text }}
         [&nbsp;<a href="javascript:disp('{{ bibtex|replace('\n', '\\n')|escape|forceescape }}');">Bibtex</a>&nbsp;]
         </li>
       {% endfor %}
+    </ul>
+    <h2 class="entry-title">Unpublished Drafts</h2>
+    <div class="entry-content"> {{ unpublished.content }} </div>
+    <ul>
+        {% for key, text, bibtex, sk in unpublished %}
+        <li id="{{ key }}">{{ text }}
+            [&nbsp;<a href="javascript:disp('{{ bibtex|replace('\n', '\\n')|escape|forceescape }}');">Bibtex</a>&nbsp;]
+        </li>
+        {% endfor %}
     </ul>
   </section>
 {% endblock %}

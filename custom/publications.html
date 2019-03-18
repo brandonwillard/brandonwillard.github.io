@@ -70,6 +70,12 @@
                 <li id="{{ rep[0] }}"> {{ rep[1] }} </li>
             {% endfor %}
             </ul>
+            <h2 class="entry-title">Unpublished Drafts</h2>
+            <ul>
+                {% for rep in unpublished %}
+                <li id="{{ rep[0] }}"> {{ rep[1] }} </li>
+                {% endfor %}
+            </ul>
             {% if page.comments == 'enabled' %}
                 {% include 'includes/comments.html' %}
             {% endif %}
