@@ -1879,7 +1879,7 @@ after: (TestClass 1 {&amp;quot;a&amp;quot; 2  &amp;quot;b&amp;quot; 3} :kwarg1 1
     (conde
       [(fresh [lcar lcdr lout-car lout-cdr]
               (== l-in (cons lcar lcdr))
-              (hy-py-symbolo lcar lout-car)
+              (func lcar lout-car)
               (lapplyo func lcdr lout-cdr)
               (== l-out (cons lout-car lout-cdr)))]
       [(== l-in [])
