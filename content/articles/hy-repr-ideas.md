@@ -439,7 +439,7 @@ Some Python `ast.AST` types have fields consisting of lists containing other `as
     (conde
       [(fresh [lcar lcdr lout-car lout-cdr]
               (== l-in (cons lcar lcdr))
-              (hy-py-symbolo lcar lout-car)
+              (func lcar lout-car)
               (lapplyo func lcdr lout-cdr)
               (== l-out (cons lout-car lout-cdr)))]
       [(== l-in [])
