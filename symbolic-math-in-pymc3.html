@@ -164,7 +164,7 @@ a.sourceLine { text-indent: -1em; padding-left: 1em; }
 pre.numberSource a.sourceLine
   { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(title);
+  { content: attr(data-line-number);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
     border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
@@ -235,67 +235,67 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \label{eq:norm_conv_model}
 \end{equation}\]</span></p>
 <p>Using PyMC3, the model for Equation <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> is constructed as follows:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> sys</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="im">import</span> os</a>
-<a class="sourceLine" id="cb1-3" title="3"></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="im">from</span> pprint <span class="im">import</span> pprint</a>
-<a class="sourceLine" id="cb1-5" title="5"></a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="im">import</span> numpy <span class="im">as</span> np</a>
-<a class="sourceLine" id="cb1-7" title="7"></a>
-<a class="sourceLine" id="cb1-8" title="8">os.environ[<span class="st">&#39;MKL_THREADING_LAYER&#39;</span>] <span class="op">=</span> <span class="st">&#39;GNU&#39;</span></a>
-<a class="sourceLine" id="cb1-9" title="9"></a>
-<a class="sourceLine" id="cb1-10" title="10"><span class="im">import</span> theano</a>
-<a class="sourceLine" id="cb1-11" title="11"><span class="im">import</span> theano.tensor <span class="im">as</span> tt</a>
-<a class="sourceLine" id="cb1-12" title="12"></a>
-<a class="sourceLine" id="cb1-13" title="13">theano.config.mode <span class="op">=</span> <span class="st">&#39;FAST_COMPILE&#39;</span></a>
-<a class="sourceLine" id="cb1-14" title="14">theano.config.exception_verbosity <span class="op">=</span> <span class="st">&#39;high&#39;</span></a>
-<a class="sourceLine" id="cb1-15" title="15"></a>
-<a class="sourceLine" id="cb1-16" title="16"><span class="im">import</span> pymc3 <span class="im">as</span> pm</a></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)</a>
-<a class="sourceLine" id="cb2-2" title="2">mu_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
-<a class="sourceLine" id="cb2-3" title="3">sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)</a>
-<a class="sourceLine" id="cb2-4" title="4">sd_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
-<a class="sourceLine" id="cb2-5" title="5"></a>
-<a class="sourceLine" id="cb2-6" title="6">mu_Y <span class="op">=</span> tt.vector(<span class="st">&#39;mu_Y&#39;</span>)</a>
-<a class="sourceLine" id="cb2-7" title="7">mu_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
-<a class="sourceLine" id="cb2-8" title="8">sd_Y <span class="op">=</span> tt.vector(<span class="st">&#39;sd_Y&#39;</span>)</a>
-<a class="sourceLine" id="cb2-9" title="9">sd_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.5</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
-<a class="sourceLine" id="cb2-10" title="10"></a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="cf">with</span> pm.Model() <span class="im">as</span> conv_model:</a>
-<a class="sourceLine" id="cb2-12" title="12">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
-<a class="sourceLine" id="cb2-13" title="13">    Y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;Y_rv&#39;</span>, mu_Y, sd<span class="op">=</span>sd_Y, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
-<a class="sourceLine" id="cb2-14" title="14">    Z_rv <span class="op">=</span> X_rv <span class="op">+</span> Y_rv</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> sys</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="im">import</span> os</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="im">from</span> pprint <span class="im">import</span> pprint</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">os.environ[<span class="st">&#39;MKL_THREADING_LAYER&#39;</span>] <span class="op">=</span> <span class="st">&#39;GNU&#39;</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="im">import</span> theano</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="im">import</span> theano.tensor <span class="im">as</span> tt</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">theano.config.mode <span class="op">=</span> <span class="st">&#39;FAST_COMPILE&#39;</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">theano.config.exception_verbosity <span class="op">=</span> <span class="st">&#39;high&#39;</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="im">import</span> pymc3 <span class="im">as</span> pm</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">mu_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">sd_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">mu_Y <span class="op">=</span> tt.vector(<span class="st">&#39;mu_Y&#39;</span>)</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">mu_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">sd_Y <span class="op">=</span> tt.vector(<span class="st">&#39;sd_Y&#39;</span>)</a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">sd_Y.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.5</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="cf">with</span> pm.Model() <span class="im">as</span> conv_model:</a>
+<a class="sourceLine" id="cb2-12" data-line-number="12">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
+<a class="sourceLine" id="cb2-13" data-line-number="13">    Y_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;Y_rv&#39;</span>, mu_Y, sd<span class="op">=</span>sd_Y, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
+<a class="sourceLine" id="cb2-14" data-line-number="14">    Z_rv <span class="op">=</span> X_rv <span class="op">+</span> Y_rv</a></code></pre></div>
 <p>The Python objects representing terms in <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> are <code>X_rv</code>, <code>Y_rv</code>, and <code>Z_rv</code> in <a href="#pymc3_model">pymc3_model</a>. Those terms together form a Theano graph for the entirety of <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span>.</p>
 <p>Other aspects of the model are implicitly stored in the <a href="https://docs.python.org/3.6/reference/compound_stmts.html#with">Python context object</a> <code>conv_model</code>. For example, the context object tracks the model’s log likelihood function when some variables are designated as “observed”–i.e. associated with sample data. In this example, we haven’t specified an observed variable, so the context object won’t be immediately useful.</p>
 <div class="remark" data-markdown="">
 <p>In what follows, we’ll briefly introduce the internal aspects of PyMC3 that are immediately relevant for the topics addressed here; otherwise, see <a href="https://docs.pymc.io/developer_guide.html">the PyMC3 developer’s guide</a> for an explanation of its design and internal workings.</p>
 </div>
 <p>The terms <code>X_rv</code>, <code>Y_rv</code> are derived from both a PyMC3 <a href="https://github.com/pymc-devs/pymc3/blob/v3.3/pymc3/model.py#L151"><code>Factor</code></a> class and the standard Theano <code>TensorVariable</code>, as illustrated in the output of <a href="#pymc3_mro">pymc3_mro</a>. However, the convolution term <code>Z_rv</code> is not a PyMC3 random variable; in other words, it does <strong>not</strong> implement the PyMC3 <code>Factor</code> class, but it <strong>is</strong> a Theano <code>TensorVariable</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1">pprint({<span class="st">&#39;Y_rv&#39;</span>: <span class="bu">type</span>(Y_rv).mro()})</a>
-<a class="sourceLine" id="cb3-2" title="2">pprint({<span class="st">&#39;Z_rv&#39;</span>: <span class="bu">type</span>(Z_rv).mro()})</a></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1">{<span class="st">&#39;Y_rv&#39;</span>: [<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;pymc3.model.FreeRV&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-2" title="2">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;pymc3.model.Factor&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-3" title="3">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var.TensorVariable&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-4" title="4">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var._tensor_py_operators&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-5" title="5">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Variable&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-6" title="6">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Node&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-7" title="7">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.utils.object2&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-8" title="8">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;object&#39;</span><span class="op">&gt;</span>]}</a>
-<a class="sourceLine" id="cb4-9" title="9">{<span class="st">&#39;Z_rv&#39;</span>: [<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var.TensorVariable&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-10" title="10">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var._tensor_py_operators&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-11" title="11">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Variable&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-12" title="12">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Node&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-13" title="13">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.utils.object2&#39;</span><span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb4-14" title="14">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;object&#39;</span><span class="op">&gt;</span>]}</a>
-<a class="sourceLine" id="cb4-15" title="15"></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">pprint({<span class="st">&#39;Y_rv&#39;</span>: <span class="bu">type</span>(Y_rv).mro()})</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">pprint({<span class="st">&#39;Z_rv&#39;</span>: <span class="bu">type</span>(Z_rv).mro()})</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1">{<span class="st">&#39;Y_rv&#39;</span>: [<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;pymc3.model.FreeRV&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;pymc3.model.Factor&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var.TensorVariable&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var._tensor_py_operators&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Variable&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Node&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.utils.object2&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;object&#39;</span><span class="op">&gt;</span>]}</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">{<span class="st">&#39;Z_rv&#39;</span>: [<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var.TensorVariable&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.tensor.var._tensor_py_operators&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Variable&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.graph.Node&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-13" data-line-number="13">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;theano.gof.utils.object2&#39;</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb4-14" data-line-number="14">          <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;object&#39;</span><span class="op">&gt;</span>]}</a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"></a></code></pre></div>
 <p>While PyMC3 doesn’t <strong>need</strong> to support convolution, so much within Bayesian statistics, MCMC, and probabilistic programming rely on it in some way. It’s an intrinsic part of the algebra(s) implied by the use of probability theory and essential to the implementation of more sophisticated models and sampler optimizations–in at least the same way as symbolic differentiation. Here, the question isn’t whether these algebraic properties are explicitly supported, but how easily they can be implemented when necessary.</p>
 <p>As it appears, all work related to probability theory or the algebra of random variables is performed implicitly within the context of Theano and mostly detached from the model-level meta information provided by the PyMC3 abstractions. This means that the linear/tensor algebra supported by Theano is the primary level of abstraction.</p>
 <p>More specifically, one purpose of the PyMC3 probability theory abstractions (e.g. random variable classes—<code>FreeRV</code> and <code>ObservedRV</code>, distributions and their likelihoods, etc.) is to associate a PyMC3 <a href="https://github.com/pymc-devs/pymc3/blob/v3.3/pymc3/distributions/distribution.py#L18"><code>Distribution</code></a> object with a Theano <code>TensorVariable</code>. This connection is made through a <code>distribution</code> attribute</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1">pprint(Y_rv.distribution)</a>
-<a class="sourceLine" id="cb5-2" title="2">pprint(X_rv.distribution)</a></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="op">&lt;</span>pymc3.distributions.continuous.Normal <span class="bu">object</span> at <span class="bn">0x7f5d1796e908</span><span class="op">&gt;</span></a>
-<a class="sourceLine" id="cb6-2" title="2"><span class="op">&lt;</span>pymc3.distributions.continuous.Normal <span class="bu">object</span> at <span class="bn">0x7f5d17b10208</span><span class="op">&gt;</span></a>
-<a class="sourceLine" id="cb6-3" title="3"></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1">pprint(Y_rv.distribution)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">pprint(X_rv.distribution)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="op">&lt;</span>pymc3.distributions.continuous.Normal <span class="bu">object</span> at <span class="bn">0x7f5d1796e908</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="op">&lt;</span>pymc3.distributions.continuous.Normal <span class="bu">object</span> at <span class="bn">0x7f5d17b10208</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"></a></code></pre></div>
 <p><code>Distribution</code> objects loosely represents a measure, holding distribution parameters (e.g. mean and standard deviation <code>mu_X</code>, <code>sd_X</code>) and constructing the appropriate conditional log likelihoods–from which the model’s total log likelihood is later derived. The distribution parameters and log-likelihoods are Theano <code>TensorVariable</code>s–including other PyMC3-derived <code>TensorVariable</code>s corresponding to (the output of) random variables.</p>
 <p>Again, since objects derived via algebraic manipulation of random variables are not themselves random variables within the framework of PyMC3, objects like <code>Z_rv</code> do not have a <code>Distribution</code> attribute. The mechanics described here provide a means for supporting terms like <code>Z_rv</code> with the appropriate “derived” distribution.</p>
 <p>To start, we’ll have to dive deeper into the graph aspects of Theano.</p>
@@ -303,7 +303,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="random-variables-in-graphs" class="level1">
 <h1>Random Variables in Graphs</h1>
 <p>The Theano graph representing <span class="math inline">\(\eqref{eq:norm_conv_model}\)</span> consists of linear/tensor algebra operations–under the interface of <code>theano.gof.op.Op</code>–on <code>TensorVariable</code>s. For our example in <a href="#pymc3_model">pymc3_model</a>, a textual representation is given in <a href="#Z_rv_debugprint">Z_rv_debugprint</a> and a graphical form in <a href="#fig:norm_sum_graph">fig:norm_sum_graph</a>.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1">tt.printing.debugprint(Z_rv)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1">tt.printing.debugprint(Z_rv)</a></code></pre></div>
 <pre class="text"><code>Elemwise{add,no_inplace} [id A] &#39;&#39;
  |X_rv [id B]
  |Y_rv [id C]
@@ -315,165 +315,165 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 Graph of <code>Z_rv</code> for the PyMC3 model in <a href="#org7c56540">2</a>.
 </figcaption>
 </figure>
-<p>At present, PyMC3 (version <code>print(pm.__version__)</code> 3.3) does not make very consistent use of Theano’s graph objects. For instance, notice how the dependent parameters <code>mu_X</code> and <code>sd_X</code> are not present in the model’s graph (e.g. <a href="#fig:norm_sum_graph">fig:norm_sum_graph</a>). We know that <code>X_rv</code> and <code>Y_rv</code> are PyMC3 random variables, but what we see in the graph is only their representations as sampled scalar/vector/matrix/tensor values. In other words, where <span class="math inline">\(X\)</span>, <span class="math inline">\(Y\)</span> symbolize random variables and <span class="math inline">\(x \sim X\)</span>, <span class="math inline">\(y \sim Y\)</span> their samples, we have a graph expressing only <span class="math inline">\(z = x + y\)</span>.</p>
+<p>At present, PyMC3 (version <code>print(pm.__version__)</code> 3.3) does not make very consistent use of Theano’s graph objects. For instance, notice how the dependent parameters <code>mu_X</code> and <code>sd_X</code> are not present in the model’s graph (e.g. <a href="#fig:norm_sum_graph">fig:norm_sum_graph</a>). We know that <code>X_rv</code> and <code>Y_rv</code> are PyMC3 random variables, but what we see in the graph is only their representations as sampled scalar/vector/matrix/tensor values. In other words, where <span class="math inline">\(X\)</span>, <span class="math inline">\(Y\)</span> symbolize random variables and <span class="math inline">\(x \sim X\)</span>, <span class="math inline">\(y \sim Y\)</span> their samples, we have a graph expressing only <span class="math inline">\(z = x + y\)</span>.</p>
 <p>What we need for higher-level work is a graph of <span class="math inline">\(Z = X + Y\)</span> that includes every term involved. This is true for graphs representing a model’s measure/log-likelihood <strong>and</strong> its sampled values. The former is essentially covered by the log-likelihood graphs we can already produce using the PyMC3 model objects. It’s the latter that we’ll establish here, since it sets the stage for applications of numerous techniques in statistics and probability theory.</p>
 <p>One way to produce graphs that represent the full probabilistic model is to formalize the notion of random variables using the Theano API. Basically, if we want to include the relationships between distribution parameters and sampled variables, <strong>we need an <code>Op</code> that represents random variables and/or the act of sampling</strong>. <code>theano.tensor.raw_random.RandomFunction</code> does exactly this; although it represents the concept of a sampling action and not exactly a random measure.</p>
 <p>Nonetheless, using <code>RandomFunction</code>, we can replace nodes corresponding to PyMC3 random variables with newly constructed <code>Op</code> nodes.</p>
 <div class="example" data-markdown="">
 <p>We can produce the types of graphs described above through conversion of existing PyMC3 models.</p>
 <p>In order to perform any manipulations on our model’s graph, we need to create a Theano <code>theano.gof.FunctionGraph</code> object. We create a utility function in <a href="#model_graph_fn">model_graph_fn</a> that constructs a <code>FunctionGraph</code> from a PyMC3 model.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="im">from</span> theano.gof <span class="im">import</span> FunctionGraph, Feature, NodeFinder</a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="im">from</span> theano.gof.graph <span class="im">import</span> inputs <span class="im">as</span> tt_inputs, clone_get_equiv</a>
-<a class="sourceLine" id="cb9-3" title="3"></a>
-<a class="sourceLine" id="cb9-4" title="4"><span class="kw">def</span> model_graph(pymc_model, derived_vars<span class="op">=</span><span class="va">None</span>):</a>
-<a class="sourceLine" id="cb9-5" title="5"></a>
-<a class="sourceLine" id="cb9-6" title="6">    model <span class="op">=</span> pm.modelcontext(pymc_model)</a>
-<a class="sourceLine" id="cb9-7" title="7"></a>
-<a class="sourceLine" id="cb9-8" title="8">    <span class="cf">if</span> derived_vars <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb9-9" title="9">        model_outs <span class="op">=</span> derived_vars</a>
-<a class="sourceLine" id="cb9-10" title="10">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb9-11" title="11">        model_outs <span class="op">=</span> [o.logpt <span class="cf">for</span> o <span class="kw">in</span> model.observed_RVs]</a>
-<a class="sourceLine" id="cb9-12" title="12"></a>
-<a class="sourceLine" id="cb9-13" title="13">    model_inputs <span class="op">=</span> [inp <span class="cf">for</span> inp <span class="kw">in</span> tt_inputs(model_outs)]</a>
-<a class="sourceLine" id="cb9-14" title="14">    <span class="co"># if not isinstance(inp, theano.gof.graph.Constant)]</span></a>
-<a class="sourceLine" id="cb9-15" title="15"></a>
-<a class="sourceLine" id="cb9-16" title="16">    model_memo <span class="op">=</span> clone_get_equiv(model_inputs, model_outs,</a>
-<a class="sourceLine" id="cb9-17" title="17">                                 copy_orphans<span class="op">=</span><span class="va">False</span>)</a>
-<a class="sourceLine" id="cb9-18" title="18"></a>
-<a class="sourceLine" id="cb9-19" title="19">    fg_features <span class="op">=</span> [</a>
-<a class="sourceLine" id="cb9-20" title="20">        NodeFinder(),</a>
-<a class="sourceLine" id="cb9-21" title="21">    ]</a>
-<a class="sourceLine" id="cb9-22" title="22">    model_fg <span class="op">=</span> FunctionGraph([model_memo[i] <span class="cf">for</span> i <span class="kw">in</span> model_inputs],</a>
-<a class="sourceLine" id="cb9-23" title="23">                             [model_memo[i] <span class="cf">for</span> i <span class="kw">in</span> model_outs],</a>
-<a class="sourceLine" id="cb9-24" title="24">                             clone<span class="op">=</span><span class="va">False</span>, features<span class="op">=</span>fg_features)</a>
-<a class="sourceLine" id="cb9-25" title="25">    model_fg.memo <span class="op">=</span> model_memo</a>
-<a class="sourceLine" id="cb9-26" title="26"></a>
-<a class="sourceLine" id="cb9-27" title="27">    <span class="cf">return</span> model_fg</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="im">from</span> theano.gof <span class="im">import</span> FunctionGraph, Feature, NodeFinder</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="im">from</span> theano.gof.graph <span class="im">import</span> inputs <span class="im">as</span> tt_inputs, clone_get_equiv</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="kw">def</span> model_graph(pymc_model, derived_vars<span class="op">=</span><span class="va">None</span>):</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6">    model <span class="op">=</span> pm.modelcontext(pymc_model)</a>
+<a class="sourceLine" id="cb9-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb9-8" data-line-number="8">    <span class="cf">if</span> derived_vars <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb9-9" data-line-number="9">        model_outs <span class="op">=</span> derived_vars</a>
+<a class="sourceLine" id="cb9-10" data-line-number="10">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb9-11" data-line-number="11">        model_outs <span class="op">=</span> [o.logpt <span class="cf">for</span> o <span class="kw">in</span> model.observed_RVs]</a>
+<a class="sourceLine" id="cb9-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb9-13" data-line-number="13">    model_inputs <span class="op">=</span> [inp <span class="cf">for</span> inp <span class="kw">in</span> tt_inputs(model_outs)]</a>
+<a class="sourceLine" id="cb9-14" data-line-number="14">    <span class="co"># if not isinstance(inp, theano.gof.graph.Constant)]</span></a>
+<a class="sourceLine" id="cb9-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb9-16" data-line-number="16">    model_memo <span class="op">=</span> clone_get_equiv(model_inputs, model_outs,</a>
+<a class="sourceLine" id="cb9-17" data-line-number="17">                                 copy_orphans<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb9-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb9-19" data-line-number="19">    fg_features <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb9-20" data-line-number="20">        NodeFinder(),</a>
+<a class="sourceLine" id="cb9-21" data-line-number="21">    ]</a>
+<a class="sourceLine" id="cb9-22" data-line-number="22">    model_fg <span class="op">=</span> FunctionGraph([model_memo[i] <span class="cf">for</span> i <span class="kw">in</span> model_inputs],</a>
+<a class="sourceLine" id="cb9-23" data-line-number="23">                             [model_memo[i] <span class="cf">for</span> i <span class="kw">in</span> model_outs],</a>
+<a class="sourceLine" id="cb9-24" data-line-number="24">                             clone<span class="op">=</span><span class="va">False</span>, features<span class="op">=</span>fg_features)</a>
+<a class="sourceLine" id="cb9-25" data-line-number="25">    model_fg.memo <span class="op">=</span> model_memo</a>
+<a class="sourceLine" id="cb9-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb9-27" data-line-number="27">    <span class="cf">return</span> model_fg</a></code></pre></div>
 <p>When cloning the graph with <code>theano.gof.graph.clone_get_equiv</code> in <code>model_graph</code>, we lose the <code>FreeRV.distribution</code> attribute–among others. Since those attributes hold all the information required to construct our <code>RandomFunction</code> <code>Op</code>s, we’ll need to find a way to preserve it.</p>
 <p>This can be accomplished by overriding the default Theano <code>clone</code> function inherited by the PyMC3 random variable classes.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1"><span class="im">import</span> types</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="im">from</span> copy <span class="im">import</span> copy</a>
-<a class="sourceLine" id="cb10-3" title="3"></a>
-<a class="sourceLine" id="cb10-4" title="4">pymc_rv_types <span class="op">=</span> (pm.model.FreeRV, pm.model.ObservedRV, pm.model.TransformedRV)</a>
-<a class="sourceLine" id="cb10-5" title="5"></a>
-<a class="sourceLine" id="cb10-6" title="6">pymc_rv_attrs <span class="op">=</span> [<span class="st">&#39;dshape&#39;</span>, <span class="st">&#39;dsize&#39;</span>, <span class="st">&#39;distribution&#39;</span>, <span class="st">&#39;logp_elemwiset&#39;</span>,</a>
-<a class="sourceLine" id="cb10-7" title="7">                 <span class="st">&#39;logp_sum_unscaledt&#39;</span>, <span class="st">&#39;logp_nojac_unscaledt&#39;</span>, <span class="st">&#39;total_size&#39;</span>,</a>
-<a class="sourceLine" id="cb10-8" title="8">                 <span class="st">&#39;scaling&#39;</span>, <span class="st">&#39;missing_values&#39;</span>]</a>
-<a class="sourceLine" id="cb10-9" title="9"></a>
-<a class="sourceLine" id="cb10-10" title="10"><span class="cf">for</span> rv_type <span class="kw">in</span> pymc_rv_types:</a>
-<a class="sourceLine" id="cb10-11" title="11"></a>
-<a class="sourceLine" id="cb10-12" title="12">    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">hasattr</span>(rv_type, <span class="st">&#39;__clone&#39;</span>):</a>
-<a class="sourceLine" id="cb10-13" title="13">        rv_type.__clone <span class="op">=</span> rv_type.clone</a>
-<a class="sourceLine" id="cb10-14" title="14"></a>
-<a class="sourceLine" id="cb10-15" title="15">    <span class="kw">def</span> pymc_rv_clone(<span class="va">self</span>):</a>
-<a class="sourceLine" id="cb10-16" title="16">        cp <span class="op">=</span> rv_type.__clone(<span class="va">self</span>)</a>
-<a class="sourceLine" id="cb10-17" title="17">        <span class="cf">for</span> attr <span class="kw">in</span> pymc_rv_attrs:</a>
-<a class="sourceLine" id="cb10-18" title="18">            <span class="bu">setattr</span>(cp, attr, copy(<span class="bu">getattr</span>(<span class="va">self</span>, attr, <span class="va">None</span>)))</a>
-<a class="sourceLine" id="cb10-19" title="19"></a>
-<a class="sourceLine" id="cb10-20" title="20">        <span class="co"># Allow a cloned rv to inherit the context&#39;s model?</span></a>
-<a class="sourceLine" id="cb10-21" title="21">        <span class="co"># try:</span></a>
-<a class="sourceLine" id="cb10-22" title="22">        <span class="co">#     cp.model = pm.Model.get_context()</span></a>
-<a class="sourceLine" id="cb10-23" title="23">        <span class="co"># except TypeError:</span></a>
-<a class="sourceLine" id="cb10-24" title="24">        <span class="co">#     pass</span></a>
-<a class="sourceLine" id="cb10-25" title="25"></a>
-<a class="sourceLine" id="cb10-26" title="26">        <span class="cf">if</span> <span class="bu">getattr</span>(cp, <span class="st">&#39;model&#39;</span>, <span class="va">None</span>) <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb10-27" title="27">            cp.model <span class="op">=</span> <span class="bu">getattr</span>(<span class="va">self</span>, <span class="st">&#39;model&#39;</span>, <span class="va">None</span>)</a>
-<a class="sourceLine" id="cb10-28" title="28"></a>
-<a class="sourceLine" id="cb10-29" title="29">        <span class="cf">return</span> cp</a>
-<a class="sourceLine" id="cb10-30" title="30"></a>
-<a class="sourceLine" id="cb10-31" title="31">    rv_type.clone <span class="op">=</span> pymc_rv_clone</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="im">import</span> types</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="im">from</span> copy <span class="im">import</span> copy</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4">pymc_rv_types <span class="op">=</span> (pm.model.FreeRV, pm.model.ObservedRV, pm.model.TransformedRV)</a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb10-6" data-line-number="6">pymc_rv_attrs <span class="op">=</span> [<span class="st">&#39;dshape&#39;</span>, <span class="st">&#39;dsize&#39;</span>, <span class="st">&#39;distribution&#39;</span>, <span class="st">&#39;logp_elemwiset&#39;</span>,</a>
+<a class="sourceLine" id="cb10-7" data-line-number="7">                 <span class="st">&#39;logp_sum_unscaledt&#39;</span>, <span class="st">&#39;logp_nojac_unscaledt&#39;</span>, <span class="st">&#39;total_size&#39;</span>,</a>
+<a class="sourceLine" id="cb10-8" data-line-number="8">                 <span class="st">&#39;scaling&#39;</span>, <span class="st">&#39;missing_values&#39;</span>]</a>
+<a class="sourceLine" id="cb10-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="cf">for</span> rv_type <span class="kw">in</span> pymc_rv_types:</a>
+<a class="sourceLine" id="cb10-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb10-12" data-line-number="12">    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">hasattr</span>(rv_type, <span class="st">&#39;__clone&#39;</span>):</a>
+<a class="sourceLine" id="cb10-13" data-line-number="13">        rv_type.__clone <span class="op">=</span> rv_type.clone</a>
+<a class="sourceLine" id="cb10-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb10-15" data-line-number="15">    <span class="kw">def</span> pymc_rv_clone(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb10-16" data-line-number="16">        cp <span class="op">=</span> rv_type.__clone(<span class="va">self</span>)</a>
+<a class="sourceLine" id="cb10-17" data-line-number="17">        <span class="cf">for</span> attr <span class="kw">in</span> pymc_rv_attrs:</a>
+<a class="sourceLine" id="cb10-18" data-line-number="18">            <span class="bu">setattr</span>(cp, attr, copy(<span class="bu">getattr</span>(<span class="va">self</span>, attr, <span class="va">None</span>)))</a>
+<a class="sourceLine" id="cb10-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb10-20" data-line-number="20">        <span class="co"># Allow a cloned rv to inherit the context&#39;s model?</span></a>
+<a class="sourceLine" id="cb10-21" data-line-number="21">        <span class="co"># try:</span></a>
+<a class="sourceLine" id="cb10-22" data-line-number="22">        <span class="co">#     cp.model = pm.Model.get_context()</span></a>
+<a class="sourceLine" id="cb10-23" data-line-number="23">        <span class="co"># except TypeError:</span></a>
+<a class="sourceLine" id="cb10-24" data-line-number="24">        <span class="co">#     pass</span></a>
+<a class="sourceLine" id="cb10-25" data-line-number="25"></a>
+<a class="sourceLine" id="cb10-26" data-line-number="26">        <span class="cf">if</span> <span class="bu">getattr</span>(cp, <span class="st">&#39;model&#39;</span>, <span class="va">None</span>) <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb10-27" data-line-number="27">            cp.model <span class="op">=</span> <span class="bu">getattr</span>(<span class="va">self</span>, <span class="st">&#39;model&#39;</span>, <span class="va">None</span>)</a>
+<a class="sourceLine" id="cb10-28" data-line-number="28"></a>
+<a class="sourceLine" id="cb10-29" data-line-number="29">        <span class="cf">return</span> cp</a>
+<a class="sourceLine" id="cb10-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb10-31" data-line-number="31">    rv_type.clone <span class="op">=</span> pymc_rv_clone</a></code></pre></div>
 <p>Now, we can produce a proper <code>FunctionGraph</code> from our PyMC3 model.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1">Z_fgraph_tt <span class="op">=</span> model_graph(conv_model, derived_vars<span class="op">=</span>[Z_rv])</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1">Z_fgraph_tt <span class="op">=</span> model_graph(conv_model, derived_vars<span class="op">=</span>[Z_rv])</a></code></pre></div>
 <p>With a <code>FunctionGraph</code> at our disposal, we can use the graph manipulation tools provided by Theano to replace the PyMC3 <code>TensorVariable</code>s used to represent random variables with corresponding Theano <code>RandomFunction</code>s that represent the <strong>act of sampling</strong> to produce said random variables.</p>
 <p>We can use a simple mapping between Pymc3 random variable nodes and <code>RandomFunction</code> to specify the desired replacements. Fortunately, this isn’t too difficult, since <code>RandomFunction</code> already supports numerous Numpy-provided random distributions–covering much of the same ground as the PyMC3 distributions. Otherwise, the rest of the work involves mapping distribution parameters.</p>
 <p>Also, <code>RandomFunction</code> requires a <code>RandomStream</code>, which it uses to track the sampler state. For our purely symbolic purposes, the stream object is not immediately useful, but it does–in the end–provide a sample-able graph as a nice side-effect. We demonstrate the PyMC3 random variable-to-<code>RandomFunction</code> translation in <a href="#random_op_mapping">random_op_mapping</a> using only a single mapping.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1"><span class="im">from</span> theano.tensor.raw_random <span class="im">import</span> RandomFunction</a>
-<a class="sourceLine" id="cb12-2" title="2"></a>
-<a class="sourceLine" id="cb12-3" title="3">pymc_theano_rv_equivs <span class="op">=</span> {</a>
-<a class="sourceLine" id="cb12-4" title="4">    pm.Normal:</a>
-<a class="sourceLine" id="cb12-5" title="5">    <span class="kw">lambda</span> dist, rand_state:</a>
-<a class="sourceLine" id="cb12-6" title="6">    tt.raw_random.normal(rand_state, dist.shape.tolist(), dist.mu, dist.sd),</a>
-<a class="sourceLine" id="cb12-7" title="7">}</a></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">def</span> create_theano_rvs(fgraph, clone<span class="op">=</span><span class="va">True</span>, rand_state<span class="op">=</span><span class="va">None</span>):</a>
-<a class="sourceLine" id="cb13-2" title="2">    <span class="co">&quot;&quot;&quot;Replace PyMC3 random variables with `RandomFunction` Ops.</span></a>
-<a class="sourceLine" id="cb13-3" title="3"></a>
-<a class="sourceLine" id="cb13-4" title="4"><span class="co">    </span><span class="al">TODO</span><span class="co">: Could use a Theano graph `Feature` to trace--or even</span></a>
-<a class="sourceLine" id="cb13-5" title="5"><span class="co">    replace--random variables.</span></a>
-<a class="sourceLine" id="cb13-6" title="6"></a>
-<a class="sourceLine" id="cb13-7" title="7"><span class="co">    Parameters</span></a>
-<a class="sourceLine" id="cb13-8" title="8"><span class="co">    ----------</span></a>
-<a class="sourceLine" id="cb13-9" title="9"><span class="co">    fgraph : FunctionGraph</span></a>
-<a class="sourceLine" id="cb13-10" title="10"><span class="co">    A graph containing PyMC3 random variables.</span></a>
-<a class="sourceLine" id="cb13-11" title="11"></a>
-<a class="sourceLine" id="cb13-12" title="12"><span class="co">    clone: bool, optional</span></a>
-<a class="sourceLine" id="cb13-13" title="13"><span class="co">    Clone the original graph.</span></a>
-<a class="sourceLine" id="cb13-14" title="14"></a>
-<a class="sourceLine" id="cb13-15" title="15"><span class="co">    rand_state : RandomStateType, optional</span></a>
-<a class="sourceLine" id="cb13-16" title="16"><span class="co">    The Theano random state.</span></a>
-<a class="sourceLine" id="cb13-17" title="17"></a>
-<a class="sourceLine" id="cb13-18" title="18"><span class="co">    Returns</span></a>
-<a class="sourceLine" id="cb13-19" title="19"><span class="co">    -------</span></a>
-<a class="sourceLine" id="cb13-20" title="20"><span class="co">    out : A cloned graph with random variables replaced and a `memo` attribute.</span></a>
-<a class="sourceLine" id="cb13-21" title="21"></a>
-<a class="sourceLine" id="cb13-22" title="22"><span class="co">    &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb13-23" title="23">    <span class="cf">if</span> clone:</a>
-<a class="sourceLine" id="cb13-24" title="24">        fgraph_, fgraph_memo_ <span class="op">=</span> fgraph.clone_get_equiv(attach_feature<span class="op">=</span><span class="va">False</span>)</a>
-<a class="sourceLine" id="cb13-25" title="25">        fgraph_.memo <span class="op">=</span> fgraph_memo_</a>
-<a class="sourceLine" id="cb13-26" title="26">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb13-27" title="27">        fgraph_ <span class="op">=</span> fgraph</a>
-<a class="sourceLine" id="cb13-28" title="28"></a>
-<a class="sourceLine" id="cb13-29" title="29">    <span class="cf">if</span> rand_state <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb13-30" title="30">        rand_state <span class="op">=</span> theano.shared(np.random.RandomState())</a>
-<a class="sourceLine" id="cb13-31" title="31"></a>
-<a class="sourceLine" id="cb13-32" title="32">    fgraph_replacements <span class="op">=</span> {}</a>
-<a class="sourceLine" id="cb13-33" title="33">    fgraph_new_inputs <span class="op">=</span> <span class="bu">set</span>()</a>
-<a class="sourceLine" id="cb13-34" title="34"></a>
-<a class="sourceLine" id="cb13-35" title="35">    <span class="cf">for</span> old_rv_i, old_rv <span class="kw">in</span> <span class="bu">enumerate</span>(fgraph_.inputs):</a>
-<a class="sourceLine" id="cb13-36" title="36">        <span class="cf">if</span> <span class="bu">isinstance</span>(old_rv, pymc_rv_types):</a>
-<a class="sourceLine" id="cb13-37" title="37">            dist <span class="op">=</span> old_rv.distribution</a>
-<a class="sourceLine" id="cb13-38" title="38">            theano_rv_op <span class="op">=</span> pymc_theano_rv_equivs.get(<span class="bu">type</span>(dist), <span class="va">None</span>)</a>
-<a class="sourceLine" id="cb13-39" title="39"></a>
-<a class="sourceLine" id="cb13-40" title="40">            <span class="cf">if</span> theano_rv_op <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb13-41" title="41">                rng_tt, new_rv <span class="op">=</span> theano_rv_op(dist, rand_state)</a>
-<a class="sourceLine" id="cb13-42" title="42"></a>
-<a class="sourceLine" id="cb13-43" title="43">                <span class="co"># Keep track of our replacements</span></a>
-<a class="sourceLine" id="cb13-44" title="44">                fgraph_replacements[old_rv] <span class="op">=</span> new_rv</a>
-<a class="sourceLine" id="cb13-45" title="45"></a>
-<a class="sourceLine" id="cb13-46" title="46">                new_rv.name <span class="op">=</span> <span class="st">&#39;~</span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(old_rv.name)</a>
-<a class="sourceLine" id="cb13-47" title="47"></a>
-<a class="sourceLine" id="cb13-48" title="48">                new_rv_inputs <span class="op">=</span> [i <span class="cf">for</span> i <span class="kw">in</span> tt_inputs([new_rv])]</a>
-<a class="sourceLine" id="cb13-49" title="49"></a>
-<a class="sourceLine" id="cb13-50" title="50">                fgraph_new_inputs.update(new_rv_inputs)</a>
-<a class="sourceLine" id="cb13-51" title="51">            <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb13-52" title="52">                <span class="bu">print</span>(<span class="st">&#39;</span><span class="sc">{}</span><span class="st"> could not be mapped to a random function&#39;</span>.<span class="bu">format</span>(old_rv))</a>
-<a class="sourceLine" id="cb13-53" title="53"></a>
-<a class="sourceLine" id="cb13-54" title="54">    fgraph_new_inputs_memo <span class="op">=</span> theano.gof.graph.clone_get_equiv(</a>
-<a class="sourceLine" id="cb13-55" title="55">        fgraph_new_inputs, <span class="bu">list</span>(fgraph_replacements.values()),</a>
-<a class="sourceLine" id="cb13-56" title="56">        copy_orphans<span class="op">=</span><span class="va">False</span>)</a>
-<a class="sourceLine" id="cb13-57" title="57"></a>
-<a class="sourceLine" id="cb13-58" title="58">    <span class="co"># Update our maps and new inputs to use the cloned objects</span></a>
-<a class="sourceLine" id="cb13-59" title="59">    fgraph_replacements <span class="op">=</span> {old_rv: fgraph_new_inputs_memo.pop(new_rv)</a>
-<a class="sourceLine" id="cb13-60" title="60">                           <span class="cf">for</span> old_rv, new_rv <span class="kw">in</span> fgraph_replacements.items()}</a>
-<a class="sourceLine" id="cb13-61" title="61">    fgraph_new_inputs <span class="op">=</span> <span class="bu">set</span>(<span class="bu">map</span>(fgraph_new_inputs_memo.pop, fgraph_new_inputs))</a>
-<a class="sourceLine" id="cb13-62" title="62"></a>
-<a class="sourceLine" id="cb13-63" title="63">    <span class="co"># What remains in `fgraph_new_inputs_memo` are the nodes between our desired</span></a>
-<a class="sourceLine" id="cb13-64" title="64">    <span class="co"># inputs (i.e. the random variables&#39; distribution parameters) and the old inputs</span></a>
-<a class="sourceLine" id="cb13-65" title="65">    <span class="co"># (i.e. Theano `Variable`s corresponding to a sample of said random variables).</span></a>
-<a class="sourceLine" id="cb13-66" title="66"></a>
-<a class="sourceLine" id="cb13-67" title="67">    _ <span class="op">=</span> [fgraph_.add_input(new_in) <span class="cf">for</span> new_in <span class="kw">in</span> fgraph_new_inputs</a>
-<a class="sourceLine" id="cb13-68" title="68">         <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(new_in, theano.gof.graph.Constant)]</a>
-<a class="sourceLine" id="cb13-69" title="69"></a>
-<a class="sourceLine" id="cb13-70" title="70">    <span class="co"># _ = [fgraph_.add_input(new_in) for new_in in fgraph_new_inputs_memo.values()]</span></a>
-<a class="sourceLine" id="cb13-71" title="71"></a>
-<a class="sourceLine" id="cb13-72" title="72">    fgraph_.replace_all(fgraph_replacements.items())</a>
-<a class="sourceLine" id="cb13-73" title="73"></a>
-<a class="sourceLine" id="cb13-74" title="74">    <span class="co"># The replace method apparently doesn&#39;t remove the old inputs...</span></a>
-<a class="sourceLine" id="cb13-75" title="75">    _ <span class="op">=</span> [fgraph_.inputs.remove(old_rv) <span class="cf">for</span> old_rv <span class="kw">in</span> fgraph_replacements.keys()]</a>
-<a class="sourceLine" id="cb13-76" title="76"></a>
-<a class="sourceLine" id="cb13-77" title="77">    <span class="cf">return</span> fgraph_</a></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1">Z_fgraph_rv_tt <span class="op">=</span> create_theano_rvs(Z_fgraph_tt)</a>
-<a class="sourceLine" id="cb14-2" title="2"></a>
-<a class="sourceLine" id="cb14-3" title="3">tt.printing.debugprint(Z_fgraph_rv_tt)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="im">from</span> theano.tensor.raw_random <span class="im">import</span> RandomFunction</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb12-3" data-line-number="3">pymc_theano_rv_equivs <span class="op">=</span> {</a>
+<a class="sourceLine" id="cb12-4" data-line-number="4">    pm.Normal:</a>
+<a class="sourceLine" id="cb12-5" data-line-number="5">    <span class="kw">lambda</span> dist, rand_state:</a>
+<a class="sourceLine" id="cb12-6" data-line-number="6">    tt.raw_random.normal(rand_state, dist.shape.tolist(), dist.mu, dist.sd),</a>
+<a class="sourceLine" id="cb12-7" data-line-number="7">}</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">def</span> create_theano_rvs(fgraph, clone<span class="op">=</span><span class="va">True</span>, rand_state<span class="op">=</span><span class="va">None</span>):</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Replace PyMC3 random variables with `RandomFunction` Ops.</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">    </span><span class="al">TODO</span><span class="co">: Could use a Theano graph `Feature` to trace--or even</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">    replace--random variables.</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">    Parameters</span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">    ----------</span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">    fgraph : FunctionGraph</span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">    A graph containing PyMC3 random variables.</span></a>
+<a class="sourceLine" id="cb13-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb13-12" data-line-number="12"><span class="co">    clone: bool, optional</span></a>
+<a class="sourceLine" id="cb13-13" data-line-number="13"><span class="co">    Clone the original graph.</span></a>
+<a class="sourceLine" id="cb13-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb13-15" data-line-number="15"><span class="co">    rand_state : RandomStateType, optional</span></a>
+<a class="sourceLine" id="cb13-16" data-line-number="16"><span class="co">    The Theano random state.</span></a>
+<a class="sourceLine" id="cb13-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb13-18" data-line-number="18"><span class="co">    Returns</span></a>
+<a class="sourceLine" id="cb13-19" data-line-number="19"><span class="co">    -------</span></a>
+<a class="sourceLine" id="cb13-20" data-line-number="20"><span class="co">    out : A cloned graph with random variables replaced and a `memo` attribute.</span></a>
+<a class="sourceLine" id="cb13-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb13-22" data-line-number="22"><span class="co">    &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb13-23" data-line-number="23">    <span class="cf">if</span> clone:</a>
+<a class="sourceLine" id="cb13-24" data-line-number="24">        fgraph_, fgraph_memo_ <span class="op">=</span> fgraph.clone_get_equiv(attach_feature<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb13-25" data-line-number="25">        fgraph_.memo <span class="op">=</span> fgraph_memo_</a>
+<a class="sourceLine" id="cb13-26" data-line-number="26">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb13-27" data-line-number="27">        fgraph_ <span class="op">=</span> fgraph</a>
+<a class="sourceLine" id="cb13-28" data-line-number="28"></a>
+<a class="sourceLine" id="cb13-29" data-line-number="29">    <span class="cf">if</span> rand_state <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb13-30" data-line-number="30">        rand_state <span class="op">=</span> theano.shared(np.random.RandomState())</a>
+<a class="sourceLine" id="cb13-31" data-line-number="31"></a>
+<a class="sourceLine" id="cb13-32" data-line-number="32">    fgraph_replacements <span class="op">=</span> {}</a>
+<a class="sourceLine" id="cb13-33" data-line-number="33">    fgraph_new_inputs <span class="op">=</span> <span class="bu">set</span>()</a>
+<a class="sourceLine" id="cb13-34" data-line-number="34"></a>
+<a class="sourceLine" id="cb13-35" data-line-number="35">    <span class="cf">for</span> old_rv_i, old_rv <span class="kw">in</span> <span class="bu">enumerate</span>(fgraph_.inputs):</a>
+<a class="sourceLine" id="cb13-36" data-line-number="36">        <span class="cf">if</span> <span class="bu">isinstance</span>(old_rv, pymc_rv_types):</a>
+<a class="sourceLine" id="cb13-37" data-line-number="37">            dist <span class="op">=</span> old_rv.distribution</a>
+<a class="sourceLine" id="cb13-38" data-line-number="38">            theano_rv_op <span class="op">=</span> pymc_theano_rv_equivs.get(<span class="bu">type</span>(dist), <span class="va">None</span>)</a>
+<a class="sourceLine" id="cb13-39" data-line-number="39"></a>
+<a class="sourceLine" id="cb13-40" data-line-number="40">            <span class="cf">if</span> theano_rv_op <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb13-41" data-line-number="41">                rng_tt, new_rv <span class="op">=</span> theano_rv_op(dist, rand_state)</a>
+<a class="sourceLine" id="cb13-42" data-line-number="42"></a>
+<a class="sourceLine" id="cb13-43" data-line-number="43">                <span class="co"># Keep track of our replacements</span></a>
+<a class="sourceLine" id="cb13-44" data-line-number="44">                fgraph_replacements[old_rv] <span class="op">=</span> new_rv</a>
+<a class="sourceLine" id="cb13-45" data-line-number="45"></a>
+<a class="sourceLine" id="cb13-46" data-line-number="46">                new_rv.name <span class="op">=</span> <span class="st">&#39;~</span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(old_rv.name)</a>
+<a class="sourceLine" id="cb13-47" data-line-number="47"></a>
+<a class="sourceLine" id="cb13-48" data-line-number="48">                new_rv_inputs <span class="op">=</span> [i <span class="cf">for</span> i <span class="kw">in</span> tt_inputs([new_rv])]</a>
+<a class="sourceLine" id="cb13-49" data-line-number="49"></a>
+<a class="sourceLine" id="cb13-50" data-line-number="50">                fgraph_new_inputs.update(new_rv_inputs)</a>
+<a class="sourceLine" id="cb13-51" data-line-number="51">            <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb13-52" data-line-number="52">                <span class="bu">print</span>(<span class="st">&#39;</span><span class="sc">{}</span><span class="st"> could not be mapped to a random function&#39;</span>.<span class="bu">format</span>(old_rv))</a>
+<a class="sourceLine" id="cb13-53" data-line-number="53"></a>
+<a class="sourceLine" id="cb13-54" data-line-number="54">    fgraph_new_inputs_memo <span class="op">=</span> theano.gof.graph.clone_get_equiv(</a>
+<a class="sourceLine" id="cb13-55" data-line-number="55">        fgraph_new_inputs, <span class="bu">list</span>(fgraph_replacements.values()),</a>
+<a class="sourceLine" id="cb13-56" data-line-number="56">        copy_orphans<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb13-57" data-line-number="57"></a>
+<a class="sourceLine" id="cb13-58" data-line-number="58">    <span class="co"># Update our maps and new inputs to use the cloned objects</span></a>
+<a class="sourceLine" id="cb13-59" data-line-number="59">    fgraph_replacements <span class="op">=</span> {old_rv: fgraph_new_inputs_memo.pop(new_rv)</a>
+<a class="sourceLine" id="cb13-60" data-line-number="60">                           <span class="cf">for</span> old_rv, new_rv <span class="kw">in</span> fgraph_replacements.items()}</a>
+<a class="sourceLine" id="cb13-61" data-line-number="61">    fgraph_new_inputs <span class="op">=</span> <span class="bu">set</span>(<span class="bu">map</span>(fgraph_new_inputs_memo.pop, fgraph_new_inputs))</a>
+<a class="sourceLine" id="cb13-62" data-line-number="62"></a>
+<a class="sourceLine" id="cb13-63" data-line-number="63">    <span class="co"># What remains in `fgraph_new_inputs_memo` are the nodes between our desired</span></a>
+<a class="sourceLine" id="cb13-64" data-line-number="64">    <span class="co"># inputs (i.e. the random variables&#39; distribution parameters) and the old inputs</span></a>
+<a class="sourceLine" id="cb13-65" data-line-number="65">    <span class="co"># (i.e. Theano `Variable`s corresponding to a sample of said random variables).</span></a>
+<a class="sourceLine" id="cb13-66" data-line-number="66"></a>
+<a class="sourceLine" id="cb13-67" data-line-number="67">    _ <span class="op">=</span> [fgraph_.add_input(new_in) <span class="cf">for</span> new_in <span class="kw">in</span> fgraph_new_inputs</a>
+<a class="sourceLine" id="cb13-68" data-line-number="68">         <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(new_in, theano.gof.graph.Constant)]</a>
+<a class="sourceLine" id="cb13-69" data-line-number="69"></a>
+<a class="sourceLine" id="cb13-70" data-line-number="70">    <span class="co"># _ = [fgraph_.add_input(new_in) for new_in in fgraph_new_inputs_memo.values()]</span></a>
+<a class="sourceLine" id="cb13-71" data-line-number="71"></a>
+<a class="sourceLine" id="cb13-72" data-line-number="72">    fgraph_.replace_all(fgraph_replacements.items())</a>
+<a class="sourceLine" id="cb13-73" data-line-number="73"></a>
+<a class="sourceLine" id="cb13-74" data-line-number="74">    <span class="co"># The replace method apparently doesn&#39;t remove the old inputs...</span></a>
+<a class="sourceLine" id="cb13-75" data-line-number="75">    _ <span class="op">=</span> [fgraph_.inputs.remove(old_rv) <span class="cf">for</span> old_rv <span class="kw">in</span> fgraph_replacements.keys()]</a>
+<a class="sourceLine" id="cb13-76" data-line-number="76"></a>
+<a class="sourceLine" id="cb13-77" data-line-number="77">    <span class="cf">return</span> fgraph_</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" data-line-number="1">Z_fgraph_rv_tt <span class="op">=</span> create_theano_rvs(Z_fgraph_tt)</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">tt.printing.debugprint(Z_fgraph_rv_tt)</a></code></pre></div>
 <pre class="text"><code>Elemwise{add,no_inplace} [id A] &#39;&#39;   10
  |RandomFunction{normal}.1 [id B] &#39;~X_rv&#39;   9
  | |&lt;RandomStateType&gt; [id C]
@@ -506,22 +506,22 @@ Graph of <span class="math inline">\(Z = X + Y\)</span> using an <code>Op</code>
 </div>
 <p>Illustrations of the transformed graphs given in <a href="#random_op_mapping_exa">random_op_mapping_exa</a> and <a href="#fig:random_op_mapping_exa_graph">fig:random_op_mapping_exa_graph</a> show the full extent of our simple example model and provide a context in which to perform higher-level manipulations.</p>
 <p>With a graph representing the relevant terms and relationships, we can implement the convolution simplification/transformation/optimization. For instance, as shown in <a href="#rv_find_nodes">rv_find_nodes</a>, we can now easily query random function/variable nodes in a graph.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" title="1"><span class="co"># Using a `FunctionGraph` &quot;feature&quot;</span></a>
-<a class="sourceLine" id="cb16-2" title="2">Z_fgraph_rv_tt.attach_feature(NodeFinder())</a>
-<a class="sourceLine" id="cb16-3" title="3"></a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="co"># The fixed `TensorType` is unnecessarily restrictive.</span></a>
-<a class="sourceLine" id="cb16-5" title="5">rf_normal_type <span class="op">=</span> RandomFunction(<span class="st">&#39;normal&#39;</span>, tt.TensorType(<span class="st">&#39;float64&#39;</span>, (<span class="va">True</span>,)))</a>
-<a class="sourceLine" id="cb16-6" title="6">rf_nodes <span class="op">=</span> Z_fgraph_rv_tt.get_nodes(rf_normal_type)</a>
-<a class="sourceLine" id="cb16-7" title="7"></a>
-<a class="sourceLine" id="cb16-8" title="8"><span class="co">#</span></a>
-<a class="sourceLine" id="cb16-9" title="9"><span class="co"># or, more generally,...</span></a>
-<a class="sourceLine" id="cb16-10" title="10"><span class="co">#</span></a>
-<a class="sourceLine" id="cb16-11" title="11"><span class="kw">def</span> get_random_nodes(fgraph):</a>
-<a class="sourceLine" id="cb16-12" title="12">    <span class="cf">return</span> <span class="bu">list</span>(<span class="bu">filter</span>(<span class="kw">lambda</span> x: <span class="bu">isinstance</span>(x.op, RandomFunction), fgraph.apply_nodes))</a>
-<a class="sourceLine" id="cb16-13" title="13"></a>
-<a class="sourceLine" id="cb16-14" title="14">rf_nodes <span class="op">=</span> get_random_nodes(Z_fgraph_rv_tt)</a>
-<a class="sourceLine" id="cb16-15" title="15"></a>
-<a class="sourceLine" id="cb16-16" title="16">tt.printing.debugprint(rf_nodes)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co"># Using a `FunctionGraph` &quot;feature&quot;</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">Z_fgraph_rv_tt.attach_feature(NodeFinder())</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co"># The fixed `TensorType` is unnecessarily restrictive.</span></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">rf_normal_type <span class="op">=</span> RandomFunction(<span class="st">&#39;normal&#39;</span>, tt.TensorType(<span class="st">&#39;float64&#39;</span>, (<span class="va">True</span>,)))</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6">rf_nodes <span class="op">=</span> Z_fgraph_rv_tt.get_nodes(rf_normal_type)</a>
+<a class="sourceLine" id="cb16-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="co">#</span></a>
+<a class="sourceLine" id="cb16-9" data-line-number="9"><span class="co"># or, more generally,...</span></a>
+<a class="sourceLine" id="cb16-10" data-line-number="10"><span class="co">#</span></a>
+<a class="sourceLine" id="cb16-11" data-line-number="11"><span class="kw">def</span> get_random_nodes(fgraph):</a>
+<a class="sourceLine" id="cb16-12" data-line-number="12">    <span class="cf">return</span> <span class="bu">list</span>(<span class="bu">filter</span>(<span class="kw">lambda</span> x: <span class="bu">isinstance</span>(x.op, RandomFunction), fgraph.apply_nodes))</a>
+<a class="sourceLine" id="cb16-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb16-14" data-line-number="14">rf_nodes <span class="op">=</span> get_random_nodes(Z_fgraph_rv_tt)</a>
+<a class="sourceLine" id="cb16-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb16-16" data-line-number="16">tt.printing.debugprint(rf_nodes)</a></code></pre></div>
 <pre class="text"><code>RandomFunction{normal}.0 [id A] &#39;&#39;
  |&lt;RandomStateType&gt; [id B]
  |Elemwise{Cast{int64}} [id C] &#39;&#39;
@@ -552,40 +552,40 @@ RandomFunction{normal}.1 [id K] &#39;~Y_rv&#39;
 <p>To apply optimizations like our simple convolution, we need to first identify the appropriate circumstances for its application. This means finding all sub-graphs for which we are able to replace existing nodes with a convolution node.</p>
 <p>Theano provides some <a href="https://en.wikipedia.org/wiki/Unification_(computer_science)">unification</a> tools that facilitate the search component. We’ll use those to implement an extremely restrictive form of our convolution.</p>
 <div class="example" data-markdown="">
-<p>In <a href="#normal_conv_pattern">normal_conv_pattern</a>, we create patterns for our expressions of interest that are unified against the elements in our graph and reified with a replacement expression. The patterns are expressed as tuples in a LISP-like fashion, e.g. <code>(add, 1, 2)</code> corresponding to an unevaluated <code>add(1, 2)</code>.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" title="1"><span class="im">from</span> operator <span class="im">import</span> attrgetter, itemgetter</a>
-<a class="sourceLine" id="cb18-2" title="2"></a>
-<a class="sourceLine" id="cb18-3" title="3"></a>
-<a class="sourceLine" id="cb18-4" title="4"><span class="co"># </span><span class="al">FIXME</span><span class="co">: This fixed `TensorType` specification is restrictive.</span></a>
-<a class="sourceLine" id="cb18-5" title="5">NormalRV <span class="op">=</span> RandomFunction(<span class="st">&#39;normal&#39;</span>, tt.TensorType(<span class="st">&#39;float64&#39;</span>, (<span class="va">True</span>,)))</a>
-<a class="sourceLine" id="cb18-6" title="6"></a>
-<a class="sourceLine" id="cb18-7" title="7">norm_conv_pat_tt <span class="op">=</span> [</a>
-<a class="sourceLine" id="cb18-8" title="8">    tt.gof.opt.PatternSub(</a>
-<a class="sourceLine" id="cb18-9" title="9">        <span class="co"># Search expression pattern</span></a>
-<a class="sourceLine" id="cb18-10" title="10">      (tt.add,</a>
-<a class="sourceLine" id="cb18-11" title="11">       (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;shp_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
-<a class="sourceLine" id="cb18-12" title="12">       (NormalRV, <span class="st">&#39;rs_y&#39;</span>, <span class="st">&#39;shp_y&#39;</span>, <span class="st">&#39;mu_y&#39;</span>, <span class="st">&#39;sd_y&#39;</span>),</a>
-<a class="sourceLine" id="cb18-13" title="13">      ),</a>
-<a class="sourceLine" id="cb18-14" title="14">        <span class="co"># Replacement expression</span></a>
-<a class="sourceLine" id="cb18-15" title="15">      (itemgetter(<span class="dv">1</span>), <span class="co">#</span></a>
-<a class="sourceLine" id="cb18-16" title="16">       (NormalRV,</a>
-<a class="sourceLine" id="cb18-17" title="17">        <span class="st">&#39;rs_x&#39;</span>,</a>
-<a class="sourceLine" id="cb18-18" title="18">        <span class="st">&#39;shp_x&#39;</span>,</a>
-<a class="sourceLine" id="cb18-19" title="19">        (tt.add, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;mu_y&#39;</span>),</a>
-<a class="sourceLine" id="cb18-20" title="20">        (tt.sqrt, (tt.add, (tt.square, <span class="st">&#39;sd_x&#39;</span>), (tt.square, <span class="st">&#39;sd_y&#39;</span>))),</a>
-<a class="sourceLine" id="cb18-21" title="21">       )),</a>
-<a class="sourceLine" id="cb18-22" title="22">    ),</a>
-<a class="sourceLine" id="cb18-23" title="23">]</a></code></pre></div>
+<p>In <a href="#normal_conv_pattern">normal_conv_pattern</a>, we create patterns for our expressions of interest that are unified against the elements in our graph and reified with a replacement expression. The patterns are expressed as tuples in a LISP-like fashion, e.g. <code>(add, 1, 2)</code> corresponding to an unevaluated <code>add(1, 2)</code>.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="im">from</span> operator <span class="im">import</span> attrgetter, itemgetter</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb18-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="co"># </span><span class="al">FIXME</span><span class="co">: This fixed `TensorType` specification is restrictive.</span></a>
+<a class="sourceLine" id="cb18-5" data-line-number="5">NormalRV <span class="op">=</span> RandomFunction(<span class="st">&#39;normal&#39;</span>, tt.TensorType(<span class="st">&#39;float64&#39;</span>, (<span class="va">True</span>,)))</a>
+<a class="sourceLine" id="cb18-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb18-7" data-line-number="7">norm_conv_pat_tt <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb18-8" data-line-number="8">    tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="cb18-9" data-line-number="9">        <span class="co"># Search expression pattern</span></a>
+<a class="sourceLine" id="cb18-10" data-line-number="10">      (tt.add,</a>
+<a class="sourceLine" id="cb18-11" data-line-number="11">       (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;shp_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
+<a class="sourceLine" id="cb18-12" data-line-number="12">       (NormalRV, <span class="st">&#39;rs_y&#39;</span>, <span class="st">&#39;shp_y&#39;</span>, <span class="st">&#39;mu_y&#39;</span>, <span class="st">&#39;sd_y&#39;</span>),</a>
+<a class="sourceLine" id="cb18-13" data-line-number="13">      ),</a>
+<a class="sourceLine" id="cb18-14" data-line-number="14">        <span class="co"># Replacement expression</span></a>
+<a class="sourceLine" id="cb18-15" data-line-number="15">      (itemgetter(<span class="dv">1</span>), <span class="co">#</span></a>
+<a class="sourceLine" id="cb18-16" data-line-number="16">       (NormalRV,</a>
+<a class="sourceLine" id="cb18-17" data-line-number="17">        <span class="st">&#39;rs_x&#39;</span>,</a>
+<a class="sourceLine" id="cb18-18" data-line-number="18">        <span class="st">&#39;shp_x&#39;</span>,</a>
+<a class="sourceLine" id="cb18-19" data-line-number="19">        (tt.add, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;mu_y&#39;</span>),</a>
+<a class="sourceLine" id="cb18-20" data-line-number="20">        (tt.sqrt, (tt.add, (tt.square, <span class="st">&#39;sd_x&#39;</span>), (tt.square, <span class="st">&#39;sd_y&#39;</span>))),</a>
+<a class="sourceLine" id="cb18-21" data-line-number="21">       )),</a>
+<a class="sourceLine" id="cb18-22" data-line-number="22">    ),</a>
+<a class="sourceLine" id="cb18-23" data-line-number="23">]</a></code></pre></div>
 <p>The <code>itemgetter(1)</code> applied to the replacement result is necessary because the <code>Op</code> <code>RandomFunction</code> returns two outputs and the second is the <code>TensorVariable</code> corresponding to a sample from that random variable.</p>
 <p>We also need to specify exactly how the pattern matching and replacement are to be performed for the entire graph. Do we match a single sum of normal distributions or all of them? What happens when a replacement creates yet another sum of normals that can be reduced?</p>
 <p>In this case, we choose to apply the operation until it reaches a fixed point, i.e. until it produces no changes in the graph.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1">norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(norm_conv_pat_tt,</a>
-<a class="sourceLine" id="cb19-2" title="2">                                                   max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" data-line-number="1">norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(norm_conv_pat_tt,</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2">                                                   max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a></code></pre></div>
 <p>Finally, we manually perform our Theano optimization.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb20-1" title="1">_ <span class="op">=</span> norm_conv_opt_tt.optimize(Z_fgraph_rv_tt)</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb20-1" data-line-number="1">_ <span class="op">=</span> norm_conv_opt_tt.optimize(Z_fgraph_rv_tt)</a></code></pre></div>
 </div>
 <p>The optimization was applied within our graph, as evidenced by the single new <code>RandomFunction</code> node.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb21-1" title="1">tt.printing.debugprint(Z_fgraph_rv_tt)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb21-1" data-line-number="1">tt.printing.debugprint(Z_fgraph_rv_tt)</a></code></pre></div>
 <pre class="text"><code>RandomFunction{normal}.1 [id A] &#39;&#39;   11
  |&lt;RandomStateType&gt; [id B]
  |Elemwise{Cast{int64}} [id C] &#39;&#39;   10
@@ -609,22 +609,22 @@ RandomFunction{normal}.1 [id K] &#39;~Y_rv&#39;
 
 </code></pre>
 <p>Likewise, the resulting distribution terms in the optimized graph reflect the normal-normal random variable sum. Figure <a href="#fig:norm_sum_merge_graph">fig:norm_sum_merge_graph</a> shows the graph under our optimization.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb23-1" title="1">conv_rv_tt <span class="op">=</span> Z_fgraph_rv_tt.outputs[<span class="dv">0</span>].owner</a>
-<a class="sourceLine" id="cb23-2" title="2"></a>
-<a class="sourceLine" id="cb23-3" title="3">new_mu, new_sd <span class="op">=</span> conv_rv_tt.inputs[<span class="dv">2</span>:<span class="dv">4</span>]</a>
-<a class="sourceLine" id="cb23-4" title="4"></a>
-<a class="sourceLine" id="cb23-5" title="5"><span class="co"># Test values of the original means/new moments&#39; inputs</span></a>
-<a class="sourceLine" id="cb23-6" title="6"><span class="bu">print</span>(<span class="st">&#39;, &#39;</span>.join([<span class="st">&#39;</span><span class="sc">{}</span><span class="st"> = </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(o), o.tag.test_value)</a>
-<a class="sourceLine" id="cb23-7" title="7">                 <span class="cf">for</span> o <span class="kw">in</span> new_mu.owner.inputs]))</a>
-<a class="sourceLine" id="cb23-8" title="8"><span class="bu">print</span>(tt.pprint(new_mu))</a>
-<a class="sourceLine" id="cb23-9" title="9"></a>
-<a class="sourceLine" id="cb23-10" title="10"><span class="bu">print</span>(<span class="st">&#39;, &#39;</span>.join([<span class="st">&#39;</span><span class="sc">{}</span><span class="st"> = </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(o), o.tag.test_value)</a>
-<a class="sourceLine" id="cb23-11" title="11">                 <span class="cf">for</span> o <span class="kw">in</span> new_sd.owner.inputs]))</a>
-<a class="sourceLine" id="cb23-12" title="12"><span class="bu">print</span>(tt.pprint(new_sd))</a>
-<a class="sourceLine" id="cb23-13" title="13"></a>
-<a class="sourceLine" id="cb23-14" title="14"><span class="bu">print</span>(<span class="st">&#39;mean: </span><span class="sc">{}</span><span class="ch">\n</span><span class="st">std. dev.: </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(</a>
-<a class="sourceLine" id="cb23-15" title="15">    new_mu.tag.test_value,</a>
-<a class="sourceLine" id="cb23-16" title="16">    new_sd.tag.test_value))</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb23-1" data-line-number="1">conv_rv_tt <span class="op">=</span> Z_fgraph_rv_tt.outputs[<span class="dv">0</span>].owner</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb23-3" data-line-number="3">new_mu, new_sd <span class="op">=</span> conv_rv_tt.inputs[<span class="dv">2</span>:<span class="dv">4</span>]</a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb23-5" data-line-number="5"><span class="co"># Test values of the original means/new moments&#39; inputs</span></a>
+<a class="sourceLine" id="cb23-6" data-line-number="6"><span class="bu">print</span>(<span class="st">&#39;, &#39;</span>.join([<span class="st">&#39;</span><span class="sc">{}</span><span class="st"> = </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(o), o.tag.test_value)</a>
+<a class="sourceLine" id="cb23-7" data-line-number="7">                 <span class="cf">for</span> o <span class="kw">in</span> new_mu.owner.inputs]))</a>
+<a class="sourceLine" id="cb23-8" data-line-number="8"><span class="bu">print</span>(tt.pprint(new_mu))</a>
+<a class="sourceLine" id="cb23-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb23-10" data-line-number="10"><span class="bu">print</span>(<span class="st">&#39;, &#39;</span>.join([<span class="st">&#39;</span><span class="sc">{}</span><span class="st"> = </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(tt.pprint(o), o.tag.test_value)</a>
+<a class="sourceLine" id="cb23-11" data-line-number="11">                 <span class="cf">for</span> o <span class="kw">in</span> new_sd.owner.inputs]))</a>
+<a class="sourceLine" id="cb23-12" data-line-number="12"><span class="bu">print</span>(tt.pprint(new_sd))</a>
+<a class="sourceLine" id="cb23-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb23-14" data-line-number="14"><span class="bu">print</span>(<span class="st">&#39;mean: </span><span class="sc">{}</span><span class="ch">\n</span><span class="st">std. dev.: </span><span class="sc">{}</span><span class="st">&#39;</span>.<span class="bu">format</span>(</a>
+<a class="sourceLine" id="cb23-15" data-line-number="15">    new_mu.tag.test_value,</a>
+<a class="sourceLine" id="cb23-16" data-line-number="16">    new_sd.tag.test_value))</a></code></pre></div>
 <pre class="text"><code>mu_X = [0.], mu_Y = [1.]
 (mu_X + mu_Y)
 (sqr((TensorConstant{1.0} * sd_X)) + sqr((TensorConstant{1.0} * sd_Y))) = [1.25]
@@ -649,45 +649,45 @@ Graph of merged normal variables.
   Z = a X \sim N\left(a \mu, (a \sigma)^2\right)
   \;.
 \end{gather*}\]</span></p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" title="1">norm_conv_pat_tt <span class="op">+=</span> [</a>
-<a class="sourceLine" id="cb25-2" title="2">    tt.gof.opt.PatternSub(</a>
-<a class="sourceLine" id="cb25-3" title="3">        <span class="co"># Search expression pattern</span></a>
-<a class="sourceLine" id="cb25-4" title="4">        (tt.mul,</a>
-<a class="sourceLine" id="cb25-5" title="5">         <span class="st">&#39;a_x&#39;</span>,</a>
-<a class="sourceLine" id="cb25-6" title="6">         (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;shp_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>)),</a>
-<a class="sourceLine" id="cb25-7" title="7">        <span class="co"># Replacement expression</span></a>
-<a class="sourceLine" id="cb25-8" title="8">        (itemgetter(<span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb25-9" title="9">         (NormalRV,</a>
-<a class="sourceLine" id="cb25-10" title="10">          <span class="co"># RNG</span></a>
-<a class="sourceLine" id="cb25-11" title="11">                <span class="st">&#39;rs_x&#39;</span>,</a>
-<a class="sourceLine" id="cb25-12" title="12">          <span class="co"># Convolution shape</span></a>
-<a class="sourceLine" id="cb25-13" title="13">                <span class="st">&#39;shp_x&#39;</span>,</a>
-<a class="sourceLine" id="cb25-14" title="14">          <span class="co"># Convolution mean</span></a>
-<a class="sourceLine" id="cb25-15" title="15">                (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>),</a>
-<a class="sourceLine" id="cb25-16" title="16">          <span class="co"># Convolution std. dev.</span></a>
-<a class="sourceLine" id="cb25-17" title="17">                (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
-<a class="sourceLine" id="cb25-18" title="18">         )),</a>
-<a class="sourceLine" id="cb25-19" title="19">    )</a>
-<a class="sourceLine" id="cb25-20" title="20">]</a>
-<a class="sourceLine" id="cb25-21" title="21"></a>
-<a class="sourceLine" id="cb25-22" title="22">norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(</a>
-<a class="sourceLine" id="cb25-23" title="23">    norm_conv_pat_tt, max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" data-line-number="1">norm_conv_pat_tt <span class="op">+=</span> [</a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">    tt.gof.opt.PatternSub(</a>
+<a class="sourceLine" id="cb25-3" data-line-number="3">        <span class="co"># Search expression pattern</span></a>
+<a class="sourceLine" id="cb25-4" data-line-number="4">        (tt.mul,</a>
+<a class="sourceLine" id="cb25-5" data-line-number="5">         <span class="st">&#39;a_x&#39;</span>,</a>
+<a class="sourceLine" id="cb25-6" data-line-number="6">         (NormalRV, <span class="st">&#39;rs_x&#39;</span>, <span class="st">&#39;shp_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>)),</a>
+<a class="sourceLine" id="cb25-7" data-line-number="7">        <span class="co"># Replacement expression</span></a>
+<a class="sourceLine" id="cb25-8" data-line-number="8">        (itemgetter(<span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb25-9" data-line-number="9">         (NormalRV,</a>
+<a class="sourceLine" id="cb25-10" data-line-number="10">          <span class="co"># RNG</span></a>
+<a class="sourceLine" id="cb25-11" data-line-number="11">                <span class="st">&#39;rs_x&#39;</span>,</a>
+<a class="sourceLine" id="cb25-12" data-line-number="12">          <span class="co"># Convolution shape</span></a>
+<a class="sourceLine" id="cb25-13" data-line-number="13">                <span class="st">&#39;shp_x&#39;</span>,</a>
+<a class="sourceLine" id="cb25-14" data-line-number="14">          <span class="co"># Convolution mean</span></a>
+<a class="sourceLine" id="cb25-15" data-line-number="15">                (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;mu_x&#39;</span>),</a>
+<a class="sourceLine" id="cb25-16" data-line-number="16">          <span class="co"># Convolution std. dev.</span></a>
+<a class="sourceLine" id="cb25-17" data-line-number="17">                (tt.mul, <span class="st">&#39;a_x&#39;</span>, <span class="st">&#39;sd_x&#39;</span>),</a>
+<a class="sourceLine" id="cb25-18" data-line-number="18">         )),</a>
+<a class="sourceLine" id="cb25-19" data-line-number="19">    )</a>
+<a class="sourceLine" id="cb25-20" data-line-number="20">]</a>
+<a class="sourceLine" id="cb25-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb25-22" data-line-number="22">norm_conv_opt_tt <span class="op">=</span> tt.gof.opt.EquilibriumOptimizer(</a>
+<a class="sourceLine" id="cb25-23" data-line-number="23">    norm_conv_pat_tt, max_use_ratio<span class="op">=</span><span class="dv">10</span>)</a></code></pre></div>
 <p>The additional optimization is demonstrated in <a href="#mat_mul_scaling_exa">mat_mul_scaling_exa</a>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" title="1">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)</a>
-<a class="sourceLine" id="cb26-2" title="2">mu_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
-<a class="sourceLine" id="cb26-3" title="3">sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)</a>
-<a class="sourceLine" id="cb26-4" title="4">sd_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
-<a class="sourceLine" id="cb26-5" title="5"></a>
-<a class="sourceLine" id="cb26-6" title="6"><span class="cf">with</span> pm.Model() <span class="im">as</span> conv_scale_model:</a>
-<a class="sourceLine" id="cb26-7" title="7">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
-<a class="sourceLine" id="cb26-8" title="8">    Z_rv <span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> X_rv</a>
-<a class="sourceLine" id="cb26-9" title="9"></a>
-<a class="sourceLine" id="cb26-10" title="10">Z_mul_tt <span class="op">=</span> model_graph(conv_scale_model, derived_vars<span class="op">=</span>[Z_rv])</a>
-<a class="sourceLine" id="cb26-11" title="11">Z_mul_rv <span class="op">=</span> create_theano_rvs(Z_mul_tt)</a>
-<a class="sourceLine" id="cb26-12" title="12"></a>
-<a class="sourceLine" id="cb26-13" title="13">Z_mul_rv_merged <span class="op">=</span> Z_mul_rv.clone()</a>
-<a class="sourceLine" id="cb26-14" title="14"></a>
-<a class="sourceLine" id="cb26-15" title="15">_ <span class="op">=</span> norm_conv_opt_tt.optimize(Z_mul_rv_merged)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" data-line-number="1">mu_X <span class="op">=</span> tt.vector(<span class="st">&#39;mu_X&#39;</span>)</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2">mu_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">0.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb26-3" data-line-number="3">sd_X <span class="op">=</span> tt.vector(<span class="st">&#39;sd_X&#39;</span>)</a>
+<a class="sourceLine" id="cb26-4" data-line-number="4">sd_X.tag.test_value <span class="op">=</span> np.array([<span class="fl">1.</span>], dtype<span class="op">=</span>tt.config.floatX)</a>
+<a class="sourceLine" id="cb26-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb26-6" data-line-number="6"><span class="cf">with</span> pm.Model() <span class="im">as</span> conv_scale_model:</a>
+<a class="sourceLine" id="cb26-7" data-line-number="7">    X_rv <span class="op">=</span> pm.Normal(<span class="st">&#39;X_rv&#39;</span>, mu_X, sd<span class="op">=</span>sd_X, shape<span class="op">=</span>(<span class="dv">1</span>,))</a>
+<a class="sourceLine" id="cb26-8" data-line-number="8">    Z_rv <span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> X_rv</a>
+<a class="sourceLine" id="cb26-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb26-10" data-line-number="10">Z_mul_tt <span class="op">=</span> model_graph(conv_scale_model, derived_vars<span class="op">=</span>[Z_rv])</a>
+<a class="sourceLine" id="cb26-11" data-line-number="11">Z_mul_rv <span class="op">=</span> create_theano_rvs(Z_mul_tt)</a>
+<a class="sourceLine" id="cb26-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb26-13" data-line-number="13">Z_mul_rv_merged <span class="op">=</span> Z_mul_rv.clone()</a>
+<a class="sourceLine" id="cb26-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb26-15" data-line-number="15">_ <span class="op">=</span> norm_conv_opt_tt.optimize(Z_mul_rv_merged)</a></code></pre></div>
 <p><a href="#fig:scaled_random_sum_before">fig:scaled_random_sum_before</a> and <a href="#fig:scaled_random_sum_after">fig:scaled_random_sum_after</a> demonstrate the a scaled normal random variable before and after the optimization, respectively.</p>
 <figure id="fig:scaled_random_sum_before">
 <img src="https://brandonwillard.github.io/figures/Z_mul_rv.png" alt="Graph of a single term scaled in a normal-normal convolution. " />
@@ -715,7 +715,7 @@ Graph of a single term scaled in a normal-normal convolution after the convoluti
 <h1>Next Steps</h1>
 <p>In a follow-up, I’ll introduce a new <code>Op</code> that overcomes some of the dimensionality issues and allows for much easier graph manipulation. It replaces <code>RandomFunction</code> with a single <code>Op</code> for each distribution type and [re]moves the type specifier from the definition of the <code>Op</code>.</p>
 <p>Essentially, the <code>TensorType</code> argument to the <code>RandomFunction</code> constructor is moved into <code>RandomFunction</code>’s <code>make_node</code> method and, thus, generated/inferred from the symbolic inputs.</p>
-<p>To be clear, we’re talking about two distinct aspects of <code>RandomFunction</code>: one is the <code>NormalRV = RandomFunction('normal', TensorType('float64', bcast))</code> step, in which we <strong>create the <code>Op</code></strong> corresponding to a specific type of normal random variable, and the other in which we <strong>use the <code>Op</code></strong> (e.g. <code>NormalRV(rng, 1, 2)</code>)–to, say, produce a tensor variable corresponding to an instance of said random variable.</p>
+<p>To be clear, we’re talking about two distinct aspects of <code>RandomFunction</code>: one is the <code>NormalRV = RandomFunction('normal', TensorType('float64', bcast))</code> step, in which we <strong>create the <code>Op</code></strong> corresponding to a specific type of normal random variable, and the other in which we <strong>use the <code>Op</code></strong> (e.g. <code>NormalRV(rng, 1, 2)</code>)–to, say, produce a tensor variable corresponding to an instance of said random variable.</p>
 <p>This distinction is important for pattern matching because <code>NormalRV</code>, as defined above, isn’t very general and mostly due to the <code>TensorType('float64', bcast))</code> covering only some Theano tensor types (i.e. those that match the fixed broadcast dimensions specified by <code>bcast</code>).</p>
 <p>As stated previously, there have been real difficulties with the handling of shape and type information in PyMC3 (see <a href="https://github.com/pymc-devs/pymc3/pull/1125">PyMC3 PR 1125</a>). These problems are related to the same concerns involving <code>TensorType</code>s. In refactoring the type information requirement for <code>RandomFunction</code>, we’ll end up addressing those PyMC3 issues as well.</p>
 </section>
