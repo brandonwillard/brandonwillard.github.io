@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/brandon-t-willard.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2019-10-18T00:00:00-05:00</updated><entry><title>Symbolic PyMC Radon Example in PyMC4</title><link href="https://brandonwillard.github.io/symbolic-pymc-radon-example-in-pymc4.html" rel="alternate"></link><published>2019-09-08T00:00:00-05:00</published><updated>2019-10-18T00:00:00-05:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2019-09-08:/symbolic-pymc-radon-example-in-pymc4.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/brandon-t-willard.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2019-10-20T00:00:00-05:00</updated><entry><title>Symbolic PyMC Radon Example in PyMC4</title><link href="https://brandonwillard.github.io/symbolic-pymc-radon-example-in-pymc4.html" rel="alternate"></link><published>2019-09-08T00:00:00-05:00</published><updated>2019-10-20T00:00:00-05:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2019-09-08:/symbolic-pymc-radon-example-in-pymc4.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -159,19 +159,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;a class="sourceLine" id="org9df08c0-27" data-line-number="27"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="org9df08c0-28" data-line-number="28"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; az_trace&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="sourceCode" id="org76f5220"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org76f5220-1" data-line-number="1"&gt;az_trace &lt;span class="op"&gt;=&lt;/span&gt; sample(model)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class="sourceCode" id="org6569169"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org6569169-1" data-line-number="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; arviz &lt;span class="im"&gt;as&lt;/span&gt; az&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-2" data-line-number="2"&gt;&lt;span class="im"&gt;import&lt;/span&gt; matplotlib.pyplot &lt;span class="im"&gt;as&lt;/span&gt; plt&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-3" data-line-number="3"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-4" data-line-number="4"&gt;&lt;span class="im"&gt;import&lt;/span&gt; seaborn &lt;span class="im"&gt;as&lt;/span&gt; sns&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-5" data-line-number="5"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-6" data-line-number="6"&gt;&lt;span class="im"&gt;from&lt;/span&gt; matplotlib &lt;span class="im"&gt;import&lt;/span&gt; rcParams&lt;/a&gt;
+&lt;div class="sourceCode" id="org6569169"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org6569169-1" data-line-number="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; matplotlib.pyplot &lt;span class="im"&gt;as&lt;/span&gt; plt&lt;/a&gt;
+&lt;a class="sourceLine" id="org6569169-2" data-line-number="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org6569169-3" data-line-number="3"&gt;&lt;span class="im"&gt;import&lt;/span&gt; seaborn &lt;span class="im"&gt;as&lt;/span&gt; sns&lt;/a&gt;
+&lt;a class="sourceLine" id="org6569169-4" data-line-number="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org6569169-5" data-line-number="5"&gt;&lt;span class="im"&gt;from&lt;/span&gt; matplotlib &lt;span class="im"&gt;import&lt;/span&gt; rcParams&lt;/a&gt;
+&lt;a class="sourceLine" id="org6569169-6" data-line-number="6"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="org6569169-7" data-line-number="7"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-8" data-line-number="8"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-9" data-line-number="9"&gt;rcParams[&lt;span class="st"&gt;&amp;#39;figure.figsize&amp;#39;&lt;/span&gt;] &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="fl"&gt;11.7&lt;/span&gt;, &lt;span class="fl"&gt;8.27&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-10" data-line-number="10"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-11" data-line-number="11"&gt;&lt;span class="co"&gt;# plt.rc(&amp;#39;text&amp;#39;, usetex=True)&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-12" data-line-number="12"&gt;sns.set_style(&lt;span class="st"&gt;&amp;quot;whitegrid&amp;quot;&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="org6569169-13" data-line-number="13"&gt;sns.set_context(&lt;span class="st"&gt;&amp;quot;paper&amp;quot;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;a class="sourceLine" id="org6569169-8" data-line-number="8"&gt;rcParams[&lt;span class="st"&gt;&amp;#39;figure.figsize&amp;#39;&lt;/span&gt;] &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="fl"&gt;11.7&lt;/span&gt;, &lt;span class="fl"&gt;8.27&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="org6569169-9" data-line-number="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org6569169-10" data-line-number="10"&gt;&lt;span class="co"&gt;# plt.rc(&amp;#39;text&amp;#39;, usetex=True)&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org6569169-11" data-line-number="11"&gt;sns.set_style(&lt;span class="st"&gt;&amp;quot;whitegrid&amp;quot;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="org6569169-12" data-line-number="12"&gt;sns.set_context(&lt;span class="st"&gt;&amp;quot;paper&amp;quot;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="sourceCode" id="orgdd90ae2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgdd90ae2-1" data-line-number="1"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; az.plot_energy(az_trace)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;figure id="fig:pymc4-radon-plot-energy"&gt;
 &lt;img src="https://brandonwillard.github.io/figures/pymc4-radon-plot-energy.png" alt="" /&gt;
@@ -203,6 +202,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;div class="sourceCode" id="org966cccf"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org966cccf-1" data-line-number="1"&gt;logpfn_cf &lt;span class="op"&gt;=&lt;/span&gt; logpfn.get_concrete_function(&lt;span class="op"&gt;*&lt;/span&gt;init.values())&lt;/a&gt;
 &lt;a class="sourceLine" id="org966cccf-2" data-line-number="2"&gt;logpfn_fg &lt;span class="op"&gt;=&lt;/span&gt; logpfn_cf.graph&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The outputs are now available in graph form as &lt;code&gt;logpfn_fg.outputs&lt;/code&gt;. The inputs aren’t mapped in this particular function-graph output. I believe there’s a way to generate those as TF placeholders.&lt;/p&gt;
+&lt;div class="sourceCode" id="org81ba9c4"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org81ba9c4-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.context &lt;span class="im"&gt;import&lt;/span&gt; graph_mode&lt;/a&gt;
+&lt;a class="sourceLine" id="org81ba9c4-2" data-line-number="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.framework.ops &lt;span class="im"&gt;import&lt;/span&gt; disable_tensor_equality&lt;/a&gt;
+&lt;a class="sourceLine" id="org81ba9c4-3" data-line-number="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org81ba9c4-4" data-line-number="4"&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.tensorflow.printing &lt;span class="im"&gt;import&lt;/span&gt; tf_dprint&lt;/a&gt;
+&lt;a class="sourceLine" id="org81ba9c4-5" data-line-number="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org81ba9c4-6" data-line-number="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org81ba9c4-7" data-line-number="7"&gt;disable_tensor_equality()&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/section&gt;
 &lt;section id="the-log-space-transform" class="level1"&gt;
 &lt;h1&gt;The Log-space Transform&lt;/h1&gt;
@@ -210,16 +216,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   \begin{gathered}
     Y = X + \epsilon, \quad
-    \epsilon \sim \operatorname{N}\left(0, 1\right)
+    \epsilon \sim \operatorname{N}\left(0, \sigma^2\right)
     \\
-    X \sim \operatorname{N}\left(\mu, \sigma^2\right)
+    X \sim \operatorname{N}\left(\mu, \tau^2\right)
   \end{gathered}
 \label{eq:model-1}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   \begin{gathered}
-    Y = \mu + \sigma \cdot \tilde{X} + \epsilon, \quad
-    \epsilon \sim \operatorname{N}\left(0, 1\right)
+    Y = \mu + \tau \cdot \tilde{X} + \epsilon, \quad
+    \epsilon \sim \operatorname{N}\left(0, \sigma^2\right)
     \\
     \tilde{X} \sim \operatorname{N}\left(0, 1\right)
   \;.
@@ -228,23 +234,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Models &lt;span class="math inline"&gt;\(\eqref{eq:model-1}\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\eqref{eq:model-2}\)&lt;/span&gt; are represented in (log) measure space, respectively, as follows:&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{align}
-    \log P(Y, X) &amp;amp;= \log P(Y\mid X) + \log P(X)
+    \log p(Y, X) &amp;amp;= \log P(Y\mid X) + \log P(X)
     \nonumber
     \\
-    &amp;amp;= C - \frac{1}{2} \left(y - x\right)^2 - \frac{1}{2 \sigma^2} \left(x - \mu\right)^2
+    &amp;amp;= C - \frac{1}{2} \left(\frac{y}{\sigma} - \frac{x}{\sigma}\right)^2 -
+       \frac{1}{2} \left(\frac{x}{\tau} - \frac{\mu}{\tau}\right)^2
     \label{eq:log-model-1}
     \\
-    &amp;amp;= \tilde{C} - \frac{1}{2} \left(y - \mu - \sigma \cdot \tilde{x}\right)^2 - \frac{1}{2} \tilde{x}^2
+    &amp;amp;= \tilde{C} - \frac{1}{2} \left(\frac{y}{\sigma} - \frac{\mu - \tau \cdot \tilde{x}}{\sigma}\right)^2 - \frac{1}{2} \tilde{x}^2
   \label{eq:log-model-2}
   \;.
 \end{align}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Via term rewriting, Equation &lt;span class="math inline"&gt;\(\eqref{eq:log-model-2}\)&lt;/span&gt; is produced by first applying the replacement rule &lt;span class="math inline"&gt;\(x \to \mu + \sigma \cdot \tilde{x}\)&lt;/span&gt; to Equation &lt;span class="math inline"&gt;\(\eqref{eq:log-model-1}\)&lt;/span&gt;, which produces&lt;/p&gt;
+&lt;p&gt;Via term rewriting, Equation &lt;span class="math inline"&gt;\(\eqref{eq:log-model-2}\)&lt;/span&gt; is produced by first applying the replacement rule &lt;span class="math inline"&gt;\(x \to \mu + \tau \cdot \tilde{x}\)&lt;/span&gt; to Equation &lt;span class="math inline"&gt;\(\eqref{eq:log-model-1}\)&lt;/span&gt;, which produces&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{align*}
-C - \frac{1}{2} \left(y - (\mu + \sigma \cdot \tilde{x})\right)^2 - \frac{1}{2 \sigma^2} \left((\mu + \sigma \cdot \tilde{x}) - \mu\right)^2
+\tilde{C} - \frac{1}{2} \left(\frac{y}{\sigma} - \frac{\mu + \tau \cdot \tilde{x}}{\sigma}\right)^2 -
+  \frac{1}{2} \left(\frac{\mu + \tau \cdot \tilde{x}}{\tau} - \frac{\mu}{\tau}\right)^2
 \;.
 \end{align*}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;For consistency, the transform must also be applied to the &lt;span class="math inline"&gt;\(dx\)&lt;/span&gt; term where/when-ever it’s considered.&lt;/p&gt;
 &lt;p&gt;After a few applications of some simple algebraic properties–as further replacement rules–one obtains the exact form of Equation &lt;span class="math inline"&gt;\(\eqref{eq:log-model-2}\)&lt;/span&gt;. Here, we’ll focus only on applying the initial replacement rule.&lt;/p&gt;
-&lt;p&gt;In our case, the log-density returned by PyMC4–via the TensorFlow Probability library (TFP)– uses &lt;code&gt;tf.math.squared_difference&lt;/code&gt; to construct the “squared error” term in the exponential of a normal distribution. Listing &lt;a href="#orgc47d26d"&gt;10&lt;/a&gt; shows the graph produced by a normal distribution in TFP.&lt;/p&gt;
+&lt;p&gt;In our case, the log-density returned by PyMC4–via the TensorFlow Probability library (TFP)– uses &lt;code&gt;tf.math.squared_difference&lt;/code&gt; to construct the “squared error” term in the exponential of a normal distribution. Listing &lt;a href="#orgc47d26d"&gt;11&lt;/a&gt; shows the graph produced by a normal distribution in TFP.&lt;/p&gt;
 &lt;div class="sourceCode" id="orgc47d26d"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgc47d26d-1" data-line-number="1"&gt;&lt;span class="im"&gt;import&lt;/span&gt; tensorflow_probability &lt;span class="im"&gt;as&lt;/span&gt; tfp&lt;/a&gt;
 &lt;a class="sourceLine" id="orgc47d26d-2" data-line-number="2"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="orgc47d26d-3" data-line-number="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.context &lt;span class="im"&gt;import&lt;/span&gt; graph_mode&lt;/a&gt;
@@ -266,122 +275,137 @@ C - \frac{1}{2} \left(y - (\mu + \sigma \cdot \tilde{x})\right)^2 - \frac{1}{2 \
 &lt;a class="sourceLine" id="orgc47d26d-19" data-line-number="19"&gt;    value_tf &lt;span class="op"&gt;=&lt;/span&gt; tf.compat.v1.placeholder(tf.float32, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;value&amp;#39;&lt;/span&gt;,&lt;/a&gt;
 &lt;a class="sourceLine" id="orgc47d26d-20" data-line-number="20"&gt;                                        shape&lt;span class="op"&gt;=&lt;/span&gt;tf.TensorShape([&lt;span class="va"&gt;None&lt;/span&gt;]))&lt;/a&gt;
 &lt;a class="sourceLine" id="orgc47d26d-21" data-line-number="21"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc47d26d-22" data-line-number="22"&gt;    normal_log_lik &lt;span class="op"&gt;=&lt;/span&gt; normal_tfp.log_prob(value_tf)&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc47d26d-23" data-line-number="23"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="orgc47d26d-24" data-line-number="24"&gt;    tf_dprint(normal_log_lik)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre id="org8ee5799" class="text"&gt;&lt;code&gt;Tensor(Sub):0,  shape=[None]    &amp;quot;Normal_1/log_prob/sub:0&amp;quot;
-|  Op(Sub)  &amp;quot;Normal_1/log_prob/sub&amp;quot;
-|  |  Tensor(Mul):0,    shape=[None]    &amp;quot;Normal_1/log_prob/mul:0&amp;quot;
-|  |  |  Op(Mul)    &amp;quot;Normal_1/log_prob/mul&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;Normal_1/log_prob/mul/x:0&amp;quot;
-|  |  |  |  Tensor(SquaredDifference):0,    shape=[None]    &amp;quot;Normal_1/log_prob/SquaredDifference:0&amp;quot;
-|  |  |  |  |  Op(SquaredDifference)    &amp;quot;Normal_1/log_prob/SquaredDifference&amp;quot;
-|  |  |  |  |  |  Tensor(RealDiv):0,    shape=[None]    &amp;quot;Normal_1/log_prob/truediv:0&amp;quot;
-|  |  |  |  |  |  |  Op(RealDiv)    &amp;quot;Normal_1/log_prob/truediv&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;value:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  |  |  Tensor(RealDiv):0,    shape=[None]    &amp;quot;Normal_1/log_prob/truediv_1:0&amp;quot;
-|  |  |  |  |  |  |  Op(RealDiv)    &amp;quot;Normal_1/log_prob/truediv_1&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;mu:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  Tensor(AddV2):0,  shape=[None]    &amp;quot;Normal_1/log_prob/add:0&amp;quot;
-|  |  |  Op(AddV2)  &amp;quot;Normal_1/log_prob/add&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;Normal_1/log_prob/add/x:0&amp;quot;
-|  |  |  |  Tensor(Log):0,  shape=[None]    &amp;quot;Normal_1/log_prob/Log:0&amp;quot;
-|  |  |  |  |  Op(Log)  &amp;quot;Normal_1/log_prob/Log&amp;quot;
-|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;tau:0&amp;quot;
+&lt;a class="sourceLine" id="orgc47d26d-22" data-line-number="22"&gt;    normal_log_lik &lt;span class="op"&gt;=&lt;/span&gt; normal_tfp.log_prob(value_tf)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org4ab3731"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org4ab3731-1" data-line-number="1"&gt;tf_dprint(normal_log_lik)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre id="orga9218cc" class="text"&gt;&lt;code&gt;Tensor(Sub):0,  shape=[None]    &amp;quot;Normal_1/log_prob/sub:0&amp;quot;
+|  Tensor(Mul):0,   shape=[None]    &amp;quot;Normal_1/log_prob/mul:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal_1/log_prob/mul/x:0&amp;quot;
+|  |  |  -0.5
+|  |  Tensor(SquaredDifference):0,  shape=[None]    &amp;quot;Normal_1/log_prob/SquaredDifference:0&amp;quot;
+|  |  |  Tensor(RealDiv):0, shape=[None]    &amp;quot;Normal_1/log_prob/truediv:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;value:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
+|  |  |  Tensor(RealDiv):0, shape=[None]    &amp;quot;Normal_1/log_prob/truediv_1:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;mu:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
+|  Tensor(AddV2):0, shape=[None]    &amp;quot;Normal_1/log_prob/add:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal_1/log_prob/add/x:0&amp;quot;
+|  |  |  0.9189385
+|  |  Tensor(Log):0,    shape=[None]    &amp;quot;Normal_1/log_prob/Log:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[None]    &amp;quot;tau:0&amp;quot;
 
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Instead of looking for the entire log-likelihood graph for a distribution, we can focus on only the &lt;code&gt;SquaredDifference&lt;/code&gt; operators, since they contain all the relevant terms for our transformation.&lt;/p&gt;
 &lt;p&gt;More specifically, if we can identify “chains” of such terms, i.e. &lt;code&gt;SquaredDifference(y, x)&lt;/code&gt; and &lt;code&gt;SquaredDifference(x, mu)&lt;/code&gt;, then we might be able to assume that the corresponding subgraph was formed from such a hierarchical normal model.&lt;/p&gt;
-&lt;p&gt;Listing &lt;a href="#orgacfcea8"&gt;12&lt;/a&gt; shows the &lt;code&gt;SquaredDifference&lt;/code&gt; sub-graphs in the log-likelihood graph for our radon model. It demonstrates two instances of said &lt;code&gt;SquaredDifference&lt;/code&gt; “chains”: they involve tensors named &lt;code&gt;values_5&lt;/code&gt; and &lt;code&gt;values_1&lt;/code&gt;.&lt;/p&gt;
-&lt;div class="sourceCode" id="orgacfcea8"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgacfcea8-1" data-line-number="1"&gt;square_diff_outs &lt;span class="op"&gt;=&lt;/span&gt; [o &lt;span class="cf"&gt;for&lt;/span&gt; o &lt;span class="kw"&gt;in&lt;/span&gt; logpfn_fg.get_operations()&lt;/a&gt;
-&lt;a class="sourceLine" id="orgacfcea8-2" data-line-number="2"&gt;                    &lt;span class="cf"&gt;if&lt;/span&gt; o.&lt;span class="bu"&gt;type&lt;/span&gt; &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;SquaredDifference&amp;#39;&lt;/span&gt;]&lt;/a&gt;
+&lt;p&gt;Listing &lt;a href="#orgacfcea8"&gt;14&lt;/a&gt; shows the &lt;code&gt;SquaredDifference&lt;/code&gt; sub-graphs in the log-likelihood graph for our radon model. It demonstrates two instances of said &lt;code&gt;SquaredDifference&lt;/code&gt; “chains”: they involve tensors named &lt;code&gt;values_5&lt;/code&gt; and &lt;code&gt;values_1&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="sourceCode" id="orgacfcea8"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgacfcea8-1" data-line-number="1"&gt;square_diff_outs &lt;span class="op"&gt;=&lt;/span&gt; [o.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;] &lt;span class="cf"&gt;for&lt;/span&gt; o &lt;span class="kw"&gt;in&lt;/span&gt; logpfn_fg.get_operations()&lt;/a&gt;
+&lt;a class="sourceLine" id="orgacfcea8-2" data-line-number="2"&gt;                    &lt;span class="cf"&gt;if&lt;/span&gt; o.&lt;span class="bu"&gt;type&lt;/span&gt; &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;SquaredDifference&amp;#39;&lt;/span&gt; &lt;span class="kw"&gt;or&lt;/span&gt; o.&lt;span class="bu"&gt;type&lt;/span&gt;.startswith(&lt;span class="st"&gt;&amp;#39;Gather&amp;#39;&lt;/span&gt;)]&lt;/a&gt;
 &lt;a class="sourceLine" id="orgacfcea8-3" data-line-number="3"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="orgacfcea8-4" data-line-number="4"&gt;&lt;span class="cf"&gt;for&lt;/span&gt; t &lt;span class="kw"&gt;in&lt;/span&gt; square_diff_outs:&lt;/a&gt;
 &lt;a class="sourceLine" id="orgacfcea8-5" data-line-number="5"&gt;    tf_dprint(t)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre id="orga75d153" class="text"&gt;&lt;code&gt;Op(SquaredDifference)   &amp;quot;Normal_5/log_prob/SquaredDifference&amp;quot;
+&lt;pre id="org5742bdf" class="text"&gt;&lt;code&gt;Tensor(GatherV2):0, shape=[919] &amp;quot;GatherV2:0&amp;quot;
+|  Tensor(Placeholder):0,   shape=[85]  &amp;quot;values_4:0&amp;quot;
+|  Tensor(Const):0, shape=[919] &amp;quot;GatherV2/indices:0&amp;quot;
+|  |  [ 0  0  0 ... 83 84 84]
+|  Tensor(Const):0, shape=[]    &amp;quot;GatherV2/axis:0&amp;quot;
+|  |  0
+Tensor(GatherV2):0, shape=[919] &amp;quot;GatherV2_1:0&amp;quot;
+|  Tensor(Placeholder):0,   shape=[85]  &amp;quot;values_5:0&amp;quot;
+|  Tensor(Const):0, shape=[919] &amp;quot;GatherV2_1/indices:0&amp;quot;
+|  |  [ 0  0  0 ... 83 84 84]
+|  Tensor(Const):0, shape=[]    &amp;quot;GatherV2_1/axis:0&amp;quot;
+|  |  0
+Tensor(SquaredDifference):0,    shape=[]    &amp;quot;Normal_5/log_prob/SquaredDifference:0&amp;quot;
 |  Tensor(RealDiv):0,   shape=[]    &amp;quot;Normal_5/log_prob/truediv:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;Normal_5/log_prob/truediv&amp;quot;
-|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_5:0&amp;quot;
-|  |  |  Tensor(Const):0,   shape=[]    &amp;quot;Normal/scale:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_1:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal/scale:0&amp;quot;
+|  |  |  1.
 |  Tensor(RealDiv):0,   shape=[]    &amp;quot;Normal_5/log_prob/truediv_1:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;Normal_5/log_prob/truediv_1&amp;quot;
-|  |  |  Tensor(Const):0,   shape=[]    &amp;quot;Normal/loc:0&amp;quot;
-|  |  |  Tensor(Const):0,   shape=[]    &amp;quot;Normal/scale:0&amp;quot;
-Op(SquaredDifference)   &amp;quot;Normal_1_1/log_prob/SquaredDifference&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal/loc:0&amp;quot;
+|  |  |  0.
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal/scale:0&amp;quot;
+|  |  |  1.
+Tensor(SquaredDifference):0,    shape=[]    &amp;quot;Normal_1_1/log_prob/SquaredDifference:0&amp;quot;
 |  Tensor(RealDiv):0,   shape=[]    &amp;quot;Normal_1_1/log_prob/truediv:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;Normal_1_1/log_prob/truediv&amp;quot;
-|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_1:0&amp;quot;
-|  |  |  Tensor(Const):0,   shape=[]    &amp;quot;Normal_1/scale:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_2:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal_1/scale:0&amp;quot;
+|  |  |  1.
 |  Tensor(RealDiv):0,   shape=[]    &amp;quot;Normal_1_1/log_prob/truediv_1:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;Normal_1_1/log_prob/truediv_1&amp;quot;
-|  |  |  Tensor(Const):0,   shape=[]    &amp;quot;Normal_1/loc:0&amp;quot;
-|  |  |  Tensor(Const):0,   shape=[]    &amp;quot;Normal_1/scale:0&amp;quot;
-Op(SquaredDifference)   &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/SquaredDifference&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal_1/loc:0&amp;quot;
+|  |  |  0.
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal_1/scale:0&amp;quot;
+|  |  |  1.
+Tensor(SquaredDifference):0,    shape=[85]  &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/SquaredDifference:0&amp;quot;
 |  Tensor(RealDiv):0,   shape=[85]  &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv&amp;quot;
-|  |  |  Tensor(Transpose):0,   shape=[85]  &amp;quot;SampleNormal_2_1/log_prob/transpose:0&amp;quot;
-|  |  |  |  Op(Transpose)   &amp;quot;SampleNormal_2_1/log_prob/transpose&amp;quot;
-|  |  |  |  |  Tensor(Reshape):0,   shape=[85]  &amp;quot;SampleNormal_2_1/log_prob/Reshape:0&amp;quot;
-|  |  |  |  |  |  Op(Reshape)   &amp;quot;SampleNormal_2_1/log_prob/Reshape&amp;quot;
-|  |  |  |  |  |  |  Tensor(Placeholder):0, shape=[85]  &amp;quot;values_6:0&amp;quot;
-|  |  |  |  |  |  |  Tensor(Const):0,   shape=[1]   &amp;quot;SampleNormal_2_1/log_prob/Reshape/shape:0&amp;quot;
-|  |  |  |  |  Tensor(Const):0, shape=[1]   &amp;quot;SampleNormal_2_1/log_prob/transpose/perm:0&amp;quot;
-|  |  |  Tensor(Exp):0, shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
-|  |  |  |  Op(Exp) &amp;quot;exp_1/forward/Exp&amp;quot;
-|  |  |  |  |  Tensor(Placeholder):0,   shape=[]    &amp;quot;values_4:0&amp;quot;
+|  |  Tensor(Transpose):0,  shape=[85]  &amp;quot;SampleNormal_2_1/log_prob/transpose:0&amp;quot;
+|  |  |  Tensor(Reshape):0, shape=[85]  &amp;quot;SampleNormal_2_1/log_prob/Reshape:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[85]  &amp;quot;values_4:0&amp;quot;
+|  |  |  |  Tensor(Const):0,    shape=[1]   &amp;quot;SampleNormal_2_1/log_prob/Reshape/shape:0&amp;quot;
+|  |  |  |  |  [85]
+|  |  |  Tensor(Const):0,   shape=[1]   &amp;quot;SampleNormal_2_1/log_prob/transpose/perm:0&amp;quot;
+|  |  |  |  [0]
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_0:0&amp;quot;
 |  Tensor(RealDiv):0,   shape=[]    &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv_1:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv_1&amp;quot;
-|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_5:0&amp;quot;
-|  |  |  Tensor(Exp):0, shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
-|  |  |  |  ...
-Op(SquaredDifference)   &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/SquaredDifference&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_1:0&amp;quot;
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
+|  |  |  ...
+Tensor(SquaredDifference):0,    shape=[85]  &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/SquaredDifference:0&amp;quot;
 |  Tensor(RealDiv):0,   shape=[85]  &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv&amp;quot;
-|  |  |  Tensor(Transpose):0,   shape=[85]  &amp;quot;SampleNormal_3_1/log_prob/transpose:0&amp;quot;
-|  |  |  |  Op(Transpose)   &amp;quot;SampleNormal_3_1/log_prob/transpose&amp;quot;
-|  |  |  |  |  Tensor(Reshape):0,   shape=[85]  &amp;quot;SampleNormal_3_1/log_prob/Reshape:0&amp;quot;
-|  |  |  |  |  |  Op(Reshape)   &amp;quot;SampleNormal_3_1/log_prob/Reshape&amp;quot;
-|  |  |  |  |  |  |  Tensor(Placeholder):0, shape=[85]  &amp;quot;values_3:0&amp;quot;
-|  |  |  |  |  |  |  Tensor(Const):0,   shape=[1]   &amp;quot;SampleNormal_3_1/log_prob/Reshape/shape:0&amp;quot;
-|  |  |  |  |  Tensor(Const):0, shape=[1]   &amp;quot;SampleNormal_3_1/log_prob/transpose/perm:0&amp;quot;
-|  |  |  Tensor(Exp):0, shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
-|  |  |  |  Op(Exp) &amp;quot;exp_2_1/forward/Exp&amp;quot;
-|  |  |  |  |  Tensor(Placeholder):0,   shape=[]    &amp;quot;values_0:0&amp;quot;
+|  |  Tensor(Transpose):0,  shape=[85]  &amp;quot;SampleNormal_3_1/log_prob/transpose:0&amp;quot;
+|  |  |  Tensor(Reshape):0, shape=[85]  &amp;quot;SampleNormal_3_1/log_prob/Reshape:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[85]  &amp;quot;values_5:0&amp;quot;
+|  |  |  |  Tensor(Const):0,    shape=[1]   &amp;quot;SampleNormal_3_1/log_prob/Reshape/shape:0&amp;quot;
+|  |  |  |  |  [85]
+|  |  |  Tensor(Const):0,   shape=[1]   &amp;quot;SampleNormal_3_1/log_prob/transpose/perm:0&amp;quot;
+|  |  |  |  [0]
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_6:0&amp;quot;
 |  Tensor(RealDiv):0,   shape=[]    &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv_1:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv_1&amp;quot;
-|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_1:0&amp;quot;
-|  |  |  Tensor(Exp):0, shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
-|  |  |  |  ...
-Op(SquaredDifference)   &amp;quot;Normal_4_1/log_prob/SquaredDifference&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_2:0&amp;quot;
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
+|  |  |  ...
+Tensor(SquaredDifference):0,    shape=[919] &amp;quot;Normal_4_1/log_prob/SquaredDifference:0&amp;quot;
 |  Tensor(RealDiv):0,   shape=[919] &amp;quot;Normal_4_1/log_prob/truediv:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;Normal_4_1/log_prob/truediv&amp;quot;
-|  |  |  Tensor(Const):0,   shape=[919] &amp;quot;Normal_4_1/log_prob/value:0&amp;quot;
-|  |  |  Tensor(Exp):0, shape=[]    &amp;quot;exp_3_1/forward/Exp:0&amp;quot;
-|  |  |  |  Op(Exp) &amp;quot;exp_3_1/forward/Exp&amp;quot;
-|  |  |  |  |  Tensor(Placeholder):0,   shape=[]    &amp;quot;values_2:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[919] &amp;quot;Normal_4_1/log_prob/value:0&amp;quot;
+|  |  |  [0.8329091 0.8329091 1.0986123 ... 1.6292405 1.3350011 1.0986123]
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_3_1/forward/Exp:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_3:0&amp;quot;
 |  Tensor(RealDiv):0,   shape=[919] &amp;quot;Normal_4_1/log_prob/truediv_1:0&amp;quot;
-|  |  Op(RealDiv)   &amp;quot;Normal_4_1/log_prob/truediv_1&amp;quot;
-|  |  |  Tensor(AddV2):0,   shape=[919] &amp;quot;add:0&amp;quot;
-|  |  |  |  Op(AddV2)   &amp;quot;add&amp;quot;
-|  |  |  |  |  Tensor(GatherV2):0,  shape=[919] &amp;quot;GatherV2:0&amp;quot;
-|  |  |  |  |  |  Op(GatherV2)  &amp;quot;GatherV2&amp;quot;
-|  |  |  |  |  |  |  Tensor(Placeholder):0, shape=[85]  &amp;quot;values_6:0&amp;quot;
-|  |  |  |  |  |  |  Tensor(Const):0,   shape=[919] &amp;quot;GatherV2/indices:0&amp;quot;
-|  |  |  |  |  |  |  Tensor(Const):0,   shape=[]    &amp;quot;GatherV2/axis:0&amp;quot;
-|  |  |  |  |  Tensor(Mul):0,   shape=[919] &amp;quot;mul:0&amp;quot;
-|  |  |  |  |  |  Op(Mul)   &amp;quot;mul&amp;quot;
-|  |  |  |  |  |  |  Tensor(GatherV2):0,    shape=[919] &amp;quot;GatherV2_1:0&amp;quot;
-|  |  |  |  |  |  |  |  Op(GatherV2)    &amp;quot;GatherV2_1&amp;quot;
-|  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,   shape=[85]  &amp;quot;values_3:0&amp;quot;
-|  |  |  |  |  |  |  |  |  Tensor(Const):0, shape=[919] &amp;quot;GatherV2_1/indices:0&amp;quot;
-|  |  |  |  |  |  |  |  |  Tensor(Const):0, shape=[]    &amp;quot;GatherV2_1/axis:0&amp;quot;
-|  |  |  |  |  |  |  Tensor(Const):0,   shape=[919] &amp;quot;mul/y:0&amp;quot;
-|  |  |  Tensor(Exp):0, shape=[]    &amp;quot;exp_3_1/forward/Exp:0&amp;quot;
-|  |  |  |  ...
+|  |  Tensor(AddV2):0,  shape=[919] &amp;quot;add:0&amp;quot;
+|  |  |  Tensor(GatherV2):0,    shape=[919] &amp;quot;GatherV2:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[85]  &amp;quot;values_4:0&amp;quot;
+|  |  |  |  Tensor(Const):0,    shape=[919] &amp;quot;GatherV2/indices:0&amp;quot;
+|  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;GatherV2/axis:0&amp;quot;
+|  |  |  |  |  0
+|  |  |  Tensor(Mul):0, shape=[919] &amp;quot;mul:0&amp;quot;
+|  |  |  |  Tensor(GatherV2):0, shape=[919] &amp;quot;GatherV2_1:0&amp;quot;
+|  |  |  |  |  Tensor(Placeholder):0,   shape=[85]  &amp;quot;values_5:0&amp;quot;
+|  |  |  |  |  Tensor(Const):0, shape=[919] &amp;quot;GatherV2_1/indices:0&amp;quot;
+|  |  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  |  Tensor(Const):0, shape=[]    &amp;quot;GatherV2_1/axis:0&amp;quot;
+|  |  |  |  |  |  0
+|  |  |  |  Tensor(Const):0,    shape=[919] &amp;quot;mul/y:0&amp;quot;
+|  |  |  |  |  [1. 0. 0. ... 0. 0. 0.]
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_3_1/forward/Exp:0&amp;quot;
+|  |  |  ...
 
 &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The names in the TFP graph are not based on the PyMC4 model objects, so, to make the graph output slightly more interpretable, Listing &lt;a href="#orgc9910cb"&gt;16&lt;/a&gt; attempts to re-association the labels.&lt;/p&gt;
+&lt;div class="sourceCode" id="orgc9910cb"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgc9910cb-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; pprint &lt;span class="im"&gt;import&lt;/span&gt; pprint&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc9910cb-2" data-line-number="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc9910cb-3" data-line-number="3"&gt;tfp_names_to_pymc &lt;span class="op"&gt;=&lt;/span&gt; {i.name: k &lt;span class="cf"&gt;for&lt;/span&gt; i, k &lt;span class="kw"&gt;in&lt;/span&gt; &lt;span class="bu"&gt;zip&lt;/span&gt;(logpfn_cf.structured_input_signature[&lt;span class="dv"&gt;0&lt;/span&gt;], init.keys())}&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc9910cb-4" data-line-number="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc9910cb-5" data-line-number="5"&gt;pprint(tfp_names_to_pymc)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org6136b4f"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org6136b4f-1" data-line-number="1"&gt;{&lt;span class="st"&gt;&amp;#39;values_0&amp;#39;&lt;/span&gt;: &lt;span class="st"&gt;&amp;#39;hierarchical_model/__log_sigma_alpha&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org6136b4f-2" data-line-number="2"&gt; &lt;span class="st"&gt;&amp;#39;values_1&amp;#39;&lt;/span&gt;: &lt;span class="st"&gt;&amp;#39;hierarchical_model/mu_alpha&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org6136b4f-3" data-line-number="3"&gt; &lt;span class="st"&gt;&amp;#39;values_2&amp;#39;&lt;/span&gt;: &lt;span class="st"&gt;&amp;#39;hierarchical_model/mu_beta&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org6136b4f-4" data-line-number="4"&gt; &lt;span class="st"&gt;&amp;#39;values_3&amp;#39;&lt;/span&gt;: &lt;span class="st"&gt;&amp;#39;hierarchical_model/__log_eps&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org6136b4f-5" data-line-number="5"&gt; &lt;span class="st"&gt;&amp;#39;values_4&amp;#39;&lt;/span&gt;: &lt;span class="st"&gt;&amp;#39;hierarchical_model/alpha&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org6136b4f-6" data-line-number="6"&gt; &lt;span class="st"&gt;&amp;#39;values_5&amp;#39;&lt;/span&gt;: &lt;span class="st"&gt;&amp;#39;hierarchical_model/beta&amp;#39;&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="org6136b4f-7" data-line-number="7"&gt; &lt;span class="st"&gt;&amp;#39;values_6&amp;#39;&lt;/span&gt;: &lt;span class="st"&gt;&amp;#39;hierarchical_model/__log_sigma_beta&amp;#39;&lt;/span&gt;}&lt;/a&gt;
+&lt;a class="sourceLine" id="org6136b4f-8" data-line-number="8"&gt;&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;section id="graph-normalization" class="level2"&gt;
 &lt;h2&gt;Graph Normalization&lt;/h2&gt;
 &lt;p&gt;The &lt;code&gt;grappler&lt;/code&gt; library in TensorFlow provides a subset of graph pruning/optimization steps. Ideally, a library like &lt;code&gt;grappler&lt;/code&gt; would provide full-fledged graph normalization/canonicalization upon which we could base the subgraphs used in our relations.&lt;/p&gt;
@@ -389,7 +413,7 @@ Op(SquaredDifference)   &amp;quot;Normal_4_1/log_prob/SquaredDifference&amp;quot
 &lt;p&gt;While &lt;code&gt;grappler&lt;/code&gt; does appear to provide some minimal algebraic normalizations, the extent to which these are performed and their breadth of relevant operator coverage isn’t clear; however, the normalizations that it does provide are worth using, so we’ll make use of them throughout.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;In general, we don’t want our “patterns” to be “brittle”, e.g. rely on explicit–yet variable–term orderings in commutative operators (e.g. a pattern that exclusively targets &lt;code&gt;mt.add(x_lv, y_lv)&lt;/code&gt; and won’t match the equivalent &lt;code&gt;mt.add(y_lv, x_lv)&lt;/code&gt;).&lt;/p&gt;
-&lt;p&gt;Listing &lt;a href="#org0c58115"&gt;14&lt;/a&gt; provides a simple means of applying &lt;code&gt;grappler&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Listing &lt;a href="#org0c58115"&gt;18&lt;/a&gt; provides a simple means of applying &lt;code&gt;grappler&lt;/code&gt;.&lt;/p&gt;
 &lt;div class="sourceCode" id="org0c58115"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org0c58115-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.core.protobuf &lt;span class="im"&gt;import&lt;/span&gt; config_pb2&lt;/a&gt;
 &lt;a class="sourceLine" id="org0c58115-2" data-line-number="2"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="org0c58115-3" data-line-number="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.framework &lt;span class="im"&gt;import&lt;/span&gt; ops&lt;/a&gt;
@@ -444,9 +468,9 @@ Op(SquaredDifference)   &amp;quot;Normal_4_1/log_prob/SquaredDifference&amp;quot
 &lt;a class="sourceLine" id="org0c58115-52" data-line-number="52"&gt;    opt_graph_output &lt;span class="op"&gt;=&lt;/span&gt; optimized_graph.get_tensor_by_name(graph_output.name)&lt;/a&gt;
 &lt;a class="sourceLine" id="org0c58115-53" data-line-number="53"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="org0c58115-54" data-line-number="54"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; opt_graph_output&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;In Listing &lt;a href="#org0c58115"&gt;14&lt;/a&gt; we run &lt;code&gt;grappler&lt;/code&gt; on the log-likelihood graph for a normal random variable from Listing &lt;a href="#orgc47d26d"&gt;10&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In Listing &lt;a href="#org0c58115"&gt;18&lt;/a&gt; we run &lt;code&gt;grappler&lt;/code&gt; on the log-likelihood graph for a normal random variable from Listing &lt;a href="#orgc47d26d"&gt;11&lt;/a&gt;.&lt;/p&gt;
 &lt;div class="sourceCode" id="org66f178c"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org66f178c-1" data-line-number="1"&gt;normal_log_lik_opt &lt;span class="op"&gt;=&lt;/span&gt; normalize_tf_graph(normal_log_lik)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Listing &lt;a href="#org04c54ca"&gt;16&lt;/a&gt; compares the computed outputs for the original and normalized graphs–given identical inputs.&lt;/p&gt;
+&lt;p&gt;Listing &lt;a href="#org04c54ca"&gt;20&lt;/a&gt; compares the computed outputs for the original and normalized graphs–given identical inputs.&lt;/p&gt;
 &lt;div class="sourceCode" id="org04c54ca"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org04c54ca-1" data-line-number="1"&gt;res_unopt &lt;span class="op"&gt;=&lt;/span&gt; normal_log_lik.&lt;span class="bu"&gt;eval&lt;/span&gt;({&lt;span class="st"&gt;&amp;#39;mu:0&amp;#39;&lt;/span&gt;: np.r_[&lt;span class="dv"&gt;3&lt;/span&gt;], &lt;span class="st"&gt;&amp;#39;tau:0&amp;#39;&lt;/span&gt;: np.r_[&lt;span class="dv"&gt;1&lt;/span&gt;], &lt;span class="st"&gt;&amp;#39;value:0&amp;#39;&lt;/span&gt;: np.r_[&lt;span class="dv"&gt;1&lt;/span&gt;]},&lt;/a&gt;
 &lt;a class="sourceLine" id="org04c54ca-2" data-line-number="2"&gt;                                 session&lt;span class="op"&gt;=&lt;/span&gt;tf.compat.v1.Session(graph&lt;span class="op"&gt;=&lt;/span&gt;normal_log_lik.graph))&lt;/a&gt;
 &lt;a class="sourceLine" id="org04c54ca-3" data-line-number="3"&gt;&lt;/a&gt;
@@ -457,36 +481,31 @@ Op(SquaredDifference)   &amp;quot;Normal_4_1/log_prob/SquaredDifference&amp;quot
 &lt;a class="sourceLine" id="org04c54ca-8" data-line-number="8"&gt;&lt;span class="cf"&gt;assert&lt;/span&gt; np.array_equal(res_unopt, res_opt)&lt;/a&gt;
 &lt;a class="sourceLine" id="org04c54ca-9" data-line-number="9"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="org04c54ca-10" data-line-number="10"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; [res_unopt, res_opt]&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class="sourceCode" id="orge8b12fa"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orge8b12fa-1" data-line-number="1"&gt;[array([&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;2.9189386&lt;/span&gt;], dtype&lt;span class="op"&gt;=&lt;/span&gt;float32), array([&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;2.9189386&lt;/span&gt;], dtype&lt;span class="op"&gt;=&lt;/span&gt;float32)]&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org97e5ffd"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org97e5ffd-1" data-line-number="1"&gt;[array([&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;2.9189386&lt;/span&gt;], dtype&lt;span class="op"&gt;=&lt;/span&gt;float32), array([&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="fl"&gt;2.9189386&lt;/span&gt;], dtype&lt;span class="op"&gt;=&lt;/span&gt;float32)]&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;div class="sourceCode" id="orge1da777"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orge1da777-1" data-line-number="1"&gt;tf_dprint(normal_log_lik_opt)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre id="org4ebdf85" class="text"&gt;&lt;code&gt;Tensor(Sub):0,  shape=[None]    &amp;quot;Normal_1/log_prob/sub:0&amp;quot;
-|  Op(Sub)  &amp;quot;Normal_1/log_prob/sub&amp;quot;
-|  |  Tensor(Mul):0,    shape=[None]    &amp;quot;Normal_1/log_prob/mul:0&amp;quot;
-|  |  |  Op(Mul)    &amp;quot;Normal_1/log_prob/mul&amp;quot;
-|  |  |  |  Tensor(SquaredDifference):0,    shape=[None]    &amp;quot;Normal_1/log_prob/SquaredDifference:0&amp;quot;
-|  |  |  |  |  Op(SquaredDifference)    &amp;quot;Normal_1/log_prob/SquaredDifference&amp;quot;
-|  |  |  |  |  |  Tensor(RealDiv):0,    shape=[None]    &amp;quot;Normal_1/log_prob/truediv:0&amp;quot;
-|  |  |  |  |  |  |  Op(RealDiv)    &amp;quot;Normal_1/log_prob/truediv&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;value:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  |  |  Tensor(RealDiv):0,    shape=[None]    &amp;quot;Normal_1/log_prob/truediv_1:0&amp;quot;
-|  |  |  |  |  |  |  Op(RealDiv)    &amp;quot;Normal_1/log_prob/truediv_1&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;mu:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;Normal_1/log_prob/mul/x:0&amp;quot;
-|  |  Tensor(AddV2):0,  shape=[None]    &amp;quot;Normal_1/log_prob/add:0&amp;quot;
-|  |  |  Op(AddV2)  &amp;quot;Normal_1/log_prob/add&amp;quot;
-|  |  |  |  Tensor(Log):0,  shape=[None]    &amp;quot;Normal_1/log_prob/Log:0&amp;quot;
-|  |  |  |  |  Op(Log)  &amp;quot;Normal_1/log_prob/Log&amp;quot;
-|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;Normal_1/log_prob/add/x:0&amp;quot;
+&lt;pre id="org7680fc6" class="text"&gt;&lt;code&gt;Tensor(Sub):0,  shape=[None]    &amp;quot;Normal_1/log_prob/sub:0&amp;quot;
+|  Tensor(Mul):0,   shape=[None]    &amp;quot;Normal_1/log_prob/mul:0&amp;quot;
+|  |  Tensor(SquaredDifference):0,  shape=[None]    &amp;quot;Normal_1/log_prob/SquaredDifference:0&amp;quot;
+|  |  |  Tensor(RealDiv):0, shape=[None]    &amp;quot;Normal_1/log_prob/truediv:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;value:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
+|  |  |  Tensor(RealDiv):0, shape=[None]    &amp;quot;Normal_1/log_prob/truediv_1:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;mu:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal_1/log_prob/mul/x:0&amp;quot;
+|  |  |  -0.5
+|  Tensor(AddV2):0, shape=[None]    &amp;quot;Normal_1/log_prob/add:0&amp;quot;
+|  |  Tensor(Log):0,    shape=[None]    &amp;quot;Normal_1/log_prob/Log:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[None]    &amp;quot;tau:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Normal_1/log_prob/add/x:0&amp;quot;
+|  |  |  0.9189385
 
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;From the output of Listing &lt;a href="#orge1da777"&gt;18&lt;/a&gt;, we can see that &lt;code&gt;grappler&lt;/code&gt; has performed some constant folding and has reordered the inputs in &lt;code&gt;&amp;quot;add_1_1&amp;quot;&lt;/code&gt;–among other things.&lt;/p&gt;
+&lt;p&gt;From the output of Listing &lt;a href="#orge1da777"&gt;22&lt;/a&gt;, we can see that &lt;code&gt;grappler&lt;/code&gt; has performed some constant folding and has reordered the inputs in &lt;code&gt;&amp;quot;add_1_1&amp;quot;&lt;/code&gt;–among other things.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="minikanren-transform-relations" class="level2"&gt;
 &lt;h2&gt;miniKanren Transform Relations&lt;/h2&gt;
-&lt;p&gt;In Listing &lt;a href="#org0ad3a96"&gt;20&lt;/a&gt;, we create miniKanren functions that identify the aforementioned &lt;code&gt;SquaredDifference&lt;/code&gt; “chains” and perform the re-centered/scaled &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; substitution.&lt;/p&gt;
+&lt;p&gt;In Listing &lt;a href="#org0ad3a96"&gt;24&lt;/a&gt;, we create miniKanren functions that identify the aforementioned &lt;code&gt;SquaredDifference&lt;/code&gt; “chains” and perform the re-centered/scaled &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; substitution.&lt;/p&gt;
 &lt;div class="sourceCode" id="org0ad3a96"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org0ad3a96-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; itertools &lt;span class="im"&gt;import&lt;/span&gt; chain&lt;/a&gt;
 &lt;a class="sourceLine" id="org0ad3a96-2" data-line-number="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; functools &lt;span class="im"&gt;import&lt;/span&gt; partial&lt;/a&gt;
 &lt;a class="sourceLine" id="org0ad3a96-3" data-line-number="3"&gt;&lt;/a&gt;
@@ -497,126 +516,157 @@ Op(SquaredDifference)   &amp;quot;Normal_4_1/log_prob/SquaredDifference&amp;quot
 &lt;a class="sourceLine" id="org0ad3a96-8" data-line-number="8"&gt;&lt;span class="im"&gt;from&lt;/span&gt; kanren.core &lt;span class="im"&gt;import&lt;/span&gt; goaleval&lt;/a&gt;
 &lt;a class="sourceLine" id="org0ad3a96-9" data-line-number="9"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="org0ad3a96-10" data-line-number="10"&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.tensorflow.meta &lt;span class="im"&gt;import&lt;/span&gt; mt&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-11" data-line-number="11"&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.relations.graph &lt;span class="im"&gt;import&lt;/span&gt; graph_applyo, reduceo&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-12" data-line-number="12"&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.etuple &lt;span class="im"&gt;import&lt;/span&gt; ExpressionTuple, etuple&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-13" data-line-number="13"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-11" data-line-number="11"&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.relations &lt;span class="im"&gt;import&lt;/span&gt; buildo&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-12" data-line-number="12"&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.relations.graph &lt;span class="im"&gt;import&lt;/span&gt; graph_applyo, reduceo&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-13" data-line-number="13"&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.etuple &lt;span class="im"&gt;import&lt;/span&gt; ExpressionTuple, etuple&lt;/a&gt;
 &lt;a class="sourceLine" id="org0ad3a96-14" data-line-number="14"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-15" data-line-number="15"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; onceo(goal):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-16" data-line-number="16"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;A non-relational operator that yields only the first result from a relation.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-17" data-line-number="17"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; onceo_goal(s):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-18" data-line-number="18"&gt;        &lt;span class="kw"&gt;nonlocal&lt;/span&gt; goal&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-19" data-line-number="19"&gt;        g &lt;span class="op"&gt;=&lt;/span&gt; reify(goal, s)&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-20" data-line-number="20"&gt;        g_stream &lt;span class="op"&gt;=&lt;/span&gt; goaleval(g)(s)&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-21" data-line-number="21"&gt;        s &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;next&lt;/span&gt;(g_stream)&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-22" data-line-number="22"&gt;        &lt;span class="cf"&gt;yield&lt;/span&gt; s&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-23" data-line-number="23"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-24" data-line-number="24"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; onceo_goal&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-25" data-line-number="25"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-15" data-line-number="15"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-16" data-line-number="16"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; onceo(goal):&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-17" data-line-number="17"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;A non-relational operator that yields only the first result from a relation.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-18" data-line-number="18"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; onceo_goal(s):&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-19" data-line-number="19"&gt;        &lt;span class="kw"&gt;nonlocal&lt;/span&gt; goal&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-20" data-line-number="20"&gt;        g &lt;span class="op"&gt;=&lt;/span&gt; reify(goal, s)&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-21" data-line-number="21"&gt;        g_stream &lt;span class="op"&gt;=&lt;/span&gt; goaleval(g)(s)&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-22" data-line-number="22"&gt;        s &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;next&lt;/span&gt;(g_stream)&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-23" data-line-number="23"&gt;        &lt;span class="cf"&gt;yield&lt;/span&gt; s&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-24" data-line-number="24"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-25" data-line-number="25"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; onceo_goal&lt;/a&gt;
 &lt;a class="sourceLine" id="org0ad3a96-26" data-line-number="26"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-27" data-line-number="27"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; tf_graph_applyo(relation, a, b):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-28" data-line-number="28"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Construct a `graph_applyo` goal that evaluates a relation only at tensor nodes in a meta graph.&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-29" data-line-number="29"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-30" data-line-number="30"&gt;&lt;span class="co"&gt;    Parameters&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-31" data-line-number="31"&gt;&lt;span class="co"&gt;    ----------&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-32" data-line-number="32"&gt;&lt;span class="co"&gt;    relation: function&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-33" data-line-number="33"&gt;&lt;span class="co"&gt;      A binary relation/goal constructor function&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-34" data-line-number="34"&gt;&lt;span class="co"&gt;    a: lvar, meta graph, or etuple&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-35" data-line-number="35"&gt;&lt;span class="co"&gt;      The left-hand side of the relation.&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-36" data-line-number="36"&gt;&lt;span class="co"&gt;    b: lvar, meta graph, or etuple&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-37" data-line-number="37"&gt;&lt;span class="co"&gt;      The right-hand side of the relation&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-38" data-line-number="38"&gt;&lt;span class="co"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-39" data-line-number="39"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-40" data-line-number="40"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; _expand_some_nodes(node):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-41" data-line-number="41"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(node, mt.Tensor) &lt;span class="kw"&gt;and&lt;/span&gt; node.op &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-42" data-line-number="42"&gt;            &lt;span class="cf"&gt;return&lt;/span&gt; etuple(node.operator, &lt;span class="op"&gt;*&lt;/span&gt;node.inputs, eval_obj&lt;span class="op"&gt;=&lt;/span&gt;node)&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-43" data-line-number="43"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-44" data-line-number="44"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-45" data-line-number="45"&gt;    gapplyo &lt;span class="op"&gt;=&lt;/span&gt; partial(graph_applyo, relation, preprocess_graph&lt;span class="op"&gt;=&lt;/span&gt;_expand_some_nodes)&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-46" data-line-number="46"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; gapplyo(a, b)&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-47" data-line-number="47"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-27" data-line-number="27"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-28" data-line-number="28"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; tf_graph_applyo(relation, a, b):&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-29" data-line-number="29"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Construct a `graph_applyo` goal that evaluates a relation only at tensor nodes in a meta graph.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-30" data-line-number="30"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-31" data-line-number="31"&gt;&lt;span class="co"&gt;    Parameters&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-32" data-line-number="32"&gt;&lt;span class="co"&gt;    ----------&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-33" data-line-number="33"&gt;&lt;span class="co"&gt;    relation: function&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-34" data-line-number="34"&gt;&lt;span class="co"&gt;      A binary relation/goal constructor function&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-35" data-line-number="35"&gt;&lt;span class="co"&gt;    a: lvar, meta graph, or etuple&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-36" data-line-number="36"&gt;&lt;span class="co"&gt;      The left-hand side of the relation.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-37" data-line-number="37"&gt;&lt;span class="co"&gt;    b: lvar, meta graph, or etuple&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-38" data-line-number="38"&gt;&lt;span class="co"&gt;      The right-hand side of the relation&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-39" data-line-number="39"&gt;&lt;span class="co"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-40" data-line-number="40"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-41" data-line-number="41"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; _expand_some_nodes(node):&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-42" data-line-number="42"&gt;        &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(node, mt.Tensor) &lt;span class="kw"&gt;and&lt;/span&gt; node.op &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-43" data-line-number="43"&gt;            &lt;span class="cf"&gt;return&lt;/span&gt; etuple(node.operator, &lt;span class="op"&gt;*&lt;/span&gt;node.inputs, eval_obj&lt;span class="op"&gt;=&lt;/span&gt;node)&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-44" data-line-number="44"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-45" data-line-number="45"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-46" data-line-number="46"&gt;    gapplyo &lt;span class="op"&gt;=&lt;/span&gt; partial(graph_applyo, relation, preprocess_graph&lt;span class="op"&gt;=&lt;/span&gt;_expand_some_nodes)&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-47" data-line-number="47"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; gapplyo(a, b)&lt;/a&gt;
 &lt;a class="sourceLine" id="org0ad3a96-48" data-line-number="48"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-49" data-line-number="49"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; shift_squared_terms(in_obj, graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;[]):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-50" data-line-number="50"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Re-center/scale SquaredDifference terms corresponding to hierarchical normals.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-51" data-line-number="51"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-52" data-line-number="52"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; shift_squared_subso(in_graph, out_subs):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-53" data-line-number="53"&gt;        &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Construct a goal that identifies the SquaredDifference terms we desire.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-54" data-line-number="54"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-55" data-line-number="55"&gt;        Y_lv, X_lv, mu_lv &lt;span class="op"&gt;=&lt;/span&gt; var(), var(), var()&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-56" data-line-number="56"&gt;        X_denom_lv &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-57" data-line-number="57"&gt;        X_form_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.Placeholder(dtype&lt;span class="op"&gt;=&lt;/span&gt;var(), shape&lt;span class="op"&gt;=&lt;/span&gt;var(), name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-58" data-line-number="58"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-59" data-line-number="59"&gt;        sqr_diff_Y_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.SquaredDifference(Y_lv,&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-60" data-line-number="60"&gt;                                             mt.realdiv(X_lv, var(), name&lt;span class="op"&gt;=&lt;/span&gt;var()),&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-61" data-line-number="61"&gt;                                             name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-62" data-line-number="62"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-63" data-line-number="63"&gt;        &lt;span class="kw"&gt;def&lt;/span&gt; Y_sqrdiffo(in_g, out_g):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-64" data-line-number="64"&gt;            &lt;span class="cf"&gt;return&lt;/span&gt; lall(eq(in_g, sqr_diff_Y_lv),&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-65" data-line-number="65"&gt;                        &lt;span class="co"&gt;# This just makes sure that we&amp;#39;re only considering X&amp;#39;s&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-66" data-line-number="66"&gt;                        &lt;span class="co"&gt;# that are Placeholders.&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-67" data-line-number="67"&gt;                        eq(X_lv, X_form_lv))&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-68" data-line-number="68"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-69" data-line-number="69"&gt;        sqr_diff_X_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.SquaredDifference(mt.mul(X_denom_lv, X_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var()),&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-70" data-line-number="70"&gt;                                             &lt;span class="co"&gt;# mt.realdiv(X_lv, X_denom_lv, name=var()),&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-71" data-line-number="71"&gt;                                             mu_lv,&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-72" data-line-number="72"&gt;                                             name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-73" data-line-number="73"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-74" data-line-number="74"&gt;        &lt;span class="kw"&gt;def&lt;/span&gt; X_sqrdiffo(in_g, out_g):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-75" data-line-number="75"&gt;            &lt;span class="cf"&gt;return&lt;/span&gt; eq(in_g, sqr_diff_X_lv)&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-76" data-line-number="76"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-77" data-line-number="77"&gt;        &lt;span class="co"&gt;# X_new_mt = mt.mul(X_denom_lv, mt.add(mu_lv, X_lv))&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-78" data-line-number="78"&gt;        X_new_mt &lt;span class="op"&gt;=&lt;/span&gt; mt.add(mu_lv, mt.mul(X_denom_lv, X_lv))&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-79" data-line-number="79"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-80" data-line-number="80"&gt;        res &lt;span class="op"&gt;=&lt;/span&gt; lall(&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-81" data-line-number="81"&gt;            &lt;span class="co"&gt;# The first (y - x/a)**2 (anywhere in the graph)&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-82" data-line-number="82"&gt;            tf_graph_applyo(Y_sqrdiffo, in_graph, in_graph),&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-83" data-line-number="83"&gt;            &lt;span class="co"&gt;# The corresponding (x/b - z)**2 (also anywhere else in the graph)&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-84" data-line-number="84"&gt;            tf_graph_applyo(X_sqrdiffo, in_graph, in_graph),&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-85" data-line-number="85"&gt;            &lt;span class="co"&gt;# Not sure if we need this, but we definitely don&amp;#39;t want X == Y&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-86" data-line-number="86"&gt;            (not_equalo, [Y_lv, X_lv], &lt;span class="va"&gt;True&lt;/span&gt;),&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-87" data-line-number="87"&gt;            &lt;span class="co"&gt;# Set the &amp;quot;output&amp;quot;/second argument to the resulting substitution&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-88" data-line-number="88"&gt;            &lt;span class="co"&gt;# pair&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-89" data-line-number="89"&gt;            eq(out_subs, [X_lv, X_new_mt]))&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-90" data-line-number="90"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-91" data-line-number="91"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; res&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-92" data-line-number="92"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-93" data-line-number="93"&gt;    &lt;span class="co"&gt;# Normalize and convert to a meta graph&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-94" data-line-number="94"&gt;    in_obj &lt;span class="op"&gt;=&lt;/span&gt; mt(normalize_tf_graph(in_obj, graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;graph_inputs))&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-95" data-line-number="95"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-96" data-line-number="96"&gt;    &lt;span class="co"&gt;# This run returns all the substitutions found in the graph&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-97" data-line-number="97"&gt;    subs_lv &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-98" data-line-number="98"&gt;    subs_res &lt;span class="op"&gt;=&lt;/span&gt; run(&lt;span class="dv"&gt;0&lt;/span&gt;, subs_lv, shift_squared_subso(in_obj, subs_lv))&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-99" data-line-number="99"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-100" data-line-number="100"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; subs_replaceo(in_g, out_g):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-101" data-line-number="101"&gt;        &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Create a goal that applies substitutions to a graph.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-102" data-line-number="102"&gt;        &lt;span class="kw"&gt;def&lt;/span&gt; _subs_replaceo(in_g, out_g):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-103" data-line-number="103"&gt;            x_g &lt;span class="op"&gt;=&lt;/span&gt; conde(&lt;span class="op"&gt;*&lt;/span&gt;[[eq(in_g, x), eq(out_g, y)]&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-104" data-line-number="104"&gt;                          &lt;span class="cf"&gt;for&lt;/span&gt; x, y &lt;span class="kw"&gt;in&lt;/span&gt; subs_res])&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-105" data-line-number="105"&gt;            &lt;span class="cf"&gt;return&lt;/span&gt; x_g&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-106" data-line-number="106"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-107" data-line-number="107"&gt;        g &lt;span class="op"&gt;=&lt;/span&gt; onceo(tf_graph_applyo(_subs_replaceo, in_g, out_g))&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-108" data-line-number="108"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; g&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-109" data-line-number="109"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-110" data-line-number="110"&gt;    &lt;span class="co"&gt;# Apply each substitution once&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-111" data-line-number="111"&gt;    out_graph_lv &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-112" data-line-number="112"&gt;    res &lt;span class="op"&gt;=&lt;/span&gt; run(&lt;span class="dv"&gt;1&lt;/span&gt;, out_graph_lv, reduceo(subs_replaceo, in_obj, out_graph_lv))&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-113" data-line-number="113"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-114" data-line-number="114"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; res:&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-115" data-line-number="115"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-116" data-line-number="116"&gt;        &lt;span class="kw"&gt;def&lt;/span&gt; reify_res(graph_res):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-117" data-line-number="117"&gt;            &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Reconstruct and/or reify meta object results.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-118" data-line-number="118"&gt;            from_etuple &lt;span class="op"&gt;=&lt;/span&gt; graph_res.eval_obj &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(graph_res, ExpressionTuple) &lt;span class="cf"&gt;else&lt;/span&gt; graph_res&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-119" data-line-number="119"&gt;            &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;hasattr&lt;/span&gt;(from_etuple, &lt;span class="st"&gt;&amp;#39;reify&amp;#39;&lt;/span&gt;):&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-120" data-line-number="120"&gt;                &lt;span class="cf"&gt;return&lt;/span&gt; from_etuple.reify()&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-121" data-line-number="121"&gt;            &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-122" data-line-number="122"&gt;                &lt;span class="cf"&gt;return&lt;/span&gt; from_etuple&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-123" data-line-number="123"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-124" data-line-number="124"&gt;        res &lt;span class="op"&gt;=&lt;/span&gt; [reify_res(r) &lt;span class="cf"&gt;for&lt;/span&gt; r &lt;span class="kw"&gt;in&lt;/span&gt; res]&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-125" data-line-number="125"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-126" data-line-number="126"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;len&lt;/span&gt;(res) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;1&lt;/span&gt;:&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-127" data-line-number="127"&gt;        graph_res &lt;span class="op"&gt;=&lt;/span&gt; res[&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-128" data-line-number="128"&gt;        &lt;span class="co"&gt;# return graph_res, subs_res&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ad3a96-129" data-line-number="129"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; normalize_tf_graph(graph_res, graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;graph_inputs), subs_res&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;As a test, we will run our miniKanren relations on the log-likelihood graph for a normal-normal hierarchical model in Listing &lt;a href="#org29e93d9"&gt;21&lt;/a&gt;.&lt;/p&gt;
+&lt;a class="sourceLine" id="org0ad3a96-49" data-line-number="49"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-50" data-line-number="50"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; tfp_normal_log_prob(loc, scale):&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-51" data-line-number="51"&gt;    log_unnormalized &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;-0.5&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; tf.math.squared_difference(&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-52" data-line-number="52"&gt;        x &lt;span class="op"&gt;/&lt;/span&gt; scale, loc &lt;span class="op"&gt;/&lt;/span&gt; scale)&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-53" data-line-number="53"&gt;    log_normalization &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;0.5&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; np.log(&lt;span class="fl"&gt;2.&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; np.pi) &lt;span class="op"&gt;+&lt;/span&gt; tf.math.log(scale)&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ad3a96-54" data-line-number="54"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; log_unnormalized &lt;span class="op"&gt;-&lt;/span&gt; log_normalization&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="orgcb26c87"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgcb26c87-1" data-line-number="1"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; shift_squared_subso(in_graph, out_subs):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-2" data-line-number="2"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Construct a goal that produces transforms for chains like (y + x)**2, (x + z)**2.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-3" data-line-number="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-4" data-line-number="4"&gt;    Y_lv, X_lv, mu_X_lv &lt;span class="op"&gt;=&lt;/span&gt; var(), var(), var()&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-5" data-line-number="5"&gt;    scale_Y_lv &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-6" data-line-number="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-7" data-line-number="7"&gt;    X_form_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.Placeholder(dtype&lt;span class="op"&gt;=&lt;/span&gt;var(), shape&lt;span class="op"&gt;=&lt;/span&gt;var(), name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-8" data-line-number="8"&gt;    &lt;span class="co"&gt;# The actual base object&amp;#39;s placeholder might have `_user_specified_name` as&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-9" data-line-number="9"&gt;    &lt;span class="co"&gt;# an extra `op.node_def.attr`, so let&amp;#39;s just make the entire NodeDef a&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-10" data-line-number="10"&gt;    &lt;span class="co"&gt;# logic variable.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-11" data-line-number="11"&gt;    X_form_lv.op.node_def &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-12" data-line-number="12"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-13" data-line-number="13"&gt;    mu_Y_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.realdiv(X_lv, scale_Y_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-14" data-line-number="14"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-15" data-line-number="15"&gt;    &lt;span class="co"&gt;# Y_T_reshaped_lv = mt.Transpose(mt.reshape(Y_lv, var(), name=var()), var())&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-16" data-line-number="16"&gt;    Y_reshaped_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.reshape(Y_lv, var(), name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-17" data-line-number="17"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-18" data-line-number="18"&gt;    sqr_diff_Y_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.SquaredDifference(&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-19" data-line-number="19"&gt;        mt.realdiv(Y_reshaped_lv,&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-20" data-line-number="20"&gt;                   scale_Y_lv,&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-21" data-line-number="21"&gt;                   name&lt;span class="op"&gt;=&lt;/span&gt;var()),&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-22" data-line-number="22"&gt;        mu_Y_lv,&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-23" data-line-number="23"&gt;        name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-24" data-line-number="24"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-25" data-line-number="25"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; Y_sqrdiffo(in_g, out_g):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-26" data-line-number="26"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; lall(eq(in_g, sqr_diff_Y_lv),&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-27" data-line-number="27"&gt;                    &lt;span class="co"&gt;# This just makes sure that we&amp;#39;re only considering X&amp;#39;s&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-28" data-line-number="28"&gt;                    &lt;span class="co"&gt;# that are Placeholders.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-29" data-line-number="29"&gt;                    eq(X_lv, X_form_lv))&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-30" data-line-number="30"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-31" data-line-number="31"&gt;    scale_X_lv &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-32" data-line-number="32"&gt;    sqr_diff_X_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.SquaredDifference(&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-33" data-line-number="33"&gt;        &lt;span class="co"&gt;# Mul is only used because RealDiv with 1 is changed by grappler&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-34" data-line-number="34"&gt;        &lt;span class="co"&gt;# mt.realdiv(X_lv, X_denom_lv, name=var()),&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-35" data-line-number="35"&gt;        mt.mul(scale_X_lv, X_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var()),&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-36" data-line-number="36"&gt;        mu_X_lv,&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-37" data-line-number="37"&gt;        name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-38" data-line-number="38"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-39" data-line-number="39"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; X_sqrdiffo(in_g, out_g):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-40" data-line-number="40"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; eq(in_g, sqr_diff_X_lv)&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-41" data-line-number="41"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-42" data-line-number="42"&gt;    Y_new_mt &lt;span class="op"&gt;=&lt;/span&gt; mt.addv2(X_lv, mt.mul(scale_Y_lv, Y_lv))&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-43" data-line-number="43"&gt;    Y_log_scale &lt;span class="op"&gt;=&lt;/span&gt; mt.log(scale_Y_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-44" data-line-number="44"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-45" data-line-number="45"&gt;    res &lt;span class="op"&gt;=&lt;/span&gt; lall(&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-46" data-line-number="46"&gt;        &lt;span class="co"&gt;# The first (y - x/a)**2 (anywhere in the graph)&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-47" data-line-number="47"&gt;        tf_graph_applyo(Y_sqrdiffo, in_graph, in_graph),&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-48" data-line-number="48"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-49" data-line-number="49"&gt;        &lt;span class="co"&gt;# The corresponding (x/b - z)**2 (also anywhere else in the graph)&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-50" data-line-number="50"&gt;        tf_graph_applyo(X_sqrdiffo, in_graph, in_graph),&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-51" data-line-number="51"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-52" data-line-number="52"&gt;        &lt;span class="co"&gt;# Find the log-scale factor (at this point, we might as well match an&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-53" data-line-number="53"&gt;        &lt;span class="co"&gt;# entire normal log-likelihood!)&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-54" data-line-number="54"&gt;        tf_graph_applyo(&lt;span class="kw"&gt;lambda&lt;/span&gt; x, y: eq(x, Y_log_scale), in_graph, in_graph),&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-55" data-line-number="55"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-56" data-line-number="56"&gt;        &lt;span class="co"&gt;# Not sure if we need this, but we definitely don&amp;#39;t want X == Y&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-57" data-line-number="57"&gt;        (not_equalo, [Y_lv, X_lv], &lt;span class="va"&gt;True&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-58" data-line-number="58"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-59" data-line-number="59"&gt;        &lt;span class="co"&gt;# Create replacement rule pairs&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-60" data-line-number="60"&gt;        eq(out_subs, [[Y_lv, Y_new_mt],&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-61" data-line-number="61"&gt;                      [Y_log_scale, &lt;span class="fl"&gt;0.0&lt;/span&gt;]]))&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-62" data-line-number="62"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgcb26c87-63" data-line-number="63"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; res&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="orgc529d7c"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgc529d7c-1" data-line-number="1"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; shift_squared_terms(in_obj, graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;[]):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-2" data-line-number="2"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Re-center/scale SquaredDifference terms corresponding to hierarchical normals.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-3" data-line-number="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-4" data-line-number="4"&gt;    &lt;span class="co"&gt;# Normalize and convert to a meta graph&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-5" data-line-number="5"&gt;    in_obj &lt;span class="op"&gt;=&lt;/span&gt; mt(normalize_tf_graph(in_obj, graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;graph_inputs))&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-6" data-line-number="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-7" data-line-number="7"&gt;    &lt;span class="co"&gt;# This run returns all the substitutions found in the graph&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-8" data-line-number="8"&gt;    subs_lv &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-9" data-line-number="9"&gt;    subs_res &lt;span class="op"&gt;=&lt;/span&gt; run(&lt;span class="dv"&gt;0&lt;/span&gt;, subs_lv, shift_squared_subso(in_obj, subs_lv))&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-10" data-line-number="10"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-11" data-line-number="11"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; subs_res:&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-12" data-line-number="12"&gt;        &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;Failed to find required forms within the graph.&amp;quot;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-13" data-line-number="13"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-14" data-line-number="14"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-15" data-line-number="15"&gt;    &lt;span class="kw"&gt;def&lt;/span&gt; subs_replaceo(in_g, out_g):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-16" data-line-number="16"&gt;        &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Create a goal that applies substitutions to a graph.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-17" data-line-number="17"&gt;        &lt;span class="kw"&gt;def&lt;/span&gt; _subs_replaceo(in_g, out_g):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-18" data-line-number="18"&gt;            x_g &lt;span class="op"&gt;=&lt;/span&gt; conde(&lt;span class="op"&gt;*&lt;/span&gt;[[eq(in_g, x), eq(out_g, y)]&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-19" data-line-number="19"&gt;                          &lt;span class="cf"&gt;for&lt;/span&gt; x, y &lt;span class="kw"&gt;in&lt;/span&gt; chain.from_iterable(subs_res)])&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-20" data-line-number="20"&gt;            &lt;span class="cf"&gt;return&lt;/span&gt; x_g&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-21" data-line-number="21"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-22" data-line-number="22"&gt;        g &lt;span class="op"&gt;=&lt;/span&gt; onceo(tf_graph_applyo(_subs_replaceo, in_g, out_g))&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-23" data-line-number="23"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; g&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-24" data-line-number="24"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-25" data-line-number="25"&gt;    &lt;span class="co"&gt;# Apply each substitution once&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-26" data-line-number="26"&gt;    out_graph_lv &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-27" data-line-number="27"&gt;    res &lt;span class="op"&gt;=&lt;/span&gt; run(&lt;span class="dv"&gt;1&lt;/span&gt;, out_graph_lv, reduceo(subs_replaceo, in_obj, out_graph_lv))&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-28" data-line-number="28"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-29" data-line-number="29"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; res:&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-30" data-line-number="30"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-31" data-line-number="31"&gt;        &lt;span class="kw"&gt;def&lt;/span&gt; reify_res(graph_res):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-32" data-line-number="32"&gt;            &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Reconstruct and/or reify meta object results.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-33" data-line-number="33"&gt;            from_etuple &lt;span class="op"&gt;=&lt;/span&gt; graph_res.eval_obj &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(graph_res, ExpressionTuple) &lt;span class="cf"&gt;else&lt;/span&gt; graph_res&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-34" data-line-number="34"&gt;            &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;hasattr&lt;/span&gt;(from_etuple, &lt;span class="st"&gt;&amp;#39;reify&amp;#39;&lt;/span&gt;):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-35" data-line-number="35"&gt;                &lt;span class="cf"&gt;return&lt;/span&gt; from_etuple.reify()&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-36" data-line-number="36"&gt;            &lt;span class="cf"&gt;else&lt;/span&gt;:&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-37" data-line-number="37"&gt;                &lt;span class="cf"&gt;return&lt;/span&gt; from_etuple&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-38" data-line-number="38"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-39" data-line-number="39"&gt;        res &lt;span class="op"&gt;=&lt;/span&gt; [reify_res(r) &lt;span class="cf"&gt;for&lt;/span&gt; r &lt;span class="kw"&gt;in&lt;/span&gt; res]&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-40" data-line-number="40"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-41" data-line-number="41"&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; &lt;span class="bu"&gt;len&lt;/span&gt;(res) &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;1&lt;/span&gt; &lt;span class="kw"&gt;and&lt;/span&gt; &lt;span class="bu"&gt;isinstance&lt;/span&gt;(res[&lt;span class="dv"&gt;0&lt;/span&gt;], tf.Tensor):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-42" data-line-number="42"&gt;        graph_res &lt;span class="op"&gt;=&lt;/span&gt; res[&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc529d7c-43" data-line-number="43"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; normalize_tf_graph(graph_res, graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;graph_inputs), subs_res&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As a test, we will run our miniKanren relations on the log-likelihood graph for a normal-normal hierarchical model in Listing &lt;a href="#org29e93d9"&gt;27&lt;/a&gt;.&lt;/p&gt;
 &lt;div class="sourceCode" id="org29e93d9"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org29e93d9-1" data-line-number="1"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; graph_mode(), tf.Graph().as_default() &lt;span class="im"&gt;as&lt;/span&gt; demo_graph:&lt;/a&gt;
 &lt;a class="sourceLine" id="org29e93d9-2" data-line-number="2"&gt;    X_tfp &lt;span class="op"&gt;=&lt;/span&gt; tfp.distributions.normal.Normal(&lt;span class="fl"&gt;0.0&lt;/span&gt;, &lt;span class="fl"&gt;1.0&lt;/span&gt;, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;X&amp;#39;&lt;/span&gt;)&lt;/a&gt;
 &lt;a class="sourceLine" id="org29e93d9-3" data-line-number="3"&gt;&lt;/a&gt;
@@ -631,260 +681,382 @@ Op(SquaredDifference)   &amp;quot;Normal_4_1/log_prob/SquaredDifference&amp;quot
 &lt;a class="sourceLine" id="org29e93d9-12" data-line-number="12"&gt;    y_tf &lt;span class="op"&gt;=&lt;/span&gt; tf.compat.v1.placeholder(tf.float32, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;value_y&amp;#39;&lt;/span&gt;,&lt;/a&gt;
 &lt;a class="sourceLine" id="org29e93d9-13" data-line-number="13"&gt;                                    shape&lt;span class="op"&gt;=&lt;/span&gt;tf.TensorShape([&lt;span class="va"&gt;None&lt;/span&gt;]))&lt;/a&gt;
 &lt;a class="sourceLine" id="org29e93d9-14" data-line-number="14"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org29e93d9-15" data-line-number="15"&gt;    hier_norm_lik &lt;span class="op"&gt;=&lt;/span&gt; Y_tfp.log_prob(y_tf) &lt;span class="op"&gt;+&lt;/span&gt; X_tfp.log_prob(x_tf)&lt;/a&gt;
-&lt;a class="sourceLine" id="org29e93d9-16" data-line-number="16"&gt;    hier_norm_lik &lt;span class="op"&gt;=&lt;/span&gt; normalize_tf_graph(hier_norm_lik)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Listing &lt;a href="#org59b1e29"&gt;22&lt;/a&gt; shows the form that a graph representing a hierarchical normal-normal model will generally take in TFP.&lt;/p&gt;
+&lt;a class="sourceLine" id="org29e93d9-15" data-line-number="15"&gt;    y_T_reshaped &lt;span class="op"&gt;=&lt;/span&gt; tf.transpose(tf.reshape(y_tf, []))&lt;/a&gt;
+&lt;a class="sourceLine" id="org29e93d9-16" data-line-number="16"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org29e93d9-17" data-line-number="17"&gt;    hier_norm_lik &lt;span class="op"&gt;=&lt;/span&gt; tf.math.log(y_tf) &lt;span class="op"&gt;+&lt;/span&gt; Y_tfp.log_prob(y_T_reshaped) &lt;span class="op"&gt;+&lt;/span&gt; X_tfp.log_prob(x_tf)&lt;/a&gt;
+&lt;a class="sourceLine" id="org29e93d9-18" data-line-number="18"&gt;    hier_norm_lik &lt;span class="op"&gt;=&lt;/span&gt; normalize_tf_graph(hier_norm_lik)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Listing &lt;a href="#org59b1e29"&gt;28&lt;/a&gt; shows the form that a graph representing a hierarchical normal-normal model will generally take in TFP.&lt;/p&gt;
 &lt;div class="sourceCode" id="org59b1e29"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org59b1e29-1" data-line-number="1"&gt;tf_dprint(hier_norm_lik)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre id="org707d199" class="text"&gt;&lt;code&gt;Tensor(AddV2):0,    shape=[None]    &amp;quot;add:0&amp;quot;
-|  Op(AddV2)    &amp;quot;add&amp;quot;
-|  |  Tensor(Sub):0,    shape=[None]    &amp;quot;X_1/log_prob/sub:0&amp;quot;
-|  |  |  Op(Sub)    &amp;quot;X_1/log_prob/sub&amp;quot;
-|  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;X_1/log_prob/mul:0&amp;quot;
-|  |  |  |  |  Op(Mul)  &amp;quot;X_1/log_prob/mul&amp;quot;
-|  |  |  |  |  |  Tensor(SquaredDifference):0,  shape=[None]    &amp;quot;X_1/log_prob/SquaredDifference:0&amp;quot;
-|  |  |  |  |  |  |  Op(SquaredDifference)  &amp;quot;X_1/log_prob/SquaredDifference&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;X_1/log_prob/truediv:0&amp;quot;
-|  |  |  |  |  |  |  |  |  Op(Mul)  &amp;quot;X_1/log_prob/truediv&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;ConstantFolding/X_1/log_prob/truediv_recip:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;value_x:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;X_1/log_prob/truediv_1:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;Y_1/log_prob/mul/x:0&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;Y_1/log_prob/add/x:0&amp;quot;
+&lt;pre id="org45862e9" class="text"&gt;&lt;code&gt;Tensor(AddV2):0,    shape=[None]    &amp;quot;add_1:0&amp;quot;
+|  Tensor(Sub):0,   shape=[None]    &amp;quot;X_1/log_prob/sub:0&amp;quot;
+|  |  Tensor(Mul):0,    shape=[None]    &amp;quot;X_1/log_prob/mul:0&amp;quot;
+|  |  |  Tensor(SquaredDifference):0,   shape=[None]    &amp;quot;X_1/log_prob/SquaredDifference:0&amp;quot;
+|  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;X_1/log_prob/truediv:0&amp;quot;
+|  |  |  |  |  Tensor(Const):0, shape=[]    &amp;quot;ConstantFolding/X_1/log_prob/truediv_recip:0&amp;quot;
+|  |  |  |  |  |  1.
+|  |  |  |  |  Tensor(Placeholder):0,   shape=[None]    &amp;quot;value_x:0&amp;quot;
+|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;X_1/log_prob/truediv_1:0&amp;quot;
+|  |  |  |  |  0.
+|  |  |  Tensor(Const):0,   shape=[]    &amp;quot;Y_1/log_prob/mul/x:0&amp;quot;
+|  |  |  |  -0.5
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Y_1/log_prob/add/x:0&amp;quot;
+|  |  |  0.9189385
+|  Tensor(AddV2):0, shape=[None]    &amp;quot;add:0&amp;quot;
+|  |  Tensor(Log):0,    shape=[None]    &amp;quot;Log:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[None]    &amp;quot;value_y:0&amp;quot;
 |  |  Tensor(Sub):0,    shape=[None]    &amp;quot;Y_1/log_prob/sub:0&amp;quot;
-|  |  |  Op(Sub)    &amp;quot;Y_1/log_prob/sub&amp;quot;
-|  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;Y_1/log_prob/mul:0&amp;quot;
-|  |  |  |  |  Op(Mul)  &amp;quot;Y_1/log_prob/mul&amp;quot;
-|  |  |  |  |  |  Tensor(SquaredDifference):0,  shape=[None]    &amp;quot;Y_1/log_prob/SquaredDifference:0&amp;quot;
-|  |  |  |  |  |  |  Op(SquaredDifference)  &amp;quot;Y_1/log_prob/SquaredDifference&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(RealDiv):0,  shape=[None]    &amp;quot;Y_1/log_prob/truediv:0&amp;quot;
-|  |  |  |  |  |  |  |  |  Op(RealDiv)  &amp;quot;Y_1/log_prob/truediv&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;value_y:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(RealDiv):0,  shape=[None]    &amp;quot;Y_1/log_prob/truediv_1:0&amp;quot;
-|  |  |  |  |  |  |  |  |  Op(RealDiv)  &amp;quot;Y_1/log_prob/truediv_1&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;value_x:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;Y_1/log_prob/mul/x:0&amp;quot;
-|  |  |  |  Tensor(AddV2):0,    shape=[None]    &amp;quot;Y_1/log_prob/add:0&amp;quot;
-|  |  |  |  |  Op(AddV2)    &amp;quot;Y_1/log_prob/add&amp;quot;
-|  |  |  |  |  |  Tensor(Log):0,    shape=[None]    &amp;quot;Y_1/log_prob/Log:0&amp;quot;
-|  |  |  |  |  |  |  Op(Log)    &amp;quot;Y_1/log_prob/Log&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;Y_1/log_prob/add/x:0&amp;quot;
+|  |  |  Tensor(Mul):0, shape=[None]    &amp;quot;Y_1/log_prob/mul:0&amp;quot;
+|  |  |  |  Tensor(SquaredDifference):0,    shape=[None]    &amp;quot;Y_1/log_prob/SquaredDifference:0&amp;quot;
+|  |  |  |  |  Tensor(RealDiv):0,   shape=[None]    &amp;quot;Y_1/log_prob/truediv:0&amp;quot;
+|  |  |  |  |  |  Tensor(Reshape):0,    shape=[]    &amp;quot;Reshape:0&amp;quot;
+|  |  |  |  |  |  |  Tensor(Placeholder):0, shape=[None]    &amp;quot;value_y:0&amp;quot;
+|  |  |  |  |  |  |  Tensor(Const):0,   shape=[0]   &amp;quot;Reshape/shape:0&amp;quot;
+|  |  |  |  |  |  |  |  []
+|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;tau:0&amp;quot;
+|  |  |  |  |  Tensor(RealDiv):0,   shape=[None]    &amp;quot;Y_1/log_prob/truediv_1:0&amp;quot;
+|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;value_x:0&amp;quot;
+|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;tau:0&amp;quot;
+|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;Y_1/log_prob/mul/x:0&amp;quot;
+|  |  |  |  |  -0.5
+|  |  |  Tensor(AddV2):0,   shape=[None]    &amp;quot;Y_1/log_prob/add:0&amp;quot;
+|  |  |  |  Tensor(Log):0,  shape=[None]    &amp;quot;Y_1/log_prob/Log:0&amp;quot;
+|  |  |  |  |  Tensor(Placeholder):0,   shape=[None]    &amp;quot;tau:0&amp;quot;
+|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;Y_1/log_prob/add/x:0&amp;quot;
+|  |  |  |  |  0.9189385
 
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Listing &lt;a href="#orgf81b6e5"&gt;24&lt;/a&gt; runs our transformation and Listing &lt;a href="#orgae5d6c4"&gt;25&lt;/a&gt; prints the resulting graph.&lt;/p&gt;
+&lt;p&gt;Listing &lt;a href="#orgf81b6e5"&gt;30&lt;/a&gt; runs our transformation and Listing &lt;a href="#orga761bbe"&gt;33&lt;/a&gt; prints the resulting graph.&lt;/p&gt;
 &lt;div class="sourceCode" id="orgf81b6e5"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgf81b6e5-1" data-line-number="1"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; graph_mode(), demo_graph.as_default():&lt;/a&gt;
 &lt;a class="sourceLine" id="orgf81b6e5-2" data-line-number="2"&gt;    test_output_res, test_remaps &lt;span class="op"&gt;=&lt;/span&gt; shift_squared_terms(hier_norm_lik, graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;[x_tf, y_tf])&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class="sourceCode" id="orgae5d6c4"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgae5d6c4-1" data-line-number="1"&gt;tf_dprint(test_output_res)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre id="orgbd059f9" class="text"&gt;&lt;code&gt;Tensor(AddV2):0,    shape=[None]    &amp;quot;add_2:0&amp;quot;
-|  Op(AddV2)    &amp;quot;add_2&amp;quot;
-|  |  Tensor(Sub):0,    shape=[None]    &amp;quot;X_1/log_prob/sub_1:0&amp;quot;
-|  |  |  Op(Sub)    &amp;quot;X_1/log_prob/sub_1&amp;quot;
-|  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;X_1/log_prob/mul_1:0&amp;quot;
-|  |  |  |  |  Op(Mul)  &amp;quot;X_1/log_prob/mul_1&amp;quot;
-|  |  |  |  |  |  Tensor(SquaredDifference):0,  shape=[None]    &amp;quot;X_1/log_prob/SquaredDifference_1:0&amp;quot;
-|  |  |  |  |  |  |  Op(SquaredDifference)  &amp;quot;X_1/log_prob/SquaredDifference_1&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;X_1/log_prob/truediv_1:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;X_1/log_prob/truediv_2:0&amp;quot;
-|  |  |  |  |  |  |  |  |  Op(Mul)  &amp;quot;X_1/log_prob/truediv_2&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Add):0,    shape=[None]    &amp;quot;Add_1:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  |  Op(Add)    &amp;quot;Add_1&amp;quot;
-|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;Mul:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  |  |  |  Op(Mul)  &amp;quot;Mul&amp;quot;
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;ConstantFolding/X_1/log_prob/truediv_recip:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;value_x:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;X_1/log_prob/truediv_1:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;ConstantFolding/X_1/log_prob/truediv_recip:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;Y_1/log_prob/mul/x:0&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;Y_1/log_prob/add/x:0&amp;quot;
-|  |  Tensor(Sub):0,    shape=[None]    &amp;quot;Y_1/log_prob/sub_1:0&amp;quot;
-|  |  |  Op(Sub)    &amp;quot;Y_1/log_prob/sub_1&amp;quot;
-|  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;Y_1/log_prob/mul_1:0&amp;quot;
-|  |  |  |  |  Op(Mul)  &amp;quot;Y_1/log_prob/mul_1&amp;quot;
-|  |  |  |  |  |  Tensor(SquaredDifference):0,  shape=[None]    &amp;quot;Y_1/log_prob/SquaredDifference_1:0&amp;quot;
-|  |  |  |  |  |  |  Op(SquaredDifference)  &amp;quot;Y_1/log_prob/SquaredDifference_1&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(RealDiv):0,  shape=[None]    &amp;quot;Y_1/log_prob/truediv:0&amp;quot;
-|  |  |  |  |  |  |  |  |  Op(RealDiv)  &amp;quot;Y_1/log_prob/truediv&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;value_y:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(RealDiv):0,  shape=[None]    &amp;quot;Y_1/log_prob/truediv_1_1:0&amp;quot;
-|  |  |  |  |  |  |  |  |  Op(RealDiv)  &amp;quot;Y_1/log_prob/truediv_1_1&amp;quot;
-|  |  |  |  |  |  |  |  |  |  Tensor(Add):0,    shape=[None]    &amp;quot;Add_1:0&amp;quot;
-|  |  |  |  |  |  |  |  |  |  |  ...
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;Y_1/log_prob/mul/x:0&amp;quot;
-|  |  |  |  Tensor(AddV2):0,    shape=[None]    &amp;quot;Y_1/log_prob/add:0&amp;quot;
-|  |  |  |  |  Op(AddV2)    &amp;quot;Y_1/log_prob/add&amp;quot;
-|  |  |  |  |  |  Tensor(Log):0,    shape=[None]    &amp;quot;Y_1/log_prob/Log:0&amp;quot;
-|  |  |  |  |  |  |  Op(Log)    &amp;quot;Y_1/log_prob/Log&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;tau:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;Y_1/log_prob/add/x:0&amp;quot;
+&lt;div class="sourceCode" id="orge3939ad"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orge3939ad-1" data-line-number="1"&gt;&lt;span class="cf"&gt;for&lt;/span&gt; rm &lt;span class="kw"&gt;in&lt;/span&gt; test_remaps:&lt;/a&gt;
+&lt;a class="sourceLine" id="orge3939ad-2" data-line-number="2"&gt;    &lt;span class="cf"&gt;for&lt;/span&gt; r &lt;span class="kw"&gt;in&lt;/span&gt; rm:&lt;/a&gt;
+&lt;a class="sourceLine" id="orge3939ad-3" data-line-number="3"&gt;      tf_dprint(r[&lt;span class="dv"&gt;0&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="orge3939ad-4" data-line-number="4"&gt;      &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;-&amp;gt;&amp;quot;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="orge3939ad-5" data-line-number="5"&gt;      tf_dprint(r[&lt;span class="dv"&gt;1&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="orge3939ad-6" data-line-number="6"&gt;      &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;------&amp;quot;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre id="org8e45169" class="text"&gt;&lt;code&gt;Tensor(Placeholder):0,  shape=[None]    &amp;quot;value_y:0&amp;quot;
+-&amp;gt;
+Tensor(AddV2):0,    shape=[None]    &amp;quot;AddV2:0&amp;quot;
+|  Tensor(Placeholder):0,   shape=[None]    &amp;quot;value_x:0&amp;quot;
+|  Tensor(Mul):0,   shape=[None]    &amp;quot;Mul:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;tau:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;value_y:0&amp;quot;
+------
+Tensor(Log):0,  shape=~_410461  &amp;quot;Y_1/log_prob/Log:0&amp;quot;
+|  Tensor(Placeholder):0,   shape=[None]    &amp;quot;tau:0&amp;quot;
+-&amp;gt;
+0.0
+------
 
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;From Listing &lt;a href="#orgae5d6c4"&gt;25&lt;/a&gt; we can see that &lt;code&gt;grappler&lt;/code&gt; is not applying enough algebraic simplifications to reduce the &lt;span class="math inline"&gt;\(\left(\mu + x - \mu \right)^2\)&lt;/span&gt; term.&lt;/p&gt;
+&lt;div class="sourceCode" id="orga761bbe"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orga761bbe-1" data-line-number="1"&gt;tf_dprint(test_output_res)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre id="org216eee0" class="text"&gt;&lt;code&gt;Tensor(AddV2):0,    shape=[None]    &amp;quot;add_1_1_1:0&amp;quot;
+|  Tensor(Sub):0,   shape=[None]    &amp;quot;X_1/log_prob/sub:0&amp;quot;
+|  |  Tensor(Mul):0,    shape=[None]    &amp;quot;X_1/log_prob/mul:0&amp;quot;
+|  |  |  Tensor(SquaredDifference):0,   shape=[None]    &amp;quot;X_1/log_prob/SquaredDifference:0&amp;quot;
+|  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;X_1/log_prob/truediv:0&amp;quot;
+|  |  |  |  |  Tensor(Const):0, shape=[]    &amp;quot;ConstantFolding/X_1/log_prob/truediv_recip:0&amp;quot;
+|  |  |  |  |  |  1.
+|  |  |  |  |  Tensor(Placeholder):0,   shape=[None]    &amp;quot;value_x:0&amp;quot;
+|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;X_1/log_prob/truediv_1:0&amp;quot;
+|  |  |  |  |  0.
+|  |  |  Tensor(Const):0,   shape=[]    &amp;quot;Y_1/log_prob/mul/x:0&amp;quot;
+|  |  |  |  -0.5
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;Y_1/log_prob/add/x:0&amp;quot;
+|  |  |  0.9189385
+|  Tensor(AddV2):0, shape=[None]    &amp;quot;add_2_1:0&amp;quot;
+|  |  Tensor(Log):0,    shape=[None]    &amp;quot;Log_1:0&amp;quot;
+|  |  |  Tensor(AddV2):0,   shape=[None]    &amp;quot;AddV2:0&amp;quot;
+|  |  |  |  Tensor(Mul):0,  shape=[None]    &amp;quot;Mul:0&amp;quot;
+|  |  |  |  |  Tensor(Placeholder):0,   shape=[None]    &amp;quot;tau:0&amp;quot;
+|  |  |  |  |  Tensor(Placeholder):0,   shape=[None]    &amp;quot;value_y:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[None]    &amp;quot;value_x:0&amp;quot;
+|  |  Tensor(Sub):0,    shape=[]    &amp;quot;Y_1/log_prob/sub_1_1:0&amp;quot;
+|  |  |  Tensor(Mul):0, shape=[]    &amp;quot;Y_1/log_prob/mul_1_1:0&amp;quot;
+|  |  |  |  Tensor(Reshape):0,  shape=[]    &amp;quot;Reshape:0&amp;quot;
+|  |  |  |  |  Tensor(SquaredDifference):0, shape=[None]    &amp;quot;SquaredDifference:0&amp;quot;
+|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;X_1/log_prob/truediv_1:0&amp;quot;
+|  |  |  |  |  |  |  0.
+|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[None]    &amp;quot;value_y:0&amp;quot;
+|  |  |  |  |  Tensor(Const):0, shape=[0]   &amp;quot;Reshape/shape:0&amp;quot;
+|  |  |  |  |  |  []
+|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;Y_1/log_prob/mul/x:0&amp;quot;
+|  |  |  |  |  -0.5
+|  |  |  Tensor(Const):0,   shape=[]    &amp;quot;Y_1/log_prob/add/x:0&amp;quot;
+|  |  |  |  0.9189385
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;From Listing &lt;a href="#orga761bbe"&gt;33&lt;/a&gt; we can see that &lt;code&gt;grappler&lt;/code&gt; is not applying enough algebraic simplifications (e.g. it doesn’t remove multiplications with 1 or reduce the &lt;span class="math inline"&gt;\(\left(\mu + x - \mu \right)^2\)&lt;/span&gt; term in &lt;code&gt;SquaredDifference&lt;/code&gt;).&lt;/p&gt;
+&lt;p&gt;Does having this missing simplification amount to anything practical? Listing &lt;a href="#orga71aafb"&gt;35&lt;/a&gt; demonstrates the difference between our model without the simplification and a manually specific model with it.&lt;/p&gt;
+&lt;div class="sourceCode" id="orga71aafb"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orga71aafb-1" data-line-number="1"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; compute_point_diff():&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-2" data-line-number="2"&gt;    &lt;span class="cf"&gt;with&lt;/span&gt; graph_mode(), demo_graph.as_default():&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-3" data-line-number="3"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-4" data-line-number="4"&gt;        Y_trans_tfp &lt;span class="op"&gt;=&lt;/span&gt; tfp.distributions.normal.Normal(&lt;span class="fl"&gt;0.0&lt;/span&gt;, &lt;span class="fl"&gt;1.0&lt;/span&gt;, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;Y_trans&amp;#39;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-5" data-line-number="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-6" data-line-number="6"&gt;        y_shifted_tf &lt;span class="op"&gt;=&lt;/span&gt; x_tf &lt;span class="op"&gt;+&lt;/span&gt; tau_tf &lt;span class="op"&gt;*&lt;/span&gt; y_tf&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-7" data-line-number="7"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-8" data-line-number="8"&gt;        hier_norm_trans_lik &lt;span class="op"&gt;=&lt;/span&gt; tf.math.log(y_shifted_tf) &lt;span class="op"&gt;+&lt;/span&gt; Y_trans_tfp.log_prob(y_T_reshaped) &lt;span class="op"&gt;+&lt;/span&gt; X_tfp.log_prob(x_tf)&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-9" data-line-number="9"&gt;        hier_norm_trans_lik &lt;span class="op"&gt;=&lt;/span&gt; normalize_tf_graph(hier_norm_trans_lik)&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-10" data-line-number="10"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-11" data-line-number="11"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-12" data-line-number="12"&gt;    test_point &lt;span class="op"&gt;=&lt;/span&gt; {x_tf.name: np.r_[&lt;span class="fl"&gt;1.0&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-13" data-line-number="13"&gt;                  tau_tf.name: np.r_[&lt;span class="fl"&gt;1e-20&lt;/span&gt;],&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-14" data-line-number="14"&gt;                  y_tf.name: np.r_[&lt;span class="fl"&gt;1000.1&lt;/span&gt;]}&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-15" data-line-number="15"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-16" data-line-number="16"&gt;    &lt;span class="cf"&gt;with&lt;/span&gt; tf.compat.v1.Session(graph&lt;span class="op"&gt;=&lt;/span&gt;test_output_res.graph).as_default():&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-17" data-line-number="17"&gt;        val &lt;span class="op"&gt;=&lt;/span&gt; test_output_res.&lt;span class="bu"&gt;eval&lt;/span&gt;(test_point)&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-18" data-line-number="18"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-19" data-line-number="19"&gt;    &lt;span class="cf"&gt;with&lt;/span&gt; tf.compat.v1.Session(graph&lt;span class="op"&gt;=&lt;/span&gt;hier_norm_trans_lik.graph).as_default():&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-20" data-line-number="20"&gt;        val_2 &lt;span class="op"&gt;=&lt;/span&gt; hier_norm_trans_lik.&lt;span class="bu"&gt;eval&lt;/span&gt;(test_point)&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-21" data-line-number="21"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orga71aafb-22" data-line-number="22"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; val, val_2&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org7e4367b"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org7e4367b-1" data-line-number="1"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; np.subtract(&lt;span class="op"&gt;*&lt;/span&gt;compute_point_diff())&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre id="org82a6a77" class="text"&gt;&lt;code&gt;[500099.94]&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The output of Listing &lt;a href="#org7e4367b"&gt;36&lt;/a&gt; shows exactly how large the discrepancy can be for carefully chosen parameter values. More specifically, as &lt;code&gt;tau_tf&lt;/code&gt; gets smaller and the magnitude of the difference &lt;code&gt;x_tf - y_tf&lt;/code&gt; gets larger, the discrepancy can increase. Since such parameter values are likely to be visited during sampling, we should address this missing simplification.&lt;/p&gt;
+&lt;p&gt;In Listing &lt;a href="#orge313efe"&gt;39&lt;/a&gt; we create a goal that performs that aforementioned simplification for &lt;code&gt;SquaredDifference&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="sourceCode" id="org412769e"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org412769e-1" data-line-number="1"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; recenter_sqrdiffo(in_g, out_g):&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-2" data-line-number="2"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Create a goal that reduces `(a/d - (a + c)/d)**2` to `()`&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-3" data-line-number="3"&gt;    a_sqd_lv, b_sqd_lv, d_sqd_lv &lt;span class="op"&gt;=&lt;/span&gt; var(), var(), var()&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-4" data-line-number="4"&gt;    target_sqrdiff_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.SquaredDifference(&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-5" data-line-number="5"&gt;        mt.realdiv(a_sqd_lv, d_sqd_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var()),&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-6" data-line-number="6"&gt;        mt.realdiv(b_sqd_lv, d_sqd_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var()),&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-7" data-line-number="7"&gt;        name&lt;span class="op"&gt;=&lt;/span&gt;var()&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-8" data-line-number="8"&gt;    )&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-9" data-line-number="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-10" data-line-number="10"&gt;    c_sqd_lv &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-11" data-line-number="11"&gt;    b_part_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.addv2(mt.mul(d_sqd_lv, c_sqd_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var()), a_sqd_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var())&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-12" data-line-number="12"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-13" data-line-number="13"&gt;    simplified_sqrdiff_lv &lt;span class="op"&gt;=&lt;/span&gt; mt.SquaredDifference(&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-14" data-line-number="14"&gt;        c_sqd_lv,&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-15" data-line-number="15"&gt;        &lt;span class="fl"&gt;0.0&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-16" data-line-number="16"&gt;    )&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-17" data-line-number="17"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-18" data-line-number="18"&gt;    reshape_lv &lt;span class="op"&gt;=&lt;/span&gt; var()&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-19" data-line-number="19"&gt;    res &lt;span class="op"&gt;=&lt;/span&gt; lall(eq(in_g, target_sqrdiff_lv),&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-20" data-line-number="20"&gt;               conde([eq(b_sqd_lv, b_part_lv),&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-21" data-line-number="21"&gt;                      eq(out_g, simplified_sqrdiff_lv)],&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-22" data-line-number="22"&gt;                     &lt;span class="co"&gt;# Maybe it&amp;#39;s been reshaped&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-23" data-line-number="23"&gt;                     [eq(b_sqd_lv, mt.reshape(b_part_lv, reshape_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var())),&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-24" data-line-number="24"&gt;                      eq(out_g, mt.reshape(simplified_sqrdiff_lv, reshape_lv))]))&lt;/a&gt;
+&lt;a class="sourceLine" id="org412769e-25" data-line-number="25"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; res&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;We apply the simplification in Listing &lt;a href="#orge313efe"&gt;39&lt;/a&gt; and print the results in &lt;a href="#orga55e147"&gt;40&lt;/a&gt;.&lt;/p&gt;
+&lt;div class="sourceCode" id="orge313efe"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orge313efe-1" data-line-number="1"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; graph_mode(), test_output_res.graph.as_default():&lt;/a&gt;
+&lt;a class="sourceLine" id="orge313efe-2" data-line-number="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orge313efe-3" data-line-number="3"&gt;    res &lt;span class="op"&gt;=&lt;/span&gt; run(&lt;span class="dv"&gt;1&lt;/span&gt;, var(&lt;span class="st"&gt;&amp;#39;q&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="orge313efe-4" data-line-number="4"&gt;              reduceo(&lt;span class="kw"&gt;lambda&lt;/span&gt; x, y: tf_graph_applyo(recenter_sqrdiffo, x, y),&lt;/a&gt;
+&lt;a class="sourceLine" id="orge313efe-5" data-line-number="5"&gt;                      test_output_res, var(&lt;span class="st"&gt;&amp;#39;q&amp;#39;&lt;/span&gt;)))&lt;/a&gt;
+&lt;a class="sourceLine" id="orge313efe-6" data-line-number="6"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orge313efe-7" data-line-number="7"&gt;    test_output_res &lt;span class="op"&gt;=&lt;/span&gt; normalize_tf_graph(res[&lt;span class="dv"&gt;0&lt;/span&gt;].eval_obj.reify())&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="orga55e147"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orga55e147-1" data-line-number="1"&gt;tf_dprint(test_output_res.graph.get_tensor_by_name(&lt;span class="st"&gt;&amp;#39;SquaredDifference:0&amp;#39;&lt;/span&gt;))&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre id="org0663506" class="text"&gt;&lt;code&gt;Tensor(SquaredDifference):0,    shape=[None]    &amp;quot;SquaredDifference:0&amp;quot;
+|  Tensor(Const):0, shape=[]    &amp;quot;X_1/log_prob/truediv_1:0&amp;quot;
+|  |  0.
+|  Tensor(Placeholder):0,   shape=[None]    &amp;quot;value_y:0&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;After simplification, the difference is now gone.&lt;/p&gt;
+&lt;div class="sourceCode" id="orge6cd6f1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orge6cd6f1-1" data-line-number="1"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; np.subtract(&lt;span class="op"&gt;*&lt;/span&gt;compute_point_diff())&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre id="org3e6def9" class="text"&gt;&lt;code&gt;[0.]&lt;/code&gt;&lt;/pre&gt;
 &lt;/section&gt;
 &lt;/section&gt;
 &lt;section id="transforming-the-log-likelihood-graph" class="level1"&gt;
 &lt;h1&gt;Transforming the Log-likelihood Graph&lt;/h1&gt;
 &lt;p&gt;Now, we’re ready to apply the transform to the radon model log-likelihood graph.&lt;/p&gt;
-&lt;div class="sourceCode" id="org537ce90"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org537ce90-1" data-line-number="1"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; graph_mode(), tf.Graph().as_default() &lt;span class="im"&gt;as&lt;/span&gt; trans_graph: &lt;span class="co"&gt;#logpfn_fg.as_default():&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org537ce90-2" data-line-number="2"&gt;    graph_inputs &lt;span class="op"&gt;=&lt;/span&gt; [logpfn_fg.get_operation_by_name(i.name).outputs[&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
-&lt;a class="sourceLine" id="org537ce90-3" data-line-number="3"&gt;                    &lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; logpfn_cf.structured_input_signature[&lt;span class="dv"&gt;0&lt;/span&gt;]]&lt;/a&gt;
-&lt;a class="sourceLine" id="org537ce90-4" data-line-number="4"&gt;    logpfn_trans_tf, logpfn_remaps &lt;span class="op"&gt;=&lt;/span&gt; shift_squared_terms(logpfn_fg.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;], graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;graph_inputs)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Listing &lt;a href="#org73bcbee"&gt;28&lt;/a&gt; shows the replacements that were made throughout the graph. Two replacements were found and they appear to correspond to the un-centered normal distribution terms &lt;code&gt;a&lt;/code&gt; and &lt;code&gt;b&lt;/code&gt; in our model–as intended.&lt;/p&gt;
-&lt;div class="sourceCode" id="org73bcbee"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org73bcbee-1" data-line-number="1"&gt;&lt;span class="cf"&gt;for&lt;/span&gt; r &lt;span class="kw"&gt;in&lt;/span&gt; logpfn_remaps:&lt;/a&gt;
-&lt;a class="sourceLine" id="org73bcbee-2" data-line-number="2"&gt;    [tf_dprint(i) &lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; r]&lt;/a&gt;
-&lt;a class="sourceLine" id="org73bcbee-3" data-line-number="3"&gt;    &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;------&amp;quot;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre id="org8c33bb8" class="text"&gt;&lt;code&gt;Tensor(Placeholder):0,  shape=[]    &amp;quot;values_1:0&amp;quot;
-Tensor(Add):0,  shape=[]    &amp;quot;Add_12:0&amp;quot;
-|  Op(Add)  &amp;quot;Add&amp;quot;
-|  |  Tensor(Const):0,  shape=[]    &amp;quot;add_1/x:0&amp;quot;
-|  |  Tensor(Mul):0,    shape=[]    &amp;quot;Mul_4:0&amp;quot;
-|  |  |  Op(Mul)    &amp;quot;Mul&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
-|  |  |  |  Tensor(Placeholder):0,  shape=[]    &amp;quot;values_1:0&amp;quot;
+&lt;div class="sourceCode" id="org537ce90"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org537ce90-1" data-line-number="1"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; graph_mode(), tf.Graph().as_default() &lt;span class="im"&gt;as&lt;/span&gt; trans_graph:&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-2" data-line-number="2"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-3" data-line-number="3"&gt;    graph_inputs &lt;span class="op"&gt;=&lt;/span&gt; [logpfn_fg.get_operation_by_name(i.name).outputs[&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-4" data-line-number="4"&gt;                    &lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; logpfn_cf.structured_input_signature[&lt;span class="dv"&gt;0&lt;/span&gt;]]&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-5" data-line-number="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-6" data-line-number="6"&gt;    logpfn_trans_tf, logpfn_remaps &lt;span class="op"&gt;=&lt;/span&gt; shift_squared_terms(logpfn_fg.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;], graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;graph_inputs)&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-7" data-line-number="7"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-8" data-line-number="8"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; graph_mode(), logpfn_trans_tf.graph.as_default():&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-9" data-line-number="9"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-10" data-line-number="10"&gt;    res &lt;span class="op"&gt;=&lt;/span&gt; run(&lt;span class="dv"&gt;1&lt;/span&gt;, var(&lt;span class="st"&gt;&amp;#39;q&amp;#39;&lt;/span&gt;),&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-11" data-line-number="11"&gt;              reduceo(&lt;span class="kw"&gt;lambda&lt;/span&gt; x, y: tf_graph_applyo(recenter_sqrdiffo, x, y),&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-12" data-line-number="12"&gt;                      logpfn_trans_tf, var(&lt;span class="st"&gt;&amp;#39;q&amp;#39;&lt;/span&gt;)))&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-13" data-line-number="13"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org537ce90-14" data-line-number="14"&gt;    logpfn_trans_tf &lt;span class="op"&gt;=&lt;/span&gt; normalize_tf_graph(res[&lt;span class="dv"&gt;0&lt;/span&gt;].eval_obj.reify())&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Listing &lt;a href="#org73bcbee"&gt;45&lt;/a&gt; shows the replacements that were made throughout the graph. Two replacements were found and they appear to correspond to the un-centered normal distribution terms &lt;code&gt;a&lt;/code&gt; and &lt;code&gt;b&lt;/code&gt; in our model–as intended.&lt;/p&gt;
+&lt;div class="sourceCode" id="org73bcbee"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org73bcbee-1" data-line-number="1"&gt;&lt;span class="cf"&gt;for&lt;/span&gt; rm &lt;span class="kw"&gt;in&lt;/span&gt; logpfn_remaps:&lt;/a&gt;
+&lt;a class="sourceLine" id="org73bcbee-2" data-line-number="2"&gt;    &lt;span class="cf"&gt;for&lt;/span&gt; r &lt;span class="kw"&gt;in&lt;/span&gt; rm:&lt;/a&gt;
+&lt;a class="sourceLine" id="org73bcbee-3" data-line-number="3"&gt;      tf_dprint(r[&lt;span class="dv"&gt;0&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="org73bcbee-4" data-line-number="4"&gt;      &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;-&amp;gt;&amp;quot;&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="org73bcbee-5" data-line-number="5"&gt;      tf_dprint(r[&lt;span class="dv"&gt;1&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="org73bcbee-6" data-line-number="6"&gt;      &lt;span class="bu"&gt;print&lt;/span&gt;(&lt;span class="st"&gt;&amp;quot;------&amp;quot;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre id="orgfc1892e" class="text"&gt;&lt;code&gt;Tensor(Placeholder):0,  shape=[85]  &amp;quot;values_5:0&amp;quot;
+-&amp;gt;
+Tensor(AddV2):0,    shape=[85]  &amp;quot;AddV2_1:0&amp;quot;
+|  Tensor(Placeholder):0,   shape=[]    &amp;quot;values_2:0&amp;quot;
+|  Tensor(Mul):0,   shape=[85]  &amp;quot;Mul_5:0&amp;quot;
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_6:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[85]  &amp;quot;values_5:0&amp;quot;
 ------
-Tensor(Placeholder):0,  shape=[]    &amp;quot;values_5:0&amp;quot;
-Tensor(Add):0,  shape=[]    &amp;quot;Add_13:0&amp;quot;
-|  Op(Add)  &amp;quot;Add&amp;quot;
-|  |  Tensor(Const):0,  shape=[]    &amp;quot;add_1/x:0&amp;quot;
-|  |  Tensor(Mul):0,    shape=[]    &amp;quot;Mul_5:0&amp;quot;
-|  |  |  Op(Mul)    &amp;quot;Mul&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
-|  |  |  |  Tensor(Placeholder):0,  shape=[]    &amp;quot;values_5:0&amp;quot;
+Tensor(Log):0,  shape=~_483907  &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/Log:0&amp;quot;
+|  Tensor(Exp):0,   shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_6:0&amp;quot;
+-&amp;gt;
+0.0
+------
+Tensor(Placeholder):0,  shape=[85]  &amp;quot;values_4:0&amp;quot;
+-&amp;gt;
+Tensor(AddV2):0,    shape=[85]  &amp;quot;AddV2:0&amp;quot;
+|  Tensor(Placeholder):0,   shape=[]    &amp;quot;values_1:0&amp;quot;
+|  Tensor(Mul):0,   shape=[85]  &amp;quot;Mul_4:0&amp;quot;
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_0:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[85]  &amp;quot;values_4:0&amp;quot;
+------
+Tensor(Log):0,  shape=~_483908  &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/Log:0&amp;quot;
+|  Tensor(Exp):0,   shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_0:0&amp;quot;
+-&amp;gt;
+0.0
 ------
 
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Likewise, Listing &lt;a href="#org0ce0bba"&gt;30&lt;/a&gt; shows all &lt;code&gt;Square&lt;/code&gt; and &lt;code&gt;SquaredDifference&lt;/code&gt; subgraphs that appear in the transformed log-likelihood.&lt;/p&gt;
+&lt;p&gt;Likewise, Listing &lt;a href="#org0ce0bba"&gt;47&lt;/a&gt; shows &lt;code&gt;SquaredDifference&lt;/code&gt; subgraphs that appear in the transformed log-likelihood.&lt;/p&gt;
 &lt;div class="sourceCode" id="org0ce0bba"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org0ce0bba-1" data-line-number="1"&gt;square_diff_outs &lt;span class="op"&gt;=&lt;/span&gt; [o.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;] &lt;span class="cf"&gt;for&lt;/span&gt; o &lt;span class="kw"&gt;in&lt;/span&gt; logpfn_trans_tf.graph.get_operations()&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ce0bba-2" data-line-number="2"&gt;                    &lt;span class="cf"&gt;if&lt;/span&gt; o.&lt;span class="bu"&gt;type&lt;/span&gt; &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;SquaredDifference&amp;#39;&lt;/span&gt; &lt;span class="kw"&gt;or&lt;/span&gt; o.&lt;span class="bu"&gt;type&lt;/span&gt; &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;Square&amp;#39;&lt;/span&gt;]&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ce0bba-3" data-line-number="3"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ce0bba-4" data-line-number="4"&gt;&lt;span class="cf"&gt;for&lt;/span&gt; t &lt;span class="kw"&gt;in&lt;/span&gt; square_diff_outs[:&lt;span class="dv"&gt;4&lt;/span&gt;]:&lt;/a&gt;
-&lt;a class="sourceLine" id="org0ce0bba-5" data-line-number="5"&gt;    tf_dprint(t)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre id="org74e8720" class="text"&gt;&lt;code&gt;Tensor(SquaredDifference):0,    shape=[85]  &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/SquaredDifference_1:0&amp;quot;
-|  Op(SquaredDifference)    &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/SquaredDifference_1&amp;quot;
-|  |  Tensor(RealDiv):0,    shape=[85]  &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv:0&amp;quot;
-|  |  |  Op(RealDiv)    &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv&amp;quot;
-|  |  |  |  Tensor(Reshape):0,  shape=[85]  &amp;quot;SampleNormal_3_1/log_prob/Reshape:0&amp;quot;
-|  |  |  |  |  Op(Reshape)  &amp;quot;SampleNormal_3_1/log_prob/Reshape&amp;quot;
-|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[85]  &amp;quot;values_3:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[1]   &amp;quot;SampleNormal_2_1/log_prob/Reshape/shape:0&amp;quot;
-|  |  |  |  Tensor(Exp):0,  shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
-|  |  |  |  |  Op(Exp)  &amp;quot;exp_2_1/forward/Exp&amp;quot;
-|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_0:0&amp;quot;
-|  |  Tensor(RealDiv):0,    shape=[]    &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv_1_1:0&amp;quot;
-|  |  |  Op(RealDiv)    &amp;quot;SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv_1_1&amp;quot;
-|  |  |  |  Tensor(Add):0,  shape=[]    &amp;quot;Add_12:0&amp;quot;
-|  |  |  |  |  Op(Add)  &amp;quot;Add_12&amp;quot;
-|  |  |  |  |  |  Tensor(Mul):0,    shape=[]    &amp;quot;Mul_4:0&amp;quot;
-|  |  |  |  |  |  |  Op(Mul)    &amp;quot;Mul_4&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[]    &amp;quot;values_1:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;add_1/x:0&amp;quot;
-|  |  |  |  Tensor(Exp):0,  shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
-|  |  |  |  |  ...
-Tensor(SquaredDifference):0,    shape=[]    &amp;quot;Normal_1_1/log_prob/SquaredDifference_1:0&amp;quot;
-|  Op(SquaredDifference)    &amp;quot;Normal_1_1/log_prob/SquaredDifference_1&amp;quot;
-|  |  Tensor(Mul):0,    shape=[]    &amp;quot;Normal_1_1/log_prob/truediv_1:0&amp;quot;
-|  |  |  Op(Mul)    &amp;quot;Normal_1_1/log_prob/truediv_1&amp;quot;
-|  |  |  |  Tensor(Add):0,  shape=[]    &amp;quot;Add_12:0&amp;quot;
-|  |  |  |  |  Op(Add)  &amp;quot;Add_12&amp;quot;
-|  |  |  |  |  |  Tensor(Mul):0,    shape=[]    &amp;quot;Mul_4:0&amp;quot;
-|  |  |  |  |  |  |  Op(Mul)    &amp;quot;Mul_4&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[]    &amp;quot;values_1:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;add_1/x:0&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
-|  |  Tensor(Const):0,  shape=[]    &amp;quot;add_1/x:0&amp;quot;
-Tensor(SquaredDifference):0,    shape=[85]  &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/SquaredDifference_1:0&amp;quot;
-|  Op(SquaredDifference)    &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/SquaredDifference_1&amp;quot;
-|  |  Tensor(RealDiv):0,    shape=[85]  &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv:0&amp;quot;
-|  |  |  Op(RealDiv)    &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv&amp;quot;
-|  |  |  |  Tensor(Reshape):0,  shape=[85]  &amp;quot;SampleNormal_2_1/log_prob/Reshape:0&amp;quot;
-|  |  |  |  |  Op(Reshape)  &amp;quot;SampleNormal_2_1/log_prob/Reshape&amp;quot;
-|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[85]  &amp;quot;values_6:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[1]   &amp;quot;SampleNormal_2_1/log_prob/Reshape/shape:0&amp;quot;
-|  |  |  |  Tensor(Exp):0,  shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
-|  |  |  |  |  Op(Exp)  &amp;quot;exp_1/forward/Exp&amp;quot;
-|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_4:0&amp;quot;
-|  |  Tensor(RealDiv):0,    shape=[]    &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv_1_1:0&amp;quot;
-|  |  |  Op(RealDiv)    &amp;quot;SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv_1_1&amp;quot;
-|  |  |  |  Tensor(Add):0,  shape=[]    &amp;quot;Add_13:0&amp;quot;
-|  |  |  |  |  Op(Add)  &amp;quot;Add_13&amp;quot;
-|  |  |  |  |  |  Tensor(Mul):0,    shape=[]    &amp;quot;Mul_5:0&amp;quot;
-|  |  |  |  |  |  |  Op(Mul)    &amp;quot;Mul_5&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[]    &amp;quot;values_5:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;add_1/x:0&amp;quot;
-|  |  |  |  Tensor(Exp):0,  shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
-|  |  |  |  |  ...
-Tensor(SquaredDifference):0,    shape=[]    &amp;quot;Normal_5/log_prob/SquaredDifference_1:0&amp;quot;
-|  Op(SquaredDifference)    &amp;quot;Normal_5/log_prob/SquaredDifference_1&amp;quot;
-|  |  Tensor(Mul):0,    shape=[]    &amp;quot;Normal_5/log_prob/truediv_1:0&amp;quot;
-|  |  |  Op(Mul)    &amp;quot;Normal_5/log_prob/truediv_1&amp;quot;
-|  |  |  |  Tensor(Add):0,  shape=[]    &amp;quot;Add_13:0&amp;quot;
-|  |  |  |  |  Op(Add)  &amp;quot;Add_13&amp;quot;
-|  |  |  |  |  |  Tensor(Mul):0,    shape=[]    &amp;quot;Mul_5:0&amp;quot;
-|  |  |  |  |  |  |  Op(Mul)    &amp;quot;Mul_5&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[]    &amp;quot;values_5:0&amp;quot;
-|  |  |  |  |  |  Tensor(Const):0,  shape=[]    &amp;quot;add_1/x:0&amp;quot;
-|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
-|  |  Tensor(Const):0,  shape=[]    &amp;quot;add_1/x:0&amp;quot;
+&lt;a class="sourceLine" id="org0ce0bba-2" data-line-number="2"&gt;                    &lt;span class="cf"&gt;if&lt;/span&gt; o.&lt;span class="bu"&gt;type&lt;/span&gt; &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;SquaredDifference&amp;#39;&lt;/span&gt; &lt;span class="kw"&gt;or&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ce0bba-3" data-line-number="3"&gt;                    o.&lt;span class="bu"&gt;type&lt;/span&gt;.startswith(&lt;span class="st"&gt;&amp;#39;Gather&amp;#39;&lt;/span&gt;) &lt;span class="kw"&gt;or&lt;/span&gt; o.&lt;span class="bu"&gt;type&lt;/span&gt; &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;Log&amp;#39;&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ce0bba-4" data-line-number="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ce0bba-5" data-line-number="5"&gt;&lt;span class="cf"&gt;for&lt;/span&gt; t &lt;span class="kw"&gt;in&lt;/span&gt; square_diff_outs:&lt;/a&gt;
+&lt;a class="sourceLine" id="org0ce0bba-6" data-line-number="6"&gt;    tf_dprint(t)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre id="orgd4579b2" class="text"&gt;&lt;code&gt;Tensor(SquaredDifference):0,    shape=[85]  &amp;quot;SquaredDifference_1:0&amp;quot;
+|  Tensor(Const):0, shape=[]    &amp;quot;Const_387:0&amp;quot;
+|  |  0.
+|  Tensor(Placeholder):0,   shape=[85]  &amp;quot;values_4:0&amp;quot;
+Tensor(SquaredDifference):0,    shape=[85]  &amp;quot;SquaredDifference:0&amp;quot;
+|  Tensor(Const):0, shape=[]    &amp;quot;Const_387:0&amp;quot;
+|  |  0.
+|  Tensor(Placeholder):0,   shape=[85]  &amp;quot;values_5:0&amp;quot;
+Tensor(SquaredDifference):0,    shape=[]    &amp;quot;Normal_5/log_prob/SquaredDifference:0&amp;quot;
+|  Tensor(Const):0, shape=[]    &amp;quot;Const_387:0&amp;quot;
+|  |  0.
+|  Tensor(Mul):0,   shape=[]    &amp;quot;Normal_5/log_prob/truediv:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
+|  |  |  1.
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_1:0&amp;quot;
+Tensor(SquaredDifference):0,    shape=[]    &amp;quot;Normal_1_1/log_prob/SquaredDifference:0&amp;quot;
+|  Tensor(Const):0, shape=[]    &amp;quot;Const_387:0&amp;quot;
+|  |  0.
+|  Tensor(Mul):0,   shape=[]    &amp;quot;Normal_1_1/log_prob/truediv:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[]    &amp;quot;exp_3_2/inverse_log_det_jacobian/mul_1:0&amp;quot;
+|  |  |  1.
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_2:0&amp;quot;
+Tensor(Log):0,  shape=[]    &amp;quot;Normal_4_1/log_prob/Log:0&amp;quot;
+|  Tensor(Exp):0,   shape=[]    &amp;quot;exp_3_1/forward/Exp:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_3:0&amp;quot;
+Tensor(GatherV2):0, shape=[919] &amp;quot;GatherV2_2:0&amp;quot;
+|  Tensor(AddV2):0, shape=[85]  &amp;quot;AddV2:0&amp;quot;
+|  |  Tensor(Mul):0,    shape=[85]  &amp;quot;Mul_4:0&amp;quot;
+|  |  |  Tensor(Exp):0, shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[]    &amp;quot;values_0:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[85]  &amp;quot;values_4:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_1:0&amp;quot;
+|  Tensor(Const):0, shape=[919] &amp;quot;GatherV2/indices:0&amp;quot;
+|  |  [ 0  0  0 ... 83 84 84]
+|  Tensor(Const):0, shape=[]    &amp;quot;GatherV2/axis:0&amp;quot;
+|  |  0
+Tensor(GatherV2):0, shape=[919] &amp;quot;GatherV2_1_1:0&amp;quot;
+|  Tensor(AddV2):0, shape=[85]  &amp;quot;AddV2_1:0&amp;quot;
+|  |  Tensor(Mul):0,    shape=[85]  &amp;quot;Mul_5:0&amp;quot;
+|  |  |  Tensor(Exp):0, shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
+|  |  |  |  Tensor(Placeholder):0,  shape=[]    &amp;quot;values_6:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[85]  &amp;quot;values_5:0&amp;quot;
+|  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_2:0&amp;quot;
+|  Tensor(Const):0, shape=[919] &amp;quot;GatherV2/indices:0&amp;quot;
+|  |  [ 0  0  0 ... 83 84 84]
+|  Tensor(Const):0, shape=[]    &amp;quot;GatherV2/axis:0&amp;quot;
+|  |  0
+Tensor(SquaredDifference):0,    shape=[919] &amp;quot;Normal_4_1/log_prob/SquaredDifference_1:0&amp;quot;
+|  Tensor(RealDiv):0,   shape=[919] &amp;quot;Normal_4_1/log_prob/truediv:0&amp;quot;
+|  |  Tensor(Const):0,  shape=[919] &amp;quot;Normal_4_1/log_prob/value:0&amp;quot;
+|  |  |  [0.8329091 0.8329091 1.0986123 ... 1.6292405 1.3350011 1.0986123]
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_3_1/forward/Exp:0&amp;quot;
+|  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_3:0&amp;quot;
+|  Tensor(RealDiv):0,   shape=[919] &amp;quot;Normal_4_1/log_prob/truediv_1_1:0&amp;quot;
+|  |  Tensor(AddV2):0,  shape=[919] &amp;quot;add_12:0&amp;quot;
+|  |  |  Tensor(GatherV2):0,    shape=[919] &amp;quot;GatherV2_2:0&amp;quot;
+|  |  |  |  Tensor(AddV2):0,    shape=[85]  &amp;quot;AddV2:0&amp;quot;
+|  |  |  |  |  Tensor(Mul):0,   shape=[85]  &amp;quot;Mul_4:0&amp;quot;
+|  |  |  |  |  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_1/forward/Exp:0&amp;quot;
+|  |  |  |  |  |  |  Tensor(Placeholder):0, shape=[]    &amp;quot;values_0:0&amp;quot;
+|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[85]  &amp;quot;values_4:0&amp;quot;
+|  |  |  |  |  Tensor(Placeholder):0,   shape=[]    &amp;quot;values_1:0&amp;quot;
+|  |  |  |  Tensor(Const):0,    shape=[919] &amp;quot;GatherV2/indices:0&amp;quot;
+|  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  Tensor(Const):0,    shape=[]    &amp;quot;GatherV2/axis:0&amp;quot;
+|  |  |  |  |  0
+|  |  |  Tensor(Mul):0, shape=[919] &amp;quot;mul_6:0&amp;quot;
+|  |  |  |  Tensor(GatherV2):0, shape=[919] &amp;quot;GatherV2_1_1:0&amp;quot;
+|  |  |  |  |  Tensor(AddV2):0, shape=[85]  &amp;quot;AddV2_1:0&amp;quot;
+|  |  |  |  |  |  Tensor(Mul):0,    shape=[85]  &amp;quot;Mul_5:0&amp;quot;
+|  |  |  |  |  |  |  Tensor(Exp):0, shape=[]    &amp;quot;exp_2_1/forward/Exp:0&amp;quot;
+|  |  |  |  |  |  |  |  Tensor(Placeholder):0,  shape=[]    &amp;quot;values_6:0&amp;quot;
+|  |  |  |  |  |  |  Tensor(Placeholder):0, shape=[85]  &amp;quot;values_5:0&amp;quot;
+|  |  |  |  |  |  Tensor(Placeholder):0,    shape=[]    &amp;quot;values_2:0&amp;quot;
+|  |  |  |  |  Tensor(Const):0, shape=[919] &amp;quot;GatherV2/indices:0&amp;quot;
+|  |  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  |  Tensor(Const):0, shape=[]    &amp;quot;GatherV2/axis:0&amp;quot;
+|  |  |  |  |  |  0
+|  |  |  |  Tensor(Const):0,    shape=[919] &amp;quot;mul/y:0&amp;quot;
+|  |  |  |  |  [1. 0. 0. ... 0. 0. 0.]
+|  |  Tensor(Exp):0,    shape=[]    &amp;quot;exp_3_1/forward/Exp:0&amp;quot;
+|  |  |  ...
 
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/section&gt;
 &lt;section id="creating-a-new-log-likelihood-function" class="level1"&gt;
 &lt;h1&gt;Creating a new Log-likelihood Function&lt;/h1&gt;
-&lt;p&gt;Now that we have a transformed version of the original log-likelihood graph (i.e. &lt;code&gt;logpfn_trans_tf&lt;/code&gt;), we need to create a new &lt;code&gt;FuncGraph&lt;/code&gt; from it. Listing &lt;a href="#org8555c2e"&gt;32&lt;/a&gt; provides a simple function that creates a new &lt;code&gt;ConcreteFunction&lt;/code&gt; from an updated output node.&lt;/p&gt;
-&lt;div class="sourceCode" id="org8555c2e"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org8555c2e-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.framework.func_graph &lt;span class="im"&gt;import&lt;/span&gt; FuncGraph&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-2" data-line-number="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.function &lt;span class="im"&gt;import&lt;/span&gt; ConcreteFunction&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-3" data-line-number="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.lift_to_graph &lt;span class="im"&gt;import&lt;/span&gt; lift_to_graph&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-4" data-line-number="4"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-5" data-line-number="5"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-6" data-line-number="6"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; new_tf_function(output, orig_cf):&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-7" data-line-number="7"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Create a new ConcreteFunction by replacing a single output in an existing FuncGraph.&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-8" data-line-number="8"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-9" data-line-number="9"&gt;&lt;span class="co"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-10" data-line-number="10"&gt;    orig_fg &lt;span class="op"&gt;=&lt;/span&gt; orig_cf.graph&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-11" data-line-number="11"&gt;    &lt;span class="co"&gt;# with trans_graph.as_default(): #orig_fg.as_default():&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-12" data-line-number="12"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-13" data-line-number="13"&gt;    logpfn_fg_new &lt;span class="op"&gt;=&lt;/span&gt; FuncGraph(&lt;span class="st"&gt;&amp;#39;logpfn_new&amp;#39;&lt;/span&gt;, orig_fg.collections, orig_fg.capture_by_value)&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-14" data-line-number="14"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-15" data-line-number="15"&gt;    old_to_new_ops &lt;span class="op"&gt;=&lt;/span&gt; lift_to_graph([output],&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-16" data-line-number="16"&gt;                                    logpfn_fg_new,&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-17" data-line-number="17"&gt;                                    add_sources&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;,&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-18" data-line-number="18"&gt;                                    handle_captures&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-19" data-line-number="19"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-20" data-line-number="20"&gt;    logpfn_fg_new.structured_input_signature &lt;span class="op"&gt;=&lt;/span&gt; orig_fg.structured_input_signature&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-21" data-line-number="21"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-22" data-line-number="22"&gt;    new_inputs &lt;span class="op"&gt;=&lt;/span&gt; [old_to_new_ops.get(output.graph.get_operation_by_name(i.name).outputs[&lt;span class="dv"&gt;0&lt;/span&gt;])&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-23" data-line-number="23"&gt;                  &lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; orig_cf.structured_input_signature[&lt;span class="dv"&gt;0&lt;/span&gt;]]&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-24" data-line-number="24"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-25" data-line-number="25"&gt;    logpfn_fg_new.inputs &lt;span class="op"&gt;=&lt;/span&gt; new_inputs&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-26" data-line-number="26"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-27" data-line-number="27"&gt;    &lt;span class="cf"&gt;assert&lt;/span&gt; &lt;span class="bu"&gt;all&lt;/span&gt;(i &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt; &lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; logpfn_fg_new.inputs)&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-28" data-line-number="28"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-29" data-line-number="29"&gt;    logpfn_fg_new.outputs &lt;span class="op"&gt;=&lt;/span&gt; [old_to_new_ops[output]]&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-30" data-line-number="30"&gt;    logpfn_fg_new.structured_outputs &lt;span class="op"&gt;=&lt;/span&gt; logpfn_fg_new.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-31" data-line-number="31"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-32" data-line-number="32"&gt;    &lt;span class="cf"&gt;assert&lt;/span&gt; logpfn_fg_new.as_graph_element(logpfn_fg_new.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;]) &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-33" data-line-number="33"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-34" data-line-number="34"&gt;    logpfn_new_cf &lt;span class="op"&gt;=&lt;/span&gt; ConcreteFunction(logpfn_fg_new)&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-35" data-line-number="35"&gt;    logpfn_new_cf._arg_keywords &lt;span class="op"&gt;=&lt;/span&gt; orig_cf._arg_keywords&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-36" data-line-number="36"&gt;    logpfn_new_cf._num_positional_args &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;len&lt;/span&gt;(logpfn_fg_new.inputs)&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-37" data-line-number="37"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="org8555c2e-38" data-line-number="38"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; logpfn_new_cf&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class="sourceCode" id="org1bb5328"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org1bb5328-1" data-line-number="1"&gt;logpfn_new_cf &lt;span class="op"&gt;=&lt;/span&gt; new_tf_function(logpfn_trans_tf, logpfn_cf)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;The new TF function, &lt;code&gt;logpfn_new_cf&lt;/code&gt;, in Listing &lt;a href="#org8555c2e"&gt;32&lt;/a&gt; is the function we are going to use for sampling from the new log-likelihood.&lt;/p&gt;
+&lt;p&gt;Now that we have a transformed version of the original log-likelihood graph (i.e. &lt;code&gt;logpfn_trans_tf&lt;/code&gt;), we need to create a new &lt;code&gt;FuncGraph&lt;/code&gt; from it. Listing &lt;a href="#orgc8d3abe"&gt;49&lt;/a&gt; provides a simple function that creates a new &lt;code&gt;ConcreteFunction&lt;/code&gt; from an updated output node.&lt;/p&gt;
+&lt;div class="sourceCode" id="orgc8d3abe"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgc8d3abe-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.framework.func_graph &lt;span class="im"&gt;import&lt;/span&gt; FuncGraph&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-2" data-line-number="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.function &lt;span class="im"&gt;import&lt;/span&gt; ConcreteFunction&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-3" data-line-number="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.lift_to_graph &lt;span class="im"&gt;import&lt;/span&gt; lift_to_graph&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-4" data-line-number="4"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-5" data-line-number="5"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-6" data-line-number="6"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; new_tf_function(output, orig_cf):&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-7" data-line-number="7"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Create a new ConcreteFunction by replacing a single output in an existing FuncGraph.&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-8" data-line-number="8"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-9" data-line-number="9"&gt;&lt;span class="co"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-10" data-line-number="10"&gt;    orig_fg &lt;span class="op"&gt;=&lt;/span&gt; orig_cf.graph&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-11" data-line-number="11"&gt;    &lt;span class="co"&gt;# with trans_graph.as_default(): #orig_fg.as_default():&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-12" data-line-number="12"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-13" data-line-number="13"&gt;    logpfn_fg_new &lt;span class="op"&gt;=&lt;/span&gt; FuncGraph(&lt;span class="st"&gt;&amp;#39;logpfn_new&amp;#39;&lt;/span&gt;, orig_fg.collections, orig_fg.capture_by_value)&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-14" data-line-number="14"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-15" data-line-number="15"&gt;    old_to_new_ops &lt;span class="op"&gt;=&lt;/span&gt; lift_to_graph([output],&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-16" data-line-number="16"&gt;                                    logpfn_fg_new,&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-17" data-line-number="17"&gt;                                    add_sources&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;,&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-18" data-line-number="18"&gt;                                    handle_captures&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-19" data-line-number="19"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-20" data-line-number="20"&gt;    logpfn_fg_new.structured_input_signature &lt;span class="op"&gt;=&lt;/span&gt; orig_fg.structured_input_signature&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-21" data-line-number="21"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-22" data-line-number="22"&gt;    new_inputs &lt;span class="op"&gt;=&lt;/span&gt; [old_to_new_ops.get(output.graph.get_operation_by_name(i.name).outputs[&lt;span class="dv"&gt;0&lt;/span&gt;])&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-23" data-line-number="23"&gt;                  &lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; orig_cf.structured_input_signature[&lt;span class="dv"&gt;0&lt;/span&gt;]]&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-24" data-line-number="24"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-25" data-line-number="25"&gt;    logpfn_fg_new.inputs &lt;span class="op"&gt;=&lt;/span&gt; new_inputs&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-26" data-line-number="26"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-27" data-line-number="27"&gt;    &lt;span class="cf"&gt;assert&lt;/span&gt; &lt;span class="bu"&gt;all&lt;/span&gt;(i &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt; &lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; logpfn_fg_new.inputs)&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-28" data-line-number="28"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-29" data-line-number="29"&gt;    logpfn_fg_new.outputs &lt;span class="op"&gt;=&lt;/span&gt; [old_to_new_ops[output]]&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-30" data-line-number="30"&gt;    logpfn_fg_new.structured_outputs &lt;span class="op"&gt;=&lt;/span&gt; logpfn_fg_new.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-31" data-line-number="31"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-32" data-line-number="32"&gt;    &lt;span class="cf"&gt;assert&lt;/span&gt; logpfn_fg_new.as_graph_element(logpfn_fg_new.outputs[&lt;span class="dv"&gt;0&lt;/span&gt;]) &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-33" data-line-number="33"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-34" data-line-number="34"&gt;    logpfn_new_cf &lt;span class="op"&gt;=&lt;/span&gt; ConcreteFunction(logpfn_fg_new)&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-35" data-line-number="35"&gt;    logpfn_new_cf._arg_keywords &lt;span class="op"&gt;=&lt;/span&gt; orig_cf._arg_keywords&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-36" data-line-number="36"&gt;    logpfn_new_cf._num_positional_args &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="bu"&gt;len&lt;/span&gt;(logpfn_fg_new.inputs)&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-37" data-line-number="37"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="orgc8d3abe-38" data-line-number="38"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; logpfn_new_cf&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="sourceCode" id="org7f09776"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org7f09776-1" data-line-number="1"&gt;logpfn_new_cf &lt;span class="op"&gt;=&lt;/span&gt; new_tf_function(logpfn_trans_tf, logpfn_cf)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The new TF function, &lt;code&gt;logpfn_new_cf&lt;/code&gt;, in Listing &lt;a href="#orgc8d3abe"&gt;49&lt;/a&gt; is the function we are going to use for sampling from the new log-likelihood.&lt;/p&gt;
 &lt;div class="sourceCode" id="org7bec3c9"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org7bec3c9-1" data-line-number="1"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; logpfn_cf(&lt;span class="op"&gt;*&lt;/span&gt;init.values()) &lt;span class="op"&gt;-&lt;/span&gt; logpfn_new_cf(&lt;span class="op"&gt;*&lt;/span&gt;init.values())&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class="sourceCode" id="orgf0ac6d1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgf0ac6d1-1" data-line-number="1"&gt;tf.Tensor(&lt;span class="fl"&gt;0.0&lt;/span&gt;, shape&lt;span class="op"&gt;=&lt;/span&gt;(), dtype&lt;span class="op"&gt;=&lt;/span&gt;float32)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Listing &lt;a href="#org7bec3c9"&gt;34&lt;/a&gt; shows the difference between a transformed and non-transformed log-likelihood value given the same inputs.&lt;/p&gt;
+&lt;div class="sourceCode" id="org01cd5ba"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="org01cd5ba-1" data-line-number="1"&gt;tf.Tensor(&lt;span class="fl"&gt;301454.78&lt;/span&gt;, shape&lt;span class="op"&gt;=&lt;/span&gt;(), dtype&lt;span class="op"&gt;=&lt;/span&gt;float32)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Listing &lt;a href="#org7bec3c9"&gt;51&lt;/a&gt; shows the difference between a transformed and non-transformed log-likelihood value given the same inputs.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="sampling-from-the-new-log-likelihood" class="level1"&gt;
 &lt;h1&gt;Sampling from the new Log-likelihood&lt;/h1&gt;
-&lt;p&gt;In Listing &lt;a href="#org4a79807"&gt;37&lt;/a&gt;, we reproduce the remaining steps of &lt;code&gt;pm.inference.sampling.sample&lt;/code&gt; and–unnaturally–force the PyMC4 machinery to draw samples from our new transformed log-likelihood function.&lt;/p&gt;
+&lt;p&gt;In Listing &lt;a href="#org4a79807"&gt;54&lt;/a&gt;, we reproduce the remaining steps of &lt;code&gt;pm.inference.sampling.sample&lt;/code&gt; and–unnaturally–force the PyMC4 machinery to draw samples from our new transformed log-likelihood function.&lt;/p&gt;
 &lt;div class="sourceCode" id="orgf17c3d2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="orgf17c3d2-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; importlib &lt;span class="im"&gt;import&lt;/span&gt; &lt;span class="bu"&gt;reload&lt;/span&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="orgf17c3d2-2" data-line-number="2"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="orgf17c3d2-3" data-line-number="3"&gt;&lt;/a&gt;
@@ -911,9 +1083,9 @@ Tensor(SquaredDifference):0,    shape=[]    &amp;quot;Normal_5/log_prob/SquaredD
 &lt;/section&gt;
 &lt;section id="discussion" class="level1"&gt;
 &lt;h1&gt;Discussion&lt;/h1&gt;
-&lt;p&gt;The goals in the two separate &lt;code&gt;run&lt;/code&gt; calls we used in Listing &lt;a href="#org0ad3a96"&gt;20&lt;/a&gt; could have been combined into a single &lt;code&gt;run&lt;/code&gt;. This could’ve been accomplished using some “meta” steps (e.g. construct and evaluate a goal on-the-fly within a miniKanren) or special goals for reading from a miniKanren-generated &lt;code&gt;dict&lt;/code&gt;s or association lists. Goals of this nature are not uncommon (e.g. type inference and inhabitation exmaples), and serve to demonstrate the great breadth of activity possible within relational context of miniKanren.&lt;/p&gt;
+&lt;p&gt;The goals in the two separate &lt;code&gt;run&lt;/code&gt; calls we used in Listing &lt;a href="#org0ad3a96"&gt;24&lt;/a&gt; could have been combined into a single &lt;code&gt;run&lt;/code&gt;. This could’ve been accomplished using some “meta” steps (e.g. construct and evaluate a goal on-the-fly within a miniKanren) or special goals for reading from a miniKanren-generated &lt;code&gt;dict&lt;/code&gt;s or association lists. Goals of this nature are not uncommon (e.g. type inference and inhabitation exmaples), and serve to demonstrate the great breadth of activity possible within relational context of miniKanren.&lt;/p&gt;
 &lt;p&gt;However, the point we want to make doesn’t require much sophistication. Instead, we wanted to demonstrate how a non-trivial “pattern” can be specified and matched using &lt;code&gt;symbolic-pymc&lt;/code&gt;, and how easily those results could be used to transform a graph.&lt;/p&gt;
-&lt;p&gt;More specifically, our goal &lt;code&gt;shift_squared_subso&lt;/code&gt; in &lt;a href="#org0ad3a96"&gt;20&lt;/a&gt; demonstrates &lt;strong&gt;the way in which we were able to specify desired structure(s) within a graph&lt;/strong&gt;. We defined one pattern, &lt;code&gt;Y_sqrdiffo&lt;/code&gt;, to match anywhere in the graph then another pattern, &lt;code&gt;X_sqrdiffo&lt;/code&gt;, that relied on matched terms from &lt;code&gt;Y_sqrdiffo&lt;/code&gt; and could also be matched/found anywhere else in the same graph.&lt;/p&gt;
+&lt;p&gt;More specifically, our goal &lt;code&gt;shift_squared_subso&lt;/code&gt; in &lt;a href="#org0ad3a96"&gt;24&lt;/a&gt; demonstrates &lt;strong&gt;the way in which we were able to specify desired structure(s) within a graph&lt;/strong&gt;. We defined one pattern, &lt;code&gt;Y_sqrdiffo&lt;/code&gt;, to match anywhere in the graph then another pattern, &lt;code&gt;X_sqrdiffo&lt;/code&gt;, that relied on matched terms from &lt;code&gt;Y_sqrdiffo&lt;/code&gt; and could also be matched/found anywhere else in the same graph.&lt;/p&gt;
 &lt;p&gt;Furthermore, our substitutions needed information from both “matched” subgraphs. Specifically, substitution pairs similar to &lt;code&gt;(x, z + x)&lt;/code&gt;. Within this framework, we could just as easily have included &lt;code&gt;y&lt;/code&gt;–or any terms from either successfully matched subgraph–in the substitution expressions.&lt;/p&gt;
 &lt;p&gt;In sample-space, the search patterns and substitutions are much easier to specify exactly because they’re single-subgraph patterns that themselves are the subgraphs to be replaced (i.e. if we find a non-standard normal, replace it with a shifted/scaled standard normal). In log-space, we chose to find distinct subgraph “chains”, i.e. all &lt;code&gt;(y - x)**2&lt;/code&gt; and &lt;code&gt;(x - z)**2&lt;/code&gt; pairs (i.e. “connected” by an “unknown” term &lt;code&gt;x&lt;/code&gt;), since these are produced by the log-likelihood form of hierarchical normal distributions.&lt;/p&gt;
 &lt;p&gt;As a result, we had a non-trivial structure/“pattern” to express–and execute. Using conventional graph search-and-replace functionality would’ve required much more orchestration and resulted considerably less flexible code with little-to-no reusability. In our case, the goals &lt;code&gt;onceo&lt;/code&gt; and &lt;code&gt;tf_graph_applyo&lt;/code&gt; are universal and the forms in &lt;code&gt;shift_squared_subso&lt;/code&gt; can be easily changed to account for more sophisticated (or entirely distinct) patterns and substitutions.&lt;/p&gt;
