@@ -10,6 +10,16 @@ body {
                    listing 0;
 }
 figure {
+    /* border: thin solid; */
+    padding-block-end: 1.5em;
+}
+figcaption {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    font-style: normal;
+}
+figure.plot {
     float: center;
     /* width: 30%; */
     text-align: center;
@@ -51,16 +61,18 @@ ul.project-links li {
   float: right;
   padding: 3px;
 }
-div.sourceCode:after {
+/*
+div.sourceCode.linked-src-block:after {
     display: flex;
     justify-content: center;
     data-title-name: "";
     text-align: center;
     counter-increment: listing;
     content: "Listing " counter(listing) ". " attr(data-title-name);
-    /* font-weight: bold; */
+    // font-weight: bold; //
     font-style: normal;
 }
+*/
 /*
  *
  * The following was originally inspired by
