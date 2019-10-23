@@ -114,7 +114,7 @@ Brandon T. Willard            </a>
     </span>
           <span class="label label-default">Modified</span>
             <span class="modified">
-                <i class="fa fa-calendar"></i><time datetime="2019-10-22T00:00:00-05:00"> Tue 22 October 2019</time>
+                <i class="fa fa-calendar"></i><time datetime="2019-10-23T00:00:00-05:00"> Wed 23 October 2019</time>
             </span>
 
 
@@ -221,6 +221,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <!--  -->
 <!-- </div> -->
 <!--  -->
+<ul>
+<li><a href="#org1e803da">Introduction</a></li>
+<li><a href="#org3e6e487">The Model’s Log-likelihood Graph</a></li>
+<li><a href="#org42666b0">The Log-space Transform</a></li>
+<li><a href="#orgf7d0339">Creating the miniKanren Goals</a>
+<ul>
+<li><a href="#orgbe89a18">Inspecting the TF Graphs</a></li>
+<li><a href="#org77d300c">Graph Normalization</a></li>
+<li><a href="#org22a13da">miniKanren Transform Relations</a></li>
+<li><a href="#org58027da">Missing Graph Simplifications</a></li>
+</ul></li>
+<li><a href="#orgd7e300e">Transforming the Log-likelihood Graph</a></li>
+<li><a href="#orga80856e">Creating a new Log-likelihood Function</a></li>
+<li><a href="#orga41f6e3">Sampling from the new Log-likelihood</a></li>
+<li><a href="#orgdb8e15f">Discussion</a></li>
+</ul>
+<p><a id="org1e803da"></a></p>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
 <p><a href="https://github.com/pymc-devs/symbolic-pymc">Symbolic PyMC</a> is a library that provides tools for symbolic manipulation of Tensor library models in TensorFlow (TF) and Theano. Over time, we plan to add tools that are somewhat specialized toward Bayesian model manipulation and the mathematical identities relevant to model manipulation for MCMC.</p>
@@ -346,6 +363,7 @@ Listing 5
 <figcaption>
 </figcaption>
 </figure>
+<p><a id="org3e6e487"></a></p>
 </section>
 <section id="the-models-log-likelihood-graph" class="level1">
 <h1>The Model’s Log-likelihood Graph</h1>
@@ -382,6 +400,7 @@ Listing 9
 <a class="sourceLine" id="cb10-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb10-7" data-line-number="7">disable_tensor_equality()</a></code></pre></div>
 </figure>
+<p><a id="org42666b0"></a></p>
 </section>
 <section id="the-log-space-transform" class="level1">
 <h1>The Log-space Transform</h1>
@@ -426,6 +445,7 @@ Listing 9
 \end{align*}\]</span></p>
 <p>For consistency, the transform must also be applied to the <span class="math inline">\(dx\)</span> term where/when-ever it is considered.</p>
 <p>After a few algebraic simplifications, one obtains the exact form of Equation <span class="math inline">\(\eqref{eq:log-model-2}\)</span>.</p>
+<p><a id="orgf7d0339"></a></p>
 </section>
 <section id="creating-the-minikanren-goals" class="level1">
 <h1>Creating the miniKanren Goals</h1>
@@ -433,6 +453,7 @@ Listing 9
 <p>Even so, we <strong>do</strong> expect that some capabilities from within those more advanced areas of symbolic computing will eventually be required–or necessary–and we want to build on a foundation that allows them to be integrated and/or simply expressed. We believe that miniKanren is a great foundation for such work due to the core concepts it shares with symbolic computation, as well as its immense flexibility. It also maintains an elegant simplicity and is amenable to developer intervention at nearly all levels–often without the need for low- or DSL-level rewrites.</p>
 <p>User-level development in miniKanren occurs within its DSL, which is a succinct relational/logic programming paradigm that–in our case–is entirely written in Python. This DSL provides primitive <strong>goals</strong> that can be composed and eventually evaluated by the <code>run</code> function. We refer the reader to any one of the many great introductions to miniKanren available at <a href="http://minikanren.org" class="uri">http://minikanren.org</a>, or, for the specific Python package used here: <a href="https://github.com/logpy/logpy/blob/master/doc/basic.md">this simple introduction</a>.</p>
 <p>For the matter at hand, we need to create goals that implement the substitution described above. The first step is to understand the exact TF graphs involved, and the best way to do that is to construct the relevant graph objects, observe them directly, and build “patterns” that match their general forms. Patterns are built with <code>symbolic-pymc</code> meta objects obtained from the <code>mt</code> helper “namespace”. Wherever we want to leave room for variation/ambiguity, we use a “logic variable” instead of an explicit TF (meta) object. Logic variables are created with <code>var()</code> and can optionally be given a string “name” argument that identifies them globally as a singleton-like object.</p>
+<p><a id="orgbe89a18"></a></p>
 <section id="inspecting-the-tf-graphs" class="level2">
 <h2>Inspecting the TF Graphs</h2>
 <p>In our case, the log-density returned by PyMC4–via the TensorFlow Probability library (TFP)– uses <code>tf.math.squared_difference</code> to construct the “squared error” term in the exponential of a normal distribution. This term contains everything we need to construct the substitution as a pair of TF graph objects.</p>
@@ -612,6 +633,7 @@ Listing 16
 <a class="sourceLine" id="cb17-7" data-line-number="7"> <span class="st">&#39;values_6&#39;</span>: <span class="st">&#39;hierarchical_model/__log_eps&#39;</span>}</a>
 <a class="sourceLine" id="cb17-8" data-line-number="8"></a></code></pre></div>
 </figure>
+<p><a id="org77d300c"></a></p>
 </section>
 <section id="graph-normalization" class="level2">
 <h2>Graph Normalization</h2>
@@ -730,6 +752,7 @@ Listing 22
 </code></pre>
 </figure>
 <p>From the output of Listing <a href="#orge1da777">22</a>, we can see that <code>grappler</code> has performed some constant folding and has reordered the inputs in <code>&quot;add_1_1&quot;</code>–among other things.</p>
+<p><a id="org22a13da"></a></p>
 </section>
 <section id="minikanren-transform-relations" class="level2">
 <h2>miniKanren Transform Relations</h2>
@@ -1063,6 +1086,7 @@ Listing 33
 
 </code></pre>
 </figure>
+<p><a id="org58027da"></a></p>
 </section>
 <section id="missing-graph-simplifications" class="level2">
 <h2>Missing Graph Simplifications</h2>
@@ -1172,6 +1196,7 @@ Listing 40
 <figure>
 <pre class="text"><code>[0.]</code></pre>
 </figure>
+<p><a id="orgd7e300e"></a></p>
 </section>
 </section>
 <section id="transforming-the-log-likelihood-graph" class="level1">
@@ -1326,11 +1351,12 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 
 </code></pre>
 </figure>
+<p><a id="orga80856e"></a></p>
 </section>
 <section id="creating-a-new-log-likelihood-function" class="level1">
 <h1>Creating a new Log-likelihood Function</h1>
-<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#orgd3e28de">49</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
-<figure id="orgd3e28de">
+<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#orgf60a149">49</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
+<figure id="orgf60a149">
 <div class="sourceCode" id="cb49"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="im">from</span> tensorflow.python.framework.func_graph <span class="im">import</span> FuncGraph</a>
 <a class="sourceLine" id="cb49-2" data-line-number="2"><span class="im">from</span> tensorflow.python.eager.function <span class="im">import</span> ConcreteFunction</a>
 <a class="sourceLine" id="cb49-3" data-line-number="3"><span class="im">from</span> tensorflow.python.eager.lift_to_graph <span class="im">import</span> lift_to_graph</a>
@@ -1373,13 +1399,13 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 Listing 49
 </figcaption>
 </figure>
-<figure id="org1bb8cc9">
+<figure id="orgf497d81">
 <div class="sourceCode" id="cb50"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb50-1" data-line-number="1">logpfn_new_cf <span class="op">=</span> new_tf_function(logpfn_trans_tf, logpfn_cf)</a></code></pre></div>
 <figcaption>
 Listing 50
 </figcaption>
 </figure>
-<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#orgd3e28de">49</a> is the function we are going to use for sampling from the new log-likelihood.</p>
+<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#orgf60a149">49</a> is the function we are going to use for sampling from the new log-likelihood.</p>
 <figure id="org7bec3c9">
 <div class="sourceCode" id="cb51"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb51-1" data-line-number="1">_ <span class="op">=</span> logpfn_cf(<span class="op">*</span>init.values()) <span class="op">-</span> logpfn_new_cf(<span class="op">*</span>init.values())</a></code></pre></div>
 <figcaption>
@@ -1390,6 +1416,7 @@ Listing 51
 <div class="sourceCode" id="cb52"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb52-1" data-line-number="1">tf.Tensor(<span class="fl">153.41016</span>, shape<span class="op">=</span>(), dtype<span class="op">=</span>float32)</a></code></pre></div>
 </figure>
 <p>Listing <a href="#org7bec3c9">51</a> shows the difference between a transformed and non-transformed log-likelihood value given the same inputs.</p>
+<p><a id="orga41f6e3"></a></p>
 </section>
 <section id="sampling-from-the-new-log-likelihood" class="level1">
 <h1>Sampling from the new Log-likelihood</h1>
@@ -1444,6 +1471,7 @@ Listing 54
 <figcaption>
 </figcaption>
 </figure>
+<p><a id="orgdb8e15f"></a></p>
 </section>
 <section id="discussion" class="level1">
 <h1>Discussion</h1>
