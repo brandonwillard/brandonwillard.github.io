@@ -13,10 +13,67 @@
 #+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 
 #+BEGIN_SRC elisp :eval t :exports none :results none
-(org-babel-load-file "org-setup.org")
+;; (org-babel-load-file "org-setup.org")
+
+(defun btw--org-publish-property (prop)
+  "Get the publish property PROP (a tag/keyword like `:base-directory') for
+the current file's project."
+    (org-publish-property prop
+                          (org-publish-get-project-from-filename
+                           (buffer-file-name (buffer-base-buffer)))))
+
 (org-babel-lob-ingest "org-babel-extensions.org")
 ;; (setq-local org-babel-jupyter-resourse-directory (btw--org-publish-property :figure-dir))
 ;; (setq-local org-preview-latex-image-directory (btw--org-publish-property :figure-dir))
+#+END_SRC
+
+#+NAME: generate-python-plots
+#+HEADER: :var code-block-name=""
+#+BEGIN_SRC elisp :eval never :exports none :results silent
+(let* ((src-block-info (save-mark-and-excursion
+                         (org-babel-goto-named-src-block code-block-name)
+                         (org-babel-get-src-block-info)))
+       (root-dir (btw--org-publish-property :base-directory))
+       (output-dir (btw--org-publish-property :figure-dir))
+       (code-block-src (cadr src-block-info))
+       (plot-src
+        (format "
+import os
+
+output_dir = '%s'
+fig_filenames = [os.path.join(output_dir, '%s')
+                 + os.path.extsep + out_ext
+                 for out_ext in ['pdf', 'png']]
+
+plt.switch_backend('Agg')
+
+%s
+
+for fname in fig_filenames:
+   plt.savefig(fname)
+
+_ = os.path.relpath(fig_filenames[-1], '%s')
+" output-dir code-block-name code-block-src root-dir))
+       (session-name
+        (alist-get :session (nth 2 src-block-info)))
+       (out-file-name
+        (funcall (intern (concat "org-babel-execute:" (car src-block-info)))
+                 plot-src
+                 `((:result-params silent output drawer)
+                   (:result-type . value)
+                   (:results value raw)
+                   (:session . ,session-name))))
+       (code-block-point
+        (save-mark-and-excursion
+          (org-babel-goto-named-src-block code-block-name)
+          (point)))
+       (old-src-block-loc org-babel-current-src-block-location)
+       (org-babel-current-src-block-location code-block-point))
+  (let* ((wrap-src-info (org-babel-lob--src-info "org_fig_wrap")))
+    (org-babel-execute-src-block nil
+                                 wrap-src-info
+                                 `((:var data . ,out-file-name))))
+  plot-src)
 #+END_SRC
 
 #+PROPERTY: header-args :session radon-pymc4 :exports both :eval never-export :results output drawer replace
@@ -25,7 +82,7 @@
 * Introduction
 
 [[https://github.com/pymc-devs/symbolic-pymc][Symbolic PyMC]] is a library that provides tools for symbolic manipulation of
-Tensor library models in TensorFlow and Theano.  Over time, we plan to add
+Tensor library models in TensorFlow (TF) and Theano.  Over time, we plan to add
 tools that are somewhat specialized toward Bayesian model manipulation and
 the mathematical identities relevant to model manipulation for MCMC.
 
@@ -151,7 +208,6 @@ az_trace = sample(model)
 
 #+NAME: pymc4-radon-plot-setup
 #+BEGIN_SRC python :eval never-export :exports code :results silent
-import arviz as az
 import matplotlib.pyplot as plt
 
 import seaborn as sns
@@ -169,55 +225,6 @@ sns.set_context("paper")
 #+NAME: pymc4-radon-plot-energy
 #+BEGIN_SRC python :eval never :exports code :results silent
 _ = az.plot_energy(az_trace)
-#+END_SRC
-
-#+NAME: generate-python-plots
-#+HEADER: :var code-block-name=""
-#+BEGIN_SRC elisp :eval never-export :exports none :results silent
-(let* ((src-block-info (save-mark-and-excursion
-                         (org-babel-goto-named-src-block code-block-name)
-                         (org-babel-get-src-block-info)))
-       (root-dir (btw--org-publish-property :base-directory))
-       (output-dir (btw--org-publish-property :figure-dir))
-       (code-block-src (cadr src-block-info))
-       (plot-src
-        (format "
-import os
-
-output_dir = '%s'
-fig_filenames = [os.path.join(output_dir, '%s')
-                 + os.path.extsep + out_ext
-                 for out_ext in ['pdf', 'png']]
-
-plt.switch_backend('Agg')
-
-%s
-
-for fname in fig_filenames:
-   plt.savefig(fname)
-
-_ = os.path.relpath(fig_filenames[-1], '%s')
-" output-dir code-block-name code-block-src root-dir))
-       (session-name
-        (alist-get :session (nth 2 src-block-info)))
-       (out-file-name
-        (funcall (intern (concat "org-babel-execute:" (car src-block-info)))
-                 plot-src
-                 `((:result-params silent output drawer)
-                   (:result-type . value)
-                   (:results value raw)
-                   (:session . ,session-name))))
-       (code-block-point
-        (save-mark-and-excursion
-          (org-babel-goto-named-src-block code-block-name)
-          (point)))
-       (old-src-block-loc org-babel-current-src-block-location)
-       (org-babel-current-src-block-location code-block-point))
-  (let* ((wrap-src-info (org-babel-lob--src-info "org_fig_wrap")))
-    (org-babel-execute-src-block nil
-                                 wrap-src-info
-                                 `((:var data . ,out-file-name))))
-  plot-src)
 #+END_SRC
 
 #+CALL: generate-python-plots[:results silent :eval never](code-block-name="pymc4-radon-plot-energy")
@@ -247,13 +254,12 @@ _ = az.plot_trace(az_trace, compact=True)
 #+NAME: fig:pymc4-radon-plot-trace
 [[file:../../figures/pymc4-radon-plot-trace.png]]
 
-
-* Applying an Optimization
+* The Model's Log-likelihood Graph
 
 In order to apply our optimization, we need to do some work to obtain a graph of
 the log-likelihood function generated by the model in Listing [[pymc4-radon-model]].
 With the graph in-hand, we can perform the re-centering and re-scaling
-transform--in log-space this time--and obtain a new log-likelihood graph from
+transform--in log-space--to obtain a new log-likelihood graph from
 which better samples can be generated.
 
 This exercise introduces the TensorFlow function-graph elements that mirror
@@ -265,8 +271,6 @@ implicitly src_python[:eval never]{symbolic_pymc} operates.  Just as with
 Theano's src_python[:eval never]{FunctionGraph}s, src_python[:eval never]{FuncGraph} simply
 specializes a graph by specifying inputs and outputs from elements (i.e. tensors) within
 a graph.
-
-* Log-likelihood src_python[:eval never]{FuncGraph}s
 
 In Listing [[logp-func]], we build the log-likelihood function for our model and a
 corresponding list of initial values for the parameters.
@@ -305,7 +309,7 @@ The inputs aren't mapped in this particular function-graph output.  I believe th
 generate those as TF placeholders.
 
 #+NAME: print-graph-dependencies
-#+BEGIN_SRC python :exports none :eval never
+#+BEGIN_SRC python :exports code :results silent
 from tensorflow.python.eager.context import graph_mode
 from tensorflow.python.framework.ops import disable_tensor_equality
 
@@ -315,22 +319,65 @@ from symbolic_pymc.tensorflow.printing import tf_dprint
 disable_tensor_equality()
 #+END_SRC
 
+#+NAME: print-graph-improvements
+#+BEGIN_SRC python :exports none :results silent
+from tensorflow.python.framework import tensor_util
+from symbolic_pymc.tensorflow.meta import TFlowMetaOp, TFlowMetaTensor
+from symbolic_pymc.tensorflow.printing import _tf_dprint
+
+
+@_tf_dprint.register(tf.Operation)
+@_tf_dprint.register(TFlowMetaOp)
+def _(obj, printer):
+    for op_input in obj.inputs:
+        _tf_dprint(op_input, printer)
+
+
+@_tf_dprint.register(tf.Tensor)
+@_tf_dprint.register(TFlowMetaTensor)
+def _(obj, printer):
+
+    try:
+        shape_str = str(obj.shape.as_list())
+    except (ValueError, AttributeError):
+        shape_str = "Unknown"
+
+    prefix = f'Tensor({obj.op.type}):{obj.value_index},\tshape={shape_str}\t"{obj.name}"'
+    _tf_dprint(prefix, printer)
+    if len(obj.op.inputs) > 0:
+        with printer.indented("|  "):
+            if obj not in printer.printed_subgraphs:
+                printer.printed_subgraphs.add(obj)
+                _tf_dprint(obj.op, printer)
+            else:
+                _tf_dprint("...", printer)
+    elif obj.op.type == "Const":
+        with printer.indented("|  "):
+            if isinstance(obj, tf.Tensor):
+                numpy_val = obj.eval(session=tf.compat.v1.Session(graph=obj.graph))
+            else:
+                numpy_val = obj.op.node_def.attr['value']
+
+            _tf_dprint(np.array2string(numpy_val, threshold=20), printer)
+
+#+END_SRC
+
 * The Log-space Transform
 
 Consider the following two equivalent hierarchical models,
 \begin{equation}
   \begin{gathered}
     Y = X + \epsilon, \quad
-    \epsilon \sim \operatorname{N}\left(0, 1\right)
+    \epsilon \sim \operatorname{N}\left(0, \sigma^2\right)
     \\
-    X \sim \operatorname{N}\left(\mu, \sigma^2\right)
+    X \sim \operatorname{N}\left(\mu, \tau^2\right)
   \end{gathered}
 \label{eq:model-1}
 \end{equation}
 \begin{equation}
   \begin{gathered}
-    Y = \mu + \sigma \cdot \tilde{X} + \epsilon, \quad
-    \epsilon \sim \operatorname{N}\left(0, 1\right)
+    Y = \mu + \tau \cdot \tilde{X} + \epsilon, \quad
+    \epsilon \sim \operatorname{N}\left(0, \sigma^2\right)
     \\
     \tilde{X} \sim \operatorname{N}\left(0, 1\right)
   \;.
@@ -340,37 +387,83 @@ Consider the following two equivalent hierarchical models,
 Models [[eqref:eq:model-1]] and [[eqref:eq:model-2]] are represented in (log) measure space,
 respectively, as follows:
 \begin{align}
-    \log P(Y, X) &= \log P(Y\mid X) + \log P(X)
+    \log p(Y, X) &= \log P(Y\mid X) + \log P(X)
     \nonumber
     \\
-    &= C - \frac{1}{2} \left(y - x\right)^2 - \frac{1}{2 \sigma^2} \left(x - \mu\right)^2
+    &= C - \frac{1}{2} \left(\frac{y}{\sigma} - \frac{x}{\sigma}\right)^2 -
+       \frac{1}{2} \left(\frac{x}{\tau} - \frac{\mu}{\tau}\right)^2
     \label{eq:log-model-1}
     \\
-    &= \tilde{C} - \frac{1}{2} \left(y - \mu - \sigma \cdot \tilde{x}\right)^2 - \frac{1}{2} \tilde{x}^2
+    &= \tilde{C} - \frac{1}{2} \left(\frac{y}{\sigma} - \frac{\mu - \tau \cdot \tilde{x}}{\sigma}\right)^2 - \frac{1}{2} \tilde{x}^2
   \label{eq:log-model-2}
   \;.
 \end{align}
 
-Via term rewriting, Equation [[eqref:eq:log-model-2]] is produced by first
-applying the replacement rule \(x \to \mu + \sigma \cdot \tilde{x}\) to Equation
-[[eqref:eq:log-model-1]], which produces
+Via term rewriting, Equation [[eqref:eq:log-model-2]] is produced--in part--by
+applying the replacement rule \(x \to \mu + \tau \cdot \tilde{x}\) to Equation
+[[eqref:eq:log-model-1]], i.e.
 \begin{align*}
-C - \frac{1}{2} \left(y - (\mu + \sigma \cdot \tilde{x})\right)^2 - \frac{1}{2 \sigma^2} \left((\mu + \sigma \cdot \tilde{x}) - \mu\right)^2
+\tilde{C} - \frac{1}{2} \left(\frac{y}{\sigma} - \frac{\mu + \tau \cdot \tilde{x}}{\sigma}\right)^2 -
+  \frac{1}{2} \left(\frac{\mu + \tau \cdot \tilde{x}}{\tau} - \frac{\mu}{\tau}\right)^2
 \;.
 \end{align*}
 
-After a few applications of some simple algebraic properties--as further
-replacement rules--one obtains the exact form of Equation [[eqref:eq:log-model-2]].
-Here, we'll focus only on applying the initial replacement rule.
+For consistency, the transform must also be applied to the \(dx\) term
+where/when-ever it is considered.
+
+After a few algebraic simplifications, one obtains the exact form of Equation
+[[eqref:eq:log-model-2]].
+
+* Creating the miniKanren Goals
+
+src_python[:eval never]{symbolic-pymc} is designed to use miniKanren as
+a means of specifying mathematical relations.  The degree to which an
+implementation of a mathematical relation upholds its known characteristics
+is--of course--always up to the developer.  For the needs of PPLs like PyMC4,
+we can't reasonably expect--or provide--capabilities at the level of automatic
+theorem proving or every relevant state-of-the-art symbolic math routine.
+
+Even so, we *do* expect that some capabilities from within those more advanced areas
+of symbolic computing will eventually be required--or necessary--and we want to build on a
+foundation that allows them to be integrated and/or simply expressed.  We believe that
+miniKanren is a great foundation for such work due to the core concepts it shares with
+symbolic computation, as well as its immense flexibility.
+It also maintains an elegant simplicity and is amenable to developer
+intervention at nearly all levels--often without the need for low- or
+DSL-level rewrites.
+
+User-level development in miniKanren occurs within its DSL, which is a succinct
+relational/logic programming paradigm that--in our case--is entirely written in
+Python.  This DSL provides primitive *goals* that can be composed and eventually
+evaluated by the src_python[:eval never]{run} function.  We refer the reader
+to any one of the many great introductions to miniKanren available at [[http://minikanren.org]],
+or, for the specific Python package used here: [[https://github.com/logpy/logpy/blob/master/doc/basic.md][this simple introduction]].
+
+For the matter at hand, we need to create goals that implement the substitution
+described above.
+The first step is to understand the exact TF graphs involved, and
+the best way to do that is to construct the relevant graph objects, observe them directly, and
+build "patterns" that match their general forms.  Patterns are built
+with src_python[:eval never]{symbolic-pymc} meta objects obtained from
+the src_python[:eval never]{mt} helper "namespace".  Wherever we want to
+leave room for variation/ambiguity, we use a "logic variable" instead of
+an explicit TF (meta) object.  Logic variables are created
+with src_python[:eval never]{var()} and can optionally be given a string "name"
+argument that identifies them globally as a singleton-like object.
+
+** Inspecting the TF Graphs
 
 In our case, the log-density returned by PyMC4--via the TensorFlow Probability
 library (TFP)-- uses src_python[:eval never]{tf.math.squared_difference} to
 construct the "squared error" term in the exponential of a normal distribution.
+This term contains everything we need to construct the substitution as a pair
+of TF graph objects.
+
 Listing [[tfp-normal-log-lik-graph]] shows the graph produced by a normal
 distribution in TFP.
 
 #+NAME: tfp-normal-log-lik-graph
-#+BEGIN_SRC python :exports both :results output :wrap "SRC text :eval never" :noweb yes
+#+BEGIN_SRC python :exports code :results silent :noweb yes
 import tensorflow_probability as tfp
 
 <<print-graph-dependencies>>
@@ -387,33 +480,31 @@ with graph_mode(), tf.Graph().as_default() as test_graph:
                                         shape=tf.TensorShape([None]))
 
     normal_log_lik = normal_tfp.log_prob(value_tf)
-
-    tf_dprint(normal_log_lik)
 #+END_SRC
 
-#+RESULTS: tfp-normal-log-lik-graph
+#+NAME: tfp-normal-log-lik-graph-print
+#+BEGIN_SRC python :exports both :results output :wrap "SRC text :eval never" :noweb yes
+tf_dprint(normal_log_lik)
+#+END_SRC
+
+#+RESULTS: tfp-normal-log-lik-graph-print
 #+begin_SRC text :eval never
 Tensor(Sub):0,	shape=[None]	"Normal_1/log_prob/sub:0"
-|  Op(Sub)	"Normal_1/log_prob/sub"
-|  |  Tensor(Mul):0,	shape=[None]	"Normal_1/log_prob/mul:0"
-|  |  |  Op(Mul)	"Normal_1/log_prob/mul"
-|  |  |  |  Tensor(Const):0,	shape=[]	"Normal_1/log_prob/mul/x:0"
-|  |  |  |  Tensor(SquaredDifference):0,	shape=[None]	"Normal_1/log_prob/SquaredDifference:0"
-|  |  |  |  |  Op(SquaredDifference)	"Normal_1/log_prob/SquaredDifference"
-|  |  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Normal_1/log_prob/truediv:0"
-|  |  |  |  |  |  |  Op(RealDiv)	"Normal_1/log_prob/truediv"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value:0"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Normal_1/log_prob/truediv_1:0"
-|  |  |  |  |  |  |  Op(RealDiv)	"Normal_1/log_prob/truediv_1"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"mu:0"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  Tensor(AddV2):0,	shape=[None]	"Normal_1/log_prob/add:0"
-|  |  |  Op(AddV2)	"Normal_1/log_prob/add"
-|  |  |  |  Tensor(Const):0,	shape=[]	"Normal_1/log_prob/add/x:0"
-|  |  |  |  Tensor(Log):0,	shape=[None]	"Normal_1/log_prob/Log:0"
-|  |  |  |  |  Op(Log)	"Normal_1/log_prob/Log"
-|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  Tensor(Mul):0,	shape=[None]	"Normal_1/log_prob/mul:0"
+|  |  Tensor(Const):0,	shape=[]	"Normal_1/log_prob/mul/x:0"
+|  |  |  -0.5
+|  |  Tensor(SquaredDifference):0,	shape=[None]	"Normal_1/log_prob/SquaredDifference:0"
+|  |  |  Tensor(RealDiv):0,	shape=[None]	"Normal_1/log_prob/truediv:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  |  Tensor(RealDiv):0,	shape=[None]	"Normal_1/log_prob/truediv_1:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[None]	"mu:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  Tensor(AddV2):0,	shape=[None]	"Normal_1/log_prob/add:0"
+|  |  Tensor(Const):0,	shape=[]	"Normal_1/log_prob/add/x:0"
+|  |  |  0.9189385
+|  |  Tensor(Log):0,	shape=[None]	"Normal_1/log_prob/Log:0"
+|  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
 
 
 #+end_SRC
@@ -435,8 +526,8 @@ instances of said src_python[:eval never]{SquaredDifference}
 
 #+NAME: show-squared-diff-terms
 #+BEGIN_SRC python :exports both :results output :wrap "SRC text :eval never"
-square_diff_outs = [o for o in logpfn_fg.get_operations()
-                    if o.type == 'SquaredDifference']
+square_diff_outs = [o.outputs[0] for o in logpfn_fg.get_operations()
+                    if o.type == 'SquaredDifference' or o.type.startswith('Gather')]
 
 for t in square_diff_outs:
     tf_dprint(t)
@@ -444,92 +535,128 @@ for t in square_diff_outs:
 
 #+RESULTS: show-squared-diff-terms
 #+begin_SRC text :eval never
-Op(SquaredDifference)	"Normal_5/log_prob/SquaredDifference"
+Tensor(GatherV2):0,	shape=[919]	"GatherV2:0"
+|  Tensor(Placeholder):0,	shape=[85]	"values_3:0"
+|  Tensor(Const):0,	shape=[919]	"GatherV2/indices:0"
+|  |  [ 0  0  0 ... 83 84 84]
+|  Tensor(Const):0,	shape=[]	"GatherV2/axis:0"
+|  |  0
+Tensor(GatherV2):0,	shape=[919]	"GatherV2_1:0"
+|  Tensor(Placeholder):0,	shape=[85]	"values_2:0"
+|  Tensor(Const):0,	shape=[919]	"GatherV2_1/indices:0"
+|  |  [ 0  0  0 ... 83 84 84]
+|  Tensor(Const):0,	shape=[]	"GatherV2_1/axis:0"
+|  |  0
+Tensor(SquaredDifference):0,	shape=[]	"Normal_5/log_prob/SquaredDifference:0"
 |  Tensor(RealDiv):0,	shape=[]	"Normal_5/log_prob/truediv:0"
-|  |  Op(RealDiv)	"Normal_5/log_prob/truediv"
-|  |  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
-|  |  |  Tensor(Const):0,	shape=[]	"Normal/scale:0"
+|  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
+|  |  Tensor(Const):0,	shape=[]	"Normal/scale:0"
+|  |  |  1.
 |  Tensor(RealDiv):0,	shape=[]	"Normal_5/log_prob/truediv_1:0"
-|  |  Op(RealDiv)	"Normal_5/log_prob/truediv_1"
-|  |  |  Tensor(Const):0,	shape=[]	"Normal/loc:0"
-|  |  |  Tensor(Const):0,	shape=[]	"Normal/scale:0"
-Op(SquaredDifference)	"Normal_1_1/log_prob/SquaredDifference"
+|  |  Tensor(Const):0,	shape=[]	"Normal/loc:0"
+|  |  |  0.
+|  |  Tensor(Const):0,	shape=[]	"Normal/scale:0"
+|  |  |  1.
+Tensor(SquaredDifference):0,	shape=[]	"Normal_1_1/log_prob/SquaredDifference:0"
 |  Tensor(RealDiv):0,	shape=[]	"Normal_1_1/log_prob/truediv:0"
-|  |  Op(RealDiv)	"Normal_1_1/log_prob/truediv"
-|  |  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
-|  |  |  Tensor(Const):0,	shape=[]	"Normal_1/scale:0"
+|  |  Tensor(Placeholder):0,	shape=[]	"values_4:0"
+|  |  Tensor(Const):0,	shape=[]	"Normal_1/scale:0"
+|  |  |  1.
 |  Tensor(RealDiv):0,	shape=[]	"Normal_1_1/log_prob/truediv_1:0"
-|  |  Op(RealDiv)	"Normal_1_1/log_prob/truediv_1"
-|  |  |  Tensor(Const):0,	shape=[]	"Normal_1/loc:0"
-|  |  |  Tensor(Const):0,	shape=[]	"Normal_1/scale:0"
-Op(SquaredDifference)	"SampleNormal_2_1/log_prob/Normal_2/log_prob/SquaredDifference"
+|  |  Tensor(Const):0,	shape=[]	"Normal_1/loc:0"
+|  |  |  0.
+|  |  Tensor(Const):0,	shape=[]	"Normal_1/scale:0"
+|  |  |  1.
+Tensor(SquaredDifference):0,	shape=[85]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/SquaredDifference:0"
 |  Tensor(RealDiv):0,	shape=[85]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv:0"
-|  |  Op(RealDiv)	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv"
-|  |  |  Tensor(Transpose):0,	shape=[85]	"SampleNormal_2_1/log_prob/transpose:0"
-|  |  |  |  Op(Transpose)	"SampleNormal_2_1/log_prob/transpose"
-|  |  |  |  |  Tensor(Reshape):0,	shape=[85]	"SampleNormal_2_1/log_prob/Reshape:0"
-|  |  |  |  |  |  Op(Reshape)	"SampleNormal_2_1/log_prob/Reshape"
-|  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_6:0"
-|  |  |  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_2_1/log_prob/Reshape/shape:0"
-|  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_2_1/log_prob/transpose/perm:0"
-|  |  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
-|  |  |  |  Op(Exp)	"exp_1/forward/Exp"
-|  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_4:0"
+|  |  Tensor(Transpose):0,	shape=[85]	"SampleNormal_2_1/log_prob/transpose:0"
+|  |  |  Tensor(Reshape):0,	shape=[85]	"SampleNormal_2_1/log_prob/Reshape:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_3:0"
+|  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_2_1/log_prob/Reshape/shape:0"
+|  |  |  |  |  [85]
+|  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_2_1/log_prob/transpose/perm:0"
+|  |  |  |  [0]
+|  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  |  Tensor(Placeholder):0,	shape=[]	"values_0:0"
 |  Tensor(RealDiv):0,	shape=[]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv_1:0"
-|  |  Op(RealDiv)	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv_1"
-|  |  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
-|  |  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
-|  |  |  |  ...
-Op(SquaredDifference)	"SampleNormal_3_1/log_prob/Normal_3/log_prob/SquaredDifference"
+|  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
+|  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  |  ...
+Tensor(SquaredDifference):0,	shape=[85]	"SampleNormal_3_1/log_prob/Normal_3/log_prob/SquaredDifference:0"
 |  Tensor(RealDiv):0,	shape=[85]	"SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv:0"
-|  |  Op(RealDiv)	"SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv"
-|  |  |  Tensor(Transpose):0,	shape=[85]	"SampleNormal_3_1/log_prob/transpose:0"
-|  |  |  |  Op(Transpose)	"SampleNormal_3_1/log_prob/transpose"
-|  |  |  |  |  Tensor(Reshape):0,	shape=[85]	"SampleNormal_3_1/log_prob/Reshape:0"
-|  |  |  |  |  |  Op(Reshape)	"SampleNormal_3_1/log_prob/Reshape"
-|  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_3:0"
-|  |  |  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_3_1/log_prob/Reshape/shape:0"
-|  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_3_1/log_prob/transpose/perm:0"
-|  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
-|  |  |  |  Op(Exp)	"exp_2_1/forward/Exp"
-|  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_0:0"
+|  |  Tensor(Transpose):0,	shape=[85]	"SampleNormal_3_1/log_prob/transpose:0"
+|  |  |  Tensor(Reshape):0,	shape=[85]	"SampleNormal_3_1/log_prob/Reshape:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_2:0"
+|  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_3_1/log_prob/Reshape/shape:0"
+|  |  |  |  |  [85]
+|  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_3_1/log_prob/transpose/perm:0"
+|  |  |  |  [0]
+|  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
 |  Tensor(RealDiv):0,	shape=[]	"SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv_1:0"
-|  |  Op(RealDiv)	"SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv_1"
-|  |  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
-|  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
-|  |  |  |  ...
-Op(SquaredDifference)	"Normal_4_1/log_prob/SquaredDifference"
+|  |  Tensor(Placeholder):0,	shape=[]	"values_4:0"
+|  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  |  ...
+Tensor(SquaredDifference):0,	shape=[919]	"Normal_4_1/log_prob/SquaredDifference:0"
 |  Tensor(RealDiv):0,	shape=[919]	"Normal_4_1/log_prob/truediv:0"
-|  |  Op(RealDiv)	"Normal_4_1/log_prob/truediv"
-|  |  |  Tensor(Const):0,	shape=[919]	"Normal_4_1/log_prob/value:0"
-|  |  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
-|  |  |  |  Op(Exp)	"exp_3_1/forward/Exp"
-|  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_2:0"
+|  |  Tensor(Const):0,	shape=[919]	"Normal_4_1/log_prob/value:0"
+|  |  |  [0.8329091 0.8329091 1.0986123 ... 1.6292405 1.3350011 1.0986123]
+|  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  |  Tensor(Placeholder):0,	shape=[]	"values_6:0"
 |  Tensor(RealDiv):0,	shape=[919]	"Normal_4_1/log_prob/truediv_1:0"
-|  |  Op(RealDiv)	"Normal_4_1/log_prob/truediv_1"
-|  |  |  Tensor(AddV2):0,	shape=[919]	"add:0"
-|  |  |  |  Op(AddV2)	"add"
-|  |  |  |  |  Tensor(GatherV2):0,	shape=[919]	"GatherV2:0"
-|  |  |  |  |  |  Op(GatherV2)	"GatherV2"
-|  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_6:0"
-|  |  |  |  |  |  |  Tensor(Const):0,	shape=[919]	"GatherV2/indices:0"
-|  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"GatherV2/axis:0"
-|  |  |  |  |  Tensor(Mul):0,	shape=[919]	"mul:0"
-|  |  |  |  |  |  Op(Mul)	"mul"
-|  |  |  |  |  |  |  Tensor(GatherV2):0,	shape=[919]	"GatherV2_1:0"
-|  |  |  |  |  |  |  |  Op(GatherV2)	"GatherV2_1"
-|  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_3:0"
-|  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[919]	"GatherV2_1/indices:0"
-|  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"GatherV2_1/axis:0"
-|  |  |  |  |  |  |  Tensor(Const):0,	shape=[919]	"mul/y:0"
-|  |  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
-|  |  |  |  ...
+|  |  Tensor(AddV2):0,	shape=[919]	"add:0"
+|  |  |  Tensor(GatherV2):0,	shape=[919]	"GatherV2:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_3:0"
+|  |  |  |  Tensor(Const):0,	shape=[919]	"GatherV2/indices:0"
+|  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  Tensor(Const):0,	shape=[]	"GatherV2/axis:0"
+|  |  |  |  |  0
+|  |  |  Tensor(Mul):0,	shape=[919]	"mul:0"
+|  |  |  |  Tensor(GatherV2):0,	shape=[919]	"GatherV2_1:0"
+|  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_2:0"
+|  |  |  |  |  Tensor(Const):0,	shape=[919]	"GatherV2_1/indices:0"
+|  |  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  |  Tensor(Const):0,	shape=[]	"GatherV2_1/axis:0"
+|  |  |  |  |  |  0
+|  |  |  |  Tensor(Const):0,	shape=[919]	"mul/y:0"
+|  |  |  |  |  [1. 0. 0. ... 0. 0. 0.]
+|  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  |  ...
 
 
 #+end_SRC
 
+The names in the TFP graph are not based on the PyMC4 model objects, so, to make
+the graph output slightly more interpretable, Listing
+[[model-names-to-tfp-names]] attempts to re-association the labels.
 
+#+NAME: model-names-to-tfp-names
+#+BEGIN_SRC python :exports both :results output :wrap "SRC python :eval never" :eval never-export
+from pprint import pprint
+
+tfp_names_to_pymc = {i.name: k for i, k in zip(logpfn_cf.structured_input_signature[0], init.keys())}
+
+pprint(tfp_names_to_pymc)
+#+END_SRC
+
+#+RESULTS: model-names-to-tfp-names
+#+begin_SRC python :eval never
+{'values_0': 'hierarchical_model/__log_sigma_alpha',
+ 'values_1': 'hierarchical_model/mu_alpha',
+ 'values_2': 'hierarchical_model/beta',
+ 'values_3': 'hierarchical_model/alpha',
+ 'values_4': 'hierarchical_model/mu_beta',
+ 'values_5': 'hierarchical_model/__log_sigma_beta',
+ 'values_6': 'hierarchical_model/__log_eps'}
+
+
+#+end_SRC
 ** Graph Normalization
+
+In general, we don't want our "patterns" to be "brittle", e.g. rely on
+explicit--yet variable--term orderings in commutative operators (e.g. a pattern
+that exclusively targets src_python[:eval never]{mt.add(x_lv, y_lv)} and won't
+match the equivalent src_python[:eval never]{mt.add(y_lv, x_lv)}).
 
 The src_python[:eval never]{grappler} library in TensorFlow provides a subset of
 graph pruning/optimization steps.  Ideally, a library like src_python[:eval never]{grappler}
@@ -542,11 +669,6 @@ algebraic normalizations, the extent to which these are performed and their
 breadth of relevant operator coverage isn't clear; however, the normalizations
 that it does provide are worth using, so we'll make use of them throughout.
 :END:
-
-In general, we don't want our "patterns" to be "brittle", e.g. rely on
-explicit--yet variable--term orderings in commutative operators (e.g. a pattern
-that exclusively targets src_python[:eval never]{mt.add(x_lv, y_lv)} and won't
-match the equivalent src_python[:eval never]{mt.add(y_lv, x_lv)}).
 
 Listing [[grappler-normalize-function]] provides a simple means of
 applying src_python[:eval never]{grappler}.
@@ -647,26 +769,21 @@ tf_dprint(normal_log_lik_opt)
 #+RESULTS: opt-graph-print
 #+begin_SRC text :eval never
 Tensor(Sub):0,	shape=[None]	"Normal_1/log_prob/sub:0"
-|  Op(Sub)	"Normal_1/log_prob/sub"
-|  |  Tensor(Mul):0,	shape=[None]	"Normal_1/log_prob/mul:0"
-|  |  |  Op(Mul)	"Normal_1/log_prob/mul"
-|  |  |  |  Tensor(SquaredDifference):0,	shape=[None]	"Normal_1/log_prob/SquaredDifference:0"
-|  |  |  |  |  Op(SquaredDifference)	"Normal_1/log_prob/SquaredDifference"
-|  |  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Normal_1/log_prob/truediv:0"
-|  |  |  |  |  |  |  Op(RealDiv)	"Normal_1/log_prob/truediv"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value:0"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Normal_1/log_prob/truediv_1:0"
-|  |  |  |  |  |  |  Op(RealDiv)	"Normal_1/log_prob/truediv_1"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"mu:0"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  Tensor(Const):0,	shape=[]	"Normal_1/log_prob/mul/x:0"
-|  |  Tensor(AddV2):0,	shape=[None]	"Normal_1/log_prob/add:0"
-|  |  |  Op(AddV2)	"Normal_1/log_prob/add"
-|  |  |  |  Tensor(Log):0,	shape=[None]	"Normal_1/log_prob/Log:0"
-|  |  |  |  |  Op(Log)	"Normal_1/log_prob/Log"
-|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  Tensor(Const):0,	shape=[]	"Normal_1/log_prob/add/x:0"
+|  Tensor(Mul):0,	shape=[None]	"Normal_1/log_prob/mul:0"
+|  |  Tensor(SquaredDifference):0,	shape=[None]	"Normal_1/log_prob/SquaredDifference:0"
+|  |  |  Tensor(RealDiv):0,	shape=[None]	"Normal_1/log_prob/truediv:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  |  Tensor(RealDiv):0,	shape=[None]	"Normal_1/log_prob/truediv_1:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[None]	"mu:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  Tensor(Const):0,	shape=[]	"Normal_1/log_prob/mul/x:0"
+|  |  |  -0.5
+|  Tensor(AddV2):0,	shape=[None]	"Normal_1/log_prob/add:0"
+|  |  Tensor(Log):0,	shape=[None]	"Normal_1/log_prob/Log:0"
+|  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  Tensor(Const):0,	shape=[]	"Normal_1/log_prob/add/x:0"
+|  |  |  0.9189385
 
 
 #+end_SRC
@@ -680,7 +797,7 @@ things.
 
 In Listing [[kanren-shift-squaredo-func]], we create miniKanren functions that
 identify the aforementioned src_python[:eval never]{SquaredDifference} "chains"
-and perform the re-centered/scaled \(X\) substitution.
+and perform the re-centering/scaling substitutions.
 
 #+NAME: kanren-shift-squaredo-func
 #+BEGIN_SRC python :results silent
@@ -694,6 +811,7 @@ from kanren.goals import not_equalo
 from kanren.core import goaleval
 
 from symbolic_pymc.tensorflow.meta import mt
+from symbolic_pymc.relations import buildo
 from symbolic_pymc.relations.graph import graph_applyo, reduceo
 from symbolic_pymc.etuple import ExpressionTuple, etuple
 
@@ -732,49 +850,85 @@ def tf_graph_applyo(relation, a, b):
     return gapplyo(a, b)
 
 
+def tfp_normal_log_prob(loc, scale):
+    log_unnormalized = -0.5 * tf.math.squared_difference(
+        x / scale, loc / scale)
+    log_normalization = 0.5 * np.log(2. * np.pi) + tf.math.log(scale)
+    return log_unnormalized - log_normalization
+
+#+END_SRC
+
+#+NAME: shift-squared-subso
+#+BEGIN_SRC python :results silent
+def shift_squared_subso(in_graph, out_subs):
+    """Construct a goal that produces transforms for chains like (y + x)**2, (x + z)**2."""
+
+    Y_lv, X_lv, mu_X_lv = var(), var(), var()
+    scale_Y_lv = var()
+
+    X_form_lv = mt.Placeholder(dtype=var(), shape=var(), name=var())
+    # The actual base object's placeholder might have `_user_specified_name` as
+    # an extra `op.node_def.attr`, so let's just make the entire NodeDef a
+    # logic variable.
+    X_form_lv.op.node_def = var()
+
+    mu_Y_lv = mt.realdiv(X_lv, scale_Y_lv, name=var())
+
+    # Y_T_reshaped_lv = mt.Transpose(mt.reshape(Y_lv, var(), name=var()), var())
+    Y_reshaped_lv = mt.reshape(Y_lv, var(), name=var())
+
+    sqr_diff_Y_lv = mt.SquaredDifference(
+        mt.realdiv(Y_reshaped_lv,
+                   scale_Y_lv,
+                   name=var()),
+        mu_Y_lv,
+        name=var())
+
+    def Y_sqrdiffo(in_g, out_g):
+        return lall(eq(in_g, sqr_diff_Y_lv),
+                    # This just makes sure that we're only considering X's
+                    # that are Placeholders.
+                    eq(X_lv, X_form_lv))
+
+    scale_X_lv = var()
+    sqr_diff_X_lv = mt.SquaredDifference(
+        # Mul is only used because RealDiv with 1 is changed by grappler
+        # mt.realdiv(X_lv, X_denom_lv, name=var()),
+        mt.mul(scale_X_lv, X_lv, name=var()),
+        mu_X_lv,
+        name=var())
+
+    def X_sqrdiffo(in_g, out_g):
+        return eq(in_g, sqr_diff_X_lv)
+
+    Y_new_mt = mt.addv2(X_lv, mt.mul(scale_Y_lv, Y_lv))
+    Y_log_scale = mt.log(scale_Y_lv, name=var())
+
+    res = lall(
+        # The first (y - x/a)**2 (anywhere in the graph)
+        tf_graph_applyo(Y_sqrdiffo, in_graph, in_graph),
+
+        # The corresponding (x/b - z)**2 (also anywhere else in the graph)
+        tf_graph_applyo(X_sqrdiffo, in_graph, in_graph),
+
+        # Find the log-scale factor (at this point, we might as well match an
+        # entire normal log-likelihood!)
+        tf_graph_applyo(lambda x, y: eq(x, Y_log_scale), in_graph, in_graph),
+
+        # Not sure if we need this, but we definitely don't want X == Y
+        (not_equalo, [Y_lv, X_lv], True),
+
+        # Create replacement rule pairs
+        eq(out_subs, [[Y_lv, Y_new_mt],
+                      [Y_log_scale, 0.0]]))
+
+    return res
+#+END_SRC
+
+#+NAME: shift-squared-terms
+#+BEGIN_SRC python :results silent
 def shift_squared_terms(in_obj, graph_inputs=[]):
     """Re-center/scale SquaredDifference terms corresponding to hierarchical normals."""
-
-    def shift_squared_subso(in_graph, out_subs):
-        """Construct a goal that identifies the SquaredDifference terms we desire."""
-
-        Y_lv, X_lv, mu_lv = var(), var(), var()
-        X_denom_lv = var()
-        X_form_lv = mt.Placeholder(dtype=var(), shape=var(), name=var())
-
-        sqr_diff_Y_lv = mt.SquaredDifference(Y_lv,
-                                             mt.realdiv(X_lv, var(), name=var()),
-                                             name=var())
-
-        def Y_sqrdiffo(in_g, out_g):
-            return lall(eq(in_g, sqr_diff_Y_lv),
-                        # This just makes sure that we're only considering X's
-                        # that are Placeholders.
-                        eq(X_lv, X_form_lv))
-
-        sqr_diff_X_lv = mt.SquaredDifference(mt.mul(X_denom_lv, X_lv, name=var()),
-                                             # mt.realdiv(X_lv, X_denom_lv, name=var()),
-                                             mu_lv,
-                                             name=var())
-
-        def X_sqrdiffo(in_g, out_g):
-            return eq(in_g, sqr_diff_X_lv)
-
-        # X_new_mt = mt.mul(X_denom_lv, mt.add(mu_lv, X_lv))
-        X_new_mt = mt.add(mu_lv, mt.mul(X_denom_lv, X_lv))
-
-        res = lall(
-            # The first (y - x/a)**2 (anywhere in the graph)
-            tf_graph_applyo(Y_sqrdiffo, in_graph, in_graph),
-            # The corresponding (x/b - z)**2 (also anywhere else in the graph)
-            tf_graph_applyo(X_sqrdiffo, in_graph, in_graph),
-            # Not sure if we need this, but we definitely don't want X == Y
-            (not_equalo, [Y_lv, X_lv], True),
-            # Set the "output"/second argument to the resulting substitution
-            # pair
-            eq(out_subs, [X_lv, X_new_mt]))
-
-        return res
 
     # Normalize and convert to a meta graph
     in_obj = mt(normalize_tf_graph(in_obj, graph_inputs=graph_inputs))
@@ -783,11 +937,23 @@ def shift_squared_terms(in_obj, graph_inputs=[]):
     subs_lv = var()
     subs_res = run(0, subs_lv, shift_squared_subso(in_obj, subs_lv))
 
+    if not subs_res:
+        print("Failed to find the required forms within the graph.")
+        return
+
+    # NOTE: We're only going to apply the first transformation pair for now.
+    subs_res = [subs_res[0]]
+
     def subs_replaceo(in_g, out_g):
         """Create a goal that applies substitutions to a graph."""
         def _subs_replaceo(in_g, out_g):
-            x_g = conde(*[[eq(in_g, x), eq(out_g, y)]
-                          for x, y in subs_res])
+            nonlocal subs_res
+            # Each result is a pair of replacement pairs:
+            #   the first pair is the re-center/scale transform,
+            #   the second pair is the cancellation of the log differential scale term.
+            subs_goals = [[eq(in_g, x), eq(out_g, y)]
+                          for x, y in chain.from_iterable(subs_res)]
+            x_g = conde(*subs_goals)
             return x_g
 
         g = onceo(tf_graph_applyo(_subs_replaceo, in_g, out_g))
@@ -809,9 +975,8 @@ def shift_squared_terms(in_obj, graph_inputs=[]):
 
         res = [reify_res(r) for r in res]
 
-    if len(res) == 1:
+    if len(res) == 1 and isinstance(res[0], tf.Tensor):
         graph_res = res[0]
-        # return graph_res, subs_res
         return normalize_tf_graph(graph_res, graph_inputs=graph_inputs), subs_res
 #+END_SRC
 
@@ -834,7 +999,9 @@ with graph_mode(), tf.Graph().as_default() as demo_graph:
     y_tf = tf.compat.v1.placeholder(tf.float32, name='value_y',
                                     shape=tf.TensorShape([None]))
 
-    hier_norm_lik = Y_tfp.log_prob(y_tf) + X_tfp.log_prob(x_tf)
+    y_T_reshaped = tf.transpose(tf.reshape(y_tf, []))
+
+    hier_norm_lik = tf.math.log(y_tf) + Y_tfp.log_prob(y_T_reshaped) + X_tfp.log_prob(x_tf)
     hier_norm_lik = normalize_tf_graph(hier_norm_lik)
 #+END_SRC
 
@@ -849,48 +1016,48 @@ tf_dprint(hier_norm_lik)
 
 #+RESULTS: non-trivial-transform-test-graph-print
 #+begin_SRC text :eval never
-Tensor(AddV2):0,	shape=[None]	"add:0"
-|  Op(AddV2)	"add"
-|  |  Tensor(Sub):0,	shape=[None]	"X_1/log_prob/sub:0"
-|  |  |  Op(Sub)	"X_1/log_prob/sub"
-|  |  |  |  Tensor(Mul):0,	shape=[None]	"X_1/log_prob/mul:0"
-|  |  |  |  |  Op(Mul)	"X_1/log_prob/mul"
-|  |  |  |  |  |  Tensor(SquaredDifference):0,	shape=[None]	"X_1/log_prob/SquaredDifference:0"
-|  |  |  |  |  |  |  Op(SquaredDifference)	"X_1/log_prob/SquaredDifference"
-|  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[None]	"X_1/log_prob/truediv:0"
-|  |  |  |  |  |  |  |  |  Op(Mul)	"X_1/log_prob/truediv"
-|  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"ConstantFolding/X_1/log_prob/truediv_recip:0"
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_x:0"
-|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"X_1/log_prob/truediv_1:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/mul/x:0"
-|  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/add/x:0"
+Tensor(AddV2):0,	shape=[None]	"add_1:0"
+|  Tensor(Sub):0,	shape=[None]	"X_1/log_prob/sub:0"
+|  |  Tensor(Mul):0,	shape=[None]	"X_1/log_prob/mul:0"
+|  |  |  Tensor(SquaredDifference):0,	shape=[None]	"X_1/log_prob/SquaredDifference:0"
+|  |  |  |  Tensor(Mul):0,	shape=[None]	"X_1/log_prob/truediv:0"
+|  |  |  |  |  Tensor(Const):0,	shape=[]	"ConstantFolding/X_1/log_prob/truediv_recip:0"
+|  |  |  |  |  |  1.
+|  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_x:0"
+|  |  |  |  Tensor(Const):0,	shape=[]	"X_1/log_prob/truediv_1:0"
+|  |  |  |  |  0.
+|  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/mul/x:0"
+|  |  |  |  -0.5
+|  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/add/x:0"
+|  |  |  0.9189385
+|  Tensor(AddV2):0,	shape=[None]	"add:0"
+|  |  Tensor(Log):0,	shape=[None]	"Log:0"
+|  |  |  Tensor(Placeholder):0,	shape=[None]	"value_y:0"
 |  |  Tensor(Sub):0,	shape=[None]	"Y_1/log_prob/sub:0"
-|  |  |  Op(Sub)	"Y_1/log_prob/sub"
-|  |  |  |  Tensor(Mul):0,	shape=[None]	"Y_1/log_prob/mul:0"
-|  |  |  |  |  Op(Mul)	"Y_1/log_prob/mul"
-|  |  |  |  |  |  Tensor(SquaredDifference):0,	shape=[None]	"Y_1/log_prob/SquaredDifference:0"
-|  |  |  |  |  |  |  Op(SquaredDifference)	"Y_1/log_prob/SquaredDifference"
-|  |  |  |  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Y_1/log_prob/truediv:0"
-|  |  |  |  |  |  |  |  |  Op(RealDiv)	"Y_1/log_prob/truediv"
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_y:0"
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Y_1/log_prob/truediv_1:0"
-|  |  |  |  |  |  |  |  |  Op(RealDiv)	"Y_1/log_prob/truediv_1"
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_x:0"
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/mul/x:0"
-|  |  |  |  Tensor(AddV2):0,	shape=[None]	"Y_1/log_prob/add:0"
-|  |  |  |  |  Op(AddV2)	"Y_1/log_prob/add"
-|  |  |  |  |  |  Tensor(Log):0,	shape=[None]	"Y_1/log_prob/Log:0"
-|  |  |  |  |  |  |  Op(Log)	"Y_1/log_prob/Log"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/add/x:0"
+|  |  |  Tensor(Mul):0,	shape=[None]	"Y_1/log_prob/mul:0"
+|  |  |  |  Tensor(SquaredDifference):0,	shape=[None]	"Y_1/log_prob/SquaredDifference:0"
+|  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Y_1/log_prob/truediv:0"
+|  |  |  |  |  |  Tensor(Reshape):0,	shape=[]	"Reshape:0"
+|  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_y:0"
+|  |  |  |  |  |  |  Tensor(Const):0,	shape=[0]	"Reshape/shape:0"
+|  |  |  |  |  |  |  |  []
+|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Y_1/log_prob/truediv_1:0"
+|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_x:0"
+|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/mul/x:0"
+|  |  |  |  |  -0.5
+|  |  |  Tensor(AddV2):0,	shape=[None]	"Y_1/log_prob/add:0"
+|  |  |  |  Tensor(Log):0,	shape=[None]	"Y_1/log_prob/Log:0"
+|  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/add/x:0"
+|  |  |  |  |  0.9189385
 
 
 #+end_SRC
 
 Listing [[non-trivial-transform-test-apply]] runs our transformation and Listing
-[[non-trivial-transform-test-print]] prints the resulting graph.
+[[non-trivial-transform-test-print-graph]] prints the resulting graph.
 
 #+NAME: non-trivial-transform-test-apply
 #+BEGIN_SRC python :exports code :results silent
@@ -898,63 +1065,216 @@ with graph_mode(), demo_graph.as_default():
     test_output_res, test_remaps = shift_squared_terms(hier_norm_lik, graph_inputs=[x_tf, y_tf])
 #+END_SRC
 
-#+NAME: non-trivial-transform-test-print
+#+NAME: non-trivial-transform-test-print-remaps
 #+BEGIN_SRC python :exports both :results output :wrap "SRC text :eval never"
-tf_dprint(test_output_res)
+for rm in test_remaps:
+    for r in rm:
+      tf_dprint(r[0])
+      print("->")
+      tf_dprint(r[1])
+      print("------")
 #+END_SRC
 
-#+RESULTS: non-trivial-transform-test-print
+#+RESULTS: non-trivial-transform-test-print-remaps
 #+begin_SRC text :eval never
-Tensor(AddV2):0,	shape=[None]	"add_2:0"
-|  Op(AddV2)	"add_2"
-|  |  Tensor(Sub):0,	shape=[None]	"X_1/log_prob/sub_1:0"
-|  |  |  Op(Sub)	"X_1/log_prob/sub_1"
-|  |  |  |  Tensor(Mul):0,	shape=[None]	"X_1/log_prob/mul_1:0"
-|  |  |  |  |  Op(Mul)	"X_1/log_prob/mul_1"
-|  |  |  |  |  |  Tensor(SquaredDifference):0,	shape=[None]	"X_1/log_prob/SquaredDifference_1:0"
-|  |  |  |  |  |  |  Op(SquaredDifference)	"X_1/log_prob/SquaredDifference_1"
-|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"X_1/log_prob/truediv_1:0"
-|  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[None]	"X_1/log_prob/truediv_2:0"
-|  |  |  |  |  |  |  |  |  Op(Mul)	"X_1/log_prob/truediv_2"
-|  |  |  |  |  |  |  |  |  |  Tensor(Add):0,	shape=[None]	"Add_1:0"
-|  |  |  |  |  |  |  |  |  |  |  Op(Add)	"Add_1"
-|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[None]	"Mul:0"
-|  |  |  |  |  |  |  |  |  |  |  |  |  Op(Mul)	"Mul"
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"ConstantFolding/X_1/log_prob/truediv_recip:0"
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_x:0"
-|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"X_1/log_prob/truediv_1:0"
-|  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"ConstantFolding/X_1/log_prob/truediv_recip:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/mul/x:0"
-|  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/add/x:0"
-|  |  Tensor(Sub):0,	shape=[None]	"Y_1/log_prob/sub_1:0"
-|  |  |  Op(Sub)	"Y_1/log_prob/sub_1"
-|  |  |  |  Tensor(Mul):0,	shape=[None]	"Y_1/log_prob/mul_1:0"
-|  |  |  |  |  Op(Mul)	"Y_1/log_prob/mul_1"
-|  |  |  |  |  |  Tensor(SquaredDifference):0,	shape=[None]	"Y_1/log_prob/SquaredDifference_1:0"
-|  |  |  |  |  |  |  Op(SquaredDifference)	"Y_1/log_prob/SquaredDifference_1"
-|  |  |  |  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Y_1/log_prob/truediv:0"
-|  |  |  |  |  |  |  |  |  Op(RealDiv)	"Y_1/log_prob/truediv"
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_y:0"
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Y_1/log_prob/truediv_1_1:0"
-|  |  |  |  |  |  |  |  |  Op(RealDiv)	"Y_1/log_prob/truediv_1_1"
-|  |  |  |  |  |  |  |  |  |  Tensor(Add):0,	shape=[None]	"Add_1:0"
-|  |  |  |  |  |  |  |  |  |  |  ...
-|  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/mul/x:0"
-|  |  |  |  Tensor(AddV2):0,	shape=[None]	"Y_1/log_prob/add:0"
-|  |  |  |  |  Op(AddV2)	"Y_1/log_prob/add"
-|  |  |  |  |  |  Tensor(Log):0,	shape=[None]	"Y_1/log_prob/Log:0"
-|  |  |  |  |  |  |  Op(Log)	"Y_1/log_prob/Log"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/add/x:0"
+Tensor(Placeholder):0,	shape=[None]	"value_y:0"
+->
+Tensor(AddV2):0,	shape=[None]	"AddV2:0"
+|  Tensor(Placeholder):0,	shape=[None]	"value_x:0"
+|  Tensor(Mul):0,	shape=[None]	"Mul:0"
+|  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  Tensor(Placeholder):0,	shape=[None]	"value_y:0"
+------
+Tensor(Log):0,	shape=~_12312	"Y_1/log_prob/Log:0"
+|  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+->
+0.0
+------
 
 
 #+end_SRC
 
-From Listing [[non-trivial-transform-test-print]] we can see that
-src_python[:eval never]{grappler} is not applying enough algebraic simplifications
-to reduce the \(\left(\mu + x - \mu \right)^2 \) term.
+#+NAME: non-trivial-transform-test-print-graph
+#+BEGIN_SRC python :exports both :results output :wrap "SRC text :eval never"
+tf_dprint(test_output_res)
+#+END_SRC
+
+#+RESULTS: non-trivial-transform-test-print-graph
+#+begin_SRC text :eval never
+Tensor(AddV2):0,	shape=[None]	"add_1_1:0"
+|  Tensor(Sub):0,	shape=[None]	"X_1/log_prob/sub:0"
+|  |  Tensor(Mul):0,	shape=[None]	"X_1/log_prob/mul:0"
+|  |  |  Tensor(SquaredDifference):0,	shape=[None]	"X_1/log_prob/SquaredDifference:0"
+|  |  |  |  Tensor(Mul):0,	shape=[None]	"X_1/log_prob/truediv:0"
+|  |  |  |  |  Tensor(Const):0,	shape=[]	"ConstantFolding/X_1/log_prob/truediv_recip:0"
+|  |  |  |  |  |  1.
+|  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_x:0"
+|  |  |  |  Tensor(Const):0,	shape=[]	"X_1/log_prob/truediv_1:0"
+|  |  |  |  |  0.
+|  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/mul/x:0"
+|  |  |  |  -0.5
+|  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/add/x:0"
+|  |  |  0.9189385
+|  Tensor(AddV2):0,	shape=[None]	"add_2:0"
+|  |  Tensor(Log):0,	shape=[None]	"Log_1:0"
+|  |  |  Tensor(AddV2):0,	shape=[None]	"AddV2:0"
+|  |  |  |  Tensor(Mul):0,	shape=[None]	"Mul:0"
+|  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_y:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_x:0"
+|  |  Tensor(Sub):0,	shape=[None]	"Y_1/log_prob/sub_1:0"
+|  |  |  Tensor(Mul):0,	shape=[None]	"Y_1/log_prob/mul_1:0"
+|  |  |  |  Tensor(SquaredDifference):0,	shape=[None]	"Y_1/log_prob/SquaredDifference_1:0"
+|  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Y_1/log_prob/truediv_1:0"
+|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"value_x:0"
+|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  |  |  |  Tensor(RealDiv):0,	shape=[None]	"Y_1/log_prob/truediv_2:0"
+|  |  |  |  |  |  Tensor(Reshape):0,	shape=[]	"Reshape_1:0"
+|  |  |  |  |  |  |  Tensor(AddV2):0,	shape=[None]	"AddV2:0"
+|  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  Tensor(Const):0,	shape=[0]	"Reshape/shape:0"
+|  |  |  |  |  |  |  |  []
+|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[None]	"tau:0"
+|  |  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/mul/x:0"
+|  |  |  |  |  -0.5
+|  |  |  Tensor(Const):0,	shape=[]	"Y_1/log_prob/add/x:0"
+|  |  |  |  0.9189385
+
+
+#+end_SRC
+
+** Missing Graph Simplifications
+From Listing [[non-trivial-transform-test-print-graph]] we can see
+that src_python[:eval never]{grappler} is not applying enough algebraic
+simplifications (e.g. it doesn't remove multiplications with 1 or reduce the
+\(\left(\mu + x - \mu \right)^2 \) term
+in src_python[:eval never]{SquaredDifference}).
+
+Does missing this simplification amount to anything practical?
+Listing [[non-trivial-transform-eval]] demonstrates the difference between
+our model without the simplification and a manually constructed model without
+the redundancy in src_python[:eval never]{SquaredDifference}.
+
+#+NAME: non-trivial-transform-eval
+#+BEGIN_SRC python :exports code :results silent
+def compute_point_diff():
+    with graph_mode(), demo_graph.as_default():
+
+        Y_trans_tfp = tfp.distributions.normal.Normal(0.0, 1.0, name='Y_trans')
+
+        y_shifted_tf = x_tf + tau_tf * y_tf
+
+        hier_norm_trans_lik = tf.math.log(y_shifted_tf) + Y_trans_tfp.log_prob(y_T_reshaped) + X_tfp.log_prob(x_tf)
+        hier_norm_trans_lik = normalize_tf_graph(hier_norm_trans_lik)
+
+
+    test_point = {x_tf.name: np.r_[1.0],
+                  tau_tf.name: np.r_[1e-20],
+                  y_tf.name: np.r_[1000.1]}
+
+    with tf.compat.v1.Session(graph=test_output_res.graph).as_default():
+        val = test_output_res.eval(test_point)
+
+    with tf.compat.v1.Session(graph=hier_norm_trans_lik.graph).as_default():
+        val_2 = hier_norm_trans_lik.eval(test_point)
+
+    return val, val_2
+#+END_SRC
+
+#+NAME: non-trivial-transform-eval-print
+#+BEGIN_SRC python :exports both :results value :wrap "SRC text :eval never"
+_ = np.subtract(*compute_point_diff())
+#+END_SRC
+
+#+RESULTS: non-trivial-transform-eval-print
+#+begin_SRC text :eval never
+[500099.94]
+#+end_SRC
+
+The output of Listing [[non-trivial-transform-eval-print]] shows exactly how large
+the discrepancy can be for carefully chosen parameter values.  More
+specifically, as src_python[:eval never]{tau_tf} gets smaller and the magnitude
+of the difference src_python[:eval never]{x_tf - y_tf} gets larger, the
+discrepancy can increase.  Since such parameter values are likely to be visited
+during sampling, we should address this missing simplification.
+
+In Listing [[further-simplify-test-graph]] we create a goal that performs that
+aforementioned simplification for src_python[:eval never]{SquaredDifference}.
+
+#+NAME: recenter-sqrdiffo
+#+BEGIN_SRC python :exports code :results silent
+def recenter_sqrdiffo(in_g, out_g):
+    """Create a goal that reduces `(a/d - (a + c)/d)**2` to `()`"""
+    a_sqd_lv, b_sqd_lv, d_sqd_lv = var(), var(), var()
+    target_sqrdiff_lv = mt.SquaredDifference(
+        mt.realdiv(a_sqd_lv, d_sqd_lv, name=var()),
+        mt.realdiv(b_sqd_lv, d_sqd_lv, name=var()),
+        name=var()
+    )
+
+    c_sqd_lv = var()
+    b_part_lv = mt.addv2(mt.mul(d_sqd_lv, c_sqd_lv, name=var()), a_sqd_lv, name=var())
+
+    simplified_sqrdiff_lv = mt.SquaredDifference(
+        c_sqd_lv,
+        0.0
+    )
+
+    reshape_lv = var()
+    simplified_sqrdiff_reshaped_lv = mt.SquaredDifference(
+        mt.reshape(c_sqd_lv, reshape_lv),
+        0.0
+    )
+
+    res = lall(eq(in_g, target_sqrdiff_lv),
+               conde([eq(b_sqd_lv, b_part_lv),
+                      eq(out_g, simplified_sqrdiff_lv)],
+                     # Maybe it's been reshaped
+                     [eq(b_sqd_lv, mt.reshape(b_part_lv, reshape_lv, name=var())),
+                      eq(out_g, simplified_sqrdiff_reshaped_lv)]))
+    return res
+#+END_SRC
+
+We apply the simplification in Listing [[further-simplify-test-graph]] and print
+the results in [[further-simplify-test-graph-print]].
+
+#+NAME: further-simplify-test-graph
+#+BEGIN_SRC python :exports code :results silent
+with graph_mode(), test_output_res.graph.as_default():
+
+    res = run(1, var('q'),
+              reduceo(lambda x, y: tf_graph_applyo(recenter_sqrdiffo, x, y),
+                      test_output_res, var('q')))
+
+    test_output_res = normalize_tf_graph(res[0].eval_obj.reify())
+#+END_SRC
+
+#+NAME: further-simplify-test-graph-print
+#+BEGIN_SRC python :exports both :results output :wrap "SRC text :eval never"
+tf_dprint(test_output_res.graph.get_tensor_by_name('SquaredDifference:0'))
+#+END_SRC
+
+#+RESULTS: further-simplify-test-graph-print
+#+begin_SRC text :eval never
+Tensor(SquaredDifference):0,	shape=[None]	"SquaredDifference:0"
+|  Tensor(Const):0,	shape=[]	"X_1/log_prob/truediv_1:0"
+|  |  0.
+|  Tensor(Placeholder):0,	shape=[None]	"value_y:0"
+
+
+#+end_SRC
+
+After simplification, the difference is now gone.
+
+#+NAME: non-trivial-transform-simplified-eval-print
+#+BEGIN_SRC python :exports both :results value :wrap "SRC text :eval never"
+_ = np.subtract(*compute_point_diff())
+#+END_SRC
+
+#+RESULTS: non-trivial-transform-simplified-eval-print
+#+begin_SRC text :eval never
+[0.]
+#+end_SRC
 
 * Transforming the Log-likelihood Graph
 
@@ -962,10 +1282,20 @@ Now, we're ready to apply the transform to the radon model log-likelihood graph.
 
 #+NAME: transform-logpfn
 #+BEGIN_SRC python :results silent
-with graph_mode(), tf.Graph().as_default() as trans_graph: #logpfn_fg.as_default():
+with graph_mode(), tf.Graph().as_default() as trans_graph:
+
     graph_inputs = [logpfn_fg.get_operation_by_name(i.name).outputs[0]
                     for i in logpfn_cf.structured_input_signature[0]]
+
     logpfn_trans_tf, logpfn_remaps = shift_squared_terms(logpfn_fg.outputs[0], graph_inputs=graph_inputs)
+
+with graph_mode(), logpfn_trans_tf.graph.as_default():
+
+    res = run(1, var('q'),
+              reduceo(lambda x, y: tf_graph_applyo(recenter_sqrdiffo, x, y),
+                      logpfn_trans_tf, var('q')))
+
+    logpfn_trans_tf = normalize_tf_graph(res[0].eval_obj.reify())
 #+END_SRC
 
 Listing [[print-transformed-remaps]] shows the replacements that were made
@@ -975,121 +1305,137 @@ and src_python[:eval never]{b} in our model--as intended.
 
 #+NAME: print-transformed-remaps
 #+BEGIN_SRC python :exports both :results output :wrap "SRC text :eval never" :eval never-export
-for r in logpfn_remaps:
-    [tf_dprint(i) for i in r]
-    print("------")
+for rm in logpfn_remaps:
+    for r in rm:
+      tf_dprint(r[0])
+      print("->")
+      tf_dprint(r[1])
+      print("------")
 #+END_SRC
 
 #+RESULTS: print-transformed-remaps
 #+begin_SRC text :eval never
-Tensor(Placeholder):0,	shape=[]	"values_1:0"
-Tensor(Add):0,	shape=[]	"Add_12:0"
-|  Op(Add)	"Add"
-|  |  Tensor(Const):0,	shape=[]	"add_1/x:0"
-|  |  Tensor(Mul):0,	shape=[]	"Mul_4:0"
-|  |  |  Op(Mul)	"Mul"
-|  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
-|  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
+Tensor(Placeholder):0,	shape=[85]	"values_2:0"
+->
+Tensor(AddV2):0,	shape=[85]	"AddV2:0"
+|  Tensor(Placeholder):0,	shape=[]	"values_4:0"
+|  Tensor(Mul):0,	shape=[85]	"Mul_4:0"
+|  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
+|  |  Tensor(Placeholder):0,	shape=[85]	"values_2:0"
 ------
-Tensor(Placeholder):0,	shape=[]	"values_5:0"
-Tensor(Add):0,	shape=[]	"Add_13:0"
-|  Op(Add)	"Add"
-|  |  Tensor(Const):0,	shape=[]	"add_1/x:0"
-|  |  Tensor(Mul):0,	shape=[]	"Mul_5:0"
-|  |  |  Op(Mul)	"Mul"
-|  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
-|  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
+Tensor(Log):0,	shape=~_175065	"SampleNormal_3_1/log_prob/Normal_3/log_prob/Log:0"
+|  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
+->
+0.0
 ------
 
 
 #+end_SRC
 
 Likewise, Listing [[show-squared-diff-terms-in-trans]] shows
-all src_python[:eval never]{Square}
-and src_python[:eval never]{SquaredDifference} subgraphs that appear in the
+src_python[:eval never]{SquaredDifference} subgraphs that appear in the
 transformed log-likelihood.
 
 #+NAME: show-squared-diff-terms-in-trans
 #+BEGIN_SRC python :exports both :results output :wrap "SRC text :eval never"
 square_diff_outs = [o.outputs[0] for o in logpfn_trans_tf.graph.get_operations()
-                    if o.type == 'SquaredDifference' or o.type == 'Square']
+                    if o.type == 'SquaredDifference' or
+                    o.type.startswith('Gather') or o.type == 'Log']
 
-for t in square_diff_outs[:4]:
+for t in square_diff_outs:
     tf_dprint(t)
 #+END_SRC
 
 #+RESULTS: show-squared-diff-terms-in-trans
 #+begin_SRC text :eval never
-Tensor(SquaredDifference):0,	shape=[85]	"SampleNormal_3_1/log_prob/Normal_3/log_prob/SquaredDifference_1:0"
-|  Op(SquaredDifference)	"SampleNormal_3_1/log_prob/Normal_3/log_prob/SquaredDifference_1"
-|  |  Tensor(RealDiv):0,	shape=[85]	"SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv:0"
-|  |  |  Op(RealDiv)	"SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv"
-|  |  |  |  Tensor(Reshape):0,	shape=[85]	"SampleNormal_3_1/log_prob/Reshape:0"
-|  |  |  |  |  Op(Reshape)	"SampleNormal_3_1/log_prob/Reshape"
-|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_3:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_2_1/log_prob/Reshape/shape:0"
-|  |  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
-|  |  |  |  |  Op(Exp)	"exp_2_1/forward/Exp"
-|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_0:0"
-|  |  Tensor(RealDiv):0,	shape=[]	"SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv_1_1:0"
-|  |  |  Op(RealDiv)	"SampleNormal_3_1/log_prob/Normal_3/log_prob/truediv_1_1"
-|  |  |  |  Tensor(Add):0,	shape=[]	"Add_12:0"
-|  |  |  |  |  Op(Add)	"Add_12"
-|  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"Mul_4:0"
-|  |  |  |  |  |  |  Op(Mul)	"Mul_4"
-|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_1/x:0"
-|  |  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
-|  |  |  |  |  ...
-Tensor(SquaredDifference):0,	shape=[]	"Normal_1_1/log_prob/SquaredDifference_1:0"
-|  Op(SquaredDifference)	"Normal_1_1/log_prob/SquaredDifference_1"
-|  |  Tensor(Mul):0,	shape=[]	"Normal_1_1/log_prob/truediv_1:0"
-|  |  |  Op(Mul)	"Normal_1_1/log_prob/truediv_1"
-|  |  |  |  Tensor(Add):0,	shape=[]	"Add_12:0"
-|  |  |  |  |  Op(Add)	"Add_12"
-|  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"Mul_4:0"
-|  |  |  |  |  |  |  Op(Mul)	"Mul_4"
-|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_1/x:0"
-|  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
-|  |  Tensor(Const):0,	shape=[]	"add_1/x:0"
-Tensor(SquaredDifference):0,	shape=[85]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/SquaredDifference_1:0"
-|  Op(SquaredDifference)	"SampleNormal_2_1/log_prob/Normal_2/log_prob/SquaredDifference_1"
-|  |  Tensor(RealDiv):0,	shape=[85]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv:0"
-|  |  |  Op(RealDiv)	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv"
-|  |  |  |  Tensor(Reshape):0,	shape=[85]	"SampleNormal_2_1/log_prob/Reshape:0"
-|  |  |  |  |  Op(Reshape)	"SampleNormal_2_1/log_prob/Reshape"
-|  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_6:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_2_1/log_prob/Reshape/shape:0"
-|  |  |  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
-|  |  |  |  |  Op(Exp)	"exp_1/forward/Exp"
+Tensor(GatherV2):0,	shape=[919]	"GatherV2:0"
+|  Tensor(Placeholder):0,	shape=[85]	"values_3:0"
+|  Tensor(Const):0,	shape=[919]	"GatherV2/indices:0"
+|  |  [ 0  0  0 ... 83 84 84]
+|  Tensor(Const):0,	shape=[]	"GatherV2/axis:0"
+|  |  0
+Tensor(Log):0,	shape=[]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/Log:0"
+|  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  Tensor(Placeholder):0,	shape=[]	"values_0:0"
+Tensor(SquaredDifference):0,	shape=[]	"Normal_5/log_prob/SquaredDifference:0"
+|  Tensor(Const):0,	shape=[]	"Const_723:0"
+|  |  0.
+|  Tensor(Mul):0,	shape=[]	"Normal_5/log_prob/truediv:0"
+|  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  1.
+|  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
+Tensor(SquaredDifference):0,	shape=[85]	"SquaredDifference:0"
+|  Tensor(Const):0,	shape=[]	"Const_723:0"
+|  |  0.
+|  Tensor(Reshape):0,	shape=[85]	"Reshape:0"
+|  |  Tensor(Placeholder):0,	shape=[85]	"values_2:0"
+|  |  Tensor(Const):0,	shape=[1]	"SampleNormal_2_1/log_prob/Reshape/shape:0"
+|  |  |  [85]
+Tensor(SquaredDifference):0,	shape=[]	"Normal_1_1/log_prob/SquaredDifference:0"
+|  Tensor(Const):0,	shape=[]	"Const_723:0"
+|  |  0.
+|  Tensor(Mul):0,	shape=[]	"Normal_1_1/log_prob/truediv:0"
+|  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  1.
+|  |  Tensor(Placeholder):0,	shape=[]	"values_4:0"
+Tensor(Log):0,	shape=[]	"Normal_4_1/log_prob/Log:0"
+|  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  Tensor(Placeholder):0,	shape=[]	"values_6:0"
+Tensor(SquaredDifference):0,	shape=[85]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/SquaredDifference:0"
+|  Tensor(RealDiv):0,	shape=[85]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv:0"
+|  |  Tensor(Reshape):0,	shape=[85]	"SampleNormal_2_1/log_prob/Reshape:0"
+|  |  |  Tensor(Placeholder):0,	shape=[85]	"values_3:0"
+|  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_2_1/log_prob/Reshape/shape:0"
+|  |  |  |  [85]
+|  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  |  Tensor(Placeholder):0,	shape=[]	"values_0:0"
+|  Tensor(RealDiv):0,	shape=[]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv_1:0"
+|  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
+|  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  |  ...
+Tensor(GatherV2):0,	shape=[919]	"GatherV2_1_1:0"
+|  Tensor(AddV2):0,	shape=[85]	"AddV2:0"
+|  |  Tensor(Mul):0,	shape=[85]	"Mul_4:0"
+|  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
+|  |  |  Tensor(Placeholder):0,	shape=[85]	"values_2:0"
+|  |  Tensor(Placeholder):0,	shape=[]	"values_4:0"
+|  Tensor(Const):0,	shape=[919]	"GatherV2/indices:0"
+|  |  [ 0  0  0 ... 83 84 84]
+|  Tensor(Const):0,	shape=[]	"GatherV2/axis:0"
+|  |  0
+Tensor(SquaredDifference):0,	shape=[919]	"Normal_4_1/log_prob/SquaredDifference_1:0"
+|  Tensor(RealDiv):0,	shape=[919]	"Normal_4_1/log_prob/truediv:0"
+|  |  Tensor(Const):0,	shape=[919]	"Normal_4_1/log_prob/value:0"
+|  |  |  [0.8329091 0.8329091 1.0986123 ... 1.6292405 1.3350011 1.0986123]
+|  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  |  Tensor(Placeholder):0,	shape=[]	"values_6:0"
+|  Tensor(RealDiv):0,	shape=[919]	"Normal_4_1/log_prob/truediv_1_1:0"
+|  |  Tensor(AddV2):0,	shape=[919]	"add_12:0"
+|  |  |  Tensor(GatherV2):0,	shape=[919]	"GatherV2:0"
+|  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_3:0"
+|  |  |  |  Tensor(Const):0,	shape=[919]	"GatherV2/indices:0"
+|  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  Tensor(Const):0,	shape=[]	"GatherV2/axis:0"
+|  |  |  |  |  0
+|  |  |  Tensor(Mul):0,	shape=[919]	"mul_5:0"
+|  |  |  |  Tensor(GatherV2):0,	shape=[919]	"GatherV2_1_1:0"
+|  |  |  |  |  Tensor(AddV2):0,	shape=[85]	"AddV2:0"
+|  |  |  |  |  |  Tensor(Mul):0,	shape=[85]	"Mul_4:0"
+|  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
+|  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_2:0"
 |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_4:0"
-|  |  Tensor(RealDiv):0,	shape=[]	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv_1_1:0"
-|  |  |  Op(RealDiv)	"SampleNormal_2_1/log_prob/Normal_2/log_prob/truediv_1_1"
-|  |  |  |  Tensor(Add):0,	shape=[]	"Add_13:0"
-|  |  |  |  |  Op(Add)	"Add_13"
-|  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"Mul_5:0"
-|  |  |  |  |  |  |  Op(Mul)	"Mul_5"
-|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_1/x:0"
-|  |  |  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
-|  |  |  |  |  ...
-Tensor(SquaredDifference):0,	shape=[]	"Normal_5/log_prob/SquaredDifference_1:0"
-|  Op(SquaredDifference)	"Normal_5/log_prob/SquaredDifference_1"
-|  |  Tensor(Mul):0,	shape=[]	"Normal_5/log_prob/truediv_1:0"
-|  |  |  Op(Mul)	"Normal_5/log_prob/truediv_1"
-|  |  |  |  Tensor(Add):0,	shape=[]	"Add_13:0"
-|  |  |  |  |  Op(Add)	"Add_13"
-|  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"Mul_5:0"
-|  |  |  |  |  |  |  Op(Mul)	"Mul_5"
-|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
-|  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_5:0"
-|  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_1/x:0"
-|  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
-|  |  Tensor(Const):0,	shape=[]	"add_1/x:0"
+|  |  |  |  |  Tensor(Const):0,	shape=[919]	"GatherV2/indices:0"
+|  |  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  |  Tensor(Const):0,	shape=[]	"GatherV2/axis:0"
+|  |  |  |  |  |  0
+|  |  |  |  Tensor(Const):0,	shape=[919]	"mul/y:0"
+|  |  |  |  |  [1. 0. 0. ... 0. 0. 0.]
+|  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  |  ...
 
 
 #+end_SRC
@@ -1160,12 +1506,11 @@ _ = logpfn_cf(*init.values()) - logpfn_new_cf(*init.values())
 
 #+RESULTS: demo-diff-fgraph-output
 #+begin_SRC python :eval never
-tf.Tensor(0.0, shape=(), dtype=float32)
+tf.Tensor(153.41016, shape=(), dtype=float32)
 #+end_SRC
 
 Listing [[demo-diff-fgraph-output]] shows the difference between a transformed and
 non-transformed log-likelihood value given the same inputs.
-
 
 * Sampling from the new Log-likelihood
 
@@ -1176,23 +1521,43 @@ function.
 
 #+NAME: hijack-build-logp
 #+BEGIN_SRC python :results silent
-from importlib import reload
+from contextlib import contextmanager
 
 
-# Let's make sure we save the original function
-reload(pm.inference.sampling)
-_build_logp_function = pm.inference.sampling.build_logp_function
+# We need to create new initial values for our transformed variables.
+new_val_map = {}
+for logpfn_remap in logpfn_remaps:
+    transed_var = logpfn_remap[0][0].reify()
+    transed_var_pymc_name = tfp_names_to_pymc[transed_var.op.name]
+    old_val_np = init[transed_var_pymc_name].numpy()
+    new_val_np = np.random.standard_normal(old_val_np.shape).astype(old_val_np.dtype)
+    new_val_map[transed_var_pymc_name] = tf.convert_to_tensor(new_val_np)
+
+new_init = init.copy()
+new_init.update(new_val_map)
 
 
-def _new_build_logp_function(*args, **kwargs):
-    return logpfn_new_cf, init
+@contextmanager
+def pymc4_force_logp(logpfn_new_cf, new_init):
+    """Temporarily fix the logp function and init values used by PyMC4's sampler."""
 
-pm.inference.sampling.build_logp_function = _new_build_logp_function
+    def _new_build_logp_function(*args, **kwargs):
+        nonlocal logpfn_new_cf, new_init
+        return logpfn_new_cf, new_init
+
+    _old_fn = pm.inference.sampling.build_logp_function
+    pm.inference.sampling.build_logp_function = _new_build_logp_function
+
+    try:
+        yield
+    finally:
+        pm.inference.sampling.build_logp_function = _old_fn
 #+END_SRC
 
 #+NAME: sample-transformed-model
 #+BEGIN_SRC python :results silent :eval never
-az_trace = sample(model)
+with pymc4_force_logp(logpfn_new_cf, new_init):
+    az_trace = sample(model)
 #+END_SRC
 
 #+NAME: sample-transformed-model-pickle
@@ -1220,12 +1585,13 @@ _ = az.plot_energy(az_trace)
 
 #+CALL: generate-python-plots[:results silent :eval never-export](code-block-name="transformed-model-plot-energy")
 
-#+RESULTS:
 #+ATTR_ORG: :width 400
 #+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
 #+CAPTION:
 #+NAME: fig:transformed-model-plot-energy
 [[file:../../figures/transformed-model-plot-energy.png]]
+
+
 
 
 #+NAME: transformed-model-plot-trace
@@ -1242,7 +1608,6 @@ _ = az.plot_trace(az_trace, compact=True)
 #+CAPTION:
 #+NAME: fig:transformed-model-plot-trace
 [[file:../../figures/transformed-model-plot-trace.png]]
-
 
 * Discussion
 
@@ -1315,3 +1680,343 @@ offerings are demonstrated.
 # here are possible.  These changes can be made without affecting the relations that such goal
 # combinations implement exclusively model the high-level math/probability
 # concepts.
+
+* Testing                                                          :noexport:
+
+#+NAME: pymc4-nc-model
+#+BEGIN_SRC python :eval never-export :results silent
+@pm.model
+def Hierarchical(n, centered=True):
+    mu = yield pm.Normal(mu=0., sigma=1, name='mu')
+    sigma = yield pm.HalfCauchy(beta=1, name='sigma')
+    if centered:
+        s = yield pm.Normal(mu=mu, sigma=sigma,
+                            plate=n, name='s')
+    else:
+        offset = yield pm.Normal(mu=0, sigma=1,
+                                 plate=n, name='offset')
+        s = mu + sigma * offset
+    return s
+
+@pm.model
+def hierarchical_model_nc(data, county_idx):
+    n = len(data.county.unique())
+    # TODO Use same name-syntax as with other RVs
+    a = yield Hierarchical(n=n, centered=True, name='alpha')
+    b = yield Hierarchical(n=n, centered=False, name='beta')
+
+    # Model error
+    eps = yield pm.HalfCauchy(beta=1, name='eps')
+
+    # Expected value
+    radon_est = tf.gather(a, county_idx) + tf.gather(b, county_idx) * data.floor.values
+
+    # Data likelihood
+    y_like = yield pm.Normal(mu=radon_est, sigma=eps, observed=data.log_radon, name='y_like')
+
+
+model_nc = hierarchical_model_nc(data, county_idx)
+#+END_SRC
+
+#+NAME: pymc4-nc-model-sample
+#+BEGIN_SRC python :eval never :results silent
+az_trace_nc = sample(model_nc)
+
+az.plot_energy(az_trace_nc)
+
+plt.savefig('content/articles/figures/transformed-model-plot-energy-2.png')
+
+az.plot_trace(az_trace_nc, compact=True)
+
+plt.savefig('content/articles/figures/transformed-model-plot-trace-2.png')
+#+END_SRC
+
+#+RESULTS:
+#+ATTR_ORG: :width 400
+#+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
+#+CAPTION:
+#+NAME: fig:transformed-model-plot-energy-2
+[[file:../../figures/transformed-model-plot-energy-2.png]]
+
+
+#+RESULTS:
+#+ATTR_ORG: :width 400
+#+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
+#+CAPTION:
+#+NAME: fig:transformed-model-plot-trace-2
+[[file:../../figures/transformed-model-plot-trace-2.png]]
+
+
+
+#+NAME: pymc4-nc-graph-extract
+#+BEGIN_SRC python :eval never-export :results silent
+logpfn_nc, init_nc = pm.inference.sampling.build_logp_function(model_nc,
+                                                               state=None,
+                                                               observed=None)
+
+logpfn_nc_cf = logpfn_nc.get_concrete_function(*init_nc.values())
+logpfn_nc_fg = logpfn_nc_cf.graph
+
+
+logpfn_nc_tf = normalize_tf_graph(logpfn_nc_fg.outputs[0])
+#+END_SRC
+
+#+NAME: pymc4-nc-graph-diff
+#+BEGIN_SRC python :results output :wrap "SRC python :eval never"
+print(logpfn_cf(*init.values()) - logpfn_nc_cf(*init_nc.values()))
+#+END_SRC
+
+#+RESULTS: pymc4-nc-graph-diff
+#+begin_SRC python :eval never
+tf.Tensor(-437.17505, shape=(), dtype=float32)
+
+
+#+end_SRC
+
+#+NAME: pymc4-nc-names-to-tfp-names
+#+BEGIN_SRC python :exports both :results output :wrap "SRC python :eval never" :eval never-export
+from pprint import pprint
+
+tfp_nc_names_to_pymc = {i.name: k for i, k in zip(logpfn_cf.structured_input_signature[0], init.keys())}
+
+pprint(tfp_nc_names_to_pymc)
+#+END_SRC
+
+#+RESULTS: pymc4-nc-names-to-tfp-names
+#+begin_SRC python :eval never
+{'values_0': 'hierarchical_model/__log_sigma_alpha',
+ 'values_1': 'hierarchical_model/mu_alpha',
+ 'values_2': 'hierarchical_model/beta',
+ 'values_3': 'hierarchical_model/alpha',
+ 'values_4': 'hierarchical_model/mu_beta',
+ 'values_5': 'hierarchical_model/__log_sigma_beta',
+ 'values_6': 'hierarchical_model/__log_eps'}
+
+
+#+end_SRC
+
+#+NAME: pymc4-nc-graph-print
+#+BEGIN_SRC python :results output :wrap "SRC python :eval never"
+tf_dprint(logpfn_nc_tf)
+#+END_SRC
+
+#+RESULTS: pymc4-nc-graph-print
+#+begin_SRC python :eval never
+Tensor(Identity):0,	shape=[]	"Identity:0"
+|  Tensor(AddV2):0,	shape=[]	"add_12:0"
+|  |  Tensor(AddV2):0,	shape=[]	"add_11:0"
+|  |  |  Tensor(AddV2):0,	shape=[]	"add_10:0"
+|  |  |  |  Tensor(AddV2):0,	shape=[]	"add_9:0"
+|  |  |  |  |  Tensor(Sum):0,	shape=[]	"Sum_7:0"
+|  |  |  |  |  |  Tensor(Sub):0,	shape=[919]	"Normal_4_1/log_prob/sub:0"
+|  |  |  |  |  |  |  Tensor(Mul):0,	shape=[919]	"Normal_4_1/log_prob/mul:0"
+|  |  |  |  |  |  |  |  Tensor(SquaredDifference):0,	shape=[919]	"Normal_4_1/log_prob/SquaredDifference:0"
+|  |  |  |  |  |  |  |  |  Tensor(RealDiv):0,	shape=[919]	"Normal_4_1/log_prob/truediv:0"
+|  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[919]	"Normal_4_1/log_prob/value:0"
+|  |  |  |  |  |  |  |  |  |  |  [0.8329091 0.8329091 1.0986123 ... 1.6292405 1.3350011 1.0986123]
+|  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_1:0"
+|  |  |  |  |  |  |  |  |  Tensor(RealDiv):0,	shape=[919]	"Normal_4_1/log_prob/truediv_1:0"
+|  |  |  |  |  |  |  |  |  |  Tensor(AddV2):0,	shape=[919]	"add_1:0"
+|  |  |  |  |  |  |  |  |  |  |  Tensor(GatherV2):0,	shape=[919]	"GatherV2:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_5:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[919]	"GatherV2/indices:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"GatherV2/axis:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  0
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[919]	"mul_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(GatherV2):0,	shape=[919]	"GatherV2_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(AddV2):0,	shape=[85]	"add:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[85]	"mul:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_2:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_0:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_3:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[919]	"GatherV2/indices:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  [ 0  0  0 ... 83 84 84]
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"GatherV2/axis:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  0
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[919]	"mul_1/y:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  [1. 0. 0. ... 0. 0. 0.]
+|  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/mul/x:0"
+|  |  |  |  |  |  |  |  |  -0.5
+|  |  |  |  |  |  |  Tensor(AddV2):0,	shape=[]	"Normal_4_1/log_prob/add:0"
+|  |  |  |  |  |  |  |  Tensor(Log):0,	shape=[]	"Normal_4_1/log_prob/Log:0"
+|  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/add:0"
+|  |  |  |  |  |  |  |  |  0.9189385
+|  |  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_1_1/log_prob/transpose/perm:0"
+|  |  |  |  |  |  |  [0]
+|  |  |  |  |  Tensor(AddV2):0,	shape=[]	"add_8:0"
+|  |  |  |  |  |  Tensor(SelectV2):0,	shape=[]	"HalfCauchy_2_1/log_prob/SelectV2_1:0"
+|  |  |  |  |  |  |  Tensor(Less):0,	shape=[]	"HalfCauchy_2_1/log_prob/Less_1:0"
+|  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_2/x:0"
+|  |  |  |  |  |  |  |  |  0.
+|  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"HalfCauchy_3/log_prob/SelectV2_1/t:0"
+|  |  |  |  |  |  |  |  -inf
+|  |  |  |  |  |  |  Tensor(Sub):0,	shape=[]	"HalfCauchy_2_1/log_prob/sub_2:0"
+|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"HalfCauchy_3/log_prob/sub:0"
+|  |  |  |  |  |  |  |  |  -0.4515827
+|  |  |  |  |  |  |  |  Tensor(Log1p):0,	shape=[]	"HalfCauchy_2_1/log_prob/Log1p:0"
+|  |  |  |  |  |  |  |  |  Tensor(Square):0,	shape=[]	"HalfCauchy_2_1/log_prob/pow:0"
+|  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"HalfCauchy_2_1/log_prob/truediv:0"
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Sub):0,	shape=[]	"HalfCauchy_2_1/log_prob/sub_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(SelectV2):0,	shape=[]	"HalfCauchy_2_1/log_prob/SelectV2:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Less):0,	shape=[]	"HalfCauchy_2_1/log_prob/Less_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"HalfCauchy_3/log_prob/add:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  0.5
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_3_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_2/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  0.
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  1.
+|  |  |  |  |  |  Tensor(AddV2):0,	shape=[]	"add_7:0"
+|  |  |  |  |  |  |  Tensor(Sum):0,	shape=[]	"SampleNormal_3_1/log_prob/Sum:0"
+|  |  |  |  |  |  |  |  Tensor(Sub):0,	shape=[85]	"SampleNormal_3_1/log_prob/Normal_3/log_prob/sub:0"
+|  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[85]	"SampleNormal_3_1/log_prob/Normal_3/log_prob/mul:0"
+|  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/mul/x:0"
+|  |  |  |  |  |  |  |  |  |  |  -0.5
+|  |  |  |  |  |  |  |  |  |  Tensor(SquaredDifference):0,	shape=[85]	"SampleNormal_3_1/log_prob/Normal_3/log_prob/SquaredDifference:0"
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Reshape):0,	shape=[85]	"SampleNormal_3_1/log_prob/Reshape:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_0:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_1_1/log_prob/Reshape/shape:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  [85]
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_2/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  0.
+|  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/add:0"
+|  |  |  |  |  |  |  |  |  |  0.9189385
+|  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_1_1/log_prob/transpose/perm:0"
+|  |  |  |  |  |  |  |  |  [0]
+|  |  |  |  |  |  |  Tensor(AddV2):0,	shape=[]	"add_6:0"
+|  |  |  |  |  |  |  |  Tensor(SelectV2):0,	shape=[]	"HalfCauchy_1_1/log_prob/SelectV2_1:0"
+|  |  |  |  |  |  |  |  |  Tensor(Less):0,	shape=[]	"HalfCauchy_1_1/log_prob/Less_1:0"
+|  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_2/x:0"
+|  |  |  |  |  |  |  |  |  |  |  0.
+|  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"HalfCauchy_3/log_prob/SelectV2_1/t:0"
+|  |  |  |  |  |  |  |  |  |  -inf
+|  |  |  |  |  |  |  |  |  Tensor(Sub):0,	shape=[]	"HalfCauchy_1_1/log_prob/sub_2:0"
+|  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"HalfCauchy_3/log_prob/sub:0"
+|  |  |  |  |  |  |  |  |  |  |  -0.4515827
+|  |  |  |  |  |  |  |  |  |  Tensor(Log1p):0,	shape=[]	"HalfCauchy_1_1/log_prob/Log1p:0"
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Square):0,	shape=[]	"HalfCauchy_1_1/log_prob/pow:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"HalfCauchy_1_1/log_prob/truediv:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Sub):0,	shape=[]	"HalfCauchy_1_1/log_prob/sub_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(SelectV2):0,	shape=[]	"HalfCauchy_1_1/log_prob/SelectV2:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Less):0,	shape=[]	"HalfCauchy_1_1/log_prob/Less_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"HalfCauchy_3/log_prob/add:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  0.5
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_2/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  0.
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  1.
+|  |  |  |  |  |  |  |  Tensor(AddV2):0,	shape=[]	"add_5:0"
+|  |  |  |  |  |  |  |  |  Tensor(Sub):0,	shape=[]	"Normal_2_1/log_prob/sub:0"
+|  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"Normal_2_1/log_prob/mul:0"
+|  |  |  |  |  |  |  |  |  |  |  Tensor(SquaredDifference):0,	shape=[]	"Normal_2_1/log_prob/SquaredDifference:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"Normal_2_1/log_prob/truediv:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  1.
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_3:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_2/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  0.
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/mul/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  -0.5
+|  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/add:0"
+|  |  |  |  |  |  |  |  |  |  |  0.9189385
+|  |  |  |  |  |  |  |  |  Tensor(AddV2):0,	shape=[]	"add_4:0"
+|  |  |  |  |  |  |  |  |  |  Tensor(Sum):0,	shape=[]	"SampleNormal_1_1/log_prob/Sum:0"
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Sub):0,	shape=[85]	"SampleNormal_1_1/log_prob/Normal_1/log_prob/sub:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[85]	"SampleNormal_1_1/log_prob/Normal_1/log_prob/mul:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/mul/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  -0.5
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(SquaredDifference):0,	shape=[85]	"SampleNormal_1_1/log_prob/Normal_1/log_prob/SquaredDifference:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(RealDiv):0,	shape=[85]	"SampleNormal_1_1/log_prob/Normal_1/log_prob/truediv:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Reshape):0,	shape=[85]	"SampleNormal_1_1/log_prob/Reshape:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[85]	"values_5:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_1_1/log_prob/Reshape/shape:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  [85]
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_6:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(RealDiv):0,	shape=[]	"SampleNormal_1_1/log_prob/Normal_1/log_prob/truediv_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_4:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(AddV2):0,	shape=[]	"SampleNormal_1_1/log_prob/Normal_1/log_prob/add:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/add:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  0.9189385
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Log):0,	shape=[]	"SampleNormal_1_1/log_prob/Normal_1/log_prob/Log:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[1]	"SampleNormal_1_1/log_prob/transpose/perm:0"
+|  |  |  |  |  |  |  |  |  |  |  |  [0]
+|  |  |  |  |  |  |  |  |  |  Tensor(AddV2):0,	shape=[]	"add_3:0"
+|  |  |  |  |  |  |  |  |  |  |  Tensor(SelectV2):0,	shape=[]	"HalfCauchy_3/log_prob/SelectV2_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Less):0,	shape=[]	"HalfCauchy_3/log_prob/Less_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_2/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  0.
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"HalfCauchy_3/log_prob/SelectV2_1/t:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  -inf
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Sub):0,	shape=[]	"HalfCauchy_3/log_prob/sub_2:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"HalfCauchy_3/log_prob/sub:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  -0.4515827
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Log1p):0,	shape=[]	"HalfCauchy_3/log_prob/Log1p:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Square):0,	shape=[]	"HalfCauchy_3/log_prob/pow:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"HalfCauchy_3/log_prob/truediv:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Sub):0,	shape=[]	"HalfCauchy_3/log_prob/sub_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(SelectV2):0,	shape=[]	"HalfCauchy_3/log_prob/SelectV2:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Less):0,	shape=[]	"HalfCauchy_3/log_prob/Less_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"HalfCauchy_3/log_prob/add:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  0.5
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_1/forward/Exp:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ...
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_2/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  0.
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  1.
+|  |  |  |  |  |  |  |  |  |  |  Tensor(Add):0,	shape=[]	"add_2:0"
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"Normal_5/log_prob/mul:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(SquaredDifference):0,	shape=[]	"Normal_5/log_prob/SquaredDifference:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Mul):0,	shape=[]	"Normal_5/log_prob/truediv:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  1.
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Placeholder):0,	shape=[]	"values_4:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"add_2/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  0.
+|  |  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/mul/x:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  -0.5
+|  |  |  |  |  |  |  |  |  |  |  |  Tensor(Const):0,	shape=[]	"Normal_5/log_prob/sub:0"
+|  |  |  |  |  |  |  |  |  |  |  |  |  -0.9189385
+|  |  |  |  Tensor(Mul):0,	shape=[]	"mul_2:0"
+|  |  |  |  |  Tensor(Log):0,	shape=[]	"SampleNormal_1_1/log_prob/Normal_1/log_prob/Log:0"
+|  |  |  |  |  |  ...
+|  |  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  |  |  |  1.
+|  |  |  Tensor(Mul):0,	shape=[]	"mul_3:0"
+|  |  |  |  Tensor(Log):0,	shape=[]	"exp_2_2/inverse_log_det_jacobian/Log:0"
+|  |  |  |  |  Tensor(Exp):0,	shape=[]	"exp_2_1/forward/Exp:0"
+|  |  |  |  |  |  ...
+|  |  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  |  |  1.
+|  |  Tensor(Mul):0,	shape=[]	"mul_4:0"
+|  |  |  Tensor(Log):0,	shape=[]	"Normal_4_1/log_prob/Log:0"
+|  |  |  |  ...
+|  |  |  Tensor(Const):0,	shape=[]	"exp_3_2/inverse_log_det_jacobian/mul_1:0"
+|  |  |  |  1.
+
+
+#+end_SRC

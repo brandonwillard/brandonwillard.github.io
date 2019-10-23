@@ -12,7 +12,7 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 #+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 
-#+INCLUDE: org-setup.org
+# #+INCLUDE: org-setup.org
 
 #+PROPERTY: header-args :eval never :exports both :results output drawer replace
 #+PROPERTY: header-args+ :session eval-thoughts
@@ -229,7 +229,7 @@ still pretty useful.
 A function like src_python{ast-funcall-to-hy} can be used in src_python{repr}
 logic as follows:
 #+NAME: hy-repr
-#+BEGIN_SRC hy :eval t :results none
+#+BEGIN_SRC hy :eval never-export :results none
 (defn hy-repr [x &optional [level 1] [-repr (fn [x &rest y] (-hy-repr x))]]
   "Use `builtin.repr` results to generate readable Hy `repr` strings for cases
 we haven't covered explicitly.

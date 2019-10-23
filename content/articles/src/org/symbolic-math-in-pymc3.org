@@ -12,8 +12,15 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 #+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 
-#+INCLUDE: org-setup.org
+# #+INCLUDE: org-setup.org
 #+BEGIN_SRC elisp :eval t :exports none :results none
+(defun btw--org-publish-property (prop)
+  "Get the publish property PROP (a tag/keyword like `:base-directory') for
+the current file's project."
+    (org-publish-property prop
+                          (org-publish-get-project-from-filename
+                           (buffer-file-name (buffer-base-buffer)))))
+
 (org-babel-lob-ingest "org-babel-extensions.org")
 #+END_SRC
 

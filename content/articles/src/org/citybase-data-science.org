@@ -12,13 +12,11 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 #+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
 
-#+INCLUDE: org-setup.org
-
 #+PROPERTY: header-args :eval never :exports both :results output drawer replace
 #+PROPERTY: header-args+ :session eval-thoughts
 
 I recently wrote about data science at CityBase on the CityBase
-blog: [[citet:WillardProgrammingIntelligentCity2018a]].
+blog: [[citetitle:WillardProgrammingIntelligentCity2018a]].
 
 #+BIBLIOGRAPHY: ../tex/citybase-data-science.bib
 #+BIBLIOGRAPHYSTYLE: plainnat
