@@ -881,7 +881,7 @@ Listing 24
 <a class="sourceLine" id="cb25-62" data-line-number="62"></a>
 <a class="sourceLine" id="cb25-63" data-line-number="63">    <span class="cf">return</span> res</a></code></pre></div>
 </figure>
-<figure>
+<figure id="orge14b80d">
 <div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">def</span> shift_squared_terms(in_obj, graph_inputs<span class="op">=</span>[]):</a>
 <a class="sourceLine" id="cb26-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Re-center/scale SquaredDifference terms corresponding to hierarchical normals.&quot;&quot;&quot;</span></a>
 <a class="sourceLine" id="cb26-3" data-line-number="3"></a>
@@ -933,6 +933,9 @@ Listing 24
 <a class="sourceLine" id="cb26-49" data-line-number="49">    <span class="cf">if</span> <span class="bu">len</span>(res) <span class="op">==</span> <span class="dv">1</span> <span class="kw">and</span> <span class="bu">isinstance</span>(res[<span class="dv">0</span>], tf.Tensor):</a>
 <a class="sourceLine" id="cb26-50" data-line-number="50">        graph_res <span class="op">=</span> res[<span class="dv">0</span>]</a>
 <a class="sourceLine" id="cb26-51" data-line-number="51">        <span class="cf">return</span> normalize_tf_graph(graph_res, graph_inputs<span class="op">=</span>graph_inputs), subs_res</a></code></pre></div>
+<figcaption>
+Listing 26
+</figcaption>
 </figure>
 <p>As a test, we will run our miniKanren relations on the log-likelihood graph for a normal-normal hierarchical model in Listing <a href="#org29e93d9">27</a>.</p>
 <figure id="org29e93d9">
@@ -1355,8 +1358,8 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 </section>
 <section id="creating-a-new-log-likelihood-function" class="level1">
 <h1>Creating a new Log-likelihood Function</h1>
-<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#orgf60a149">49</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
-<figure id="orgf60a149">
+<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#orgf497d81">49</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
+<figure id="orgf497d81">
 <div class="sourceCode" id="cb49"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="im">from</span> tensorflow.python.framework.func_graph <span class="im">import</span> FuncGraph</a>
 <a class="sourceLine" id="cb49-2" data-line-number="2"><span class="im">from</span> tensorflow.python.eager.function <span class="im">import</span> ConcreteFunction</a>
 <a class="sourceLine" id="cb49-3" data-line-number="3"><span class="im">from</span> tensorflow.python.eager.lift_to_graph <span class="im">import</span> lift_to_graph</a>
@@ -1399,13 +1402,13 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 Listing 49
 </figcaption>
 </figure>
-<figure id="orgf497d81">
+<figure id="org70ccd79">
 <div class="sourceCode" id="cb50"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb50-1" data-line-number="1">logpfn_new_cf <span class="op">=</span> new_tf_function(logpfn_trans_tf, logpfn_cf)</a></code></pre></div>
 <figcaption>
 Listing 50
 </figcaption>
 </figure>
-<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#orgf60a149">49</a> is the function we are going to use for sampling from the new log-likelihood.</p>
+<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#orgf497d81">49</a> is the function we are going to use for sampling from the new log-likelihood.</p>
 <figure id="org7bec3c9">
 <div class="sourceCode" id="cb51"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb51-1" data-line-number="1">_ <span class="op">=</span> logpfn_cf(<span class="op">*</span>init.values()) <span class="op">-</span> logpfn_new_cf(<span class="op">*</span>init.values())</a></code></pre></div>
 <figcaption>
@@ -1475,15 +1478,20 @@ Listing 54
 </section>
 <section id="discussion" class="level1">
 <h1>Discussion</h1>
-<p>The goals in the two separate <code>run</code> calls we used in Listing <a href="#org0ad3a96">24</a> could have been combined into a single <code>run</code>. This could’ve been accomplished using some “meta” steps (e.g. construct and evaluate a goal on-the-fly within a miniKanren) or special goals for reading from a miniKanren-generated <code>dict</code>s or association lists. Goals of this nature are not uncommon (e.g. type inference and inhabitation exmaples), and serve to demonstrate the great breadth of activity possible within relational context of miniKanren.</p>
-<p>However, the point we want to make doesn’t require much sophistication. Instead, we wanted to demonstrate how a non-trivial “pattern” can be specified and matched using <code>symbolic-pymc</code>, and how easily those results could be used to transform a graph.</p>
-<p>More specifically, our goal <code>shift_squared_subso</code> in <a href="#org0ad3a96">24</a> demonstrates <strong>the way in which we were able to specify desired structure(s) within a graph</strong>. We defined one pattern, <code>Y_sqrdiffo</code>, to match anywhere in the graph then another pattern, <code>X_sqrdiffo</code>, that relied on matched terms from <code>Y_sqrdiffo</code> and could also be matched/found anywhere else in the same graph.</p>
-<p>Furthermore, our substitutions needed information from both “matched” subgraphs. Specifically, substitution pairs similar to <code>(x, z + x)</code>. Within this framework, we could just as easily have included <code>y</code>–or any terms from either successfully matched subgraph–in the substitution expressions.</p>
-<p>In sample-space, the search patterns and substitutions are much easier to specify exactly because they’re single-subgraph patterns that themselves are the subgraphs to be replaced (i.e. if we find a non-standard normal, replace it with a shifted/scaled standard normal). In log-space, we chose to find distinct subgraph “chains”, i.e. all <code>(y - x)**2</code> and <code>(x - z)**2</code> pairs (i.e. “connected” by an “unknown” term <code>x</code>), since these are produced by the log-likelihood form of hierarchical normal distributions.</p>
-<p>As a result, we had a non-trivial structure/“pattern” to express–and execute. Using conventional graph search-and-replace functionality would’ve required much more orchestration and resulted considerably less flexible code with little-to-no reusability. In our case, the goals <code>onceo</code> and <code>tf_graph_applyo</code> are universal and the forms in <code>shift_squared_subso</code> can be easily changed to account for more sophisticated (or entirely distinct) patterns and substitutions.</p>
-<p>Most related graph manipulation offerings make it easy to find a single subgraph that matches a pattern, but not potentially “co-dependent” and/or distinct subgraphs. In the end, the developer will often have to manually implement a “global” state and orchestrate multiple single-subgraph searches and their results.</p>
-<p>For single search-and-replace objectives, this amount of manual developer intervention/orchestration might be excusable; however, for objectives requiring the evaluation of multiple graph transformation, this approach is mostly unmaintainable and extremely difficult to compartmentalize.</p>
-<p>This demonstration barely even scratches the surface of what’s possible using miniKanren and relational programming for graph manipulation and symbolic statistical model optimization. As the <code>symbolic-pymc</code> project advances, we’ll cover examples in which miniKanren’s more distinct offerings are demonstrated.</p>
+<p>As a closing technical note, the two consecutive <code>run</code> calls in Listing <a href="#orge14b80d">26</a> could have been combined into a single <code>run</code>. This could be accomplished with some “meta” programming (e.g. construct and evaluate a goal on-the-fly) or special relations for adding and reading values from <code>dict</code>s or association lists. Goals of this nature are not uncommon (see the classic miniKanren type inference and inhabitation examples), and, while out of the current scope, demonstrate the great breadth of what’s possible exclusively within the relational context of miniKanren.</p>
+<p>Fortunately, the point we wanted to make in this demonstration doesn’t require that much sophistication. Instead, we simply wanted to demonstrate how a non-trivial “pattern” can be specified and employed with the tools being developed in <code>symbolic-pymc</code>.</p>
+<p>More specifically, our goal <code>shift_squared_subso</code> in <a href="#orge14b80d">26</a> demonstrates <strong>the way in which we were able to specify, obtain and manipulate non-trivial elements within a graph</strong>.</p>
+<p>We defined one pattern—<code>Y_sqrdiffo</code>–to be matched <em>anywhere</em> in a graph, then another graph-wide pattern—<code>X_sqrdiffo</code>–that was dependent on terms in the first.</p>
+<p>As well, <em>substitutions</em> were generated from the information in <em>both</em> “matched” subgraphs (i.e. substitution pairs akin to <code>(x, z + x)</code>).</p>
+<p>Within this framework, we could have just as easily included any other terms from either successfully matched pattern, and used the output for any other purpose (e.g. TF log-likelihood-graph-to-TFP/PyMC4-model conversion). Likewise, these same patterns and their dependencies could be extended in exactly the same fashion to meet much more sophisticated requirements.</p>
+<p>While we performed our task on a model’s log-likelihood (or “measure-space”) graph, in “sample-space” (e.g. on a graph representing <span class="math inline">\(\eqref{eq:model-1}\)</span> or <span class="math inline">\(\eqref{eq:model-2}\)</span>) the search patterns and substitutions are much easier to specify and apply, because they’re single-subgraph patterns that themselves are the exact subgraphs that need to be replaced. In other words, search for non-standard normal random variables and replace them–on the spot–with shifted/scaled standard normal random variables.</p>
+<p>We chose to find distinct subgraph “chains”, or all <code>(y - x)**2</code> and <code>(x - z)**2</code> pairs. While these subgraphs <em>are</em> produced within the log-likelihoods of hierarchical normal distributions, they are not one-to-one with them. In a sense, our approach was more general but less precise (especially the very questionable replacement <span class="math inline">\(\log\left(\sigma\right) \to 0\)</span>). Suffice it to say, this choice was made in the interest of–marginally more–simplicity. Specifically, it was done to avoid using a pattern that was the complete form of a general normal log-likelihood.</p>
+<p>Even so, we still had a non-trivial structure/“pattern” to express–and execute. Using conventional graph search-and-replace functionality would’ve required much more orchestration and resulted in considerably less flexible code with little-to-no reusability. In our case, the goals <code>onceo</code> and <code>tf_graph_applyo</code>, for instance, are universal and the forms in <code>shift_squared_subso</code> can be easily changed to account for more sophisticated (or entirely distinct) patterns and substitutions.</p>
+<p>Most related graph manipulation offerings make it easy to find <em>a single subgraph</em> that matches a pattern, but <em>not</em> <strong>“co-dependent”–yet distinct–patterns</strong>. Generally, a developer has to manually implement a “global” state within the bare-bones context of a classic “visitor”-like pattern (e.g. like Python’s own <a href="https://docs.python.org/3/library/ast.html#ast.NodeTransformer"><code>ast.NodeTransformer</code></a>).</p>
+<p>While technically sufficient, the classes and code that result from this approach are rarely modular, not easy to generalize, and don’t sufficiently capture the mathematics they’re trying to model.</p>
+<p>For example, how well does the in-code representation of a replacement rule like <span class="math inline">\(\frac{x}{x} \to 1\)</span> (e.g. as something like <code>if node.op.type == &quot;RealDiv&quot; and ...</code>)–alongside a “node visitor” class that applies said replacement rule—<em>truly</em> represent <span class="math inline">\(\frac{x}{x} = 1\)</span>? At best, it only accounts for half of the identity: the single left-to-right implication.</p>
+<p>If you’re asking “Why would anyone want the <em>other</em> direction? Isn’t that only going to <strong>expand</strong> terms? Why would we ever want to do <em>that</em>?”, then you’re not seeing the whole picture. The short answer is that we <em>need</em> to search <strong>model space</strong>; we need to consider different–and hopefully better–formulations for any given model, just like we do in practice (and most often on paper). <strong>Both</strong> directions of an identity are necessary in this case. But, more importantly, we need to develop <strong>automated</strong> means of applying <em>and</em> specifying many of these identities, and–needless to say–combinations of <code>if</code> blocks and “node visitors” isn’t going to do the job.</p>
+<p>In closing, this demonstration–and discussion–barely even scratches the surface of what’s possible using miniKanren and relational programming for graph manipulation and symbolic statistical model manipulation. As the <code>symbolic-pymc</code> project advances, we’ll cover more examples in which miniKanren’s truly distinct offerings are demonstrated.</p>
 </section>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
