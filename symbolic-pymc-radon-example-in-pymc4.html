@@ -221,23 +221,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <!--  -->
 <!-- </div> -->
 <!--  -->
-<ul>
-<li><a href="#org1e803da">Introduction</a></li>
-<li><a href="#org3e6e487">The Model’s Log-likelihood Graph</a></li>
-<li><a href="#org42666b0">The Log-space Transform</a></li>
-<li><a href="#orgf7d0339">Creating the miniKanren Goals</a>
-<ul>
-<li><a href="#orgbe89a18">Inspecting the TF Graphs</a></li>
-<li><a href="#org77d300c">Graph Normalization</a></li>
-<li><a href="#org22a13da">miniKanren Transform Relations</a></li>
-<li><a href="#org58027da">Missing Graph Simplifications</a></li>
-</ul></li>
-<li><a href="#orgd7e300e">Transforming the Log-likelihood Graph</a></li>
-<li><a href="#orga80856e">Creating a new Log-likelihood Function</a></li>
-<li><a href="#orga41f6e3">Sampling from the new Log-likelihood</a></li>
-<li><a href="#orgdb8e15f">Discussion</a></li>
-</ul>
-<p><a id="org1e803da"></a></p>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
 <p><a href="https://github.com/pymc-devs/symbolic-pymc">Symbolic PyMC</a> is a library that provides tools for symbolic manipulation of Tensor library models in TensorFlow (TF) and Theano. Over time, we plan to add tools that are somewhat specialized toward Bayesian model manipulation and the mathematical identities relevant to model manipulation for MCMC.</p>
@@ -363,7 +346,6 @@ Listing 5
 <figcaption>
 </figcaption>
 </figure>
-<p><a id="org3e6e487"></a></p>
 </section>
 <section id="the-models-log-likelihood-graph" class="level1">
 <h1>The Model’s Log-likelihood Graph</h1>
@@ -400,7 +382,6 @@ Listing 9
 <a class="sourceLine" id="cb10-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb10-7" data-line-number="7">disable_tensor_equality()</a></code></pre></div>
 </figure>
-<p><a id="org42666b0"></a></p>
 </section>
 <section id="the-log-space-transform" class="level1">
 <h1>The Log-space Transform</h1>
@@ -445,7 +426,6 @@ Listing 9
 \end{align*}\]</span></p>
 <p>For consistency, the transform must also be applied to the <span class="math inline">\(dx\)</span> term where/when-ever it is considered.</p>
 <p>After a few algebraic simplifications, one obtains the exact form of Equation <span class="math inline">\(\eqref{eq:log-model-2}\)</span>.</p>
-<p><a id="orgf7d0339"></a></p>
 </section>
 <section id="creating-the-minikanren-goals" class="level1">
 <h1>Creating the miniKanren Goals</h1>
@@ -453,7 +433,6 @@ Listing 9
 <p>Even so, we <strong>do</strong> expect that some capabilities from within those more advanced areas of symbolic computing will eventually be required–or necessary–and we want to build on a foundation that allows them to be integrated and/or simply expressed. We believe that miniKanren is a great foundation for such work due to the core concepts it shares with symbolic computation, as well as its immense flexibility. It also maintains an elegant simplicity and is amenable to developer intervention at nearly all levels–often without the need for low- or DSL-level rewrites.</p>
 <p>User-level development in miniKanren occurs within its DSL, which is a succinct relational/logic programming paradigm that–in our case–is entirely written in Python. This DSL provides primitive <strong>goals</strong> that can be composed and eventually evaluated by the <code>run</code> function. We refer the reader to any one of the many great introductions to miniKanren available at <a href="http://minikanren.org" class="uri">http://minikanren.org</a>, or, for the specific Python package used here: <a href="https://github.com/logpy/logpy/blob/master/doc/basic.md">this simple introduction</a>.</p>
 <p>For the matter at hand, we need to create goals that implement the substitution described above. The first step is to understand the exact TF graphs involved, and the best way to do that is to construct the relevant graph objects, observe them directly, and build “patterns” that match their general forms. Patterns are built with <code>symbolic-pymc</code> meta objects obtained from the <code>mt</code> helper “namespace”. Wherever we want to leave room for variation/ambiguity, we use a “logic variable” instead of an explicit TF (meta) object. Logic variables are created with <code>var()</code> and can optionally be given a string “name” argument that identifies them globally as a singleton-like object.</p>
-<p><a id="orgbe89a18"></a></p>
 <section id="inspecting-the-tf-graphs" class="level2">
 <h2>Inspecting the TF Graphs</h2>
 <p>In our case, the log-density returned by PyMC4–via the TensorFlow Probability library (TFP)– uses <code>tf.math.squared_difference</code> to construct the “squared error” term in the exponential of a normal distribution. This term contains everything we need to construct the substitution as a pair of TF graph objects.</p>
@@ -633,7 +612,6 @@ Listing 16
 <a class="sourceLine" id="cb17-7" data-line-number="7"> <span class="st">&#39;values_6&#39;</span>: <span class="st">&#39;hierarchical_model/__log_eps&#39;</span>}</a>
 <a class="sourceLine" id="cb17-8" data-line-number="8"></a></code></pre></div>
 </figure>
-<p><a id="org77d300c"></a></p>
 </section>
 <section id="graph-normalization" class="level2">
 <h2>Graph Normalization</h2>
@@ -752,7 +730,6 @@ Listing 22
 </code></pre>
 </figure>
 <p>From the output of Listing <a href="#orge1da777">22</a>, we can see that <code>grappler</code> has performed some constant folding and has reordered the inputs in <code>&quot;add_1_1&quot;</code>–among other things.</p>
-<p><a id="org22a13da"></a></p>
 </section>
 <section id="minikanren-transform-relations" class="level2">
 <h2>miniKanren Transform Relations</h2>
@@ -881,7 +858,7 @@ Listing 24
 <a class="sourceLine" id="cb25-62" data-line-number="62"></a>
 <a class="sourceLine" id="cb25-63" data-line-number="63">    <span class="cf">return</span> res</a></code></pre></div>
 </figure>
-<figure id="orge14b80d">
+<figure>
 <div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">def</span> shift_squared_terms(in_obj, graph_inputs<span class="op">=</span>[]):</a>
 <a class="sourceLine" id="cb26-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Re-center/scale SquaredDifference terms corresponding to hierarchical normals.&quot;&quot;&quot;</span></a>
 <a class="sourceLine" id="cb26-3" data-line-number="3"></a>
@@ -933,9 +910,6 @@ Listing 24
 <a class="sourceLine" id="cb26-49" data-line-number="49">    <span class="cf">if</span> <span class="bu">len</span>(res) <span class="op">==</span> <span class="dv">1</span> <span class="kw">and</span> <span class="bu">isinstance</span>(res[<span class="dv">0</span>], tf.Tensor):</a>
 <a class="sourceLine" id="cb26-50" data-line-number="50">        graph_res <span class="op">=</span> res[<span class="dv">0</span>]</a>
 <a class="sourceLine" id="cb26-51" data-line-number="51">        <span class="cf">return</span> normalize_tf_graph(graph_res, graph_inputs<span class="op">=</span>graph_inputs), subs_res</a></code></pre></div>
-<figcaption>
-Listing 26
-</figcaption>
 </figure>
 <p>As a test, we will run our miniKanren relations on the log-likelihood graph for a normal-normal hierarchical model in Listing <a href="#org29e93d9">27</a>.</p>
 <figure id="org29e93d9">
@@ -1089,7 +1063,6 @@ Listing 33
 
 </code></pre>
 </figure>
-<p><a id="org58027da"></a></p>
 </section>
 <section id="missing-graph-simplifications" class="level2">
 <h2>Missing Graph Simplifications</h2>
@@ -1132,43 +1105,58 @@ Listing 36
 <pre class="text"><code>[500099.94]</code></pre>
 </figure>
 <p>The output of Listing <a href="#org7e4367b">36</a> shows exactly how large the discrepancy can be for carefully chosen parameter values. More specifically, as <code>tau_tf</code> gets smaller and the magnitude of the difference <code>x_tf - y_tf</code> gets larger, the discrepancy can increase. Since such parameter values are likely to be visited during sampling, we should address this missing simplification.</p>
-<p>In Listing <a href="#orga3b3e3a">38</a> we create a goal that performs that aforementioned simplification for <code>SquaredDifference</code>.</p>
-<figure id="orga3b3e3a">
+<p>In Listing <a href="#orge313efe">39</a> we create a goal that performs that aforementioned simplification for <code>SquaredDifference</code>.</p>
+<figure>
 <div class="sourceCode" id="cb38"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">def</span> recenter_sqrdiffo(in_g, out_g):</a>
-<a class="sourceLine" id="cb38-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Create a goal that reduces `(a/d - (a + c)/d)**2` to `()`&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb38-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Create a goal that essentially reduces `(a / d - (a + d * c) / d)**2` to `d**2`&quot;&quot;&quot;</span></a>
 <a class="sourceLine" id="cb38-3" data-line-number="3">    a_sqd_lv, b_sqd_lv, d_sqd_lv <span class="op">=</span> var(), var(), var()</a>
-<a class="sourceLine" id="cb38-4" data-line-number="4">    target_sqrdiff_lv <span class="op">=</span> mt.SquaredDifference(</a>
-<a class="sourceLine" id="cb38-5" data-line-number="5">        mt.realdiv(a_sqd_lv, d_sqd_lv, name<span class="op">=</span>var()),</a>
-<a class="sourceLine" id="cb38-6" data-line-number="6">        mt.realdiv(b_sqd_lv, d_sqd_lv, name<span class="op">=</span>var()),</a>
-<a class="sourceLine" id="cb38-7" data-line-number="7">        name<span class="op">=</span>var()</a>
-<a class="sourceLine" id="cb38-8" data-line-number="8">    )</a>
-<a class="sourceLine" id="cb38-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb38-10" data-line-number="10">    c_sqd_lv <span class="op">=</span> var()</a>
-<a class="sourceLine" id="cb38-11" data-line-number="11">    b_part_lv <span class="op">=</span> mt.addv2(mt.mul(d_sqd_lv, c_sqd_lv, name<span class="op">=</span>var()), a_sqd_lv, name<span class="op">=</span>var())</a>
-<a class="sourceLine" id="cb38-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb38-13" data-line-number="13">    simplified_sqrdiff_lv <span class="op">=</span> mt.SquaredDifference(</a>
-<a class="sourceLine" id="cb38-14" data-line-number="14">        c_sqd_lv,</a>
-<a class="sourceLine" id="cb38-15" data-line-number="15">        <span class="fl">0.0</span></a>
-<a class="sourceLine" id="cb38-16" data-line-number="16">    )</a>
-<a class="sourceLine" id="cb38-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb38-18" data-line-number="18">    reshape_lv <span class="op">=</span> var()</a>
-<a class="sourceLine" id="cb38-19" data-line-number="19">    simplified_sqrdiff_reshaped_lv <span class="op">=</span> mt.SquaredDifference(</a>
-<a class="sourceLine" id="cb38-20" data-line-number="20">        mt.reshape(c_sqd_lv, reshape_lv),</a>
-<a class="sourceLine" id="cb38-21" data-line-number="21">        <span class="fl">0.0</span></a>
-<a class="sourceLine" id="cb38-22" data-line-number="22">    )</a>
-<a class="sourceLine" id="cb38-23" data-line-number="23"></a>
-<a class="sourceLine" id="cb38-24" data-line-number="24">    res <span class="op">=</span> lall(eq(in_g, target_sqrdiff_lv),</a>
-<a class="sourceLine" id="cb38-25" data-line-number="25">               conde([eq(b_sqd_lv, b_part_lv),</a>
-<a class="sourceLine" id="cb38-26" data-line-number="26">                      eq(out_g, simplified_sqrdiff_lv)],</a>
-<a class="sourceLine" id="cb38-27" data-line-number="27">                     <span class="co"># Maybe it&#39;s been reshaped</span></a>
-<a class="sourceLine" id="cb38-28" data-line-number="28">                     [eq(b_sqd_lv, mt.reshape(b_part_lv, reshape_lv, name<span class="op">=</span>var())),</a>
-<a class="sourceLine" id="cb38-29" data-line-number="29">                      eq(out_g, simplified_sqrdiff_reshaped_lv)]))</a>
-<a class="sourceLine" id="cb38-30" data-line-number="30">    <span class="cf">return</span> res</a></code></pre></div>
-<figcaption>
-Listing 38
-</figcaption>
+<a class="sourceLine" id="cb38-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb38-5" data-line-number="5">    <span class="co"># Pattern: (a / d - b / d)**2</span></a>
+<a class="sourceLine" id="cb38-6" data-line-number="6">    target_sqrdiff_lv <span class="op">=</span> mt.SquaredDifference(</a>
+<a class="sourceLine" id="cb38-7" data-line-number="7">        mt.realdiv(a_sqd_lv, d_sqd_lv, name<span class="op">=</span>var()),</a>
+<a class="sourceLine" id="cb38-8" data-line-number="8">        mt.realdiv(b_sqd_lv, d_sqd_lv, name<span class="op">=</span>var()),</a>
+<a class="sourceLine" id="cb38-9" data-line-number="9">        name<span class="op">=</span>var()</a>
+<a class="sourceLine" id="cb38-10" data-line-number="10">    )</a>
+<a class="sourceLine" id="cb38-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb38-12" data-line-number="12">    <span class="co"># Pattern: d * c + a</span></a>
+<a class="sourceLine" id="cb38-13" data-line-number="13">    c_sqd_lv <span class="op">=</span> var()</a>
+<a class="sourceLine" id="cb38-14" data-line-number="14">    b_part_lv <span class="op">=</span> mt.addv2(mt.mul(d_sqd_lv, c_sqd_lv, name<span class="op">=</span>var()), a_sqd_lv, name<span class="op">=</span>var())</a>
+<a class="sourceLine" id="cb38-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb38-16" data-line-number="16">    <span class="co"># Replacement: c**2</span></a>
+<a class="sourceLine" id="cb38-17" data-line-number="17">    simplified_sqrdiff_lv <span class="op">=</span> mt.SquaredDifference(</a>
+<a class="sourceLine" id="cb38-18" data-line-number="18">        c_sqd_lv,</a>
+<a class="sourceLine" id="cb38-19" data-line-number="19">        <span class="fl">0.0</span></a>
+<a class="sourceLine" id="cb38-20" data-line-number="20">    )</a>
+<a class="sourceLine" id="cb38-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb38-22" data-line-number="22">    reshape_lv <span class="op">=</span> var()</a>
+<a class="sourceLine" id="cb38-23" data-line-number="23">    simplified_sqrdiff_reshaped_lv <span class="op">=</span> mt.SquaredDifference(</a>
+<a class="sourceLine" id="cb38-24" data-line-number="24">        mt.reshape(c_sqd_lv, reshape_lv),</a>
+<a class="sourceLine" id="cb38-25" data-line-number="25">        <span class="fl">0.0</span></a>
+<a class="sourceLine" id="cb38-26" data-line-number="26">    )</a>
+<a class="sourceLine" id="cb38-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb38-28" data-line-number="28">    res <span class="op">=</span> lall(</a>
+<a class="sourceLine" id="cb38-29" data-line-number="29">        <span class="co"># input == (a / d - b / d)**2 must be &quot;true&quot;</span></a>
+<a class="sourceLine" id="cb38-30" data-line-number="30">        eq(in_g, target_sqrdiff_lv),</a>
+<a class="sourceLine" id="cb38-31" data-line-number="31">        <span class="co"># &quot;and&quot;</span></a>
+<a class="sourceLine" id="cb38-32" data-line-number="32">        conde([</a>
+<a class="sourceLine" id="cb38-33" data-line-number="33">            <span class="co"># &quot;if&quot; b == d * c + a is &quot;true&quot;</span></a>
+<a class="sourceLine" id="cb38-34" data-line-number="34">            eq(b_sqd_lv, b_part_lv),</a>
+<a class="sourceLine" id="cb38-35" data-line-number="35">            <span class="co"># &quot;then&quot; output ==  (c - 0)**2 is also &quot;true&quot;</span></a>
+<a class="sourceLine" id="cb38-36" data-line-number="36">            eq(out_g, simplified_sqrdiff_lv)</a>
+<a class="sourceLine" id="cb38-37" data-line-number="37"></a>
+<a class="sourceLine" id="cb38-38" data-line-number="38">            <span class="co"># &quot;or&quot;</span></a>
+<a class="sourceLine" id="cb38-39" data-line-number="39">        ], [</a>
+<a class="sourceLine" id="cb38-40" data-line-number="40">            <span class="co"># We have to use this to cover some variation also not</span></a>
+<a class="sourceLine" id="cb38-41" data-line-number="41">            <span class="co"># sufficiently/consistently &quot;normalized&quot; by `grappler`.</span></a>
+<a class="sourceLine" id="cb38-42" data-line-number="42"></a>
+<a class="sourceLine" id="cb38-43" data-line-number="43">            <span class="co"># &quot;if&quot; b == reshape(d * c + a, ?) is &quot;true&quot;</span></a>
+<a class="sourceLine" id="cb38-44" data-line-number="44">            eq(b_sqd_lv, mt.reshape(b_part_lv, reshape_lv, name<span class="op">=</span>var())),</a>
+<a class="sourceLine" id="cb38-45" data-line-number="45">            <span class="co"># &quot;then&quot; output == (reshape(c, ?) - 0)**2 is also &quot;true&quot;</span></a>
+<a class="sourceLine" id="cb38-46" data-line-number="46">            eq(out_g, simplified_sqrdiff_reshaped_lv)</a>
+<a class="sourceLine" id="cb38-47" data-line-number="47">        ]))</a>
+<a class="sourceLine" id="cb38-48" data-line-number="48">    <span class="cf">return</span> res</a></code></pre></div>
 </figure>
-<p>We apply the simplification in Listing <a href="#orge313efe">39</a> and print the results in Listing <a href="#orga55e147">40</a>.</p>
+<p>We apply the simplification in Listing <a href="#orge313efe">39</a> and print the results in <a href="#orga55e147">40</a>.</p>
 <figure id="orge313efe">
 <div class="sourceCode" id="cb39"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="cf">with</span> graph_mode(), test_output_res.graph.as_default():</a>
 <a class="sourceLine" id="cb39-2" data-line-number="2"></a>
@@ -1202,7 +1190,6 @@ Listing 40
 <figure>
 <pre class="text"><code>[0.]</code></pre>
 </figure>
-<p><a id="orgd7e300e"></a></p>
 </section>
 </section>
 <section id="transforming-the-log-likelihood-graph" class="level1">
@@ -1357,12 +1344,11 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 
 </code></pre>
 </figure>
-<p><a id="orga80856e"></a></p>
 </section>
 <section id="creating-a-new-log-likelihood-function" class="level1">
 <h1>Creating a new Log-likelihood Function</h1>
-<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#org055f3bf">49</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
-<figure id="org055f3bf">
+<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#orgb9876eb">49</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
+<figure id="orgb9876eb">
 <div class="sourceCode" id="cb49"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="im">from</span> tensorflow.python.framework.func_graph <span class="im">import</span> FuncGraph</a>
 <a class="sourceLine" id="cb49-2" data-line-number="2"><span class="im">from</span> tensorflow.python.eager.function <span class="im">import</span> ConcreteFunction</a>
 <a class="sourceLine" id="cb49-3" data-line-number="3"><span class="im">from</span> tensorflow.python.eager.lift_to_graph <span class="im">import</span> lift_to_graph</a>
@@ -1405,13 +1391,13 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 Listing 49
 </figcaption>
 </figure>
-<figure id="orgb9876eb">
+<figure id="org051a679">
 <div class="sourceCode" id="cb50"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb50-1" data-line-number="1">logpfn_new_cf <span class="op">=</span> new_tf_function(logpfn_trans_tf, logpfn_cf)</a></code></pre></div>
 <figcaption>
 Listing 50
 </figcaption>
 </figure>
-<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#org055f3bf">49</a> is the function we are going to use for sampling from the new log-likelihood.</p>
+<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#orgb9876eb">49</a> is the function we are going to use for sampling from the new log-likelihood.</p>
 <figure id="org7bec3c9">
 <div class="sourceCode" id="cb51"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb51-1" data-line-number="1">_ <span class="op">=</span> logpfn_cf(<span class="op">*</span>init.values()) <span class="op">-</span> logpfn_new_cf(<span class="op">*</span>init.values())</a></code></pre></div>
 <figcaption>
@@ -1422,7 +1408,6 @@ Listing 51
 <div class="sourceCode" id="cb52"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb52-1" data-line-number="1">tf.Tensor(<span class="fl">153.41016</span>, shape<span class="op">=</span>(), dtype<span class="op">=</span>float32)</a></code></pre></div>
 </figure>
 <p>Listing <a href="#org7bec3c9">51</a> shows the difference between a transformed and non-transformed log-likelihood value given the same inputs.</p>
-<p><a id="orga41f6e3"></a></p>
 </section>
 <section id="sampling-from-the-new-log-likelihood" class="level1">
 <h1>Sampling from the new Log-likelihood</h1>
@@ -1477,24 +1462,18 @@ Listing 54
 <figcaption>
 </figcaption>
 </figure>
-<p><a id="orgdb8e15f"></a></p>
 </section>
 <section id="discussion" class="level1">
 <h1>Discussion</h1>
-<p>As a closing technical note, the two consecutive <code>run</code> calls in Listing <a href="#orge14b80d">26</a> could have been combined into a single <code>run</code>. This could be accomplished with some “meta” programming (e.g. construct and evaluate a goal on-the-fly) or special relations for adding and reading values from <code>dict</code>s or association lists. Goals of this nature are not uncommon (see the classic miniKanren type inference and inhabitation examples), and, while out of the current scope, demonstrate the great breadth of what’s possible exclusively within the relational context of miniKanren.</p>
-<p>Fortunately, the point we wanted to make in this demonstration doesn’t require that much sophistication. Instead, we simply wanted to demonstrate how a non-trivial “pattern” can be specified and employed with the tools being developed in <code>symbolic-pymc</code>.</p>
-<p>More specifically, our goal <code>shift_squared_subso</code> in Listing <a href="#orge14b80d">26</a> demonstrates <strong>the way in which we were able to specify, obtain and manipulate non-trivial elements within a graph</strong>.</p>
-<p>We defined one pattern—<code>Y_sqrdiffo</code>–to be matched <em>anywhere</em> in a graph, then another graph-wide pattern—<code>X_sqrdiffo</code>–that was dependent on terms in the first.</p>
-<p>As well, <em>substitutions</em> were generated from the information in <em>both</em> “matched” subgraphs (i.e. substitution pairs akin to <code>(x, z + x)</code>).</p>
-<p>Within this framework, we could have just as easily included any other terms from either successfully matched pattern, and used the output for any other purpose (e.g. TF log-likelihood-graph-to-TFP/PyMC4-model conversion). Likewise, these same patterns and their dependencies could be extended in exactly the same fashion to meet much more sophisticated requirements.</p>
-<p>While we performed our task on a model’s log-likelihood (or “measure-space”) graph, in “sample-space” (e.g. on a graph representing <span class="math inline">\(\eqref{eq:model-1}\)</span> or <span class="math inline">\(\eqref{eq:model-2}\)</span>) the search patterns and substitutions are much easier to specify and apply, because they’re single-subgraph patterns that themselves are the exact subgraphs that need to be replaced. In other words, search for non-standard normal random variables and replace them–on the spot–with shifted/scaled standard normal random variables.</p>
-<p>We chose to find distinct subgraph “chains”, or all <code>(y - x)**2</code> and <code>(x - z)**2</code> pairs. While these subgraphs <em>are</em> produced within the log-likelihoods of hierarchical normal distributions, they are not one-to-one with them. In a sense, our approach was more general but less precise (especially the very questionable replacement <span class="math inline">\(\log\left(\sigma\right) \to 0\)</span>). Suffice it to say, this choice was made in the interest of–marginally more–simplicity. Specifically, it was done to avoid using a pattern that was the complete form of a general normal log-likelihood.</p>
-<p>Even so, we still had a non-trivial structure/“pattern” to express–and execute. Using conventional graph search-and-replace functionality would’ve required much more orchestration and resulted in considerably less flexible code with little-to-no reusability. In our case, the goals <code>onceo</code> and <code>tf_graph_applyo</code>, for instance, are universal and the forms in <code>shift_squared_subso</code> can be easily changed to account for more sophisticated (or entirely distinct) patterns and substitutions.</p>
-<p>Most related graph manipulation offerings make it easy to find <em>a single subgraph</em> that matches a pattern, but <em>not</em> <strong>“co-dependent”–yet distinct–patterns</strong>. Generally, a developer has to manually implement a “global” state within the bare-bones context of a classic “visitor”-like pattern (e.g. like Python’s own <a href="https://docs.python.org/3/library/ast.html#ast.NodeTransformer"><code>ast.NodeTransformer</code></a>).</p>
-<p>While technically sufficient, the classes and code that result from this approach are rarely modular, not easy to generalize, and don’t sufficiently capture the mathematics they’re trying to model.</p>
-<p>For example, how well does the in-code representation of a replacement rule like <span class="math inline">\(\frac{x}{x} \to 1\)</span> (e.g. as something like <code>if node.op.type == &quot;RealDiv&quot; and ...</code>)–alongside a “node visitor” class that applies said replacement rule—<em>truly</em> represent <span class="math inline">\(\frac{x}{x} = 1\)</span>? At best, it only accounts for half of the identity: the single left-to-right implication.</p>
-<p>If you’re asking “Why would anyone want the <em>other</em> direction? Isn’t that only going to <strong>expand</strong> terms? Why would we ever want to do <em>that</em>?”, then you’re not seeing the whole picture. The short answer is that we <em>need</em> to search <strong>model space</strong>; we need to consider different–and hopefully better–formulations for any given model, just like we do in practice (and most often on paper). <strong>Both</strong> directions of an identity are necessary in this case. But, more importantly, we need to develop <strong>automated</strong> means of applying <em>and</em> specifying many of these identities, and–needless to say–combinations of <code>if</code> blocks and “node visitors” isn’t going to do the job.</p>
-<p>In closing, this demonstration–and discussion–barely even scratches the surface of what’s possible using miniKanren and relational programming for graph manipulation and symbolic statistical model manipulation. As the <code>symbolic-pymc</code> project advances, we’ll cover more examples in which miniKanren’s truly distinct offerings are demonstrated.</p>
+<p>The goals in the two separate <code>run</code> calls we used in Listing <a href="#org0ad3a96">24</a> could have been combined into a single <code>run</code>. This could’ve been accomplished using some “meta” steps (e.g. construct and evaluate a goal on-the-fly within a miniKanren) or special goals for reading from a miniKanren-generated <code>dict</code>s or association lists. Goals of this nature are not uncommon (e.g. type inference and inhabitation exmaples), and serve to demonstrate the great breadth of activity possible within relational context of miniKanren.</p>
+<p>However, the point we want to make doesn’t require much sophistication. Instead, we wanted to demonstrate how a non-trivial “pattern” can be specified and matched using <code>symbolic-pymc</code>, and how easily those results could be used to transform a graph.</p>
+<p>More specifically, our goal <code>shift_squared_subso</code> in <a href="#org0ad3a96">24</a> demonstrates <strong>the way in which we were able to specify desired structure(s) within a graph</strong>. We defined one pattern, <code>Y_sqrdiffo</code>, to match anywhere in the graph then another pattern, <code>X_sqrdiffo</code>, that relied on matched terms from <code>Y_sqrdiffo</code> and could also be matched/found anywhere else in the same graph.</p>
+<p>Furthermore, our substitutions needed information from both “matched” subgraphs. Specifically, substitution pairs similar to <code>(x, z + x)</code>. Within this framework, we could just as easily have included <code>y</code>–or any terms from either successfully matched subgraph–in the substitution expressions.</p>
+<p>In sample-space, the search patterns and substitutions are much easier to specify exactly because they’re single-subgraph patterns that themselves are the subgraphs to be replaced (i.e. if we find a non-standard normal, replace it with a shifted/scaled standard normal). In log-space, we chose to find distinct subgraph “chains”, i.e. all <code>(y - x)**2</code> and <code>(x - z)**2</code> pairs (i.e. “connected” by an “unknown” term <code>x</code>), since these are produced by the log-likelihood form of hierarchical normal distributions.</p>
+<p>As a result, we had a non-trivial structure/“pattern” to express–and execute. Using conventional graph search-and-replace functionality would’ve required much more orchestration and resulted considerably less flexible code with little-to-no reusability. In our case, the goals <code>onceo</code> and <code>tf_graph_applyo</code> are universal and the forms in <code>shift_squared_subso</code> can be easily changed to account for more sophisticated (or entirely distinct) patterns and substitutions.</p>
+<p>Most related graph manipulation offerings make it easy to find a single subgraph that matches a pattern, but not potentially “co-dependent” and/or distinct subgraphs. In the end, the developer will often have to manually implement a “global” state and orchestrate multiple single-subgraph searches and their results.</p>
+<p>For single search-and-replace objectives, this amount of manual developer intervention/orchestration might be excusable; however, for objectives requiring the evaluation of multiple graph transformation, this approach is mostly unmaintainable and extremely difficult to compartmentalize.</p>
+<p>This demonstration barely even scratches the surface of what’s possible using miniKanren and relational programming for graph manipulation and symbolic statistical model optimization. As the <code>symbolic-pymc</code> project advances, we’ll cover examples in which miniKanren’s more distinct offerings are demonstrated.</p>
 </section>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
