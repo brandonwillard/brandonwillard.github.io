@@ -583,7 +583,7 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 
 </code></pre>
 </figure>
-<p>The names in the TFP graph are not based on the PyMC4 model objects, so, to make the graph output slightly more interpretable, Listing <a href="#orgc9910cb">15</a> attempts to re-association the labels.</p>
+<p>The names in the TFP graph are not based on the PyMC4 model objects, so, to make the graph output slightly more interpretable, Listing <a href="#orgc9910cb">15</a> attempts to re-associate the TF and PyMC4 object names.</p>
 <figure id="orgc9910cb">
 <div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="im">from</span> pprint <span class="im">import</span> pprint</a>
 <a class="sourceLine" id="cb15-2" data-line-number="2"></a>
@@ -725,7 +725,6 @@ Listing 21
 </section>
 <section id="minikanren-transform-relations" class="level2">
 <h2>miniKanren Transform Relations</h2>
-<p>In Listing <a href="#org0ad3a96">23</a>, we create miniKanren functions that identify the aforementioned <code>SquaredDifference</code> “chains” and perform the re-centering/scaling substitutions.</p>
 <figure id="org0ad3a96">
 <div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="im">from</span> itertools <span class="im">import</span> chain</a>
 <a class="sourceLine" id="cb23-2" data-line-number="2"><span class="im">from</span> functools <span class="im">import</span> partial</a>
@@ -773,19 +772,13 @@ Listing 21
 <a class="sourceLine" id="cb23-44" data-line-number="44">        <span class="cf">return</span> <span class="va">None</span></a>
 <a class="sourceLine" id="cb23-45" data-line-number="45"></a>
 <a class="sourceLine" id="cb23-46" data-line-number="46">    gapplyo <span class="op">=</span> partial(graph_applyo, relation, preprocess_graph<span class="op">=</span>_expand_some_nodes)</a>
-<a class="sourceLine" id="cb23-47" data-line-number="47">    <span class="cf">return</span> gapplyo(a, b)</a>
-<a class="sourceLine" id="cb23-48" data-line-number="48"></a>
-<a class="sourceLine" id="cb23-49" data-line-number="49"></a>
-<a class="sourceLine" id="cb23-50" data-line-number="50"><span class="kw">def</span> tfp_normal_log_prob(loc, scale):</a>
-<a class="sourceLine" id="cb23-51" data-line-number="51">    log_unnormalized <span class="op">=</span> <span class="fl">-0.5</span> <span class="op">*</span> tf.math.squared_difference(</a>
-<a class="sourceLine" id="cb23-52" data-line-number="52">        x <span class="op">/</span> scale, loc <span class="op">/</span> scale)</a>
-<a class="sourceLine" id="cb23-53" data-line-number="53">    log_normalization <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> np.log(<span class="fl">2.</span> <span class="op">*</span> np.pi) <span class="op">+</span> tf.math.log(scale)</a>
-<a class="sourceLine" id="cb23-54" data-line-number="54">    <span class="cf">return</span> log_unnormalized <span class="op">-</span> log_normalization</a></code></pre></div>
+<a class="sourceLine" id="cb23-47" data-line-number="47">    <span class="cf">return</span> gapplyo(a, b)</a></code></pre></div>
 <figcaption>
 Listing 23
 </figcaption>
 </figure>
-<figure>
+<p>In Listing <a href="#org602d553">24</a>, we create miniKanren functions that identify the aforementioned <code>SquaredDifference</code> “chains” and perform the re-centering/scaling substitutions.</p>
+<figure id="org602d553">
 <div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="kw">def</span> shift_squared_subso(in_graph, out_subs):</a>
 <a class="sourceLine" id="cb24-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Construct a goal that produces transforms for chains like (y + x)**2, (x + z)**2.&quot;&quot;&quot;</span></a>
 <a class="sourceLine" id="cb24-3" data-line-number="3"></a>
@@ -849,6 +842,9 @@ Listing 23
 <a class="sourceLine" id="cb24-61" data-line-number="61">                      [Y_log_scale, <span class="fl">0.0</span>]]))</a>
 <a class="sourceLine" id="cb24-62" data-line-number="62"></a>
 <a class="sourceLine" id="cb24-63" data-line-number="63">    <span class="cf">return</span> res</a></code></pre></div>
+<figcaption>
+Listing 24
+</figcaption>
 </figure>
 <figure>
 <div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw">def</span> shift_squared_terms(in_obj, graph_inputs<span class="op">=</span>[]):</a>
@@ -1339,8 +1335,8 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 </section>
 <section id="creating-a-new-log-likelihood-function" class="level1">
 <h1>Creating a new Log-likelihood Function</h1>
-<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#org051a679">48</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
-<figure id="org051a679">
+<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#orge94e0bc">48</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
+<figure id="orge94e0bc">
 <div class="sourceCode" id="cb48"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb48-1" data-line-number="1"><span class="im">from</span> tensorflow.python.framework.func_graph <span class="im">import</span> FuncGraph</a>
 <a class="sourceLine" id="cb48-2" data-line-number="2"><span class="im">from</span> tensorflow.python.eager.function <span class="im">import</span> ConcreteFunction</a>
 <a class="sourceLine" id="cb48-3" data-line-number="3"><span class="im">from</span> tensorflow.python.eager.lift_to_graph <span class="im">import</span> lift_to_graph</a>
@@ -1383,13 +1379,13 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 Listing 48
 </figcaption>
 </figure>
-<figure id="orge94e0bc">
+<figure id="org7531f8c">
 <div class="sourceCode" id="cb49"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb49-1" data-line-number="1">logpfn_new_cf <span class="op">=</span> new_tf_function(logpfn_trans_tf, logpfn_cf)</a></code></pre></div>
 <figcaption>
 Listing 49
 </figcaption>
 </figure>
-<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#org051a679">48</a> is the function we are going to use for sampling from the new log-likelihood.</p>
+<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#orge94e0bc">48</a> is the function we are going to use for sampling from the new log-likelihood.</p>
 <figure id="org7bec3c9">
 <div class="sourceCode" id="cb50"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb50-1" data-line-number="1">_ <span class="op">=</span> logpfn_cf(<span class="op">*</span>init.values()) <span class="op">-</span> logpfn_new_cf(<span class="op">*</span>init.values())</a></code></pre></div>
 <figcaption>
