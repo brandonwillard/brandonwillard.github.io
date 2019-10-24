@@ -997,8 +997,8 @@ Listing 36
 &lt;pre class="text"&gt;&lt;code&gt;[500099.94]&lt;/code&gt;&lt;/pre&gt;
 &lt;/figure&gt;
 &lt;p&gt;The output of Listing &lt;a href="#org7e4367b"&gt;36&lt;/a&gt; shows exactly how large the discrepancy can be for carefully chosen parameter values. More specifically, as &lt;code&gt;tau_tf&lt;/code&gt; gets smaller and the magnitude of the difference &lt;code&gt;x_tf - y_tf&lt;/code&gt; gets larger, the discrepancy can increase. Since such parameter values are likely to be visited during sampling, we should address this missing simplification.&lt;/p&gt;
-&lt;p&gt;In Listing &lt;a href="#orge313efe"&gt;39&lt;/a&gt; we create a goal that performs that aforementioned simplification for &lt;code&gt;SquaredDifference&lt;/code&gt;.&lt;/p&gt;
-&lt;figure&gt;
+&lt;p&gt;In Listing &lt;a href="#orga3b3e3a"&gt;38&lt;/a&gt; we create a goal that performs that aforementioned simplification for &lt;code&gt;SquaredDifference&lt;/code&gt;.&lt;/p&gt;
+&lt;figure id="orga3b3e3a"&gt;
 &lt;div class="sourceCode" id="cb38"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb38-1" data-line-number="1"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; recenter_sqrdiffo(in_g, out_g):&lt;/a&gt;
 &lt;a class="sourceLine" id="cb38-2" data-line-number="2"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Create a goal that reduces `(a/d - (a + c)/d)**2` to `()`&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb38-3" data-line-number="3"&gt;    a_sqd_lv, b_sqd_lv, d_sqd_lv &lt;span class="op"&gt;=&lt;/span&gt; var(), var(), var()&lt;/a&gt;
@@ -1029,8 +1029,11 @@ Listing 36
 &lt;a class="sourceLine" id="cb38-28" data-line-number="28"&gt;                     [eq(b_sqd_lv, mt.reshape(b_part_lv, reshape_lv, name&lt;span class="op"&gt;=&lt;/span&gt;var())),&lt;/a&gt;
 &lt;a class="sourceLine" id="cb38-29" data-line-number="29"&gt;                      eq(out_g, simplified_sqrdiff_reshaped_lv)]))&lt;/a&gt;
 &lt;a class="sourceLine" id="cb38-30" data-line-number="30"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; res&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;figcaption&gt;
+Listing 38
+&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p&gt;We apply the simplification in Listing &lt;a href="#orge313efe"&gt;39&lt;/a&gt; and print the results in &lt;a href="#orga55e147"&gt;40&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;We apply the simplification in Listing &lt;a href="#orge313efe"&gt;39&lt;/a&gt; and print the results in Listing &lt;a href="#orga55e147"&gt;40&lt;/a&gt;.&lt;/p&gt;
 &lt;figure id="orge313efe"&gt;
 &lt;div class="sourceCode" id="cb39"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb39-1" data-line-number="1"&gt;&lt;span class="cf"&gt;with&lt;/span&gt; graph_mode(), test_output_res.graph.as_default():&lt;/a&gt;
 &lt;a class="sourceLine" id="cb39-2" data-line-number="2"&gt;&lt;/a&gt;
@@ -1223,8 +1226,8 @@ Tensor(SquaredDifference):0,    shape=[919] &amp;quot;Normal_4_1/log_prob/Square
 &lt;/section&gt;
 &lt;section id="creating-a-new-log-likelihood-function" class="level1"&gt;
 &lt;h1&gt;Creating a new Log-likelihood Function&lt;/h1&gt;
-&lt;p&gt;Now that we have a transformed version of the original log-likelihood graph (i.e. &lt;code&gt;logpfn_trans_tf&lt;/code&gt;), we need to create a new &lt;code&gt;FuncGraph&lt;/code&gt; from it. Listing &lt;a href="#org70ccd79"&gt;49&lt;/a&gt; provides a simple function that creates a new &lt;code&gt;ConcreteFunction&lt;/code&gt; from an updated output node.&lt;/p&gt;
-&lt;figure id="org70ccd79"&gt;
+&lt;p&gt;Now that we have a transformed version of the original log-likelihood graph (i.e. &lt;code&gt;logpfn_trans_tf&lt;/code&gt;), we need to create a new &lt;code&gt;FuncGraph&lt;/code&gt; from it. Listing &lt;a href="#org055f3bf"&gt;49&lt;/a&gt; provides a simple function that creates a new &lt;code&gt;ConcreteFunction&lt;/code&gt; from an updated output node.&lt;/p&gt;
+&lt;figure id="org055f3bf"&gt;
 &lt;div class="sourceCode" id="cb49"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb49-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.framework.func_graph &lt;span class="im"&gt;import&lt;/span&gt; FuncGraph&lt;/a&gt;
 &lt;a class="sourceLine" id="cb49-2" data-line-number="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.function &lt;span class="im"&gt;import&lt;/span&gt; ConcreteFunction&lt;/a&gt;
 &lt;a class="sourceLine" id="cb49-3" data-line-number="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.lift_to_graph &lt;span class="im"&gt;import&lt;/span&gt; lift_to_graph&lt;/a&gt;
@@ -1267,13 +1270,13 @@ Tensor(SquaredDifference):0,    shape=[919] &amp;quot;Normal_4_1/log_prob/Square
 Listing 49
 &lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;figure id="orgac503f4"&gt;
+&lt;figure id="orgb9876eb"&gt;
 &lt;div class="sourceCode" id="cb50"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb50-1" data-line-number="1"&gt;logpfn_new_cf &lt;span class="op"&gt;=&lt;/span&gt; new_tf_function(logpfn_trans_tf, logpfn_cf)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;figcaption&gt;
 Listing 50
 &lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p&gt;The new TF function, &lt;code&gt;logpfn_new_cf&lt;/code&gt;, in Listing &lt;a href="#org70ccd79"&gt;49&lt;/a&gt; is the function we are going to use for sampling from the new log-likelihood.&lt;/p&gt;
+&lt;p&gt;The new TF function, &lt;code&gt;logpfn_new_cf&lt;/code&gt;, in Listing &lt;a href="#org055f3bf"&gt;49&lt;/a&gt; is the function we are going to use for sampling from the new log-likelihood.&lt;/p&gt;
 &lt;figure id="org7bec3c9"&gt;
 &lt;div class="sourceCode" id="cb51"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb51-1" data-line-number="1"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; logpfn_cf(&lt;span class="op"&gt;*&lt;/span&gt;init.values()) &lt;span class="op"&gt;-&lt;/span&gt; logpfn_new_cf(&lt;span class="op"&gt;*&lt;/span&gt;init.values())&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;figcaption&gt;

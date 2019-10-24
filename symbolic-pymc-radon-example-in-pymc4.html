@@ -1132,8 +1132,8 @@ Listing 36
 <pre class="text"><code>[500099.94]</code></pre>
 </figure>
 <p>The output of Listing <a href="#org7e4367b">36</a> shows exactly how large the discrepancy can be for carefully chosen parameter values. More specifically, as <code>tau_tf</code> gets smaller and the magnitude of the difference <code>x_tf - y_tf</code> gets larger, the discrepancy can increase. Since such parameter values are likely to be visited during sampling, we should address this missing simplification.</p>
-<p>In Listing <a href="#orge313efe">39</a> we create a goal that performs that aforementioned simplification for <code>SquaredDifference</code>.</p>
-<figure>
+<p>In Listing <a href="#orga3b3e3a">38</a> we create a goal that performs that aforementioned simplification for <code>SquaredDifference</code>.</p>
+<figure id="orga3b3e3a">
 <div class="sourceCode" id="cb38"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">def</span> recenter_sqrdiffo(in_g, out_g):</a>
 <a class="sourceLine" id="cb38-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Create a goal that reduces `(a/d - (a + c)/d)**2` to `()`&quot;&quot;&quot;</span></a>
 <a class="sourceLine" id="cb38-3" data-line-number="3">    a_sqd_lv, b_sqd_lv, d_sqd_lv <span class="op">=</span> var(), var(), var()</a>
@@ -1164,8 +1164,11 @@ Listing 36
 <a class="sourceLine" id="cb38-28" data-line-number="28">                     [eq(b_sqd_lv, mt.reshape(b_part_lv, reshape_lv, name<span class="op">=</span>var())),</a>
 <a class="sourceLine" id="cb38-29" data-line-number="29">                      eq(out_g, simplified_sqrdiff_reshaped_lv)]))</a>
 <a class="sourceLine" id="cb38-30" data-line-number="30">    <span class="cf">return</span> res</a></code></pre></div>
+<figcaption>
+Listing 38
+</figcaption>
 </figure>
-<p>We apply the simplification in Listing <a href="#orge313efe">39</a> and print the results in <a href="#orga55e147">40</a>.</p>
+<p>We apply the simplification in Listing <a href="#orge313efe">39</a> and print the results in Listing <a href="#orga55e147">40</a>.</p>
 <figure id="orge313efe">
 <div class="sourceCode" id="cb39"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="cf">with</span> graph_mode(), test_output_res.graph.as_default():</a>
 <a class="sourceLine" id="cb39-2" data-line-number="2"></a>
@@ -1358,8 +1361,8 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 </section>
 <section id="creating-a-new-log-likelihood-function" class="level1">
 <h1>Creating a new Log-likelihood Function</h1>
-<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#org70ccd79">49</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
-<figure id="org70ccd79">
+<p>Now that we have a transformed version of the original log-likelihood graph (i.e. <code>logpfn_trans_tf</code>), we need to create a new <code>FuncGraph</code> from it. Listing <a href="#org055f3bf">49</a> provides a simple function that creates a new <code>ConcreteFunction</code> from an updated output node.</p>
+<figure id="org055f3bf">
 <div class="sourceCode" id="cb49"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="im">from</span> tensorflow.python.framework.func_graph <span class="im">import</span> FuncGraph</a>
 <a class="sourceLine" id="cb49-2" data-line-number="2"><span class="im">from</span> tensorflow.python.eager.function <span class="im">import</span> ConcreteFunction</a>
 <a class="sourceLine" id="cb49-3" data-line-number="3"><span class="im">from</span> tensorflow.python.eager.lift_to_graph <span class="im">import</span> lift_to_graph</a>
@@ -1402,13 +1405,13 @@ Tensor(SquaredDifference):0,    shape=[919] &quot;Normal_4_1/log_prob/SquaredDif
 Listing 49
 </figcaption>
 </figure>
-<figure id="orgac503f4">
+<figure id="orgb9876eb">
 <div class="sourceCode" id="cb50"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb50-1" data-line-number="1">logpfn_new_cf <span class="op">=</span> new_tf_function(logpfn_trans_tf, logpfn_cf)</a></code></pre></div>
 <figcaption>
 Listing 50
 </figcaption>
 </figure>
-<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#org70ccd79">49</a> is the function we are going to use for sampling from the new log-likelihood.</p>
+<p>The new TF function, <code>logpfn_new_cf</code>, in Listing <a href="#org055f3bf">49</a> is the function we are going to use for sampling from the new log-likelihood.</p>
 <figure id="org7bec3c9">
 <div class="sourceCode" id="cb51"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb51-1" data-line-number="1">_ <span class="op">=</span> logpfn_cf(<span class="op">*</span>init.values()) <span class="op">-</span> logpfn_new_cf(<span class="op">*</span>init.values())</a></code></pre></div>
 <figcaption>
