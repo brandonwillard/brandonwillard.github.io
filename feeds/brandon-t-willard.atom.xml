@@ -1223,8 +1223,8 @@ Tensor(SquaredDifference):0,    shape=[919] &amp;quot;Normal_4_1/log_prob/Square
 &lt;/section&gt;
 &lt;section id="creating-a-new-log-likelihood-function" class="level1"&gt;
 &lt;h1&gt;Creating a new Log-likelihood Function&lt;/h1&gt;
-&lt;p&gt;Now that we have a transformed version of the original log-likelihood graph (i.e. &lt;code&gt;logpfn_trans_tf&lt;/code&gt;), we need to create a new &lt;code&gt;FuncGraph&lt;/code&gt; from it. Listing &lt;a href="#orgf497d81"&gt;49&lt;/a&gt; provides a simple function that creates a new &lt;code&gt;ConcreteFunction&lt;/code&gt; from an updated output node.&lt;/p&gt;
-&lt;figure id="orgf497d81"&gt;
+&lt;p&gt;Now that we have a transformed version of the original log-likelihood graph (i.e. &lt;code&gt;logpfn_trans_tf&lt;/code&gt;), we need to create a new &lt;code&gt;FuncGraph&lt;/code&gt; from it. Listing &lt;a href="#org70ccd79"&gt;49&lt;/a&gt; provides a simple function that creates a new &lt;code&gt;ConcreteFunction&lt;/code&gt; from an updated output node.&lt;/p&gt;
+&lt;figure id="org70ccd79"&gt;
 &lt;div class="sourceCode" id="cb49"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb49-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.framework.func_graph &lt;span class="im"&gt;import&lt;/span&gt; FuncGraph&lt;/a&gt;
 &lt;a class="sourceLine" id="cb49-2" data-line-number="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.function &lt;span class="im"&gt;import&lt;/span&gt; ConcreteFunction&lt;/a&gt;
 &lt;a class="sourceLine" id="cb49-3" data-line-number="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.lift_to_graph &lt;span class="im"&gt;import&lt;/span&gt; lift_to_graph&lt;/a&gt;
@@ -1267,13 +1267,13 @@ Tensor(SquaredDifference):0,    shape=[919] &amp;quot;Normal_4_1/log_prob/Square
 Listing 49
 &lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;figure id="org70ccd79"&gt;
+&lt;figure id="orgac503f4"&gt;
 &lt;div class="sourceCode" id="cb50"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb50-1" data-line-number="1"&gt;logpfn_new_cf &lt;span class="op"&gt;=&lt;/span&gt; new_tf_function(logpfn_trans_tf, logpfn_cf)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;figcaption&gt;
 Listing 50
 &lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p&gt;The new TF function, &lt;code&gt;logpfn_new_cf&lt;/code&gt;, in Listing &lt;a href="#orgf497d81"&gt;49&lt;/a&gt; is the function we are going to use for sampling from the new log-likelihood.&lt;/p&gt;
+&lt;p&gt;The new TF function, &lt;code&gt;logpfn_new_cf&lt;/code&gt;, in Listing &lt;a href="#org70ccd79"&gt;49&lt;/a&gt; is the function we are going to use for sampling from the new log-likelihood.&lt;/p&gt;
 &lt;figure id="org7bec3c9"&gt;
 &lt;div class="sourceCode" id="cb51"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb51-1" data-line-number="1"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; logpfn_cf(&lt;span class="op"&gt;*&lt;/span&gt;init.values()) &lt;span class="op"&gt;-&lt;/span&gt; logpfn_new_cf(&lt;span class="op"&gt;*&lt;/span&gt;init.values())&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;figcaption&gt;
@@ -1345,7 +1345,7 @@ Listing 54
 &lt;h1&gt;Discussion&lt;/h1&gt;
 &lt;p&gt;As a closing technical note, the two consecutive &lt;code&gt;run&lt;/code&gt; calls in Listing &lt;a href="#orge14b80d"&gt;26&lt;/a&gt; could have been combined into a single &lt;code&gt;run&lt;/code&gt;. This could be accomplished with some “meta” programming (e.g. construct and evaluate a goal on-the-fly) or special relations for adding and reading values from &lt;code&gt;dict&lt;/code&gt;s or association lists. Goals of this nature are not uncommon (see the classic miniKanren type inference and inhabitation examples), and, while out of the current scope, demonstrate the great breadth of what’s possible exclusively within the relational context of miniKanren.&lt;/p&gt;
 &lt;p&gt;Fortunately, the point we wanted to make in this demonstration doesn’t require that much sophistication. Instead, we simply wanted to demonstrate how a non-trivial “pattern” can be specified and employed with the tools being developed in &lt;code&gt;symbolic-pymc&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;More specifically, our goal &lt;code&gt;shift_squared_subso&lt;/code&gt; in &lt;a href="#orge14b80d"&gt;26&lt;/a&gt; demonstrates &lt;strong&gt;the way in which we were able to specify, obtain and manipulate non-trivial elements within a graph&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;More specifically, our goal &lt;code&gt;shift_squared_subso&lt;/code&gt; in Listing &lt;a href="#orge14b80d"&gt;26&lt;/a&gt; demonstrates &lt;strong&gt;the way in which we were able to specify, obtain and manipulate non-trivial elements within a graph&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;We defined one pattern—&lt;code&gt;Y_sqrdiffo&lt;/code&gt;–to be matched &lt;em&gt;anywhere&lt;/em&gt; in a graph, then another graph-wide pattern—&lt;code&gt;X_sqrdiffo&lt;/code&gt;–that was dependent on terms in the first.&lt;/p&gt;
 &lt;p&gt;As well, &lt;em&gt;substitutions&lt;/em&gt; were generated from the information in &lt;em&gt;both&lt;/em&gt; “matched” subgraphs (i.e. substitution pairs akin to &lt;code&gt;(x, z + x)&lt;/code&gt;).&lt;/p&gt;
 &lt;p&gt;Within this framework, we could have just as easily included any other terms from either successfully matched pattern, and used the output for any other purpose (e.g. TF log-likelihood-graph-to-TFP/PyMC4-model conversion). Likewise, these same patterns and their dependencies could be extended in exactly the same fashion to meet much more sophisticated requirements.&lt;/p&gt;
