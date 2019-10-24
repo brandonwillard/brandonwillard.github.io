@@ -4,7 +4,7 @@ This is a personal [Pelican](http://docs.getpelican.com/) site.
 
 # Setup
 
-Basically, set up Pelican (using `pelican-quickstart` for instance). 
+Basically, set up Pelican (using `pelican-quickstart` for instance).
 
 This site also uses the plugin [render_math](https://github.com/barrysteyn/pelican_plugin-render_math), so install it (reference the settings file for exactly how).
 
@@ -37,6 +37,24 @@ $ ghp-import output
 $ git push git@github.com:brandonwillard/brandonwillard.github.io.git gh-pages:master
 ```
 or simply `$ make github`.
+
+### `org-mode`
+
+Use `org-publish` with setting like the following in a `.dir-locals.el` (or manually set in Emacs):
+```
+((nil . ((pyvenv-workon . "github-website")
+         (org-publish-project-alist . (("md"
+                                        :base-directory "/home/user/github-site/content/articles/src/org"
+                                        :base-extension "org"
+                                        :publishing-directory "/home/user/github-site/content/articles/"
+                                        :figure-dir "/home/user/github-site/content/articles/figures/"
+                                        :publishing-function org-pelican-publish-to-pelican
+                                        )
+                                       ("all" :components ("md")))))))
+```
+
+The `ox-pelican` exporter (in the Emacs package [`org-btw`](https://github.com/brandonwillard/org-btw)) provides
+`org-pelican-publish-to-pelican` and the Markdown formatting seen here.  These Markdown files are then processed by Pandoc via `pelican`.
 
 ## FYI
 
