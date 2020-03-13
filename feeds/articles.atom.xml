@@ -448,7 +448,7 @@ Tensor(SquaredDifference):0,    shape=[919] &amp;quot;Normal_4_1/log_prob/Square
 
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/figure&gt;
-&lt;p&gt;The names in the TFP graph are not based on the PyMC4 model objects, so, to make the graph output slightly more interpretable, Listing &lt;a href="#orgc9910cb"&gt;15&lt;/a&gt; attempts to re-associate the TF and PyMC4 object names.&lt;/p&gt;
+&lt;p&gt;The names in the TFP graph are not based on the PyMC4 model objects, so, to make the graph output slightly more interpretable, Listing &lt;a href="#orgc9910cb"&gt;15&lt;/a&gt; attempts to re-association the labels.&lt;/p&gt;
 &lt;figure id="orgc9910cb"&gt;
 &lt;div class="sourceCode" id="cb15"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb15-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; pprint &lt;span class="im"&gt;import&lt;/span&gt; pprint&lt;/a&gt;
 &lt;a class="sourceLine" id="cb15-2" data-line-number="2"&gt;&lt;/a&gt;
@@ -590,6 +590,7 @@ Listing 21
 &lt;/section&gt;
 &lt;section id="minikanren-transform-relations" class="level2"&gt;
 &lt;h2&gt;miniKanren Transform Relations&lt;/h2&gt;
+&lt;p&gt;In Listing &lt;a href="#org0ad3a96"&gt;23&lt;/a&gt;, we create miniKanren functions that identify the aforementioned &lt;code&gt;SquaredDifference&lt;/code&gt; “chains” and perform the re-centering/scaling substitutions.&lt;/p&gt;
 &lt;figure id="org0ad3a96"&gt;
 &lt;div class="sourceCode" id="cb23"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb23-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; itertools &lt;span class="im"&gt;import&lt;/span&gt; chain&lt;/a&gt;
 &lt;a class="sourceLine" id="cb23-2" data-line-number="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; functools &lt;span class="im"&gt;import&lt;/span&gt; partial&lt;/a&gt;
@@ -637,13 +638,19 @@ Listing 21
 &lt;a class="sourceLine" id="cb23-44" data-line-number="44"&gt;        &lt;span class="cf"&gt;return&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb23-45" data-line-number="45"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb23-46" data-line-number="46"&gt;    gapplyo &lt;span class="op"&gt;=&lt;/span&gt; partial(graph_applyo, relation, preprocess_graph&lt;span class="op"&gt;=&lt;/span&gt;_expand_some_nodes)&lt;/a&gt;
-&lt;a class="sourceLine" id="cb23-47" data-line-number="47"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; gapplyo(a, b)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;a class="sourceLine" id="cb23-47" data-line-number="47"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; gapplyo(a, b)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-48" data-line-number="48"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-49" data-line-number="49"&gt;&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-50" data-line-number="50"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; tfp_normal_log_prob(loc, scale):&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-51" data-line-number="51"&gt;    log_unnormalized &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;-0.5&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; tf.math.squared_difference(&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-52" data-line-number="52"&gt;        x &lt;span class="op"&gt;/&lt;/span&gt; scale, loc &lt;span class="op"&gt;/&lt;/span&gt; scale)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-53" data-line-number="53"&gt;    log_normalization &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;0.5&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; np.log(&lt;span class="fl"&gt;2.&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; np.pi) &lt;span class="op"&gt;+&lt;/span&gt; tf.math.log(scale)&lt;/a&gt;
+&lt;a class="sourceLine" id="cb23-54" data-line-number="54"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; log_unnormalized &lt;span class="op"&gt;-&lt;/span&gt; log_normalization&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;figcaption&gt;
 Listing 23
 &lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p&gt;In Listing &lt;a href="#org602d553"&gt;24&lt;/a&gt;, we create miniKanren functions that identify the aforementioned &lt;code&gt;SquaredDifference&lt;/code&gt; “chains” and perform the re-centering/scaling substitutions.&lt;/p&gt;
-&lt;figure id="org602d553"&gt;
+&lt;figure&gt;
 &lt;div class="sourceCode" id="cb24"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb24-1" data-line-number="1"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; shift_squared_subso(in_graph, out_subs):&lt;/a&gt;
 &lt;a class="sourceLine" id="cb24-2" data-line-number="2"&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Construct a goal that produces transforms for chains like (y + x)**2, (x + z)**2.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb24-3" data-line-number="3"&gt;&lt;/a&gt;
@@ -707,9 +714,6 @@ Listing 23
 &lt;a class="sourceLine" id="cb24-61" data-line-number="61"&gt;                      [Y_log_scale, &lt;span class="fl"&gt;0.0&lt;/span&gt;]]))&lt;/a&gt;
 &lt;a class="sourceLine" id="cb24-62" data-line-number="62"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb24-63" data-line-number="63"&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; res&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;figcaption&gt;
-Listing 24
-&lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;figure&gt;
 &lt;div class="sourceCode" id="cb25"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb25-1" data-line-number="1"&gt;&lt;span class="kw"&gt;def&lt;/span&gt; shift_squared_terms(in_obj, graph_inputs&lt;span class="op"&gt;=&lt;/span&gt;[]):&lt;/a&gt;
@@ -1200,8 +1204,8 @@ Tensor(SquaredDifference):0,    shape=[919] &amp;quot;Normal_4_1/log_prob/Square
 &lt;/section&gt;
 &lt;section id="creating-a-new-log-likelihood-function" class="level1"&gt;
 &lt;h1&gt;Creating a new Log-likelihood Function&lt;/h1&gt;
-&lt;p&gt;Now that we have a transformed version of the original log-likelihood graph (i.e. &lt;code&gt;logpfn_trans_tf&lt;/code&gt;), we need to create a new &lt;code&gt;FuncGraph&lt;/code&gt; from it. Listing &lt;a href="#orge94e0bc"&gt;48&lt;/a&gt; provides a simple function that creates a new &lt;code&gt;ConcreteFunction&lt;/code&gt; from an updated output node.&lt;/p&gt;
-&lt;figure id="orge94e0bc"&gt;
+&lt;p&gt;Now that we have a transformed version of the original log-likelihood graph (i.e. &lt;code&gt;logpfn_trans_tf&lt;/code&gt;), we need to create a new &lt;code&gt;FuncGraph&lt;/code&gt; from it. Listing &lt;a href="#org051a679"&gt;48&lt;/a&gt; provides a simple function that creates a new &lt;code&gt;ConcreteFunction&lt;/code&gt; from an updated output node.&lt;/p&gt;
+&lt;figure id="org051a679"&gt;
 &lt;div class="sourceCode" id="cb48"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb48-1" data-line-number="1"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.framework.func_graph &lt;span class="im"&gt;import&lt;/span&gt; FuncGraph&lt;/a&gt;
 &lt;a class="sourceLine" id="cb48-2" data-line-number="2"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.function &lt;span class="im"&gt;import&lt;/span&gt; ConcreteFunction&lt;/a&gt;
 &lt;a class="sourceLine" id="cb48-3" data-line-number="3"&gt;&lt;span class="im"&gt;from&lt;/span&gt; tensorflow.python.eager.lift_to_graph &lt;span class="im"&gt;import&lt;/span&gt; lift_to_graph&lt;/a&gt;
@@ -1244,13 +1248,13 @@ Tensor(SquaredDifference):0,    shape=[919] &amp;quot;Normal_4_1/log_prob/Square
 Listing 48
 &lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;figure id="org7531f8c"&gt;
+&lt;figure id="orge94e0bc"&gt;
 &lt;div class="sourceCode" id="cb49"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb49-1" data-line-number="1"&gt;logpfn_new_cf &lt;span class="op"&gt;=&lt;/span&gt; new_tf_function(logpfn_trans_tf, logpfn_cf)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;figcaption&gt;
 Listing 49
 &lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p&gt;The new TF function, &lt;code&gt;logpfn_new_cf&lt;/code&gt;, in Listing &lt;a href="#orge94e0bc"&gt;48&lt;/a&gt; is the function we are going to use for sampling from the new log-likelihood.&lt;/p&gt;
+&lt;p&gt;The new TF function, &lt;code&gt;logpfn_new_cf&lt;/code&gt;, in Listing &lt;a href="#org051a679"&gt;48&lt;/a&gt; is the function we are going to use for sampling from the new log-likelihood.&lt;/p&gt;
 &lt;figure id="org7bec3c9"&gt;
 &lt;div class="sourceCode" id="cb50"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;a class="sourceLine" id="cb50-1" data-line-number="1"&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; logpfn_cf(&lt;span class="op"&gt;*&lt;/span&gt;init.values()) &lt;span class="op"&gt;-&lt;/span&gt; logpfn_new_cf(&lt;span class="op"&gt;*&lt;/span&gt;init.values())&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;figcaption&gt;

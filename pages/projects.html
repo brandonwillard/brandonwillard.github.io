@@ -55,14 +55,14 @@ Brandon T. Willard            </a>
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
-                         <li><a href="https://brandonwillard.github.io/pages/about.html">
-                             About
+                         <li><a href="https://brandonwillard.github.io/pages/publications.html">
+                             Publications
                           </a></li>
                          <li class="active"><a href="https://brandonwillard.github.io/pages/projects.html">
                              Projects
                           </a></li>
-                         <li><a href="https://brandonwillard.github.io/pages/publications.html">
-                             Publications
+                         <li><a href="https://brandonwillard.github.io/pages/about.html">
+                             About
                           </a></li>
                         <li >
                             <a href="https://brandonwillard.github.io/category/articles.html">Articles</a>
@@ -105,7 +105,17 @@ Brandon T. Willard            </a>
 <!--  -->
 <!-- </div> -->
 <!--  -->
-<p>Check <a href="https://github.com/brandonwillard">Github</a> and <a href="https://bitbucket.io/brandonwillard">Bitbucket</a> to see what I’ve been up to. Otherwise, here’s a quick roundup…</p>
+<p>Check <a href="https://github.com/brandonwillard">Github</a> (and previously <a href="https://bitbucket.io/brandonwillard">Bitbucket</a>) for an accurate picture of what I’ve been working on.</p>
+<p>Regardless, here’s a quick summary:</p>
+<div class="project" name="Pythological" data-markdown="">
+<ul class="project-links">
+<li>
+<a href="https://github.com/pythological">github</a>
+</li>
+</ul>
+<p>Pythological is a GitHub organization providing packages that bring logic/relational programming and symbolic mathematics together in Python.</p>
+<p>More specifically, Pythological hosts more advanced Python implementations of <a href="https://github.com/pythological/unification">unification</a> and <a href="https://github.com/pythological/kanren">miniKanren</a> (e.g. with constrain logic programming capabilities and non-stack-bound recursion).</p>
+</div>
 <div class="project" name="symbolic-pymc" data-markdown="">
 <ul class="project-links">
 <li>
@@ -125,6 +135,7 @@ Brandon T. Willard            </a>
 </li>
 </ul>
 <p>Hy is a wonderful dialect of Lisp that’s embedded in Python.</p>
+<p>I’m a core developer on this project.</p>
 </div>
 <div class="project" name="hypoKanren" data-markdown="">
 <ul class="project-links">
@@ -148,7 +159,7 @@ Brandon T. Willard            </a>
 <div class="project" name="amimodels" data-markdown="">
 <ul class="project-links">
 <li>
-<a href="https://github.com/brandonwillard/amimodels">code</a>
+<a href="https://github.com/brandonwillard/amimodels">github</a>
 </li>
 <li>
 <a href="https://amimodels.readthedocs.io/en/latest/methodology.html">docs</a>
@@ -209,7 +220,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 <a href="http://bustime.mta.info/wiki/Main/Technology">tech</a>
 </li>
 <li>
-<a href="https://github.com/camsys/onebusaway-nyc/commits?author=brandonwillard">code</a>
+<a href="https://github.com/camsys/onebusaway-nyc/commits?author=brandonwillard">github</a>
 </li>
 </ul>
 <p>Bus Time is the open source Java suite that provides real-time bus tracking to NYC. I designed and developed the <a href="https://github.com/camsys/onebusaway-nyc/wiki/Inference-Engine">statistical inference capabilities</a> and helped build the production service components. The model handles free and constrained location tracking along street networks, inference for unobserved operational states (e.g. in layover, at a stop, in progress) and path-based states (e.g. current trip, route, run), as well as inference for faulty operator input (e.g. operator ids, sign codes).</p>
@@ -218,7 +229,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 <div class="project" name="prox-methods" data-markdown="">
 <ul class="project-links">
 <li>
-<a href="https://bitbucket.org/prox-methods-in-stats/prox-methods-rpkg">code</a>
+<a href="https://bitbucket.org/prox-methods-in-stats/prox-methods-rpkg">bitbucket</a>
 </li>
 </ul>
 <p><code>prox-methods</code> is a very experimental R package with C++ implementations (via Rcpp) for some of the proximal optimization methods from the paper <a href="https://projecteuclid.org/euclid.ss/1449670858">“Proximal Algorithms in Statistics and Machine Learning”</a>.</p>
@@ -226,7 +237,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 <div class="project" name="open-tracking-tools" data-markdown="">
 <ul class="project-links">
 <li>
-<a href="https://github.com/brandonwillard/open-tracking-tools">code</a>
+<a href="https://github.com/brandonwillard/open-tracking-tools">github</a>
 </li>
 </ul>
 <p><code>open-tracking-tools</code> is an open-source vehicle tracking library that implements custom Particle Filters to infer locations, paths and on/off-road states. Given a transit graph, <code>open-tracking-tools</code> provides robust real-time Bayesian inference for noisy GPS data. <a href="http://www.opentripplanner.org/uses">OpenTripPlanner</a> graph support is built in, so street information encoded in <a href="https://www.openstreetmap.org/">OpenStreetMap</a> can be used with fairly minimal effort.</p>
@@ -234,7 +245,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 <div class="project" name="StatsLibExtensions" data-markdown="">
 <ul class="project-links">
 <li>
-<a href="https://bitbucket.org/brandonwillard/statslibextensions">code</a>
+<a href="https://github.com/brandonwillard/statslibextensions">github</a>
 </li>
 </ul>
 <p>Extensions to the <a href="https://github.com/algorithmfoundry/Foundry">Cognitive Foundry API</a> including, but not limited to, specialized distributions, sampling techniques, and numerically stable computations for Dynamic Linear Models.</p>
@@ -242,7 +253,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 <div class="project" name="ParticleBayes" data-markdown="">
 <ul class="project-links">
 <li>
-<a href="https://bitbucket.org/brandonwillard/particlebayes">code</a>
+<a href="https://github.com/brandonwillard/particlebayes">github</a>
 </li>
 </ul>
 <p><code>ParticleBayes</code> is an R package implementing a collection of particle filters for hierarchical Bayesian models that perform sequential parameter estimation.</p>
@@ -250,7 +261,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 <div class="project" name="ParticleLearningModels" data-markdown="">
 <ul class="project-links">
 <li>
-<a href="https://bitbucket.org/brandonwillard/particlelearningmodels">code</a>
+<a href="https://github.com/brandonwillard/particlelearningmodels">github</a>
 </li>
 </ul>
 <p>Java code for Bayesian models that are estimated by Particle Filters and implement parameter learning.</p>
@@ -264,7 +275,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 <a href="https://dssg.uchicago.edu/project/simulating-better-bus-service/">site</a>
 </li>
 <li>
-<a href="https://github.com/dssg/cta-sim">code</a>
+<a href="https://github.com/dssg/cta-sim">github</a>
 </li>
 </ul>
 <p>Big data simulation of Chicago’s public transportation to improve transit planning and reduce bus crowding.</p>
@@ -278,7 +289,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
 <a href="https://dssg.uchicago.edu/project/predicting-building-energy-savings/">site</a>
 </li>
 <li>
-<a href="https://github.com/dssg/energywise">code</a>
+<a href="https://github.com/dssg/energywise">github</a>
 </li>
 </ul>
 <p>An energy analytics tool to make commercial building more energy efficient.</p>
