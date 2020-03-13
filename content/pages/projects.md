@@ -2,9 +2,22 @@
 title: Projects
 ---
 
-Check [Github](https://github.com/brandonwillard) and
-[Bitbucket](https://bitbucket.io/brandonwillard) to see what I've been up to.  Otherwise, here's
-a quick roundup...
+Check [Github](https://github.com/brandonwillard) (and previously
+[Bitbucket](https://bitbucket.io/brandonwillard)) for an accurate picture of what I've been working on.
+
+Regardless, here's a quick summary:
+
+
+<div class='project' name="Pythological" markdown>
+<ul class='project-links'>
+  <li><a href="https://github.com/pythological">github</a></li>
+</ul>
+Pythological is a GitHub organization providing packages that bring
+logic/relational programming and symbolic mathematics together in
+Python.
+
+More specifically, Pythological hosts more advanced Python implementations of [unification](https://github.com/pythological/unification) and [miniKanren](https://github.com/pythological/kanren) (e.g. with constrain logic programming capabilities and non-stack-bound recursion).
+</div>
 
 <div class='project' name="symbolic-pymc" markdown>
 <ul class='project-links'>
@@ -23,6 +36,8 @@ routines.
   <li><a href="http://docs.hylang.org/en/stable/">website</a></li>
 </ul>
 Hy is a wonderful dialect of Lisp that’s embedded in Python.
+
+I'm a core developer on this project.
 </div>
 
 <div class='project' name="hypoKanren" markdown>
@@ -47,7 +62,7 @@ hypergeometric functions, as well as symbolic SymPy implementations.
 
 <div class='project' name="amimodels" markdown>
 <ul class='project-links'>
-  <li><a href="https://github.com/brandonwillard/amimodels">code</a></li>
+  <li><a href="https://github.com/brandonwillard/amimodels">github</a></li>
   <li><a href="https://amimodels.readthedocs.io/en/latest/methodology.html">docs</a></li>
 </ul>
 
@@ -103,7 +118,7 @@ Sparse signal estimation examples, in R, using proximal algorithms:
   <li><a href="http://bustime.mta.info/">site</a></li>
   <li><a href="http://gothamist.com/2014/02/24/mtas_real_time_bus_tracking_info_ex.php">news</a></li>
   <li><a href="http://bustime.mta.info/wiki/Main/Technology">tech</a></li>
-  <li><a href="https://github.com/camsys/onebusaway-nyc/commits?author=brandonwillard">code</a></li>
+  <li><a href="https://github.com/camsys/onebusaway-nyc/commits?author=brandonwillard">github</a></li>
 </ul>
 
 Bus Time is the open source Java suite that provides real-time bus tracking to
@@ -123,7 +138,7 @@ filter.
 
 <div class='project' name="prox-methods" markdown>
 <ul class='project-links'>
-  <li><a href="https://bitbucket.org/prox-methods-in-stats/prox-methods-rpkg">code</a></li>
+  <li><a href="https://bitbucket.org/prox-methods-in-stats/prox-methods-rpkg">bitbucket</a></li>
 </ul>
 
 `prox-methods` is a very experimental R package with C++ implementations (via Rcpp) for some of the
@@ -134,7 +149,7 @@ proximal optimization methods from the paper
 
 <div class='project' name="open-tracking-tools" markdown>
 <ul class='project-links'>
-  <li><a href="https://github.com/brandonwillard/open-tracking-tools">code</a></li>
+  <li><a href="https://github.com/brandonwillard/open-tracking-tools">github</a></li>
 </ul>
 
 `open-tracking-tools` is an open-source vehicle tracking library that
@@ -148,7 +163,7 @@ be used with fairly minimal effort.
 
 <div class='project' name="StatsLibExtensions" markdown>
 <ul class='project-links'>
-  <li><a href="https://bitbucket.org/brandonwillard/statslibextensions">code</a></li>
+  <li><a href="https://github.com/brandonwillard/statslibextensions">github</a></li>
 </ul>
 
 Extensions to the [Cognitive Foundry API](https://github.com/algorithmfoundry/Foundry)
@@ -158,7 +173,7 @@ and numerically stable computations for Dynamic Linear Models.
 
 <div class='project' name="ParticleBayes" markdown>
 <ul class='project-links'>
-  <li><a href="https://bitbucket.org/brandonwillard/particlebayes">code</a></li>
+  <li><a href="https://github.com/brandonwillard/particlebayes">github</a></li>
 </ul>
 
 `ParticleBayes` is an R package implementing a collection of particle filters
@@ -167,7 +182,7 @@ for hierarchical Bayesian models that perform sequential parameter estimation.
 
 <div class='project' name="ParticleLearningModels" markdown>
 <ul class='project-links'>
-  <li><a href="https://bitbucket.org/brandonwillard/particlelearningmodels">code</a></li>
+  <li><a href="https://github.com/brandonwillard/particlelearningmodels">github</a></li>
 </ul>
 
 Java code for Bayesian models that are estimated by Particle Filters and
@@ -178,7 +193,7 @@ implement parameter learning.
 <ul class='project-links'>
   <li><a href="https://dssg.uchicago.edu/cta-why-bus-crowding-happens-and-how-data-can-help">description</a></li>
   <li><a href="https://dssg.uchicago.edu/project/simulating-better-bus-service/">site</a></li>
-  <li><a href="https://github.com/dssg/cta-sim">code</a></li>
+  <li><a href="https://github.com/dssg/cta-sim">github</a></li>
 </ul>
 
 Big data simulation of Chicago's public transportation to improve
@@ -189,7 +204,7 @@ transit planning and reduce bus crowding.
 <ul class='project-links'>
   <li><a href="https://github.com/dssg/energywise/wiki/Problem">description</a></li>
   <li><a href="https://dssg.uchicago.edu/project/predicting-building-energy-savings/">site</a></li>
-  <li><a href="https://github.com/dssg/energywise">code</a></li>
+  <li><a href="https://github.com/dssg/energywise">github</a></li>
 </ul>
 
 An energy analytics tool to make commercial building more energy efficient.
