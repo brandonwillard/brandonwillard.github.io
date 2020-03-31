@@ -69,7 +69,7 @@ GITHUB_URL = "https://github.com/brandonwillard"
 SOCIAL = (
     ("github", "https://github.com/brandonwillard"),
     ("google scholar", "https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"),
-    ("linkedin", "https://linkedin.com/pub/brandon-willard/10/bb4/468/"),
+    ("linkedin", "https://www.linkedin.com/in/brandon-t-willard-468bb410/"),
     ("bitbucket", "https://bitbucket.io/brandonwillard"),
 )
 
