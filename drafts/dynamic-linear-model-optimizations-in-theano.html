@@ -228,7 +228,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <!-- </div> -->
 <!--  -->
 <div class="abstract">
-<p>We construct dynamic linear models (DLMs) in Theano and number of optimizations that facilitate the production of closed-form solutions.</p>
+<p>In this document we construct dynamic linear models (DLMs) in Theano and explore ideas for automating the production of efficient samplers.</p>
 </div>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
@@ -240,7 +240,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \theta_t &amp;= G_t \theta_{t-1} + \nu_t, \quad \nu_t \sim \operatorname{N}\left( 0, W \right)
   \label{eq:basic-dlm-state}
 \end{align}\]</span></p>
-<p>The most “notationally” faithful representation of this model in Theano is provided in Listing <a href="#org27bfd8a">2</a>. It represents the generalized notion of a difference equation to the best of Theano’s abilities by using the <code>scan</code> operator. The <code>scan</code> operator codifies the right-hand sides of the difference equations in <span class="math inline">\(\eqref{eq:basic-dlm-obs}\)</span> and <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> by constructing a Theano <code>Function</code> object taking values of <span class="math inline">\(t\)</span>, more or less.</p>
+<p>for <span class="math inline">\(t \in \{1, \dots, T\}\)</span>, <span class="math inline">\(y_t \in \mathbb{R}\)</span>, and <span class="math inline">\(\theta_t \in \mathbb{R}^{M}\)</span>.</p>
+<p>The most “notationally” faithful representation of the timeseries model in <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> using Theano is provided in Listing <a href="#org27bfd8a">2</a>. It represents the notion of a recursion–to the best of Theano’s ability–by way of the <code>scan</code> operator.</p>
 <figure>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"></a>
@@ -327,7 +328,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 Listing 2
 </figcaption>
 </figure>
-<p>In <a href="#orgece0fee">4</a> we plot a sample from the model in Listing <a href="#org27bfd8a">2</a> for a fixed RNG seed.</p>
+<p>The model in Listing <a href="#org27bfd8a">2</a> is our starting point. We assume that a PyMC3 user–for instance–would define a timeseries model in this way, alongside distributional assumptions on parameters (e.g. inverse-gamma variances). From there, we’ll explore some ideas behind manually producing model-specific efficient samplers–generally by first manually deriving and then demonstrating said samplers.</p>
+<p>Throughout we’ll use data sampled from <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> for demonstration purposes. Specifically, our simulation has the following values:</p>
+<p><span class="math display">\[\begin{gather}
+  T = 200,\quad M = 2
+  \\
+  G_t = \begin{pmatrix}
+  1 &amp; 0.1 \\
+  0 &amp; 1 \\
+  \end{pmatrix},\quad
+  F_t = \begin{pmatrix}
+  1 \\
+  0.2
+  \end{pmatrix}
+  \\
+  \theta_0 = \begin{pmatrix}
+  0 \\
+  0
+  \end{pmatrix}
+  \label{eq:sim-settings}
+\end{gather}\]</span></p>
 <figure>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="im">from</span> theano <span class="im">import</span> function <span class="im">as</span> tt_function</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"></a>
@@ -352,6 +372,7 @@ Listing 2
 <a class="sourceLine" id="cb3-21" data-line-number="21"></a>
 <a class="sourceLine" id="cb3-22" data-line-number="22"><span class="co"># rng_sim_state = rng_tt.get_value(borrow=True).get_state()</span></a></code></pre></div>
 </figure>
+<p>In <a href="#orgece0fee">4</a> we plot a sample from the model in Listing <a href="#org27bfd8a">2</a> for a fixed RNG seed.</p>
 <figure id="orgece0fee">
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1">plt.clf()</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2">_ <span class="op">=</span> plt.plot(y_sim, label<span class="op">=</span><span class="vs">r&#39;$y_t$&#39;</span>, color<span class="op">=</span><span class="st">&#39;black&#39;</span>, linewidth<span class="op">=</span><span class="fl">0.7</span>)</a>
@@ -366,33 +387,51 @@ Listing 4
 <figcaption>
 </figcaption>
 </figure>
-<p>Our goal is to automate some of the basic steps in the process of analytically manipulating and/or solving DLMs for the purpose of producing efficient and accurate posterior estimates. To that effect, we will want to compute as many closed-form operations as possible, and the prior predictive state and observation distributions are a good place to start.</p>
+<p>Since our goal is to automate some of the basic steps in the process of analytically manipulating and/or solving DLMs (for the purpose of producing efficient and accurate posterior estimates), we will want to compute as many closed-form operations as possible, and the prior predictive state and observation distributions are a good place to start.</p>
 <p>Given all the prior and observed data up to time <span class="math inline">\(t\)</span>, <span class="math inline">\(D_t\)</span>, these distribution are given by the following:</p>
 <p><span class="math display">\[\begin{align}
   \theta_{t} \mid D_{t-1} &amp;\sim \operatorname{N}\left( a_{t}, R_{t} \right)
   \\
-  y_{t} \mid D_{t-1} &amp;\sim \operatorname{N}\left( f_{t}, q_{t} \right)
+  y_{t} \mid D_{t-1} &amp;\sim \operatorname{N}\left( f_{t}, Q_{t} \right)
 \end{align}\]</span></p>
 <p>The prior predictive moments are as follows:</p>
-<p><span class="math display">\[\begin{gather}
-  a_t = G_t m_{t-1}, \quad R_t = G_t C_{t-1} G_t^\top + W_t
-  \\
-  f_t = F_t^\top a_{t}, \quad Q_t = F_t^\top C_{t-1} F_t + V_t
-\end{gather}\]</span></p>
+<p><span class="math display">\[\begin{equation}
+  \begin{gathered}
+    a_t = G_t m_{t-1}, \quad R_t = G_t C_{t-1} G_t^\top + W_t
+    \\
+    f_t = F_t^\top a_{t}, \quad Q_t = F_t^\top C_{t-1} F_t + V_t
+  \end{gathered}
+  \label{eq:dlm-prior-predictive}
+\end{equation}\]</span></p>
 <p>We’ll also want to compute the posterior moments for <span class="math inline">\(\theta_t \mid D_t\)</span>, which are as follows:</p>
-<p><span class="math display">\[\begin{gather}
-  m_t = a_{t} + R_t F_t Q_t^{-1} \left(y_t - f_t\right),
-  \quad C_t = R_t \left( I - F_t \left(R_t F_t Q_t^{-1}\right)^\top \right)
+<p><span class="math display">\[\begin{equation}
+  \begin{gathered}
+    m_t = a_{t} + R_t F_t Q_t^{-1} \left(y_t - f_t\right),
+    \quad C_t = R_t  - R_t F_t Q_t^{-1} F_t^\top R_t
+  \end{gathered}
   \label{eq:dlm-post-moments}
-\end{gather}\]</span></p>
-<p>These “filtered” moments/distributions are only <strong>one</strong> kind of posterior results for a DLM; they only take into account the data up to time <span class="math inline">\(t\)</span>. The other kind are the “smoothed” distributions, which provided posterior distributions for each time <span class="math inline">\(t\)</span> given all past–and potentially future–observations. Notationally, we’ve used <span class="math inline">\(D_t\)</span> to signify all conditional observations and parameters up to time <span class="math inline">\(t\)</span>, so the smoothed distributions are given by <span class="math inline">\(\theta_t \mid D_T\)</span>.</p>
-<p>In most cases, models will not be as simple as the standard DLM. Even so, these basic closed-form solutions can still be relevant.</p>
-<p>For instance, efficient MCMC algorithms can be constructed using these closed-form results for <strong>conditionally linear</strong> models. In those cases, we can compute the posterior moments–in closed-form–conditional on samples generated by other means. The standard approach is called forward-backward sampling and uses smoothed posteriors <span class="math inline">\(\theta_t \mid D_T\)</span>, which can also be computed in closed-form given the results above.</p>
+\end{equation}\]</span></p>
+<p>These “filtered” moments/distributions are only <strong>one</strong> kind of posterior result for a DLM, and they only take into account the data up to time <span class="math inline">\(t\)</span>. The other kind are the “smoothed” distributions, which provided posterior distributions for each time <span class="math inline">\(t\)</span> given all observations.</p>
+<p>Notationally, we’ve used <span class="math inline">\(D_t\)</span> to signify all conditional observations and parameters up to time <span class="math inline">\(t\)</span>, so the smoothed distributions are given by <span class="math inline">\(\theta_t \mid D_T\)</span> and the following moments:</p>
+<p><span class="math display">\[\begin{equation}
+  \begin{aligned}
+    s_t &amp;= m_t + C_t G_{t+1}^\top R_{t+1}^{-1} \left( s_{t+1} - a_{t+1} \right)
+    \\
+    S_t &amp;= C_t - C_t G_{t+1}^\top R_{t+1}^{-1} \left( R_{t+1} - S_{t+1} \right) R_{t+1}^{-1} G_{t+1} C_t
+  \end{aligned}
+  \label{eq:dlm-smooth-moments}
+\end{equation}\]</span></p>
+<div class="remark" data-markdown="">
+<p>In most cases, models will not be as simple as the standard DLM. Even so, these basic closed-form solutions can still be relevant. For instance, efficient MCMC algorithms can be constructed using these closed-form results for <strong>conditionally linear</strong> models. In those cases, we can compute the posterior moments–in closed-form–conditional on samples generated by other means.</p>
+</div>
+<p>The standard approach is called forward-filtering backward-sampling (FFBS) and uses smoothed posteriors <span class="math inline">\(\theta_t \mid \theta_{t+1}, D_T\)</span> conditioned on all other parameters.</p>
 <p>We’ll build up to forward-backward sampling in what follows, but, first, we need to establish how the requisite quantities can be computed symbolically.</p>
 </section>
 <section id="posterior-estimation" class="level1">
 <h1>Posterior Estimation</h1>
-<p>In Listings <a href="#org7278e18">6</a> and <a href="#org874cba4">7</a>, we demonstrate how the posterior moments in  and the smoothed distribution moments can be computed in Theano.</p>
+<p>In Listings <a href="#org7278e18">6</a> and <a href="#org874cba4">7</a>, we demonstrate how the posterior moments in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> and <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span> can be computed in Theano.</p>
+<p>Unfortunately, if we attempt to implement the exact closed-form updates in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> or <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span>, our results will be fraught with numerical errors. This is a very basic issue with naively implemented Kalman filters. The solution to these issues usually involves some analytic reformulations that compensate for the covariance matrix subtractions. The standard approaches generally use some form of matrix decomposition that directly accounts for the positive semi-definite nature of the covariance matrices.</p>
+<p>The approach taken here is based on the singular value decomposition (SVD) and effectively computes only one symmetric “half” of the updated covariances. The SVD also allows for easy inversions. See <a href="#0ae04c048b20d07f32d7f0f75bb51483">Zhang &amp;amp; Li (1996)</a> for more details, or <a href="#3a4d89388a434d7b1b91dc8690f3a03b">Petris, Petrone &amp;amp; Campagnoli (2009)</a> for a concise overview of the procedure in the context of DLMs.</p>
 <figure>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="im">import</span> scipy</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="im">import</span> warnings</a>
@@ -614,8 +653,8 @@ Listing 9
 </section>
 <section id="forward-backward-estimation" class="level1">
 <h1>Forward-backward Estimation</h1>
-<p>We can use the smoothing and filtering steps in the previous section to perform a more efficient MCMC estimation than would otherwise be possible without the filtered and smoothed moments.</p>
-<p>Forward-backward estimation <a href="#66fb99775f308e808a193bd7bb2d2038">(Fr-Schnatter 1994)</a> works by first computing the forward filtered moments, allowing one to draw θ_T from <span class="math inline">\(\left(\theta_T \mid D_T\right) \sim \operatorname{N}\left(m_T, C_T\right)\)</span> and, subsequently, <span class="math inline">\(\theta_t\)</span> from <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_t \right) \sim \operatorname{N}\left(h_t, H_t\right)\)</span>.</p>
+<p>We can use the smoothing and filtering steps in the previous section to perform a more efficient MCMC estimation than would otherwise be possible without the implicit Rao-Blackwellization.</p>
+<p>Forward-filtering backward-sampling <a href="#66fb99775f308e808a193bd7bb2d2038">(Fr-Schnatter 1994)</a> works by first computing the forward filtered moments, allowing one to draw <span class="math inline">\(\theta_T\)</span> from <span class="math inline">\(\left(\theta_T \mid D_T\right) \sim \operatorname{N}\left(m_T, C_T\right)\)</span> and, subsequently, <span class="math inline">\(\theta_t\)</span> from <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right) \sim \operatorname{N}\left(h_t, H_t\right)\)</span>.</p>
 <p>The latter distribution’s moments are essentially a result of smoothing:</p>
 <p><span class="math display">\[\begin{gather}
   B_t = C_t G^\top_{t+1} R_{t+1}^{-1}
@@ -624,6 +663,7 @@ Listing 9
   \\
   H_t = C_t - B_t R_{t+1} B^\top_t
 \end{gather}\]</span></p>
+<p>TODO: Describe SVD formulation.</p>
 <figure>
 <div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">def</span> ffbs_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, theta_tp1, F_tp1, G_tp1, N_W_t_inv, rng):</a>
 <a class="sourceLine" id="cb10-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Perform forward-filtering backward-sampling.&quot;&quot;&quot;</span></a>
