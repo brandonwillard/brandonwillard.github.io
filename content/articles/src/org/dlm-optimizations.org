@@ -1,0 +1,1731 @@
+#+TITLE: Dynamic Linear Model Optimizations in Theano
+#+AUTHOR: Brandon T. Willard
+#+DATE: 2020-03-18
+#+EMAIL: brandonwillard@gmail.com
+#+FILETAGS: :draft:pymc3:theano:statistics:symbolic computation:python:probability theory:
+
+#+STARTUP: hideblocks indent hidestars
+#+OPTIONS: author:t date:t ^:nil toc:nil title:t tex:t d:(not "todo" "logbook" "note" "testing" "notes") html-preamble:t
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+#+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+
+#+PROPERTY: header-args :eval never-export :exports both :results output drawer replace
+#+PROPERTY: header-args+ :session dlm-optimizations :comments noweb
+#+PROPERTY: header-args:python :noweb-sep "\n\n"
+
+#+BEGIN_abstract
+In this document we construct dynamic linear models (DLMs) in Theano and explore
+ideas for automating the production of efficient samplers.
+#+END_abstract
+
+* Introduction
+
+We start by considering the simple form of a DLM [[citep:harrison_bayesian_1999]] with
+prior \(\theta_0 \sim \operatorname{N}\left( m_0, C_0 \right)\):
+
+\begin{align}
+  y_t &= F_t^{\top} \theta_{t} + \epsilon_t, \quad \epsilon_t \sim \operatorname{N}\left( 0, V \right)
+  \label{eq:basic-dlm-obs}
+  \\
+  \theta_t &= G_t \theta_{t-1} + \nu_t, \quad \nu_t \sim \operatorname{N}\left( 0, W \right)
+  \label{eq:basic-dlm-state}
+\end{align}
+for \(t \in \{1, \dots, T\}\), \(y_t \in \mathbb{R}\), and \(\theta_t \in \mathbb{R}^{M}\).
+
+The most "notationally" faithful representation of the timeseries model in
+[[eqref:eq:basic-dlm-state]] using Theano is provided in Listing
+[[basic-normal-model]].  It represents the notion of a recursion--to the best of
+Theano's ability--by way of the src_python[:eval never]{scan} operator.
+
+#+NAME: basic-imports
+#+BEGIN_SRC python :results silent
+import numpy as np
+
+import theano
+import theano.tensor as tt
+
+import matplotlib.pyplot as plt
+
+plt.style.use('ggplot')
+plt_orig_cycler = plt.rcParams['axes.prop_cycle']
+plt.rc('text', usetex=True)
+
+from theano.printing import debugprint as tt_dprint
+
+from symbolic_pymc.theano.random_variables import NormalRV, MvNormalRV, GammaRV, observed
+
+
+# theano.config.cxx = ""
+# theano.config.mode = "FAST_COMPILE"
+tt.config.compute_test_value = 'ignore'
+#+END_SRC
+
+#+NAME: basic-normal-model
+#+BEGIN_SRC python :results silent
+
+N_obs_tt = tt.iscalar("N_obs")
+N_theta_tt = tt.iscalar("N_theta")
+
+G_tt = tt.specify_shape(tt.matrix(), [N_theta_tt, N_theta_tt])
+G_tt.name = 'G_t'
+
+F_tt = tt.specify_shape(tt.col(), [N_theta_tt, 1])
+F_tt.name = 'F_t'
+
+rng_state = np.random.RandomState(np.random.MT19937(np.random.SeedSequence(1234)))
+rng_init_state = rng_state.get_state()
+rng_tt = theano.shared(rng_state, name='rng', borrow=True)
+rng_tt.tag.is_rng = True
+rng_tt.default_update = rng_tt
+
+m_0_tt = tt.zeros([N_theta_tt])
+m_0_tt.name = "m_0"
+C_0_tt = 10. * tt.eye(N_theta_tt)
+C_0_tt.name = "C_0"
+
+theta_0_rv = MvNormalRV(m_0_tt, C_0_tt, rng=rng_tt, name='theta_0')
+
+nu_scale_tt = theano.shared(np.r_[1.1, 10.0], name='nu_scale')
+W_tt = tt.eye(N_theta_tt) * tt.inv(nu_scale_tt)
+W_tt.name = "W_t"
+
+eps_scale_tt = theano.shared(0.7, name='eps_scale')
+V_tt = tt.inv(eps_scale_tt)
+V_tt.name = "V_t"
+
+def state_step(theta_tm1, G_t, W_t, N_theta, rng):
+    nu_rv = MvNormalRV(tt.zeros([N_theta]),
+                       W_t,
+                       rng=rng,
+                       name='nu')
+    theta_t = G_t.dot(theta_tm1) + nu_rv
+    return theta_t
+
+
+theta_t_rv, theta_t_updates = theano.scan(fn=state_step,
+                                          outputs_info={"initial": theta_0_rv, "taps": [-1]},
+                                          non_sequences=[G_tt, W_tt, N_theta_tt, rng_tt],
+                                          n_steps=N_obs_tt,
+                                          #strict=True,
+                                          name='theta_t')
+
+def obs_step(theta_t, F_t, V_t, rng):
+    eps_rv = NormalRV(0.0, V_t,
+                      rng=rng,
+                      name='eps')
+    y_t = F_t.T.dot(theta_t) + eps_rv
+    return y_t
+
+
+Y_t_rv, Y_t_updates = theano.scan(fn=obs_step,
+                                  sequences=[theta_t_rv],
+                                  non_sequences=[F_tt, V_tt, rng_tt],
+                                  #strict=True,
+                                  name='Y_t')
+#+END_SRC
+
+The model in Listing [[basic-normal-model]] is our starting point.  We assume
+that a PyMC3 user--for instance--would define a timeseries model in this way,
+alongside distributional assumptions on parameters (e.g. inverse-gamma
+variances).  From there, we'll explore some ideas behind manually producing
+model-specific efficient samplers--generally by first manually deriving and
+then demonstrating said samplers.
+
+#+NAME: basic-normal-model-dprint
+#+BEGIN_SRC python :eval never :exports none :wrap "SRC python :eval never"
+tt_dprint(Y_t_rv)
+#+END_SRC
+
+Throughout we'll use data sampled from [[eqref:eq:basic-dlm-state]] for demonstration
+purposes.  Specifically, our simulation has the following values:
+\begin{gather}
+  T = 200,\quad M = 2
+  \\
+  G_t = \begin{pmatrix}
+  1 & 0.1 \\
+  0 & 1 \\
+  \end{pmatrix},\quad
+  F_t = \begin{pmatrix}
+  1 \\
+  0.2
+  \end{pmatrix}
+  \\
+  \theta_0 = \begin{pmatrix}
+  0 \\
+  0
+  \end{pmatrix}
+  \label{eq:sim-settings}
+\end{gather}
+
+#+NAME: basic-dlm-sim
+#+BEGIN_SRC python :results silent
+from theano import function as tt_function
+
+dlm_sim_values = {
+    N_obs_tt: 200,
+    N_theta_tt: 2,
+    G_tt: np.r_['0,2',
+                [1.0, 0.1],
+                [0.0, 1.0]].astype(tt.config.floatX),
+    F_tt: np.r_[[[1.0],
+                 [0.2]]].astype(tt.config.floatX)
+}
+
+rng_tt.get_value(borrow=True).set_state(rng_init_state)
+
+simulate_dlm = tt_function([N_obs_tt, N_theta_tt, G_tt, F_tt],
+                           [Y_t_rv, theta_t_rv],
+                           givens={theta_0_rv: np.r_[0.0, 0.0]},
+                           updates=Y_t_updates)
+
+y_sim, theta_t_sim = simulate_dlm(dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt], dlm_sim_values[G_tt], dlm_sim_values[F_tt])
+
+# rng_sim_state = rng_tt.get_value(borrow=True).get_state()
+#+END_SRC
+
+In [[fig:basic-dlm-sim-plot-fig]] we plot a sample from the model in Listing
+[[basic-normal-model]] for a fixed RNG seed.
+
+#+NAME: fig:basic-dlm-sim-plot-fig
+#+BEGIN_SRC python :results graphics file :file basic-dlm-sim-plot.png
+plt.clf()
+_ = plt.plot(y_sim, label=r'$y_t$', color='black', linewidth=0.7)
+plt.tight_layout()
+plt.legend()
+#+END_SRC
+
+#+ATTR_ORG: :width 900
+#+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
+#+CAPTION:
+#+RESULTS: fig:basic-dlm-sim-plot-fig
+[[file:basic-dlm-sim-plot.png]]
+
+
+Since our goal is to automate some of the basic steps in the process of analytically
+manipulating and/or solving DLMs (for the purpose of producing efficient and accurate
+posterior estimates), we will want to compute as many closed-form operations
+as possible, and the prior predictive state and observation distributions are a
+good place to start.
+
+Given all the prior and observed data up to time \(t\), \(D_t\), these
+distribution are given by the following:
+\begin{align}
+  \theta_{t} \mid D_{t-1} &\sim \operatorname{N}\left( a_{t}, R_{t} \right)
+  \\
+  y_{t} \mid D_{t-1} &\sim \operatorname{N}\left( f_{t}, Q_{t} \right)
+\end{align}
+
+The prior predictive moments are as follows:
+\begin{equation}
+  \begin{gathered}
+    a_t = G_t m_{t-1}, \quad R_t = G_t C_{t-1} G_t^\top + W_t
+    \\
+    f_t = F_t^\top a_{t}, \quad Q_t = F_t^\top C_{t-1} F_t + V_t
+  \end{gathered}
+  \label{eq:dlm-prior-predictive}
+\end{equation}
+
+We'll also want to compute the posterior moments for \(\theta_t \mid D_t\),
+which are as follows:
+\begin{equation}
+  \begin{gathered}
+    m_t = a_{t} + R_t F_t Q_t^{-1} \left(y_t - f_t\right),
+    \quad C_t = R_t  - R_t F_t Q_t^{-1} F_t^\top R_t
+  \end{gathered}
+  \label{eq:dlm-post-moments}
+\end{equation}
+
+These "filtered" moments/distributions are only *one* kind of posterior result
+for a DLM, and they only take into account the data up to time \(t\).  The other
+kind are the "smoothed" distributions, which provided posterior distributions
+for each time \(t\) given all observations.
+
+Notationally, we've used \(D_t\) to signify all conditional observations and
+parameters up to time \(t\), so the smoothed distributions are given by
+\(\theta_t \mid D_T\) and the following moments:
+\begin{equation}
+  \begin{aligned}
+    s_t &= m_t + C_t G_{t+1}^\top R_{t+1}^{-1} \left( s_{t+1} - a_{t+1} \right)
+    \\
+    S_t &= C_t - C_t G_{t+1}^\top R_{t+1}^{-1} \left( R_{t+1} - S_{t+1} \right) R_{t+1}^{-1} G_{t+1} C_t
+  \end{aligned}
+  \label{eq:dlm-smooth-moments}
+\end{equation}
+
+:REMARK:
+In most cases, models will not be as simple as the standard DLM.  Even so, these
+basic closed-form solutions can still be relevant.
+For instance, efficient MCMC algorithms can be constructed using these
+closed-form results for *conditionally linear* models.  In those cases, we can
+compute the posterior moments--in closed-form--conditional on samples generated
+by other means.
+:END:
+
+The standard approach is called forward-filtering backward-sampling
+(FFBS) and uses smoothed posteriors \(\theta_t \mid \theta_{t+1}, D_T\)
+conditioned on all other parameters.
+
+We'll build up to forward-backward sampling in what follows, but, first, we need
+to establish how the requisite quantities can be computed symbolically.
+
+* Posterior Estimation
+
+In Listings [[filter-svd-scan]] and [[smoother-svd-scan]], we demonstrate how the posterior
+moments in [[eqref:eq:dlm-post-moments]] and [[eqref:eq:dlm-smooth-moments]] can
+be computed in Theano.
+
+Unfortunately, if we attempt to implement the exact closed-form updates in
+[[eqref:eq:dlm-post-moments]] or [[eqref:eq:dlm-smooth-moments]], our results
+will be fraught with numerical errors.  This is a very basic issue with naively
+implemented Kalman filters.  The solution to these issues usually involves some
+analytic reformulations that compensate for the covariance matrix subtractions.
+The standard approaches generally use some form of matrix decomposition that
+directly accounts for the positive semi-definite nature of the covariance
+matrices.
+
+The approach taken here is based on the singular value decomposition (SVD) and
+effectively computes only one symmetric "half" of the updated covariances.  The
+SVD also allows for easy inversions.
+See [[citet:ZhangFixedintervalsmoothingalgorithm1996]] for more details, or
+[[citet:PetrisDynamiclinearmodels2009]] for a concise overview of the procedure in
+the context of DLMs.
+
+#+NAME: linalg-theano-ops
+#+BEGIN_SRC python :results silent
+import scipy
+import warnings
+
+from theano.gof import Op, Apply
+from theano.tensor.opt import Assert
+from theano.tensor.slinalg import Solve, MATRIX_STRUCTURES
+from theano.tensor.nlinalg import matrix_dot
+
+warnings.filterwarnings("ignore", category=FutureWarning, message="Using a non-tuple sequence")
+
+
+def tt_finite_inv(x):
+    y = tt.inv(x)
+    res_subtensor = y[tt.isinf(y)]
+    return tt.set_subtensor(res_subtensor, 0.0)
+
+#+END_SRC
+
+#+NAME: linalg-theano-ops-LDL
+#+BEGIN_SRC python :exports none :results silent
+class LDL(Op):
+    """Compute `L` and `D` in `A = L D L^H`."""
+    __props__ = ('lower', 'hermitian')
+
+    def __init__(self, lower=True, hermitian=True):
+        self.lower = lower
+        self.hermitian = hermitian
+
+    def make_node(self, a):
+        a = tt.as_tensor_variable(a)
+        assert a.ndim == 2, "The input of LDL function should be a matrix."
+        lu = tt.matrix(dtype=a.dtype)
+        d = tt.matrix(dtype=a.dtype)
+        perm = tt.vector(dtype=a.dtype)
+        return Apply(self, [a], [lu, d, perm])
+
+    def perform(self, node, inputs, outputs):
+        (a,) = inputs
+        assert a.ndim == 2 and a.shape[0] == a.shape[1], "The input should be a square matrix."
+        lu, d, perm = outputs
+        lu[0], d[0], perm[0] = scipy.linalg.ldl(a, lower=self.lower, hermitian=self.hermitian)
+
+    def infer_shape(self, node, shapes):
+        # XXX: Scipy doesn't seem clear on the return shapes, so this might not
+        # always be true.
+        a_shape, = shapes
+        M = a_shape[0]
+        return [(M, M), (M, M), (M,)]
+
+
+ldl = LDL()
+
+#+END_SRC
+
+#+NAME: linalg-theano-ops-Solve
+#+BEGIN_SRC python :exports none :results silent
+class Solve(Solve):
+    def __init__(self,
+                 A_structure='general',
+                 lower=False,
+                 overwrite_A=False,
+                 overwrite_b=False,
+                 transposed=False):
+        if A_structure not in MATRIX_STRUCTURES + ('positive_definite', 'svd'):
+            raise ValueError('Invalid matrix structure argument', A_structure)
+        self.A_structure = A_structure
+        self.lower = lower
+        self.overwrite_A = overwrite_A
+        self.overwrite_b = overwrite_b
+        self.transposed = transposed
+
+    def perform(self, node, inputs, output_storage):
+        A, b = inputs
+        if self.A_structure == 'lower_triangular':
+            rval = scipy.linalg.solve_triangular(
+                A, b, lower=True)
+        elif self.A_structure == 'upper_triangular':
+            rval = scipy.linalg.solve_triangular(
+                A, b, lower=False)
+        elif self.A_structure == 'symmetric':
+            rval = scipy.linalg.solve(A, b, assume_a='sym', transposed=self.transposed)
+        elif self.A_structure == 'positive_definite':
+            rval = scipy.linalg.solve(A, b, assume_a='pos', transposed=self.transposed)
+        elif self.A_structure == 'svd':
+            rval = scipy.linalg.lstsq(A, b)[0]
+        else:
+            rval = scipy.linalg.solve(A, b, transposed=self.transposed)
+        output_storage[0][0] = rval
+
+
+solve_sym_T = Solve('symmetric', transposed=True)
+#+END_SRC
+
+** Naive Approach                                                 :noexport:
+
+#+NAME: naive-filter-scan
+#+BEGIN_SRC python :eval never :results silent
+from theano.tensor.nlinalg import eigh
+
+
+y_tt = tt.specify_shape(tt.col(), [N_obs_tt, 1])
+y_tt.name = 'y_t'
+
+def filtering_step(y_t, m_tm1, C_tm1, F_t, G_t, W_t, V_t):
+    """Compute the sequential posterior state and prior predictive parameters."""
+
+    # State predictives:
+    a_t = G_t.dot(m_tm1)
+    R_t = matrix_dot(G_t, C_tm1, G_t.T) + W_t
+    # R_t = Assert('R_t must be PSD.')(R_t, tt.ge(tt.min(eigh(R_t)[0]), 0.0))
+
+    # Prior predictives:
+    f_t = F_t.T.dot(a_t)
+    Q_t = matrix_dot(F_t.T, R_t, F_t) + V_t
+    # Q_t = Assert('Q_t must be PSD.')(Q_t, tt.ge(tt.min(eigh(Q_t)[0]), 0.0))
+
+    # TODO: This should be reasonable with an optimization that replaces it
+    # with the following `solve`-based approach.
+    # A_t = matrix_dot(R_t, F_t, pinv(Q_t))
+    A_t = R_t.dot(F_t) * tt.inv(Q_t)
+    # A_t = solve_sym_T(Q_t, R_t.dot(F_t).T).T
+
+    # Posterior parameters:
+    m_t = a_t + A_t.dot(y_t - f_t)
+
+    # F_t_d_A_t_T = F_t.dot(A_t.T)
+    # C_t_inner = tt.eye(R_t.shape[-1]) - F_t_d_A_t_T
+    # C_t_inner = Assert('C_t_inner must be PSD.')(C_t_inner, tt.ge(1.0 - tt.max(eigh(F_t_d_A_t_T)[0]), 0.0))
+    # C_t = R_t.dot(C_t_inner)
+
+    # Kalman-to-Bayes conversions: F = G, H = F.T, Q = W, R = V, P = R, S = Q, K = A
+    # Joseph-form covariance update: (I - K @ H) @ P @ (I - K @ H).T + K @ R @ K.T
+    # (I - A @ F.T) @ R @ (I - A @ F.T).T + A @ V @ A.T
+    I_A_Ft = tt.eye(R_t.shape[-1]) - A_t.dot(F_t.T)
+    C_t = matrix_dot(I_A_Ft, R_t, I_A_Ft.T) + matrix_dot(A_t, V_t, A_t.T)
+
+    # C_t = R_t - matrix_dot(A_t, Q_t, A_t.T)
+    # C_t = Assert('C_t must be PSD.')(C_t, tt.ge(tt.min(eigh(C_t)[0]), 0.0))
+    # C_t = R_t - matrix_dot(A_t, F_t.T, R_t.T)
+    # Force it to be numerically symmetric
+    # C_t = tt.tril(C_t) + tt.tril(C_t, -1).T
+
+    return [m_t, C_t, a_t, R_t, f_t, Q_t, A_t]
+
+
+(m_t, C_t, a_t, R_t, f_t, Q_t, A_t), _ = theano.scan(fn=filtering_step,
+                                                     sequences=y_tt,
+                                                     outputs_info=[
+                                                         {"initial": m_0_tt, "taps": [-1]},
+                                                         {"initial": C_0_tt, "taps": [-1]},
+                                                         {}, {}, {}, {}, {}
+                                                     ],
+                                                     non_sequences=[F_tt, G_tt, W_tt, V_tt],
+                                                     strict=True,
+                                                     name='theta_t_obs')
+
+#+END_SRC
+
+#+NAME: naive-smoother-scan
+#+BEGIN_SRC python :eval never :results silent
+def smoothing_step(m_t, C_t, a_tp1, R_tp1, m_Ttp1, C_Ttp1, G_t):
+    """Smooth a series starting from the "forward"/sequentially computed posterior moments."""
+    B_t = solve_sym_T(R_tp1, G_t.dot(C_t)).T
+
+    m_Tt = m_t + B_t.dot(m_Ttp1 - a_tp1)
+    # FIXME: Do something more stable than all this.
+    C_Tt = C_t - matrix_dot(B_t, R_tp1 - C_Ttp1, B_t.T)
+    # Force it to be numerically symmetric
+    # C_Tt = tt.tril(C_Tt) + tt.tril(C_Tt, -1).T
+
+    return [m_Tt, C_Tt, B_t]
+
+
+m_T = m_t[-1]
+C_T = C_t[-1]
+
+(m_Tt_rev, C_Tt_rev, B_t_rev), _ = theano.scan(fn=smoothing_step,
+                                               sequences=[m_t[:-1], C_t[:-1], a_t[1:], R_t[1:]],
+                                               outputs_info=[
+                                                   {"initial": m_T, "taps": [-1]},
+                                                   {"initial": C_T, "taps": [-1]},
+                                                   {},
+                                               ],
+                                               non_sequences=[G_tt],
+                                               go_backwards=True,
+                                               strict=True,
+                                               name='theta_Tt_obs')
+
+m_Tt = tt.join(0, m_Tt_rev[::-1], [m_T])
+C_Tt = tt.join(0, C_Tt_rev[::-1], [C_T])
+#+END_SRC
+
+** SVD Approach
+
+TODO: Describe SVD filter formulation.
+
+#+NAME: filter-svd-scan
+#+BEGIN_SRC python :results silent
+from theano.tensor.nlinalg import svd
+
+
+y_tt = tt.specify_shape(tt.col(), [N_obs_tt, 1])
+y_tt.name = 'y_t'
+
+
+def filtering_step(y_t, m_tm1, U_C_tm1, S_C_tm1, F_t, G_t, N_W_t, U_V_t, S_V_inv_t):
+    """Compute the sequential posterior state and prior predictive parameters."""
+
+    M_R = tt.join(0,
+                  matrix_dot(S_C_tm1, U_C_tm1.T, G_t.T),
+                  N_W_t)
+    # TODO: Consider an approach that only computes *one* set of singular
+    # vectors
+    _, d_M_R, Vt_M_R = svd(M_R)
+    Vt_M_R.name = "Vt_M_R"
+
+    U_R_t, s_R_t = Vt_M_R.T, d_M_R
+    U_R_t.name = "U_R_t"
+
+    # R_t = M_R.T.dot(M_R) = matrix_dot(U_R_t, tt.diag(d_M_R), U_R_t.T)
+
+    # V_t_inv = N_V_t_inv.T @ N_V_t_inv
+    N_V_t_inv = S_V_inv_t.dot(U_V_t.T)
+    N_V_t_inv.name = "N_V_t_inv"
+
+    M_C = tt.join(0,
+                  matrix_dot(N_V_t_inv, F_t.T, U_R_t),
+                  tt.diag(tt_finite_inv(s_R_t)))
+    # TODO: Consider an approach that only computes *one* set of singular
+    # vectors
+    _, d_M_C, Vt_M_C = svd(M_C)
+    Vt_M_C.name = "Vt_M_C"
+
+    U_C_t, D_C_t = U_R_t.dot(Vt_M_C.T), tt.diag(tt_finite_inv(d_M_C))
+    U_C_t.name = "U_C_t"
+    D_C_t.name = "D_C_t"
+
+    C_t = matrix_dot(U_C_t, D_C_t, U_C_t.T)
+    C_t.name = "C_t"
+
+    a_t = G_t.dot(m_tm1)
+    a_t.name = "a_t"
+    f_t = F_t.T.dot(a_t)
+    f_t.name = "f_t"
+    m_t = a_t + matrix_dot(C_t, F_t, N_V_t_inv.T, N_V_t_inv, y_t - f_t)
+    m_t.name = "m_t"
+
+    S_C_t = tt.sqrt(D_C_t)
+    S_C_t.name = "S_C_t"
+
+    S_R_t = tt.diag(s_R_t)
+    S_R_t.name = "S_R_t"
+
+    return [m_t, U_C_t, S_C_t, a_t, U_R_t, S_R_t]
+
+
+U_C_0_tt, d_C_0_tt, _ = svd(C_0_tt)
+S_C_0_tt = tt.diag(tt.sqrt(d_C_0_tt))
+S_C_0_tt.name = "S_C_0_tt"
+
+U_W_tt, d_W_tt, _ = svd(W_tt)
+s_W_tt = tt.sqrt(d_W_tt)
+N_W_tt = tt.diag(s_W_tt).dot(U_W_tt.T)
+N_W_tt.name = "N_W"
+
+U_V_tt, D_V_tt, _ = svd(tt.as_tensor_variable(V_tt, ndim=2) if V_tt.ndim < 2 else V_tt)
+S_V_inv_tt = tt.diag(tt_finite_inv(tt.sqrt(D_V_tt)))
+# N_V_tt = S_V_tt.dot(U_V_tt.T)
+
+(m_t, U_C_t, S_C_t, a_t, U_R_t, S_R_t), filter_updates = theano.scan(fn=filtering_step,
+                                                   sequences=y_tt,
+                                                   outputs_info=[
+                                                       {"initial": m_0_tt, "taps": [-1]},
+                                                       {"initial": U_C_0_tt, "taps": [-1]},
+                                                       {"initial": S_C_0_tt, "taps": [-1]},
+                                                       {}, {}, {}  # a_t, U_R_t, S_R_t
+                                                   ],
+                                                   non_sequences=[F_tt, G_tt, N_W_tt, U_V_tt, S_V_inv_tt],
+                                                   strict=True,
+                                                   name='theta_t_obs')
+#+END_SRC
+
+TODO: Describe special manipulations behind SVD smoother.
+
+#+NAME: smoother-svd-scan
+#+BEGIN_SRC python :results silent
+
+def smoother_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, m_Ttp1, U_C_Ttp1, S_C_Ttp1, G_tp1, N_W_t_inv):
+    """Smooth a series starting from the "forward"/sequentially computed posterior moments."""
+
+    N_C_t = S_C_t.dot(U_C_t.T)
+
+    S_R_tp1_inv = tt_finite_inv(S_R_tp1)
+    N_R_tp1_inv = S_R_tp1_inv.dot(U_R_tp1.T)
+
+    # B_t = C_t @ G_tp1.T @ R_tp1
+    B_t = matrix_dot(N_C_t.T, N_C_t, G_tp1.T, N_R_tp1_inv.T, N_R_tp1_inv)
+
+    S_C_t_inv = tt_finite_inv(S_C_t)
+
+    # M_H_t.T @ M_H_t = G_tp1 @ W_t_inv @ G_tp1.T + C_t_inv
+    M_H_t_inv = tt.join(0,
+                        N_W_t_inv.dot(G_tp1),
+                        S_C_t_inv.dot(U_C_t.T))
+    _, d_H_t_inv, U_H_t = svd(M_H_t_inv)
+
+    # H_t = inv(M_H_t.T @ M_H_t) = C_t - B_t @ R_tp1 @ B_t.T
+    D_H_t = tt.diag(tt_finite_inv(d_H_t_inv))
+
+    # C_Tt = C_t - matrix_dot(B_t, R_tp1 - C_Ttp1, B_t.T)
+    # C_Tt = M_C_Ttp1.T.dot(M_C_Ttp1)
+    M_C_Tt = tt.join(0,
+                     D_H_t.dot(U_H_t),
+                     matrix_dot(S_C_Ttp1, U_C_Ttp1.T, B_t.T))
+    U_C_Tt, d_C_Tt, _ = svd(M_C_Tt)
+
+    S_C_Tt = tt.diag(tt.sqrt(d_C_Tt))
+
+    m_Tt = m_t + B_t.dot(m_Ttp1 - a_tp1)
+
+    return [m_Tt, U_C_Tt, S_C_Tt]
+
+
+N_W_inv_tt = tt.diag(tt_finite_inv(s_W_tt)).dot(U_W_tt.T)
+
+m_T = m_t[-1]
+U_C_T = U_C_t[-1]
+S_C_T = S_C_t[-1]
+
+# These series only go from N_obs - 1 to 1
+(m_Tt_rev, U_C_Tt_rev, S_C_Tt_rev), _ = theano.scan(fn=smoother_step,
+                                                    sequences=[
+                                                        {"input": m_t, "taps": [-1]},
+                                                        {"input": U_C_t, "taps": [-1]},
+                                                        {"input": S_C_t, "taps": [-1]},
+                                                        {"input": a_t, "taps": [1]},
+                                                        {"input": U_R_t, "taps": [1]},
+                                                        {"input": S_R_t, "taps": [1]}
+                                                    ],
+                                                    outputs_info=[
+                                                        {"initial": m_T, "taps": [-1]},
+                                                        {"initial": U_C_T, "taps": [-1]},
+                                                        {"initial": S_C_T, "taps": [-1]},
+                                                    ],
+                                                    non_sequences=[G_tt, N_W_inv_tt],
+                                                    go_backwards=True,
+                                                    strict=True,
+                                                    name='theta_Tt_obs')
+
+m_Tt = m_Tt_rev[::-1]
+U_C_Tt = U_C_Tt_rev[::-1]
+S_C_Tt = S_C_Tt_rev[::-1]
+
+m_Tt = tt.join(0, m_Tt, [m_T])
+U_C_Tt = tt.join(0, U_C_Tt, [U_C_T])
+S_C_Tt = tt.join(0, S_C_Tt, [S_C_T])
+#+END_SRC
+
+Listing [[filter-smooth-steps-sim-svd]] computes the filtered and smoothed means for our
+simulated series, and Figure [[fig:svd-steps-sim-plot]] shows the results.
+
+#+NAME: filter-smooth-steps-sim-svd
+#+BEGIN_SRC python :results silent
+filter_smooth_dlm = tt_function([y_tt, N_theta_tt, G_tt, F_tt],
+                                [m_t, m_Tt],
+                                # mode=theano.compile.mode.FAST_COMPILE
+                                )
+
+m_t_sim, m_Tt_sim = filter_smooth_dlm(y_sim, dlm_sim_values[N_theta_tt], dlm_sim_values[G_tt], dlm_sim_values[F_tt])
+#+END_SRC
+
+#+NAME: fig:svd-steps-sim-plot
+#+BEGIN_SRC python :results graphics file :file svd-steps-sim-plot.png
+from cycler import cycler
+
+bivariate_cycler = plt_orig_cycler * cycler('linestyle', ['-', '--'])
+plt.close(fig='all')
+
+fig, ax = plt.subplots(figsize=(8, 4.8))
+ax.set_prop_cycle(bivariate_cycler)
+ax.plot(theta_t_sim, label=r'$\theta_t$', linewidth=0.8)
+ax.plot(m_t_sim, label=r'$E[\theta_t \mid D_{t}]$', alpha=0.7, linewidth=0.8)
+ax.plot(m_Tt_sim, label=r'$E[\theta_t \mid D_{T}]$', alpha=0.7, linewidth=0.8)
+plt.legend(framealpha=0.4)
+plt.tight_layout()
+#+END_SRC
+
+#+ATTR_ORG: :width 900
+#+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
+#+CAPTION:
+#+RESULTS: fig:svd-steps-sim-plot
+[[file:svd-steps-sim-plot.png]]
+
+* Forward-backward Estimation
+
+We can use the smoothing and filtering steps in the previous section to perform a
+more efficient MCMC estimation than would otherwise be possible without the implicit
+Rao-Blackwellization.
+
+Forward-filtering backward-sampling
+[[citep:Fruhwirth-SchnatterDataaugmentationdynamic1994]] works by first
+computing the forward filtered moments, allowing one to draw \(\theta_T\) from \(
+\left(\theta_T \mid D_T\right) \sim \operatorname{N}\left(m_T, C_T\right) \) and, subsequently,
+\(\theta_t\) from
+\(\left(\theta_t \mid \theta_{t+1}, D_T \right) \sim \operatorname{N}\left(h_t, H_t\right)\).
+
+The latter distribution's moments are essentially a result of smoothing:
+\begin{gather}
+  B_t = C_t G^\top_{t+1} R_{t+1}^{-1}
+  \\
+  h_t = m_t + B_t \left(\theta_{t+1} - a_{t+1}\right)
+  \\
+  H_t = C_t - B_t R_{t+1} B^\top_t
+\end{gather}
+
+TODO: Describe SVD formulation.
+
+#+NAME: svd-ffbs-sampler
+#+BEGIN_SRC python :results silent
+def ffbs_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, theta_tp1, F_tp1, G_tp1, N_W_t_inv, rng):
+    """Perform forward-filtering backward-sampling."""
+
+    S_C_t_inv = tt_finite_inv(S_C_t)
+
+    # M_H_t.T @ M_H_t = G_tp1 @ W_t_inv @ G_tp1.T + C_t_inv
+    M_H_t_inv = tt.join(0,
+                        N_W_t_inv.dot(G_tp1),
+                        S_C_t_inv.dot(U_C_t.T))
+    _, d_H_t_inv, U_H_t = svd(M_H_t_inv)
+
+    # H_t = inv(M_H_t.T @ M_H_t) = C_t - B_t @ R_tp1 @ B_t.T
+    D_H_t = tt.diag(tt_finite_inv(d_H_t_inv))
+
+    # H_t = matrix_dot(U_H_t, D_H_t, U_H_t.T)
+    # H_t.name = "H_t"
+
+    N_C_t = S_C_t.dot(U_C_t.T)
+
+    S_R_tp1_inv = tt_finite_inv(S_R_tp1)
+    N_R_tp1_inv = S_R_tp1_inv.dot(U_R_tp1.T)
+
+    # B_t = C_t @ G_tp1.T @ R_tp1
+    B_t = matrix_dot(N_C_t.T, N_C_t, G_tp1.T, N_R_tp1_inv.T, N_R_tp1_inv)
+
+    h_t = m_t + B_t.dot(theta_tp1 - a_tp1)
+    h_t.name = 'h_t'
+
+    # theta_t = MvNormalRV(h_t, H_t, rng=rng, name='theta_t_ffbs')
+    theta_t = h_t + matrix_dot(U_H_t, tt.sqrt(D_H_t),
+                               MvNormalRV(tt.zeros_like(h_t),
+                                          tt.eye(h_t.shape[0]),
+                                          rng=rng)
+                               )
+
+    # These are statistics we're gathering for other posterior updates
+    theta_tp1_diff = theta_tp1 - G_tp1.dot(theta_t)
+    f_tp1 = F_tp1.T.dot(theta_t)
+
+    # Sequentially sample/update quantities conditional on `theta_t` here...
+
+    return [theta_t, theta_tp1_diff, f_tp1]
+
+
+C_T = matrix_dot(U_C_T, tt.square(S_C_T), U_C_T.T)
+theta_T_post = MvNormalRV(m_T, C_T, rng=rng_tt)
+theta_T_post.name = "theta_T_post"
+
+ffbs_output, ffbs_updates = theano.scan(fn=ffbs_step,
+                                        sequences=[
+                                            {"input": m_t, "taps": [-1]},
+                                            {"input": U_C_t, "taps": [-1]},
+                                            {"input": S_C_t, "taps": [-1]},
+                                            {"input": a_t, "taps": [1]},
+                                            {"input": U_R_t, "taps": [1]},
+                                            {"input": S_R_t, "taps": [1]}
+                                        ],
+                                        outputs_info=[
+                                            {"initial": theta_T_post, "taps": [-1]},
+                                            {}, {}, # theta_tp1_diff, f_tp1
+                                        ],
+                                        non_sequences=[F_tt, G_tt, N_W_inv_tt, rng_tt],
+                                        go_backwards=True,
+                                        strict=True,
+                                        name='ffbs_samples')
+
+(theta_t_post_rev, theta_t_diff_rev, f_t_rev) = ffbs_output
+
+theta_t_post = tt.join(0, theta_t_post_rev[::-1], [theta_T_post])
+
+# We need to add the missing end-points onto these statistics...
+f_t_post = tt.join(0, f_t_rev[::-1], [F_tt.T.dot(theta_T_post)])
+
+theta_t_diff_rev = tt.join(0, theta_t_diff_rev, [theta_t_post[-1] - G_tt.dot(theta_0_rv)])
+#+END_SRC
+
+#+NAME: ffbs-covar-updates
+#+BEGIN_SRC python :results silent
+# E[nu[0]] = 2.0, Var[nu[0]] = 10.0
+# E[nu[1]] = 5.0, Var[nu[1]] = 5.0
+a_nu, b_nu = np.r_[2.0**2 / 10.0, 5.0**2 / 5.0], np.r_[2.0 / 10.0, 5.00 / 5.0]
+
+a_eps, b_eps = 0.5, 1.0
+
+nu_post_tt = GammaRV(a_nu + N_obs_tt * 0.5,
+                     b_nu + 0.5 * tt.square(theta_t_diff_rev).sum(0),
+                     rng=rng_tt, name='nu_post')
+
+eps_post_tt = GammaRV(a_eps + N_obs_tt * 0.5,
+                      b_eps + 0.5 * tt.square(y_tt - f_t_post).sum(),
+                      rng=rng_tt, name='eps_post')
+#+END_SRC
+
+#+NAME: ffbs-sim
+#+BEGIN_SRC python :results silent
+ffbs_dlm = tt_function([y_tt, N_obs_tt, N_theta_tt, G_tt, F_tt],
+                       [theta_t_post, nu_post_tt, eps_post_tt],
+                       updates=ffbs_updates)
+
+nu_scale_tt.set_value(np.random.gamma(a_nu, scale=1.0/b_nu))
+eps_scale_tt.set_value(np.random.gamma(a_eps, scale=1.0/b_eps))
+
+chain = 0
+posterior_samples = {'theta': [[]], 'nu': [[]], 'eps': [[]]}
+
+for i in range(1000):
+
+    theta_t_post_sim, nu_post_sim, eps_post_sim, nu_a, nu_b, eps_a, eps_b = ffbs_dlm(
+        y_sim, dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt], dlm_sim_values[G_tt], dlm_sim_values[F_tt])
+
+    # Update variance scale parameters
+    nu_scale_tt.set_value(nu_post_sim)
+    eps_scale_tt.set_value(eps_post_sim)
+
+    posterior_samples['theta'][chain].append(theta_t_post_sim)
+    posterior_samples['nu'][chain].append(nu_post_sim)
+    posterior_samples['eps'][chain].append(eps_post_sim)
+
+    print(f'i={i},\tnu={nu_post_sim},\teps={eps_post_sim}')
+
+posterior_samples = {k: np.asarray(v) for k,v in posterior_samples.items()}
+#+END_SRC
+
+#+NAME: ffbs-sim-plot
+#+BEGIN_SRC python :results graphics file :file ffbs-sim-plot.png
+from cycler import cycler
+from matplotlib.collections import LineCollection
+
+
+plt.clf()
+
+fig, ax = plt.subplots(figsize=(8, 4.8))
+ax.autoscale(enable=False)
+
+# bivariate_cycler =  cycler('linestyle', ['-', '--']) * plt_orig_cycler
+# ax.set_prop_cycle(bivariate_cycler)
+
+thetas_shape = posterior_samples['theta'][0].shape
+
+cycle = ax._get_lines.prop_cycler
+
+for d in range(thetas_shape[-1]):
+
+    styles = next(cycle)
+    thetas = posterior_samples['theta'][0].T[d].T
+
+    theta_lines = np.empty(thetas_shape[:-1] + (2,))
+    theta_lines.T[0] = np.tile(np.arange(thetas_shape[-2]), [thetas_shape[-3], 1]).T
+    theta_lines.T[1] = thetas.T
+
+    ax.add_collection(
+        LineCollection(theta_lines,
+                       label=r'$\theta_t \mid D_{T}$',
+                       alpha=0.3, linewidth=0.9,
+                       **styles)
+    )
+
+bivariate_obs_cycler =  cycler('linestyle', ['-', '--']) * cycler('color', ['black'])
+
+ax.set_prop_cycle(bivariate_obs_cycler)
+ax.plot(theta_t_sim, label=r'$\theta_t$', linewidth=1.0)
+
+ax.autoscale(enable=True)
+
+plt.tight_layout()
+
+plt.legend(framealpha=0.4)
+#+END_SRC
+
+#+ATTR_ORG: :width 900
+#+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
+#+CAPTION:
+#+RESULTS: fig:ffbs-sim-plot
+[[file:ffbs-sim-plot.png]]
+
+#+NAME: ffbs-trace-plot
+#+BEGIN_SRC python :results graphics file :file ffbs-trace-plot.png
+import arviz as az
+
+az_trace = az.from_dict(posterior=posterior_samples)
+az.plot_trace(az_trace, compact=True)
+#+END_SRC
+
+#+ATTR_ORG: :width 900
+#+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
+#+CAPTION:
+#+RESULTS: ffbs-trace-plot
+[[file:ffbs-trace-plot.png]]
+
+* Theano Optimizations                                             :noexport:
+
+Another reason to use src_python[:eval never]{scan} is that it comes with a
+number of symbolic simplifications that can result in better estimates and/or
+performance.
+
+Let's start by simply canonicalizing the model's graph.
+
+#+NAME: basic-dlm-canon
+#+BEGIN_SRC python :results silent
+from theano.gof.graph import inputs as tt_inputs
+
+from symbolic_pymc.theano.utils import canonicalize
+
+
+Y_t_opt = canonicalize(Y_t_rv, in_place=False)
+#+END_SRC
+
+#+NAME: basic-dlm-canon-dprint
+#+BEGIN_SRC python :wrap "SRC python :eval never"
+tt_dprint(Y_t_opt, depth=5)
+#+END_SRC
+
+#+RESULTS: basic-dlm-canon-dprint
+#+begin_SRC python :eval never
+for{cpu,Y} [id A] ''
+ |Subtensor{int64} [id B] ''
+ | |Shape [id C] ''
+ | | |Subtensor{int64:int64:int8} [id D] ''
+ | |   |for{cpu,theta} [id E] ''
+ | |   |ScalarFromTensor [id F] ''
+ | |   |ScalarFromTensor [id G] ''
+ | |   |Constant{1} [id H]
+ | |Constant{0} [id I]
+ |Subtensor{int64:int64:int64} [id J] ''
+ | |for{cpu,theta} [id E] ''
+ | |ScalarFromTensor [id K] ''
+ | | |Elemwise{switch,no_inplace} [id L] ''
+ | |   |Elemwise{le,no_inplace} [id M] ''
+ | |   |TensorConstant{0} [id N]
+ | |   |Elemwise{minimum,no_inplace} [id O] ''
+ | |ScalarFromTensor [id P] ''
+ | | |Elemwise{switch,no_inplace} [id Q] ''
+ | |   |Elemwise{le,no_inplace} [id M] ''
+ | |   |TensorConstant{0} [id N]
+ | |   |Elemwise{minimum,no_inplace} [id R] ''
+ | |Constant{1} [id S]
+ |Subtensor{int64} [id B] ''
+ |rng [id T]
+ |F_tt [id U]
+ |invgamma_rv.1 [id V] 'eps_scale'
+   |TensorConstant{0.5} [id W]
+   |TensorConstant{0.5} [id W]
+   |TensorConstant{1.0} [id X]
+   |TensorConstant{[]} [id Y]
+   |rng [id T]
+
+Inner graphs of the scan ops:
+
+for{cpu,Y} [id A] ''
+ >Elemwise{add,no_inplace} [id Z] ''
+ > |InplaceDimShuffle{0} [id BA] ''
+ > | |Dot22 [id BB] ''
+ > |   |F_tt_copy [id BC] -> [id U]
+ > |   |InplaceDimShuffle{0,x} [id BD] ''
+ > |     |<TensorType(float64, vector)> [id BE] -> [id J]
+ > |InplaceDimShuffle{x} [id BF] ''
+ >   |normal_rv.1 [id BG] 'eps'
+ >     |TensorConstant{0} [id BH]
+ >     |eps_scale_copy [id BI] -> [id V]
+ >     |TensorConstant{[]} [id BJ]
+ >     |rng_copy [id BK] -> [id T]
+
+for{cpu,theta} [id E] ''
+ >Elemwise{add,no_inplace} [id BL] ''
+ > |InplaceDimShuffle{0} [id BM] ''
+ > | |Dot22 [id BN] ''
+ > |   |G_tt_copy [id BO] -> [id BP]
+ > |   |InplaceDimShuffle{0,x} [id BQ] ''
+ > |     |theta_0[t-1] [id BR] -> [id BS]
+ > |multivariate_normal_rv.1 [id BT] 'nu'
+ >   |Elemwise{second,no_inplace} [id BU] ''
+ >   | |theta_0[t-1] [id BR] -> [id BS]
+ >   | |TensorConstant{(1,) of 0.0} [id BV]
+ >   |<TensorType(float64, matrix)> [id BW] -> [id BX]
+ >   |TensorConstant{[]} [id BY]
+ >   |rng_copy [id BZ] -> [id T]
+
+for{cpu,theta} [id E] ''
+ >Elemwise{add,no_inplace} [id BL] ''
+
+
+#+end_SRC
+
+The canonicalized graph clones the original variables, so we need to use those from now on.
+
+#+NAME: basic-dlm-canon-remap-values
+#+BEGIN_SRC python :results silent
+names_to_inputs = {i.name: i for i in tt_inputs([Y_t_opt])}
+
+dlm_opt_sim_values = {names_to_inputs[k.name]: v for k, v in dlm_sim_values.items()}
+#+END_SRC
+
+We can reset the seed and recompute the simulated values to confirm that our
+canonicalized graph is--numerically--the same as our original graph.
+
+#+NAME: basic-dlm-canon-sim
+#+BEGIN_SRC python :results silent
+rng_state = np.random.RandomState(np.random.MT19937(np.random.SeedSequence(1234)))
+rng.set_value(rng_state)
+
+y_opt_sim = Y_t_opt.eval(dlm_opt_sim_values)
+
+assert np.allclose(y_opt_sim, y_sim)
+#+END_SRC
+
+#+NAME: basic-dlm-canon-sim-plot
+#+BEGIN_SRC python :results silent
+plt.plot(y_opt_sim, label='y_opt_sim')
+plt.legend()
+#+END_SRC
+
+Considering the prior predictive equations, how might we go about
+transforming the graphs above so that they represent the "implied
+distributions" like the prior predictive?
+
+More specifically, consider the src_python[:eval never]{scan} sub-graphs
+(i.e. labeled by src_python[:eval never]{for} in the debug print-outs).  These
+graphs represent the evolution equations and contain terms like
+\(G_t \theta_{t-1} + \nu_t\), which we know correspond to prior predictive
+distributions like \(\theta_t \mid D_{t-1}\).
+
+Really, there is no reason to leave terms like \(G_t \theta_{t-1} + \nu_t\)
+in that form; instead, we can prefer a "canonical" form of our terms that
+better represent everything we know about them.  In this case, we know
+that the term is the random variable \(\theta_t \mid D_{t-1}\), we know what
+its moments are, and we clearly have a means of codifying that in Theano.
+
+This leads us to the need for random variable-specific canonicalizations
+in Theano.  These canonicalizations will apparently involve some general
+properties of random variables, such as
+\(A \epsilon \sim \operatorname{N}\left(A \mu, A^\top \Sigma^2 A \right)\)
+for \(\epsilon \sim \operatorname{N}\left(0, \Sigma^2\right)\), but
+it will also involve some Theano-specific details that aren't always clearly
+mapped to mathematical properties.
+
+For instance, in our canonicalized model graph,
+new src_python[:eval never]{InplaceDimShuffle} operations appear within the
+sub-graphs corresponding to our \(G_t \theta_{t-1} + \nu_t\) term.  These
+operations manipulate the dimensions of terms and correspond to simple
+[[https://en.wikipedia.org/wiki/Tensor_reshaping][tensor reshaping]].
+With an understanding of the relationship between these algebraic
+properties and the operators/implementations in Theano, we can construct Theano
+optimizations that produce robust canonical terms for random variables
+(i.e. terms that are more amenable to performance or accuracy optimizations).
+
+* Random Variable Canonicalization                                 :noexport:
+
+Let's start with some optimizations that will produce prior predictive
+distributions.  The prior predictive moments are derived from a few simple
+linear algebraic and probability theoretic properties.  Namely,
+the following identities:
+#+NAME: canon-identities
+\begin{align}
+  A \beta + b &\sim \operatorname{N}\left( b + \mu, A^\top \Sigma^2 A \right), \quad
+  \beta \sim \operatorname{N}\left( \mu, \Sigma^2 \right)
+  \\
+  \beta + \epsilon &\sim \operatorname{N}\left( \mu + \nu, \Sigma^2 + \Omega^2 \right), \quad
+  \epsilon \sim \operatorname{N}\left( \nu, \Omega^2 \right)
+\end{align}
+
+These identities can be interpreted as replacement rules from left-to-right, so that their
+application results in more random variable forms in a graph.  The effect of these rules
+is that linear algebraic operations are "lifted" into the arguments of random variables.
+
+#+NAME: kanren-normal-imports
+#+BEGIN_SRC python :results silent
+from operator import add
+from functools import partial
+
+from unification import var
+
+from etuples import etuple
+
+from theano.tensor.nlinalg import matrix_dot, matrix_inverse
+
+from kanren import run, eq
+from kanren.core import lall, conde
+from kanren.graph import reduceo, walko, applyo
+from kanren.constraints import isinstanceo
+
+from symbolic_pymc.meta import MetaSymbol
+from symbolic_pymc.theano.ops import RandomVariable
+from symbolic_pymc.theano.meta import mt, TheanoMetaTensorVariable, TheanoMetaTensorConstant, TheanoMetaApply
+#+END_SRC
+
+#+NAME: kanren-normal-helpers
+#+BEGIN_SRC python :results silent
+def tt_at_least_nd(x, n=1):
+
+    if isinstance(x, MetaSymbol):
+        x = x.reify()
+
+    ndim = getattr(x, 'ndim', None)
+
+    if ndim < n:
+        return x.dimshuffle(*(['x'] * n))
+    else:
+        return x
+
+#+END_SRC
+
+#+NAME: kanren-normal-helpers-tests
+#+BEGIN_SRC python :exports none :results silent
+assert np.array_equal(tt_at_least_nd(tt.as_tensor_variable(1.0), n=1).eval(), np.r_[1.0])
+assert np.array_equal(tt_at_least_nd(tt.as_tensor_variable([1.0]), n=1).eval(), np.r_[1.0])
+assert np.array_equal(tt_at_least_nd(tt.as_tensor_variable(1.0), n=2).eval(), np.c_[[1.0]])
+assert np.array_equal(tt_at_least_nd(tt.as_tensor_variable([1.0]), n=2).eval(), np.c_[[1.0]])
+#+END_SRC
+
+#+NAME: kanren-normal-canonicalizations
+#+BEGIN_SRC python :results silent
+from kanren.goals import permuteo
+
+
+def normal_lifto(in_expr, out_expr):
+    """Create a goal that lifts normal random variable operations."""
+    A, b = var(), var()
+    mu, Sigma, sd = var(), var(), var()
+    size, rng, name = var(), var(), var()
+
+    var_op_lv = var()
+    var_apply_lv = TheanoMetaTensorVariable(var(), TheanoMetaApply(var_op_lv, var(), var()), var(), var())
+
+    mu_2, Sigma_2, rng_2, size_2, name_2 = [var() for i in range(5)]
+
+    ds_input = var()
+    ds_in_args_1 = (var(), var(), var())
+    ds_in_args_2 = (var(), var(), var())
+
+    return conde(
+        [
+            # tt.squeeze(A.dimshuffle('x')) == A
+            eq(in_expr, mt.DimShuffle(*ds_in_args_1)(mt.DimShuffle(*ds_in_args_2)(ds_input))),
+            dbgo((ds_in_args_1, ds_in_args_2), msg='squeeze/dimshuffle'),
+            permuteo((ds_in_args_1, ds_in_args_2), (((True,), (), var()), ((), ('x',), var()))),
+            eq(out_expr, ds_input)
+        ],
+        [
+            # Univariate normals to multivariates
+            #
+            # Canonicalization should remove inverses like the following:
+            #
+            # sqd_test = tt.squeeze(tt.scalar('a').dimshuffle('x'))
+            #
+            # sqd_canon = canonicalize(sqd_test)
+            #
+            # tt_dprint(sqd_test)
+            # tt_dprint(sqd_canon)
+            eq(in_expr, mt.NormalRV(mu, sd, size, rng, name=name)),
+            eq(out_expr, etuple(mt.squeeze,
+                                etuple(mt.MvNormalRV,
+                                       etuple(tt_at_least_nd, mu),
+                                       etuple(tt_at_least_nd, sd, 2),
+                                       size, rng, name=name))),
+        ],
+        [
+            # MvNormal convolution
+            eq(in_expr, mt.add(mt.MvNormalRV(mu, Sigma, size, rng, name=name),
+                               mt.MvNormalRV(mu_2, Sigma_2, size_2, rng_2, name=name_2))),
+            eq(out_expr, etuple(mt.MvNormalRV,
+                                mt.add(mu, mu_2),
+                                mt.add(Sigma, Sigma_2),
+                                size, rng, name=etuple(add, name, '-', name_2))),
+        ],
+        [
+            # Constant addition
+            isinstanceo(b, TheanoMetaTensorConstant),
+            eq(in_expr, mt.add(b, mt.MvNormalRV(mu, Sigma, size, rng, name=name))),
+            eq(out_expr, mt.MvNormalRV(mt.add(b, mu), Sigma, size, rng, name=name)),
+        ],
+        [
+            # Constant dot product
+            isinstanceo(A, TheanoMetaTensorConstant),
+            eq(in_expr, mt.dot(A, mt.MvNormalRV(mu, Sigma, size, rng, name=name))),
+            eq(out_expr, etuple(mt.MvNormalRV,
+                                etuple(mt.dot, A, mu),
+                                etuple(matrix_dot, etuple(tt.transpose, A), Sigma, A),
+                                size, rng, name=name))
+        ],
+    )
+
+#+END_SRC
+
+#+NAME: test-normal-canonicalizations
+#+BEGIN_SRC python :exports none :results silent
+test_norm_1_tt = NormalRV(0, 1)
+# test_norm_1_tt = NormalRV(0, 1, size=(2, 3))
+
+q_lv = var()
+res = run(0, q_lv, walko(partial(reduceo, normal_lifto), test_norm_1_tt, q_lv))
+
+uni_to_mv_norm_tt = res[0].eval_obj.reify()
+
+assert isinstance(uni_to_mv_norm_tt.owner.op, tt.DimShuffle)
+
+from symbolic_pymc.theano.random_variables import MvNormalRVType
+
+mv_owner = uni_to_mv_norm_tt.owner.inputs[0].owner
+
+assert isinstance(mv_owner.op, MvNormalRVType)
+assert mv_owner.inputs[0].ndim == 1
+assert mv_owner.inputs[1].ndim == 2
+assert np.array_equal(mv_owner.inputs[2].data, [])
+assert uni_to_mv_norm_tt.owner.inputs[0].name == test_norm_1_tt.name
+#+END_SRC
+
+#+NAME: inspect-scan-properties
+#+BEGIN_SRC python :exports none :results silent
+
+tt_dprint(theta_t_rv)
+
+theta_scan_op = theta_t_rv.owner.inputs[0].owner.op
+theta_scan_inputs = theta_t_rv.owner.inputs[0].owner.inputs
+
+# Why isn't the initial value here?!
+theta_scan_op.info
+
+tt_dprint(theta_scan_inputs)
+
+# Looks like this is the closest we'll get to the initial value's
+# (i.e. `theta[0]`) graph.
+# It's wrapped in a `theano.scan_module.scan_utils.expand_empty` call.
+# More specifically this graph is created by
+# theano.scan_module.scan_utils.expand_empty(
+#     tt.unbroadcast(tensor.shape_padleft(actual_arg), 0),
+#     actual_n_steps)
+tt_dprint(theta_scan_inputs[1])
+
+theta_tm1 = theta_scan_op.inputs[0]
+
+tt_dprint(theta_scan_op.inputs)
+tt_dprint(theta_scan_op.outputs)
+
+# Note: `tt.second(x, y)` allocates a tensor with shape `x.shape` with values `y`
+# E.g. `tt.second(np.c_[[1, 3], [4, 5]], 0)`
+#+END_SRC
+
+#+NAME: test-scan-canonicalization
+#+BEGIN_SRC python :exports none :results silent
+
+def exprs_in_scan_output(in_expr, out_expr):
+    inputs_lv, info_lv = var(), var()
+    scan_output_in, scan_output_out = var(), var()
+
+    in_scan_lv = mt.Scan(inputs_lv, [scan_output_in], info_lv)
+    out_scan_lv = etuple(mt.Scan, inputs_lv, scan_output_out, info_lv)
+
+    def make_list(x):
+        return [x]
+
+    scan_output_out_raw = var()
+
+    # XXX: Why isn't this matching?!
+    ds_input = var()
+    ds_in_args_1 = (var(), var(), var())
+    ds_in_args_2 = (var(), var(), var())
+    pat_expr = mt.DimShuffle(*ds_in_args_1)(mt.DimShuffle(*ds_in_args_2)(ds_input))
+
+
+    return conde([normal_lifto(in_expr, out_expr)],
+                 [
+                     eq(in_expr, pat_expr),
+                     # XXX: This case should be present!
+                     dbgo((ds_in_args_1, ds_in_args_2), msg='dimshuffle')
+                 ],
+                 [
+                     eq(in_expr, in_scan_lv),
+                     walko(partial(reduceo, exprs_in_scan_output), scan_output_in, scan_output_out_raw),
+                     # Force etuple results to evaluate
+                     applyo(make_list, etuple(scan_output_out_raw), scan_output_out),
+                     eq(out_expr, out_scan_lv)
+                 ])
+
+
+q_lv = var()
+output_mt = run(1, q_lv, walko(partial(reduceo, exprs_in_scan_output), Y_t_rv, q_lv))
+
+output_new = output_mt[0].eval_obj.reify()
+
+
+tt_dprint(output_new)
+
+output_new_canon = canonicalize(output_new)
+
+tt_dprint(output_new_canon)
+
+
+# XXX: What's the deal with this missed squeeze/dimshuffle?
+theta_scan_output = output_new.owner.op.outputs[0]
+tt_dprint(theta_scan_output)
+
+in_expr = mt(theta_scan_output.owner.inputs[1])
+
+in_expr.owner.op.rands
+
+unify(in_expr, pat_expr)
+#+END_SRC
+
+
+#+NAME: canon-rules-opt
+#+BEGIN_SRC python :results silent
+from symbolic_pymc.theano.ops import RandomVariable
+
+normal_rv_canonicalize_patterns = [
+    # XXX: Doesn't handle different sizes!
+    tt.gof.opt.PatternSub(
+        (tt.add,
+         (MvNormalRV, 'mu', 'Sigma', 'size', 'rng'),
+         (MvNormalRV, 'mu_2', 'Sigma_2', 'size', 'rng'),
+         ),
+        (MvNormalRV,
+         (tt.add, 'mu', 'mu_2'),
+         (tt.add, 'Sigma', 'Sigma_2'), 'size', 'rng'),
+        allow_multiple_clients=True,
+        name='mv_normal_add_fuse'
+    ),
+    tt.gof.opt.PatternSub(
+        (tt.add,
+         {'pattern': 'A', 'constraint': lambda e: not isinstance(e.type, RandomVariable)},
+         (MvNormalRV, 'mu', 'Sigma', 'size', 'rng')),
+        (MvNormalRV, (tt.add, 'A', 'mu'), 'Sigma', 'size', 'rng'),
+        allow_multiple_clients=True,
+        name='mv_normal_add_promote'
+    ),
+    tt.gof.opt.PatternSub(
+        (tt.mul,
+         'a',
+         (NormalRV, 'mu', 'sd', 'size', 'rng')),
+        (NormalRV,
+         (tt.mul, 'a', 'mu'),
+         (tt.mul, 'sd', (tt.sqrt, 'a')), 'size', 'rng'),
+        allow_multiple_clients=True,
+        name='scalar_normal_mul_lift'
+    ),
+    # XXX: Doesn't handle different sizes!
+    tt.gof.opt.PatternSub(
+        (tt.add,
+         (NormalRV, 'mu', 'sd', 'size', 'rng'),
+         (NormalRV, 'mu_2', 'sd_2', 'size', 'rng')),
+        (NormalRV,
+         (tt.add, 'mu', 'mu_2'),
+         (tt.add, 'sd', 'sd_2'), 'size', 'rng'),
+        allow_multiple_clients=True,
+        name='scalar_normal_add_fuse'
+    ),
+    tt.gof.opt.PatternSub(
+        (tt.add,
+         {'pattern': 'a', 'constraint': lambda e: not isinstance(e.type, RandomVariable)},
+         (NormalRV, 'mu', 'sd', 'size', 'rng'),
+         ),
+        (NormalRV, (tt.add, 'a', 'mu'), 'sd', 'size', 'rng'),
+        allow_multiple_clients=True,
+        name='scalar_normal_add_promote'
+    ),
+]
+
+normal_rv_canonicalize = tt.gof.opt.EquilibriumOptimizer(normal_rv_canonicalize_patterns,
+                                                         max_use_ratio=10)
+
+# optdb.register('normal_rv_canonicalize',
+#                normal_rv_canonicalize, 0.5,
+#                'rv_canonicalize')
+#+END_SRC
+
+In Listing [[canon-rules-opt]], we reproduced the same rules for univariate and
+multivariate normal distributions.  Instead, we could've canonicalized such that
+univariate distributions are turned into degenerate multivariate distributions,
+putting everything on the same dimensional "footing".
+
+While perhaps not the best for numeric sampling, this is acceptable for canonicalization,
+especially because canonicalization is distinct from concerns about computational efficiency.
+A separate efficiency-based reformulation can be done once a model's graph has been assessed
+in canonical form.
+
+These new replacement rules can be applied as in Listing [[basic-dlm-canon-rv-example]].
+
+#+NAME: basic-dlm-canon-rv-example
+#+BEGIN_SRC python :results silent
+from symbolic_pymc.theano.utils import optimize_graph
+
+Y_t_canon_rv = optimize_graph(Y_t_opt, normal_rv_canonicalize)
+#+END_SRC
+
+Unfortunately, as Listing [[basic-dlm-canon-rv-example-dprint]] shows, the resulting
+graph is in no way affected by these rules!  Again, we would like to see our
+rules applied to the \( G_t \theta_{t-1} + \nu \) sub-graph.
+
+#+NAME: basic-dlm-canon-rv-example-dprint
+#+BEGIN_SRC python :wrap "SRC python :eval never"
+tt_dprint(Y_t_canon_rv, depth=5)
+#+END_SRC
+
+#+RESULTS: basic-dlm-canon-rv-example-dprint
+#+begin_SRC python :eval never
+for{cpu,Y} [id A] ''
+ |Subtensor{int64} [id B] ''
+ | |Shape [id C] ''
+ | | |Subtensor{int64:int64:int8} [id D] ''
+ | |   |for{cpu,theta} [id E] ''
+ | |   |ScalarFromTensor [id F] ''
+ | |   |ScalarFromTensor [id G] ''
+ | |   |Constant{1} [id H]
+ | |Constant{0} [id I]
+ |Subtensor{int64:int64:int64} [id J] ''
+ | |for{cpu,theta} [id E] ''
+ | |ScalarFromTensor [id K] ''
+ | | |Elemwise{switch,no_inplace} [id L] ''
+ | |   |Elemwise{le,no_inplace} [id M] ''
+ | |   |TensorConstant{0} [id N]
+ | |   |Elemwise{minimum,no_inplace} [id O] ''
+ | |ScalarFromTensor [id P] ''
+ | | |Elemwise{switch,no_inplace} [id Q] ''
+ | |   |Elemwise{le,no_inplace} [id M] ''
+ | |   |TensorConstant{0} [id N]
+ | |   |Elemwise{minimum,no_inplace} [id R] ''
+ | |Constant{1} [id S]
+ |Subtensor{int64} [id B] ''
+ |rng [id T]
+ |F_tt [id U]
+ |invgamma_rv.1 [id V] 'eps_scale'
+   |TensorConstant{0.5} [id W]
+   |TensorConstant{0.5} [id W]
+   |TensorConstant{1.0} [id X]
+   |TensorConstant{[]} [id Y]
+   |rng [id T]
+
+Inner graphs of the scan ops:
+
+for{cpu,Y} [id A] ''
+ >Elemwise{add,no_inplace} [id Z] ''
+ > |InplaceDimShuffle{0} [id BA] ''
+ > | |Dot22 [id BB] ''
+ > |   |F_tt_copy [id BC] -> [id U]
+ > |   |InplaceDimShuffle{0,x} [id BD] ''
+ > |     |<TensorType(float64, vector)> [id BE] -> [id J]
+ > |InplaceDimShuffle{x} [id BF] ''
+ >   |normal_rv.1 [id BG] 'eps'
+ >     |TensorConstant{0} [id BH]
+ >     |eps_scale_copy [id BI] -> [id V]
+ >     |TensorConstant{[]} [id BJ]
+ >     |rng_copy [id BK] -> [id T]
+
+for{cpu,theta} [id E] ''
+ >Elemwise{add,no_inplace} [id BL] ''
+ > |InplaceDimShuffle{0} [id BM] ''
+ > | |Dot22 [id BN] ''
+ > |   |G_tt_copy [id BO] -> [id BP]
+ > |   |InplaceDimShuffle{0,x} [id BQ] ''
+ > |     |theta[t-1] [id BR] -> [id BS]
+ > |multivariate_normal_rv.1 [id BT] 'nu'
+ >   |Elemwise{second,no_inplace} [id BU] ''
+ >   | |theta[t-1] [id BR] -> [id BS]
+ >   | |TensorConstant{(1,) of 0.0} [id BV]
+ >   |<TensorType(float64, matrix)> [id BW] -> [id BX]
+ >   |TensorConstant{[]} [id BY]
+ >   |rng_copy [id BZ] -> [id T]
+
+for{cpu,theta} [id E] ''
+ >Elemwise{add,no_inplace} [id BL] ''
+
+
+#+end_SRC
+
+The problem is that--among other
+things--our src_python[:eval never]{RandomVariable} terms are wrapped
+by src_python[:eval never]{DimShuffle} operations that do not appear in our
+replacement rules.  If we were to add these src_python[:eval never]{DimShuffle}s
+to the rules, we would have twice as many rules to run!  The best approach to
+fixing this problem is to consider src_python[:eval never]{DimShuffle}
+and src_python[:eval never]{RandomVariable} interactions in the context of
+canonicalization.
+
+** DimShuffle
+
+As we mentioned, src_python[:eval never]{DimShuffle}s get in the way of more
+general math-level considerations.  For example,
+the src_python[:eval never]{DimShuffle}
+in src_python[:eval never]{tt.dot(A, DimShuffle(NormalRV(...)))} prevents us
+from easily spotting the
+underlying src_python[:eval never]{tt.dot(A, NormalRV(...))}.
+
+First, let's look at the src_python[:eval never]{DimShuffle}s that are
+currently getting in the way of our src_python[:eval never]{RandomVariable}
+rewrite rules.
+
+#+NAME: basic-dlm-dimshuffle-example-dprint
+#+BEGIN_SRC python :wrap "SRC python :eval never"
+tt_dprint(Y_t_opt.owner.op.fn, depth=5)
+#+END_SRC
+
+#+RESULTS: basic-dlm-dimshuffle-example-dprint
+#+begin_SRC python :eval never
+Elemwise{add,no_inplace} [id A] ''   5
+ |InplaceDimShuffle{0} [id B] ''   4
+ | |Dot22 [id C] ''   3
+ |   |F_tt_copy [id D]
+ |   |InplaceDimShuffle{0,x} [id E] ''   2
+ |     |<TensorType(float64, vector)> [id F]
+ |InplaceDimShuffle{x} [id G] ''   1
+   |normal_rv.1 [id H] 'eps'   0
+     |TensorConstant{0} [id I]
+     |eps_scale_copy [id J]
+     |TensorConstant{[]} [id K]
+     |rng_copy [id L]
+
+
+#+end_SRC
+
+From Listing [[basic-dlm-dimshuffle-example-dprint]], we can see
+two src_python[:eval never]{DimShuffle}s applied to both random variable terms
+in the src_python[:eval never]{scan} graph for \(F_t^\top \theta_t + \epsilon_t\).
+The first term is just labeled as src_python[:eval never]{<TensorType...>} and
+isn't truly a src_python[:eval never]{RandomVariable}, although we know it
+should be (i.e. after applying the rules to the src_python[:eval never]{scan}
+producing those \(\theta_t\) values).
+However, the \(\epsilon_t\) src_python[:eval never]{RandomVariable} term is
+present as the second argument to src_python[:eval never]{Elemwise{add...}}, but
+it's wrapped by a src_python[:eval never]{DimShuffle}.
+
+#+NAME: basic-dlm-dimshuffle-example
+#+BEGIN_SRC python :wrap "SRC python :eval never"
+dmshf_tt = Y_t_rv.owner.op.fn.outputs[0].variable.owner.inputs[1].owner
+
+tt_dprint(dmshf_tt)
+#+END_SRC
+
+#+RESULTS: basic-dlm-dimshuffle-example
+#+begin_SRC python :eval never
+InplaceDimShuffle{x} [id A] ''
+ |normal_rv.1 [id B] 'eps'
+   |TensorConstant{0} [id C]
+   |eps_scale_copy [id D]
+   |TensorConstant{[]} [id E]
+   |rng_copy [id F]
+
+
+#+end_SRC
+
+Listing [[basic-dlm-dimshuffle-params]] shows the parameters of
+the src_python[:eval never]{DimShuffle} operator, or essentially what it's
+supposed to do to the src_python[:eval never]{RandomVariable}: add an extra
+broadcastable dimension.
+
+#+NAME: basic-dlm-dimshuffle-params
+#+BEGIN_SRC python :wrap "SRC python :eval never"
+print(f"DimShuffle.inplace={dmshf_tt.op.inplace},\t"
+      f"DimShuffle.new_order={dmshf_tt.op.new_order},\t"
+      f"DimShuffle.input_broadcastable={dmshf_tt.op.input_broadcastable}")
+#+END_SRC
+
+#+RESULTS: basic-dlm-dimshuffle-params
+#+begin_SRC python :eval never
+DimShuffle.inplace=True,	DimShuffle.new_order=('x',),	DimShuffle.input_broadcastable=()
+
+
+#+end_SRC
+
+Given the parameterization of our src_python[:eval never]{RandomVariable}
+operators, this can be accomplished by simply making
+the src_python[:eval never]{RandomVariable}'s inputs broadcastable
+(i.e. "lifting" the src_python[:eval never]{DimShuffle} to the inputs) or by
+applying the src_python[:eval never]{DimShuffle} to the size parameter
+of src_python[:eval never]{RandomVariable}.
+
+For example, Listing shows that both approaches produce the same result.
+
+#+NAME: rv-dimshuffle-lift-example
+#+BEGIN_SRC python :wrap "SRC python :eval never"
+test_rng_state = np.random.RandomState(np.random.MT19937(np.random.SeedSequence(1234)))
+test_rng = theano.shared(test_rng_state, name='rng')
+
+norm_lifted_inputs_sample = NormalRV(tt.as_tensor_variable(0.0).dimshuffle('x'),
+                                 tt.as_tensor_variable(1.0).dimshuffle('x'),
+                                 rng=test_rng).eval()
+
+test_rng.set_value(np.random.RandomState(np.random.MT19937(np.random.SeedSequence(1234))))
+
+norm_altered_size_sample = NormalRV(0, 1, size=[1], rng=test_rng).eval()
+
+print(f"lift inputs: {norm_lifted_inputs_sample}, \talter size: {norm_altered_size_sample}")
+
+#+END_SRC
+
+#+RESULTS: rv-dimshuffle-lift-example
+#+begin_SRC python :eval never
+lift inputs: [-0.9581156], 	alter size: [-0.9581156]
+
+
+#+end_SRC
+
+Given the existing design of Theano, we could consider univariate normals
+as src_python[:eval never]{Elemwise} operators and then add special
+considerations for sampling "batches".  This is reasonable, because normal
+random variable mapping is linear in the same way that
+most src_python[:eval never]{Elemwise} tensor operations are.  This approach
+would confer many of the expected properties and optimizations/canonicalization
+to univariate normal random variables; however, it would not address
+multivariate normals.
+
+Here we will address only some cases of src_python[:eval never]{DimShuffle}
+and src_python[:eval never]{RandomVariable} interactions.
+We start by naively lifting src_python[:eval never]{DimShuffle} operations
+through all normal src_python[:eval never]{RandomVariable}s.
+
+#+NAME: sympymc-lift-dimshuffle-normalrv
+#+BEGIN_SRC python :exports none :eval never
+normal_rv_dimshuffle_patterns = [
+    tt.gof.opt.PatternSub(
+        ((tt.DimShuffle, 'input_broadcastable', 'new_order', 'inplace'),
+         (NormalRV, 'mu', 'sd', 'size', 'rng', 'name')),
+        (NormalRV,
+         ((tt.DimShuffle, 'input_broadcastable', 'new_order', 'inplace'), 'mu'),
+         ((tt.DimShuffle, 'input_broadcastable', 'new_order', 'inplace'), 'sd'),
+          'size', 'rng', 'name'),
+        allow_multiple_clients=True,
+        name='normal_dimshuffle_lift'
+    )]
+
+normal_rv_dimshuffle_canon = tt.gof.opt.EquilibriumOptimizer(normal_rv_dimshuffle_patterns,
+                                                             max_use_ratio=10)
+tt_dprint(Y_t_opt)
+
+Y_t_canon_rv = optimize_graph(Y_t_opt, normal_rv_dimshuffle_canon)
+
+tt_dprint(Y_t_canon_rv)
+
+Y_t_canon_rv = optimize_graph(Y_t_canon_rv, normal_rv_canonicalize)
+
+tt_dprint(Y_t_canon_rv)
+#+END_SRC
+
+#+NAME: testing-3
+#+BEGIN_SRC python :exports none :eval never
+# @register_canonicalize
+@local_optimizer([DimShuffle])
+def local_lift_DimShuffle_through_NormalRV(node):
+    """
+    These optimizations "lift" (i.e. propagate towards the inputs) `DimShuffle`
+    through normal distributions.  It puts the graph into a more standard
+    shape, and later allows us to merge consecutive `DimShuffle`s.
+
+    In general, this prevents `DimShuffle`s from getting in the way of more
+    general math-level considerations.  For example, the `DimShuffle` in
+    `tt.dot(A, DimShuffle(NormalRV(...)))` prevents us from easily spotting the
+    underlying `tt.dot(A, NormalRV(...))`.
+
+    """
+    if not isinstance(node.op, tt.basic.DimShuffle):
+        return False
+
+    owner = node.inputs[0].owner
+
+    if not (owner and isinstance(owner.op, RandomVariable)):
+        return False
+
+    import pdb; pdb.set_trace()
+
+    rv_smpl = node.inputs[0]
+
+    new_order = node.op.new_order
+    # owner.inputs
+
+    # shape = tuple(shape_reps) + tuple(shape_ind) + tuple(shape_supp)
+
+    new_dist_params = None
+    new_size = None
+
+    ret = [owner.op(*new_dist_params, size=new_size, rng=rng, name=rv_smpl.name)]
+
+    copy_stack_trace(rv_smpl, ret)
+
+    return ret
+
+
+# Let's inspect the kind of `[Inplace]DimShuffle`s we're dealing with
+tt_dprint(Y_t_rv.owner.op.fn, depth=5)
+
+dmshf_op = Y_t_rv.owner.op.fn.outputs[0].variable.owner.inputs[1].owner.op
+dmshf_op.inplace
+dmshf_op.new_order
+dmshf_op.input_broadcastable
+
+test_mvn_tt = MvNormalRV(np.r_[0, 10, 100], np.diag([0.1, 0.01, 0.001]), size=3)
+
+dmshf_mvn_tt = test_mvn_tt.dimshuffle([0, 1, 'x'])
+
+# dmshf_mvn_tt.owner.op.new_order
+# dmshf_mvn_tt.owner.op.input_broadcastable
+
+test_mvn.eval()
+dmshf_mvn_tt.eval()
+
+# Now, how does the `DimShuffle`d result translate to a `MvNomalRV`?
+# We might be able to generalize if we can simplify the action of the `size` parameter.
+
+test_mvn_base_tt = MvNormalRV(np.r_[0, 10, 100], np.diag([0.1, 0.01, 0.001]))
+
+# test_mvn_rpt_tt = tt.tile(test_mvn_base_tt, [3, 1])
+
+test_mvn_rpt_tt.eval()
+
+test_mvn_2_tt = MvNormalRV(np.r_[0, 10, 100], np.diag([0.1, 0.01, 0.001]), size=3)
+
+normal_rv_canonicalize = tt.gof.opt.EquilibriumOptimizer(normal_rv_canonicalize_patterns,
+                                                         max_use_ratio=10)
+opt_res = optimize_graph(test_mvn_2_tt, local_lift_DimShuffle_through_NormalRV)
+tt_dprint(opt_res, depth=5)
+#+END_SRC
+
+* Discussion
+
+So far, we've only shown how to perform FFBS for DLMs in Theano.
+
+#+BIBLIOGRAPHYSTYLE: plainnat
+#+BIBLIOGRAPHY: ../tex/dlm-optimizations.bib
