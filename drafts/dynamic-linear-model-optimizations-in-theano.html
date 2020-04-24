@@ -116,7 +116,7 @@ Brandon T. Willard            </a>
     </span>
           <span class="label label-default">Modified</span>
             <span class="modified">
-                <i class="fa fa-calendar"></i><time datetime="2020-04-22T00:00:00-05:00"> Wed 22 April 2020</time>
+                <i class="fa fa-calendar"></i><time datetime="2020-04-23T00:00:00-05:00"> Thu 23 April 2020</time>
             </span>
 
 
@@ -232,7 +232,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>We start by considering the simple form of a DLM <a href="#4bbd465b4e78e5c5151b0cbba54d984e">(Harrison &amp;amp; West 1999)</a> with prior <span class="math inline">\(\theta_0 \sim \operatorname{N}\left( m_0, C_0 \right)\)</span>:</p>
+<p>We start by considering the simple form of a DLM <a id="4bbd465b4e78e5c5151b0cbba54d984e"><a href="#harrison_bayesian_1999">(Harrison &amp; West 1999)</a></a> with prior <span class="math inline">\(\theta_0 \sim \operatorname{N}\left( m_0, C_0 \right)\)</span>:</p>
 <p><span class="math display">\[\begin{align}
   y_t &amp;= F_t^{\top} \theta_{t} + \epsilon_t, \quad \epsilon_t \sim \operatorname{N}\left( 0, V \right)
   \label{eq:basic-dlm-obs}
@@ -431,7 +431,7 @@ Listing 4
 <h1>Posterior Estimation</h1>
 <p>In Listings <a href="#org7278e18">6</a> and <a href="#org874cba4">7</a>, we demonstrate how the posterior moments in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> and <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span> can be computed in Theano.</p>
 <p>Unfortunately, if we attempt to implement the exact closed-form updates in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> or <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span>, our results will be fraught with numerical errors. This is a very basic issue with naively implemented Kalman filters. The solution to these issues usually involves some analytic reformulations that compensate for the covariance matrix subtractions. The standard approaches generally use some form of matrix decomposition that directly accounts for the positive semi-definite nature of the covariance matrices.</p>
-<p>The approach taken here is based on the singular value decomposition (SVD) and effectively computes only one symmetric “half” of the updated covariances. The SVD also allows for easy inversions. See <a href="#0ae04c048b20d07f32d7f0f75bb51483">Zhang &amp;amp; Li (1996)</a> for more details, or <a href="#3a4d89388a434d7b1b91dc8690f3a03b">Petris, Petrone &amp;amp; Campagnoli (2009)</a> for a concise overview of the procedure in the context of DLMs.</p>
+<p>The approach taken here is based on the singular value decomposition (SVD) and effectively computes only one symmetric “half” of the updated covariances. The SVD also allows for easy inversions. See <a id="0ae04c048b20d07f32d7f0f75bb51483"><a href="#ZhangFixedintervalsmoothingalgorithm1996">Zhang &amp; Li (1996)</a></a> for more details, or <a id="3a4d89388a434d7b1b91dc8690f3a03b"><a href="#PetrisDynamiclinearmodels2009">Petris, Petrone &amp; Campagnoli (2009)</a></a> for a concise overview of the procedure in the context of DLMs.</p>
 <figure>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="im">import</span> scipy</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="im">import</span> warnings</a>
@@ -654,7 +654,7 @@ Listing 9
 <section id="forward-backward-estimation" class="level1">
 <h1>Forward-backward Estimation</h1>
 <p>We can use the smoothing and filtering steps in the previous section to perform a more efficient MCMC estimation than would otherwise be possible without the implicit Rao-Blackwellization.</p>
-<p>Forward-filtering backward-sampling <a href="#66fb99775f308e808a193bd7bb2d2038">(Fr-Schnatter 1994)</a> works by first computing the forward filtered moments, allowing one to draw <span class="math inline">\(\theta_T\)</span> from <span class="math inline">\(\left(\theta_T \mid D_T\right) \sim \operatorname{N}\left(m_T, C_T\right)\)</span> and, subsequently, <span class="math inline">\(\theta_t\)</span> from <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right) \sim \operatorname{N}\left(h_t, H_t\right)\)</span>.</p>
+<p>Forward-filtering backward-sampling <a id="66fb99775f308e808a193bd7bb2d2038"><a href="#Fruhwirth-SchnatterDataaugmentationdynamic1994">(Fr-Schnatter 1994)</a></a> works by first computing the forward filtered moments, allowing one to draw <span class="math inline">\(\theta_T\)</span> from <span class="math inline">\(\left(\theta_T \mid D_T\right) \sim \operatorname{N}\left(m_T, C_T\right)\)</span> and, subsequently, <span class="math inline">\(\theta_t\)</span> from <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right) \sim \operatorname{N}\left(h_t, H_t\right)\)</span>.</p>
 <p>The latter distribution’s moments are essentially a result of smoothing:</p>
 <p><span class="math display">\[\begin{gather}
   B_t = C_t G^\top_{t+1} R_{t+1}^{-1}
@@ -847,6 +847,13 @@ Listing 9
 <section id="discussion" class="level1">
 <h1>Discussion</h1>
 <p>So far, we’ve only shown how to perform FFBS for DLMs in Theano.</p>
+</section>
+<section id="bibliography" class="level1">
+<h1>Bibliography</h1>
+<p><a id="harrison_bayesian_1999"></a> Harrison &amp; West, Bayesian Forecasting &amp; Dynamic Models, Springer (1999). <a href="#4bbd465b4e78e5c5151b0cbba54d984e">↩</a></p>
+<p><a id="ZhangFixedintervalsmoothingalgorithm1996"></a> Zhang &amp; Li, Fixed-Interval Smoothing Algorithm Based on Singular Value Decomposition, 916–921, in in: , Proceedings of the 1996 IEEE International Conference on Control Applications, 1996, edited by (1996) <a href="#0ae04c048b20d07f32d7f0f75bb51483">↩</a></p>
+<p><a id="PetrisDynamiclinearmodels2009"></a> Petris, Petrone &amp; Campagnoli, Dynamic Linear Models, Springer (2009). <a href="#3a4d89388a434d7b1b91dc8690f3a03b">↩</a></p>
+<p><a id="Fruhwirth-SchnatterDataaugmentationdynamic1994"></a> Fr&quot;uhwirth-Schnatter, Data Augmentation and Dynamic Linear Models, <i>Journal of time series analysis</i>, <b>15(2)</b>, 183–202 (1994). <a href="http://onlinelibrary.wiley.com/doi/10.1111/j.1467-9892.1994.tb00184.x/abstract">link</a>. <a href="#66fb99775f308e808a193bd7bb2d2038">↩</a></p>
 </section>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
