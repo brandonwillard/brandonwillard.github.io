@@ -1,7 +1,7 @@
 ---
 bibliography:
 - '/home/bwillard/projects/websites/brandonwillard.github.io/content/articles/src/tex/dlm-optimizations.bib'
-modified: '2020-4-23'
+modified: '2020-4-24'
 status: draft
 tags: 'draft,pymc3,theano,statistics,symbolic computation,python,probability theory'
 title: Dynamic Linear Model Optimizations in Theano
@@ -82,12 +82,12 @@ C_0_tt.name = "C_0"
 
 theta_0_rv = MvNormalRV(m_0_tt, C_0_tt, rng=rng_tt, name='theta_0')
 
-nu_scale_tt = theano.shared(np.r_[1.1, 10.0], name='nu_scale')
-W_tt = tt.eye(N_theta_tt) * tt.inv(nu_scale_tt)
+phi_W_tt = theano.shared(np.r_[1.1, 10.0], name='phi_W')
+W_tt = tt.eye(N_theta_tt) * tt.inv(phi_W_tt)
 W_tt.name = "W_t"
 
-eps_scale_tt = theano.shared(0.7, name='eps_scale')
-V_tt = tt.inv(eps_scale_tt)
+phi_V_tt = theano.shared(0.7, name='phi_V')
+V_tt = tt.inv(phi_V_tt)
 V_tt.name = "V_t"
 
 def state_step(theta_tm1, G_t, W_t, N_theta, rng):
@@ -103,7 +103,7 @@ theta_t_rv, theta_t_updates = theano.scan(fn=state_step,
                                           outputs_info={"initial": theta_0_rv, "taps": [-1]},
                                           non_sequences=[G_tt, W_tt, N_theta_tt, rng_tt],
                                           n_steps=N_obs_tt,
-                                          #strict=True,
+                                          strict=True,
                                           name='theta_t')
 
 def obs_step(theta_t, F_t, V_t, rng):
@@ -117,7 +117,7 @@ def obs_step(theta_t, F_t, V_t, rng):
 Y_t_rv, Y_t_updates = theano.scan(fn=obs_step,
                                   sequences=[theta_t_rv],
                                   non_sequences=[F_tt, V_tt, rng_tt],
-                                  #strict=True,
+                                  strict=True,
                                   name='Y_t')
 ```
 <figcaption>Listing 2</figcaption>
@@ -129,6 +129,8 @@ Throughout we'll use data sampled from \(\eqref{eq:basic-dlm-state}\) for demons
 
 \begin{gather}
   T = 200,\quad M = 2
+  \\
+  \phi_W = \left(1.1, 10\right),\quad \phi_V = 0.7
   \\
   G_t = \begin{pmatrix}
   1 & 0.1 \\
@@ -251,13 +253,7 @@ The approach taken here is based on the singular value decomposition (SVD) and e
 
 <figure>
 ```{.python}
-import scipy
 import warnings
-
-from theano.gof import Op, Apply
-from theano.tensor.opt import Assert
-from theano.tensor.slinalg import Solve, MATRIX_STRUCTURES
-from theano.tensor.nlinalg import matrix_dot
 
 warnings.filterwarnings("ignore", category=FutureWarning, message="Using a non-tuple sequence")
 
@@ -271,9 +267,49 @@ def tt_finite_inv(x):
 </figure>
 
 
-## SVD Approach
+## SVD-based Filtering
 
-TODO: Describe SVD filter formulation.
+The SVD forms of the filtering equations in \(\eqref{eq:dlm-post-moments}\) are produced through creative use of the SVDs of its component matrices. Using a slightly modified version of the formulation established in <a id="3a4d89388a434d7b1b91dc8690f3a03b"><a href="#PetrisDynamiclinearmodels2009">Petris, Petrone &amp; Campagnoli (2009)</a></a>, the SVD for a matrix \(M\) is given by \(M = U_{M} D_{M} V_{M}^\top\). A symmetric matrix then takes the form \(M = U_{M} D_{M} U_{M}^\top\) and its "square-root" is given by \(M = N_M^\top N_M\) with \(N_M = S_{M} U_{M}^\top\) and \(S_{M} = D_{M}^{1/2}\). Likewise, matrix (generalized) inverses take the form \(M^{-1} = U_{M} S_{M}^{-1} U_{M}^\top\).
+
+The idea here is that we can combine these SVD identities to derive square-root relationship between the SVD of \(C_t^{-1}\) and the SVDs of \(C_{t-1}\), \(W_t\), \(V_t\), and \(R_t\), then we can easily invert \(C_t^{-1}\) to arrive at the desired numerically stable SVD of \(C_t\).
+
+First, note that \(N_{R_t}^\top N_{R_t} = G_t C_{t-1} G_t^\top + W_t = R_t\) for
+
+\begin{equation}
+  \begin{aligned}
+    N_{R_t} &=
+      \begin{pmatrix}
+        S_{C_{t-1}} U_{C_{t-1}} G_t^\top
+        \\
+        N_{W_t}
+      \end{pmatrix}
+  \end{aligned}
+  .
+  \label{eq:N_R_t}
+\end{equation}
+
+From this, we know that the (symmetric) SVD of \(R_t\) is equal to the (symmetric) SVD of \(N_{R_t}\), i.e. \(U_{R_t} = V_{N_{R_t}}\) and \(S_{R_t} = D_{N_{R_t}}\). In other words, we have to compute the SVD of \(N_{R_t}\) at this step.
+
+With the updated SVD of \(R_t\), we can use \(C_t^{-1} = F_t V_t^{-1} F_t^\top + R_t^{-1}\)&#x2013;obtained via the classic [Sherman-Morrison-Woodbury matrix inverse identity](https://en.wikipedia.org/wiki/Woodbury_matrix_identity)&#x2013;to employ the same technique as before and produce the SVD of \(C_t^{-1}\) by way of the SVD of yet another block square-root matrix,
+
+\begin{equation}
+  \begin{aligned}
+    N_{C_t}^{-1} &=
+      \begin{pmatrix}
+        N_{V_t} F_t^\top U_{R_t}
+        \\
+        S_{R_t}^{-1}
+      \end{pmatrix}
+  \end{aligned}
+  .
+  \label{eq:N_C_t_inv}
+\end{equation}
+
+Again, we compute the SVD of \(N_{C_t^{-1}}\) at this step to obtain \(V_{N_{C_t}^{-1}}\) and \(D_{N_{C_t}^{-1}}\).
+
+This time, the block square-root matrix relationship isn't direct: \(U_{R_t} N_{C_t}^{-\top} N_{C_t}^{-1} U_{R_t}^\top = C_t^{-1}\). However, since the extra \(U_{R_t}\) terms are orthogonal, we are able to derive the SVD of \(C_t\) as \(U_{C_t} = U_{R_t} V_{N_{C_t}^{-1}}\) and \(S_{C_t} = D_{N_{C_t}^{-1}}^{-1}\).
+
+These quantities are computed in Listing [6](#org7278e18).
 
 <figure id="org7278e18">
 ```{.python}
@@ -284,91 +320,130 @@ y_tt = tt.specify_shape(tt.col(), [N_obs_tt, 1])
 y_tt.name = 'y_t'
 
 
-def filtering_step(y_t, m_tm1, U_C_tm1, S_C_tm1, F_t, G_t, N_W_t, U_V_t, S_V_inv_t):
+def filtering_step(y_t, m_tm1, U_C_tm1, S_C_tm1, F_t, G_t, N_W_t, N_V_t_inv):
     """Compute the sequential posterior state and prior predictive parameters."""
 
-    M_R = tt.join(0,
+    # R_t = N_R.T.dot(N_R)
+    N_R = tt.join(0,
                   matrix_dot(S_C_tm1, U_C_tm1.T, G_t.T),
                   N_W_t)
     # TODO: Consider an approach that only computes *one* set of singular
     # vectors
-    _, d_M_R, Vt_M_R = svd(M_R)
-    Vt_M_R.name = "Vt_M_R"
+    _, s_R_t, U_R_t = svd(N_R)
 
-    U_R_t, s_R_t = Vt_M_R.T, d_M_R
-    U_R_t.name = "U_R_t"
+    N_C_t = tt.join(0,
+                    matrix_dot(N_V_t_inv, F_t.T, U_R_t),
+                    tt.diag(tt_finite_inv(s_R_t)))
+    _, d_N_C_t, Vt_N_C_t = svd(N_C_t)
 
-    # R_t = M_R.T.dot(M_R) = matrix_dot(U_R_t, tt.diag(d_M_R), U_R_t.T)
-
-    # V_t_inv = N_V_t_inv.T @ N_V_t_inv
-    N_V_t_inv = S_V_inv_t.dot(U_V_t.T)
-    N_V_t_inv.name = "N_V_t_inv"
-
-    M_C = tt.join(0,
-                  matrix_dot(N_V_t_inv, F_t.T, U_R_t),
-                  tt.diag(tt_finite_inv(s_R_t)))
-    # TODO: Consider an approach that only computes *one* set of singular
-    # vectors
-    _, d_M_C, Vt_M_C = svd(M_C)
-    Vt_M_C.name = "Vt_M_C"
-
-    U_C_t, D_C_t = U_R_t.dot(Vt_M_C.T), tt.diag(tt_finite_inv(d_M_C))
-    U_C_t.name = "U_C_t"
-    D_C_t.name = "D_C_t"
+    U_C_t, D_C_t = U_R_t.dot(Vt_N_C_t.T), tt.diag(tt_finite_inv(d_N_C_t))
 
     C_t = matrix_dot(U_C_t, D_C_t, U_C_t.T)
-    C_t.name = "C_t"
 
     a_t = G_t.dot(m_tm1)
-    a_t.name = "a_t"
     f_t = F_t.T.dot(a_t)
-    f_t.name = "f_t"
     m_t = a_t + matrix_dot(C_t, F_t, N_V_t_inv.T, N_V_t_inv, y_t - f_t)
-    m_t.name = "m_t"
 
     S_C_t = tt.sqrt(D_C_t)
-    S_C_t.name = "S_C_t"
-
     S_R_t = tt.diag(s_R_t)
-    S_R_t.name = "S_R_t"
 
     return [m_t, U_C_t, S_C_t, a_t, U_R_t, S_R_t]
 
 
 U_C_0_tt, d_C_0_tt, _ = svd(C_0_tt)
 S_C_0_tt = tt.diag(tt.sqrt(d_C_0_tt))
-S_C_0_tt.name = "S_C_0_tt"
 
 U_W_tt, d_W_tt, _ = svd(W_tt)
 s_W_tt = tt.sqrt(d_W_tt)
 N_W_tt = tt.diag(s_W_tt).dot(U_W_tt.T)
-N_W_tt.name = "N_W"
 
 U_V_tt, D_V_tt, _ = svd(tt.as_tensor_variable(V_tt, ndim=2) if V_tt.ndim < 2 else V_tt)
 S_V_inv_tt = tt.diag(tt_finite_inv(tt.sqrt(D_V_tt)))
-# N_V_tt = S_V_tt.dot(U_V_tt.T)
+N_V_inv_tt = S_V_inv_tt.dot(U_V_tt.T)
 
-(m_t, U_C_t, S_C_t, a_t, U_R_t, S_R_t), filter_updates = theano.scan(fn=filtering_step,
-                                                   sequences=y_tt,
-                                                   outputs_info=[
-                                                       {"initial": m_0_tt, "taps": [-1]},
-                                                       {"initial": U_C_0_tt, "taps": [-1]},
-                                                       {"initial": S_C_0_tt, "taps": [-1]},
-                                                       {}, {}, {}  # a_t, U_R_t, S_R_t
-                                                   ],
-                                                   non_sequences=[F_tt, G_tt, N_W_tt, U_V_tt, S_V_inv_tt],
-                                                   strict=True,
-                                                   name='theta_t_obs')
+
+filter_res, filter_updates = theano.scan(fn=filtering_step,
+                                         sequences=y_tt,
+                                         outputs_info=[
+                                             {"initial": m_0_tt, "taps": [-1]},
+                                             {"initial": U_C_0_tt, "taps": [-1]},
+                                             {"initial": S_C_0_tt, "taps": [-1]},
+                                             {}, {}, {}  # a_t, U_R_t, S_R_t
+                                         ],
+                                         non_sequences=[F_tt, G_tt, N_W_tt, N_V_inv_tt],
+                                         strict=True,
+                                         name='theta_filtered')
+
+(m_t, U_C_t, S_C_t, a_t, U_R_t, S_R_t) = filter_res
 ```
 <figcaption>Listing 6</figcaption>
 </figure>
 
-TODO: Describe special manipulations behind SVD smoother.
+
+## SVD-based Smoothing
+
+We can use the ideas to produce SVD versions of the smoothing equations in \(\eqref{eq:dlm-smooth-moments}\). In this case, some extra steps are required in order to SVD-decompose \(S_t\) in the same manner as \(R_t\) and \(C_t^{-1}\) were.
+
+First, notice that our target, \(S_t\), is a difference of matrices, unlike the matrix sums that comprised \(R_t\) and \(C_t^{-1}\) above. Furthermore, \(S_t\) is given as a difference of a (transformed) difference. To address the latter, we start by expanding \(S_t\) and setting \(B_t = C_t G_{t+1}^\top R_{t+1}^{-1}\) to obtain
+
+\begin{equation}
+  \begin{aligned}
+    S_t &= C_t - B_t R_{t+1}^{-1} B_t^\top + B_t S_{t+1} B_t^\top
+      \\
+      &= H_t + B_t S_{t+1} B_t^\top
+  \end{aligned}
+  \label{eq:S_t_decomp}
+\end{equation}
+
+Having turned \(S_t\) into a sum of two terms, we can now consider another blocked SVD-based square-root reformulation, which starts with the reformulation of \(H_t\).
+
+We can use the definition of \(R_t = G_{t_1} C_t G_{t+1}^\top + W_{t+1}\) to get
+
+\begin{equation}
+H_t = C_t - B_t \left(G_{t_1} C_t G_{t+1}^\top + W_{t+1}\right)^{-1} B_t^\top
+.
+\end{equation}
+
+This form of \(H_t\) fits the Woodbury identity and results in \(H_t^{-1} = G_{t_1} W_{t+1}^{-1} G_{t+1}^\top + C_t^{-1}\), which is amenable to our square-root formulation.
+
+Specifically, \(H_t^{-1} = N_{H_t}^{-\top} N_{H_t}^{-1}\), where
+
+\begin{equation}
+  \begin{aligned}
+    N_{H_t}^{-1} &=
+      \begin{pmatrix}
+        N_{W_{t+1}}^{-1} G_{t+1}
+        \\
+        S_{C_t}^{-1} U_{C_t}
+      \end{pmatrix}
+  \end{aligned}
+  .
+  \label{eq:N_H_t_inv}
+\end{equation}
+
+From the SVD of \(N_{H_t}^{-1}\) we obtain the SVD of \(H_t\) as \(U_{H_t} = V_{N_{H_t}^{-1}}\) and \(D_{H_t} = {D_{N_{H_t}^{-1}}}^{-2} = S_{H_t}^2\).
+
+Finally, using \(\eqref{eq:S_t_decomp}\) and \(\eqref{eq:N_H_t_inv}\) we can derive the last blocked square-root decomposition \(S_t = N_{S_t}^\top N_{S_t}\):
+
+\begin{equation}
+  \begin{aligned}
+    N_{S_t} &=
+      \begin{pmatrix}
+        S_{H_t} U_{H_t}
+        \\
+        S_{C_{t+1}} U_{C_{t+1}}^\top B_t^\top
+      \end{pmatrix}
+  \end{aligned}
+  .
+  \label{eq:N_S_t}
+\end{equation}
+
+Again, we take the SVD of \(N_{S_t}\) and derive the SVD of \(S_t\) as \(U_{S_t} = V_{N_{S_t}}\) and \(D_{S_t} = D_{N_{S_t}}^2 = S_{S_t}^2\).
 
 <figure id="org874cba4">
 ```{.python}
 
-def smoother_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, m_Ttp1, U_C_Ttp1, S_C_Ttp1, G_tp1, N_W_t_inv):
+def smoother_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, s_tp1, U_S_tp1, S_S_tp1, G_tp1, N_W_tp1_inv):
     """Smooth a series starting from the "forward"/sequentially computed posterior moments."""
 
     N_C_t = S_C_t.dot(U_C_t.T)
@@ -381,27 +456,26 @@ def smoother_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, m_Ttp1, U_C_Ttp1, 
 
     S_C_t_inv = tt_finite_inv(S_C_t)
 
-    # M_H_t.T @ M_H_t = G_tp1 @ W_t_inv @ G_tp1.T + C_t_inv
-    M_H_t_inv = tt.join(0,
-                        N_W_t_inv.dot(G_tp1),
+    # N_H_t_inv.T @ N_H_t_inv = G_tp1 @ W_tp1_inv @ G_tp1.T + C_t_inv
+    N_H_t_inv = tt.join(0,
+                        N_W_tp1_inv.dot(G_tp1),
                         S_C_t_inv.dot(U_C_t.T))
-    _, d_H_t_inv, U_H_t = svd(M_H_t_inv)
+    _, s_H_t_inv, U_H_t = svd(N_H_t_inv)
 
-    # H_t = inv(M_H_t.T @ M_H_t) = C_t - B_t @ R_tp1 @ B_t.T
-    D_H_t = tt.diag(tt_finite_inv(d_H_t_inv))
+    # H_t = inv(N_H_t_inv.T @ N_H_t_inv) = C_t - B_t @ R_tp1 @ B_t.T
+    D_H_t = tt.diag(tt_finite_inv(tt.square(s_H_t_inv)))
 
-    # C_Tt = C_t - matrix_dot(B_t, R_tp1 - C_Ttp1, B_t.T)
-    # C_Tt = M_C_Ttp1.T.dot(M_C_Ttp1)
-    M_C_Tt = tt.join(0,
+    # S_t = N_S_t.T.dot(N_S_t) = C_t - matrix_dot(B_t, R_tp1 - S_tp1, B_t.T)
+    N_S_t = tt.join(0,
                      D_H_t.dot(U_H_t),
-                     matrix_dot(S_C_Ttp1, U_C_Ttp1.T, B_t.T))
-    U_C_Tt, d_C_Tt, _ = svd(M_C_Tt)
+                     matrix_dot(S_S_tp1, U_S_tp1.T, B_t.T))
+    U_S_t, d_S_t, _ = svd(N_S_t)
 
-    S_C_Tt = tt.diag(tt.sqrt(d_C_Tt))
+    S_S_t = tt.diag(d_S_t)
 
-    m_Tt = m_t + B_t.dot(m_Ttp1 - a_tp1)
+    s_t = m_t + B_t.dot(s_tp1 - a_tp1)
 
-    return [m_Tt, U_C_Tt, S_C_Tt]
+    return [s_t, U_S_t, S_S_t]
 
 
 N_W_inv_tt = tt.diag(tt_finite_inv(s_W_tt)).dot(U_W_tt.T)
@@ -411,46 +485,51 @@ U_C_T = U_C_t[-1]
 S_C_T = S_C_t[-1]
 
 # These series only go from N_obs - 1 to 1
-(m_Tt_rev, U_C_Tt_rev, S_C_Tt_rev), _ = theano.scan(fn=smoother_step,
-                                                    sequences=[
-                                                        {"input": m_t, "taps": [-1]},
-                                                        {"input": U_C_t, "taps": [-1]},
-                                                        {"input": S_C_t, "taps": [-1]},
-                                                        {"input": a_t, "taps": [1]},
-                                                        {"input": U_R_t, "taps": [1]},
-                                                        {"input": S_R_t, "taps": [1]}
-                                                    ],
-                                                    outputs_info=[
-                                                        {"initial": m_T, "taps": [-1]},
-                                                        {"initial": U_C_T, "taps": [-1]},
-                                                        {"initial": S_C_T, "taps": [-1]},
-                                                    ],
-                                                    non_sequences=[G_tt, N_W_inv_tt],
-                                                    go_backwards=True,
-                                                    strict=True,
-                                                    name='theta_Tt_obs')
+smoother_res, _ = theano.scan(fn=smoother_step,
+                              sequences=[
+                                  {"input": m_t, "taps": [-1]},
+                                  {"input": U_C_t, "taps": [-1]},
+                                  {"input": S_C_t, "taps": [-1]},
+                                  {"input": a_t, "taps": [1]},
+                                  {"input": U_R_t, "taps": [1]},
+                                  {"input": S_R_t, "taps": [1]}
+                              ],
+                              outputs_info=[
+                                  {"initial": m_T, "taps": [-1]},
+                                  {"initial": U_C_T, "taps": [-1]},
+                                  {"initial": S_C_T, "taps": [-1]},
+                              ],
+                              non_sequences=[G_tt, N_W_inv_tt],
+                              go_backwards=True,
+                              strict=True,
+                              name='theta_smoothed_obs')
 
-m_Tt = m_Tt_rev[::-1]
-U_C_Tt = U_C_Tt_rev[::-1]
-S_C_Tt = S_C_Tt_rev[::-1]
+(s_t_rev, U_S_t_rev, S_S_t_rev) = smoother_res
 
-m_Tt = tt.join(0, m_Tt, [m_T])
-U_C_Tt = tt.join(0, U_C_Tt, [U_C_T])
-S_C_Tt = tt.join(0, S_C_Tt, [S_C_T])
+s_t = s_t_rev[::-1]
+U_S_t = U_S_t_rev[::-1]
+S_S_t = S_S_t_rev[::-1]
+
+s_t = tt.join(0, s_t, [m_T])
+U_S_t = tt.join(0, U_S_t, [U_C_T])
+S_S_t = tt.join(0, S_S_t, [S_C_T])
 ```
 <figcaption>Listing 7</figcaption>
 </figure>
+
+
+## Example
 
 Listing [8](#orgad4c1a3) computes the filtered and smoothed means for our simulated series, and Figure [9](#org50d26f8) shows the results.
 
 <figure id="orgad4c1a3">
 ```{.python}
 filter_smooth_dlm = tt_function([y_tt, N_theta_tt, G_tt, F_tt],
-                                [m_t, m_Tt],
+                                [m_t, s_t],
                                 # mode=theano.compile.mode.FAST_COMPILE
                                 )
 
-m_t_sim, m_Tt_sim = filter_smooth_dlm(y_sim, dlm_sim_values[N_theta_tt], dlm_sim_values[G_tt], dlm_sim_values[F_tt])
+m_t_sim, s_t_sim = filter_smooth_dlm(y_sim, dlm_sim_values[N_theta_tt], dlm_sim_values[G_tt], dlm_sim_values[F_tt])
 ```
 <figcaption>Listing 8</figcaption>
 </figure>
@@ -466,52 +545,49 @@ fig, ax = plt.subplots(figsize=(8, 4.8))
 ax.set_prop_cycle(bivariate_cycler)
 ax.plot(theta_t_sim, label=r'$\theta_t$', linewidth=0.8)
 ax.plot(m_t_sim, label=r'$E[\theta_t \mid D_{t}]$', alpha=0.7, linewidth=0.8)
-ax.plot(m_Tt_sim, label=r'$E[\theta_t \mid D_{T}]$', alpha=0.7, linewidth=0.8)
+ax.plot(s_t_sim, label=r'$E[\theta_t \mid D_{T}]$', alpha=0.7, linewidth=0.8)
 plt.legend(framealpha=0.4)
 plt.tight_layout()
 ```
 <figcaption>Listing 9</figcaption>
 </figure>
 
-<figure id="nil" class="plot"> ![ \label{nil}]({attach}/articles/figures/svd-steps-sim-plot.png) <figcaption></figcaption> </figure>
+<figure id="nil" class="plot"> ![Filtered and smoothed \(\theta_t\)&#x2013;against the true \(\theta_t\)&#x2013;computed using the SVD approach. \label{nil}]({attach}/articles/figures/svd-steps-sim-plot.png) <figcaption>Filtered and smoothed \(\theta_t\)&#x2013;against the true \(\theta_t\)&#x2013;computed using the SVD approach.</figcaption> </figure>
 
 
-# Forward-backward Estimation
+# Forward-filtering Backward-sampling
 
-We can use the smoothing and filtering steps in the previous section to perform a more efficient MCMC estimation than would otherwise be possible without the implicit Rao-Blackwellization.
+We can use the smoothing and filtering steps in the previous section to perform more efficient MCMC estimation than would otherwise be possible without the Rao-Blackwellization inherent to both steps.
 
 Forward-filtering backward-sampling <a id="66fb99775f308e808a193bd7bb2d2038"><a href="#Fruhwirth-SchnatterDataaugmentationdynamic1994">(Fr\uhwirth-Schnatter 1994)</a></a> works by first computing the forward filtered moments, allowing one to draw \(\theta_T\) from \( \left(\theta_T \mid D_T\right) \sim \operatorname{N}\left(m_T, C_T\right) \) and, subsequently, \(\theta_t\) from \(\left(\theta_t \mid \theta_{t+1}, D_T \right) \sim \operatorname{N}\left(h_t, H_t\right)\).
 
-The latter distribution's moments are essentially a result of smoothing:
+The latter distribution's moments are easily derived from the filtered and smoothed moments:
 
-\begin{gather}
-  B_t = C_t G^\top_{t+1} R_{t+1}^{-1}
-  \\
-  h_t = m_t + B_t \left(\theta_{t+1} - a_{t+1}\right)
-  \\
-  H_t = C_t - B_t R_{t+1} B^\top_t
-\end{gather}
+\begin{equation}
+  \begin{gathered}
+    h_t = m_t + B_t \left(\theta_{t+1} - a_{t+1}\right)
+    \\
+    H_t = C_t - B_t R_{t+1} B^\top_t
+  \end{gathered}
+  \label{eq:ffbs-moments}
+\end{equation}
 
-TODO: Describe SVD formulation.
+Since all the quantities in \(\eqref{eq:ffbs-moments}\) appear in the filtering and smoothing moments, we can use the SVD-based approach described earlier to perform the updates and sampling. We reproduce the relevant subset of calculations in Listing [10](#org92c224d).
 
-<figure>
+<figure id="org92c224d">
 ```{.python}
-def ffbs_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, theta_tp1, F_tp1, G_tp1, N_W_t_inv, rng):
+def ffbs_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, theta_tp1, F_tp1, G_tp1, N_W_tp1_inv, rng):
     """Perform forward-filtering backward-sampling."""
 
     S_C_t_inv = tt_finite_inv(S_C_t)
 
-    # M_H_t.T @ M_H_t = G_tp1 @ W_t_inv @ G_tp1.T + C_t_inv
-    M_H_t_inv = tt.join(0,
-                        N_W_t_inv.dot(G_tp1),
+    # H_t_inv = N_H_t_inv.T @ N_H_t_inv = G_tp1 @ W_tp1_inv @ G_tp1.T + C_t_inv
+    N_H_t_inv = tt.join(0,
+                        N_W_tp1_inv.dot(G_tp1),
                         S_C_t_inv.dot(U_C_t.T))
-    _, d_H_t_inv, U_H_t = svd(M_H_t_inv)
+    _, s_H_t_inv, U_H_t = svd(N_H_t_inv)
 
-    # H_t = inv(M_H_t.T @ M_H_t) = C_t - B_t @ R_tp1 @ B_t.T
-    D_H_t = tt.diag(tt_finite_inv(d_H_t_inv))
-
-    # H_t = matrix_dot(U_H_t, D_H_t, U_H_t.T)
-    # H_t.name = "H_t"
+    D_H_t = tt.diag(tt_finite_inv(tt.square(s_H_t_inv)))
 
     N_C_t = S_C_t.dot(U_C_t.T)
 
@@ -524,12 +600,13 @@ def ffbs_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, theta_tp1, F_tp1, G_tp
     h_t = m_t + B_t.dot(theta_tp1 - a_tp1)
     h_t.name = 'h_t'
 
+    # TODO: Add an option or optimization to use the SVD to sample in
+    # `MvNormalRV`.
     # theta_t = MvNormalRV(h_t, H_t, rng=rng, name='theta_t_ffbs')
     theta_t = h_t + matrix_dot(U_H_t, tt.sqrt(D_H_t),
                                MvNormalRV(tt.zeros_like(h_t),
                                           tt.eye(h_t.shape[0]),
-                                          rng=rng)
-                               )
+                                          rng=rng))
 
     # These are statistics we're gathering for other posterior updates
     theta_tp1_diff = theta_tp1 - G_tp1.dot(theta_t)
@@ -571,58 +648,77 @@ f_t_post = tt.join(0, f_t_rev[::-1], [F_tt.T.dot(theta_T_post)])
 
 theta_t_diff_rev = tt.join(0, theta_t_diff_rev, [theta_t_post[-1] - G_tt.dot(theta_0_rv)])
 ```
+<figcaption>Listing 10</figcaption>
 </figure>
 
-<figure>
+
+## Example
+
+Quantities besides the state values, \(\theta_t\), can be sampled sequentially (i.e. within the function `ffbs_step` in Listing [10](#org92c224d)), or after FFBS when all \(\theta_t \mid D_T\) have been sampled. These quantities can use the conditionally normal form of \(\left(\theta_t \mid \theta_{t+1}, D_T \right)\) to derive Gibbs steps, further Rao-Blackwellize hierarchical quantities, or apply any other means of producing posterior samples conditional on \(\left(\theta_t \mid \theta_{t+1}, D_T \right)\).
+
+In this example, we will augment our original model by adding the classic gamma priors to our previously fixed state and observation scale parameters, \(\phi_W\) and \(\phi_V\), respectively.
+
+This classical conjugate prior allows one to derive simple closed-form posteriors for a Gibbs sampler conditional on \(\theta_t \mid D_T\). Those posterior computations are defined in Listing [11](#org52662b2) and used to update the shared Theano variables for \(\phi_W\) and \(\phi_V\) within a Gibbs sampling loop in Listing [12](#org66be288).
+
+<figure id="org52662b2">
 ```{.python}
-# E[nu[0]] = 2.0, Var[nu[0]] = 10.0
-# E[nu[1]] = 5.0, Var[nu[1]] = 5.0
-a_nu, b_nu = np.r_[2.0**2 / 10.0, 5.0**2 / 5.0], np.r_[2.0 / 10.0, 5.00 / 5.0]
+# E[phi_W[0]] = 2.0, Var[phi_W[0]] = 50.0
+# E[phi_W[1]] = 5.0, Var[phi_W[1]] = 50.0
+phi_W_a, phi_W_b = np.r_[2.0**2 / 50.0, 5.0**2 / 50.0], np.r_[2.0 / 50.0, 5.00 / 50.0]
 
-a_eps, b_eps = 0.5, 1.0
+phi_V_a, phi_V_b = 0.5, 1.0
 
-nu_post_tt = GammaRV(a_nu + N_obs_tt * 0.5,
-                     b_nu + 0.5 * tt.square(theta_t_diff_rev).sum(0),
-                     rng=rng_tt, name='nu_post')
+phi_W_post_tt = GammaRV(phi_W_a + N_obs_tt * 0.5,
+                        phi_W_b + 0.5 * tt.square(theta_t_diff_rev).sum(0),
+                        rng=rng_tt, name='phi_W_post')
 
-eps_post_tt = GammaRV(a_eps + N_obs_tt * 0.5,
-                      b_eps + 0.5 * tt.square(y_tt - f_t_post).sum(),
-                      rng=rng_tt, name='eps_post')
+phi_V_post_tt = GammaRV(phi_V_a + N_obs_tt * 0.5,
+                        phi_V_b + 0.5 * tt.square(y_tt - f_t_post).sum(),
+                        rng=rng_tt, name='phi_V_post')
 ```
+<figcaption>Listing 11</figcaption>
 </figure>
 
-<figure>
+<figure id="org66be288">
 ```{.python}
 ffbs_dlm = tt_function([y_tt, N_obs_tt, N_theta_tt, G_tt, F_tt],
-                       [theta_t_post, nu_post_tt, eps_post_tt],
+                       [theta_t_post, phi_W_post_tt, phi_V_post_tt],
                        updates=ffbs_updates)
 
-nu_scale_tt.set_value(np.random.gamma(a_nu, scale=1.0/b_nu))
-eps_scale_tt.set_value(np.random.gamma(a_eps, scale=1.0/b_eps))
+phi_W_tt.set_value(np.random.gamma(phi_W_a, scale=1.0/phi_W_b))
+phi_V_tt.set_value(np.random.gamma(phi_V_a, scale=1.0/phi_V_b))
 
 chain = 0
-posterior_samples = {'theta': [[]], 'nu': [[]], 'eps': [[]]}
+theta_label = r'$\theta_t \mid D_T$'
+phi_W_label = r'$\phi_W \mid D_T$'
+phi_V_label = r'$\phi_V \mid D_T$'
+posterior_samples = {theta_label: [[]], phi_W_label: [[]], phi_V_label: [[]]}
 
 for i in range(1000):
 
-    theta_t_post_sim, nu_post_sim, eps_post_sim, nu_a, nu_b, eps_a, eps_b = ffbs_dlm(
-        y_sim, dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt], dlm_sim_values[G_tt], dlm_sim_values[F_tt])
+    theta_t_post_sim, phi_W_post_sim, phi_V_post_sim = ffbs_dlm(
+        y_sim,
+        dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt],
+        dlm_sim_values[G_tt], dlm_sim_values[F_tt])
 
     # Update variance scale parameters
-    nu_scale_tt.set_value(nu_post_sim)
-    eps_scale_tt.set_value(eps_post_sim)
+    phi_W_tt.set_value(phi_W_post_sim)
+    phi_V_tt.set_value(phi_V_post_sim)
 
-    posterior_samples['theta'][chain].append(theta_t_post_sim)
-    posterior_samples['nu'][chain].append(nu_post_sim)
-    posterior_samples['eps'][chain].append(eps_post_sim)
+    posterior_samples[theta_label][chain].append(theta_t_post_sim)
+    posterior_samples[phi_W_label][chain].append(phi_W_post_sim)
+    posterior_samples[phi_V_label][chain].append(phi_V_post_sim)
 
-    print(f'i={i},\tnu={nu_post_sim},\teps={eps_post_sim}')
+    print(f'i={i},\tphi_W={phi_W_post_sim},\tphi_V={phi_V_post_sim}')
 
 posterior_samples = {k: np.asarray(v) for k,v in posterior_samples.items()}
 ```
+<figcaption>Listing 12</figcaption>
 </figure>
 
-<figure>
+Figure [13](#orge22cb90) shows the posterior \(\theta_t\) samples and Figure [14](#org9a3f957) plots the posterior sample traces.
+
+<figure id="orge22cb90">
 ```{.python}
 from cycler import cycler
 from matplotlib.collections import LineCollection
@@ -636,14 +732,14 @@ ax.autoscale(enable=False)
 # bivariate_cycler =  cycler('linestyle', ['-', '--']) * plt_orig_cycler
 # ax.set_prop_cycle(bivariate_cycler)
 
-thetas_shape = posterior_samples['theta'][0].shape
+thetas_shape = posterior_samples[theta_label][0].shape
 
 cycle = ax._get_lines.prop_cycler
 
 for d in range(thetas_shape[-1]):
 
     styles = next(cycle)
-    thetas = posterior_samples['theta'][0].T[d].T
+    thetas = posterior_samples[theta_label][0].T[d].T
 
     theta_lines = np.empty(thetas_shape[:-1] + (2,))
     theta_lines.T[0] = np.tile(np.arange(thetas_shape[-2]), [thetas_shape[-3], 1]).T
@@ -651,7 +747,7 @@ for d in range(thetas_shape[-1]):
 
     ax.add_collection(
         LineCollection(theta_lines,
-                       label=r'$\theta_t \mid D_{T}$',
+                       label=theta_label,
                        alpha=0.3, linewidth=0.9,
                        **styles)
     )
@@ -667,25 +763,27 @@ plt.tight_layout()
 
 plt.legend(framealpha=0.4)
 ```
+<figcaption>Listing 13</figcaption>
 </figure>
 
-<figure id="nil" class="plot"> ![ \label{nil}]({attach}/articles/figures/ffbs-sim-plot.png) <figcaption></figcaption> </figure>
+<figure id="nil" class="plot"> ![Posterior \(\theta_t\) samples generated by a FFBS-based Gibbs sampler. \label{nil}]({attach}/articles/figures/ffbs-sim-plot.png) <figcaption>Posterior \(\theta_t\) samples generated by a FFBS-based Gibbs sampler.</figcaption> </figure>
 
-<figure>
+<figure id="org9a3f957">
 ```{.python}
 import arviz as az
 
 az_trace = az.from_dict(posterior=posterior_samples)
 az.plot_trace(az_trace, compact=True)
 ```
+<figcaption>Listing 14</figcaption>
 </figure>
 
-<figure id="nil" class="plot"> ![ \label{nil}]({attach}/articles/figures/ffbs-trace-plot.png) <figcaption></figcaption> </figure>
+<figure id="nil" class="plot"> ![Posterior sample traces for the FFBS-based Gibbs sampler. \label{nil}]({attach}/articles/figures/ffbs-trace-plot.png) <figcaption>Posterior sample traces for the FFBS-based Gibbs sampler.</figcaption> </figure>
 
 
 # Discussion
 
-So far, we've only shown how to perform FFBS for DLMs in Theano.
+So far, we've only shown how to perform FFBS for DLMs in Theano&#x2026;
 
 # Bibliography
 <a id="harrison_bayesian_1999"></a> Harrison & West, Bayesian Forecasting & Dynamic Models, Springer (1999). [↩](#4bbd465b4e78e5c5151b0cbba54d984e)
