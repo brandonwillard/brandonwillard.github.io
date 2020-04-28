@@ -233,11 +233,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li><a href="#org08e8015">SVD-based Filtering</a></li>
 <li><a href="#org7c52007">SVD-based Smoothing</a></li>
-<li><a href="#org609f7fb">Example</a></li>
+<li><a href="#org53c3560">Example</a></li>
 </ul></li>
 <li><a href="#org2506633">Forward-filtering Backward-sampling</a>
 <ul>
-<li><a href="#org5c334d6">Example</a></li>
+<li><a href="#org1b74881">Example</a></li>
 </ul></li>
 <li><a href="#org17ed174">Non-Gaussian Example</a>
 <ul>
@@ -692,7 +692,7 @@ H_t = C_t - B_t \left(G_{t_1} C_t G_{t+1}^\top + W_{t+1}\right)^{-1} B_t^\top
 Listing 7
 </figcaption>
 </figure>
-<p><a id="org609f7fb"></a></p>
+<p><a id="org53c3560"></a></p>
 </section>
 <section id="example" class="level2">
 <h2>Example</h2>
@@ -825,7 +825,7 @@ Filtered and smoothed <span class="math inline">\(\theta_t\)</span>–against th
 Listing 10
 </figcaption>
 </figure>
-<p><a id="org5c334d6"></a></p>
+<p><a id="org1b74881"></a></p>
 <section id="example-1" class="level2">
 <h2>Example</h2>
 <p>Quantities besides the state values, <span class="math inline">\(\theta_t\)</span>, can be sampled sequentially (i.e. within the function <code>ffbs_step</code> in Listing <a href="#org92c224d">10</a>), or after FFBS when all <span class="math inline">\(\theta_t \mid D_T\)</span> have been sampled. These quantities can use the conditionally normal form of <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span> to derive Gibbs steps, further Rao-Blackwellize hierarchical quantities, or apply any other means of producing posterior samples conditional on <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span>.</p>
@@ -1013,7 +1013,7 @@ Posterior sample traces for the FFBS-based Gibbs sampler.
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(\kappa = a - b / 2\)</span> and <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(b, 0\right)\)</span>.</p>
 <p>When the normal scale-mixture identity of <span class="math inline">\(\eqref{eq:pg-identity}\)</span> is applied to our observation model in <span class="math inline">\(\eqref{eq:nb-pmf}\)</span>, <span class="math inline">\(a = y_t\)</span>, <span class="math inline">\(b = r + y_t\)</span>, and <span class="math inline">\(\psi = \eta_t - \log r\)</span>.</p>
-<p>From scale mixture formulation we obtain the following augmented joint observation model density:</p>
+<p>From the scale mixture formulation, we obtain the following augmented joint observation model density:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
     \operatorname{p}(\omega, \beta_t \mid y_t, r, D_{t-1}) &amp;\propto
