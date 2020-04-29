@@ -233,11 +233,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li><a href="#org08e8015">SVD-based Filtering</a></li>
 <li><a href="#org7c52007">SVD-based Smoothing</a></li>
-<li><a href="#org7119838">Example</a></li>
+<li><a href="#orgcd8b8b9">Example</a></li>
 </ul></li>
 <li><a href="#org2506633">Forward-filtering Backward-sampling</a>
 <ul>
-<li><a href="#org5e0df40">Example</a></li>
+<li><a href="#org0eaa916">Example</a></li>
 </ul></li>
 <li><a href="#org17ed174">Non-Gaussian Example</a>
 <ul>
@@ -319,34 +319,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb2-30" data-line-number="30">V_tt.name <span class="op">=</span> <span class="st">&quot;V_t&quot;</span></a>
 <a class="sourceLine" id="cb2-31" data-line-number="31"></a>
 <a class="sourceLine" id="cb2-32" data-line-number="32"><span class="kw">def</span> state_step(theta_tm1, G_t, W_t, N_theta, rng):</a>
-<a class="sourceLine" id="cb2-33" data-line-number="33">    nu_rv <span class="op">=</span> MvNormalRV(tt.zeros([N_theta]),</a>
-<a class="sourceLine" id="cb2-34" data-line-number="34">                       W_t,</a>
-<a class="sourceLine" id="cb2-35" data-line-number="35">                       rng<span class="op">=</span>rng,</a>
-<a class="sourceLine" id="cb2-36" data-line-number="36">                       name<span class="op">=</span><span class="st">&#39;nu&#39;</span>)</a>
-<a class="sourceLine" id="cb2-37" data-line-number="37">    theta_t <span class="op">=</span> G_t.dot(theta_tm1) <span class="op">+</span> nu_rv</a>
-<a class="sourceLine" id="cb2-38" data-line-number="38">    <span class="cf">return</span> theta_t</a>
-<a class="sourceLine" id="cb2-39" data-line-number="39"></a>
-<a class="sourceLine" id="cb2-40" data-line-number="40"></a>
-<a class="sourceLine" id="cb2-41" data-line-number="41">theta_t_rv, theta_t_updates <span class="op">=</span> theano.scan(fn<span class="op">=</span>state_step,</a>
-<a class="sourceLine" id="cb2-42" data-line-number="42">                                          outputs_info<span class="op">=</span>{<span class="st">&quot;initial&quot;</span>: theta_0_rv, <span class="st">&quot;taps&quot;</span>: [<span class="op">-</span><span class="dv">1</span>]},</a>
-<a class="sourceLine" id="cb2-43" data-line-number="43">                                          non_sequences<span class="op">=</span>[G_tt, W_tt, N_theta_tt, rng_tt],</a>
-<a class="sourceLine" id="cb2-44" data-line-number="44">                                          n_steps<span class="op">=</span>N_obs_tt,</a>
-<a class="sourceLine" id="cb2-45" data-line-number="45">                                          strict<span class="op">=</span><span class="va">True</span>,</a>
-<a class="sourceLine" id="cb2-46" data-line-number="46">                                          name<span class="op">=</span><span class="st">&#39;theta_t&#39;</span>)</a>
-<a class="sourceLine" id="cb2-47" data-line-number="47"></a>
-<a class="sourceLine" id="cb2-48" data-line-number="48"><span class="kw">def</span> obs_step(theta_t, F_t, V_t, rng):</a>
-<a class="sourceLine" id="cb2-49" data-line-number="49">    eps_rv <span class="op">=</span> NormalRV(<span class="fl">0.0</span>, V_t,</a>
-<a class="sourceLine" id="cb2-50" data-line-number="50">                      rng<span class="op">=</span>rng,</a>
-<a class="sourceLine" id="cb2-51" data-line-number="51">                      name<span class="op">=</span><span class="st">&#39;eps&#39;</span>)</a>
-<a class="sourceLine" id="cb2-52" data-line-number="52">    y_t <span class="op">=</span> F_t.T.dot(theta_t) <span class="op">+</span> eps_rv</a>
-<a class="sourceLine" id="cb2-53" data-line-number="53">    <span class="cf">return</span> y_t</a>
-<a class="sourceLine" id="cb2-54" data-line-number="54"></a>
-<a class="sourceLine" id="cb2-55" data-line-number="55"></a>
-<a class="sourceLine" id="cb2-56" data-line-number="56">Y_t_rv, Y_t_updates <span class="op">=</span> theano.scan(fn<span class="op">=</span>obs_step,</a>
-<a class="sourceLine" id="cb2-57" data-line-number="57">                                  sequences<span class="op">=</span>[theta_t_rv],</a>
-<a class="sourceLine" id="cb2-58" data-line-number="58">                                  non_sequences<span class="op">=</span>[F_tt, V_tt, rng_tt],</a>
-<a class="sourceLine" id="cb2-59" data-line-number="59">                                  strict<span class="op">=</span><span class="va">True</span>,</a>
-<a class="sourceLine" id="cb2-60" data-line-number="60">                                  name<span class="op">=</span><span class="st">&#39;Y_t&#39;</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb2-33" data-line-number="33">    nu_rv <span class="op">=</span> MvNormalRV(tt.zeros([N_theta]), W_t, rng<span class="op">=</span>rng, name<span class="op">=</span><span class="st">&#39;nu&#39;</span>)</a>
+<a class="sourceLine" id="cb2-34" data-line-number="34">    theta_t <span class="op">=</span> G_t.dot(theta_tm1) <span class="op">+</span> nu_rv</a>
+<a class="sourceLine" id="cb2-35" data-line-number="35">    <span class="cf">return</span> theta_t</a>
+<a class="sourceLine" id="cb2-36" data-line-number="36"></a>
+<a class="sourceLine" id="cb2-37" data-line-number="37"></a>
+<a class="sourceLine" id="cb2-38" data-line-number="38">theta_t_rv, theta_t_updates <span class="op">=</span> theano.scan(fn<span class="op">=</span>state_step,</a>
+<a class="sourceLine" id="cb2-39" data-line-number="39">                                          outputs_info<span class="op">=</span>{<span class="st">&quot;initial&quot;</span>: theta_0_rv, <span class="st">&quot;taps&quot;</span>: [<span class="op">-</span><span class="dv">1</span>]},</a>
+<a class="sourceLine" id="cb2-40" data-line-number="40">                                          non_sequences<span class="op">=</span>[G_tt, W_tt, N_theta_tt, rng_tt],</a>
+<a class="sourceLine" id="cb2-41" data-line-number="41">                                          n_steps<span class="op">=</span>N_obs_tt,</a>
+<a class="sourceLine" id="cb2-42" data-line-number="42">                                          strict<span class="op">=</span><span class="va">True</span>,</a>
+<a class="sourceLine" id="cb2-43" data-line-number="43">                                          name<span class="op">=</span><span class="st">&#39;theta_t&#39;</span>)</a>
+<a class="sourceLine" id="cb2-44" data-line-number="44"></a>
+<a class="sourceLine" id="cb2-45" data-line-number="45"><span class="kw">def</span> obs_step(theta_t, F_t, V_t, rng):</a>
+<a class="sourceLine" id="cb2-46" data-line-number="46">    eps_rv <span class="op">=</span> NormalRV(<span class="fl">0.0</span>, tt.sqrt(V_t), rng<span class="op">=</span>rng, name<span class="op">=</span><span class="st">&#39;eps&#39;</span>)</a>
+<a class="sourceLine" id="cb2-47" data-line-number="47">    y_t <span class="op">=</span> F_t.T.dot(theta_t) <span class="op">+</span> eps_rv</a>
+<a class="sourceLine" id="cb2-48" data-line-number="48">    <span class="cf">return</span> y_t</a>
+<a class="sourceLine" id="cb2-49" data-line-number="49"></a>
+<a class="sourceLine" id="cb2-50" data-line-number="50"></a>
+<a class="sourceLine" id="cb2-51" data-line-number="51">Y_t_rv, Y_t_updates <span class="op">=</span> theano.scan(fn<span class="op">=</span>obs_step,</a>
+<a class="sourceLine" id="cb2-52" data-line-number="52">                                  sequences<span class="op">=</span>[theta_t_rv],</a>
+<a class="sourceLine" id="cb2-53" data-line-number="53">                                  non_sequences<span class="op">=</span>[F_tt, V_tt, rng_tt],</a>
+<a class="sourceLine" id="cb2-54" data-line-number="54">                                  strict<span class="op">=</span><span class="va">True</span>,</a>
+<a class="sourceLine" id="cb2-55" data-line-number="55">                                  name<span class="op">=</span><span class="st">&#39;Y_t&#39;</span>)</a></code></pre></div>
 <figcaption>
 Listing 2
 </figcaption>
@@ -701,7 +696,7 @@ H_t = C_t - B_t \left(G_{t_1} C_t G_{t+1}^\top + W_{t+1}\right)^{-1} B_t^\top
 Listing 7
 </figcaption>
 </figure>
-<p><a id="org7119838"></a></p>
+<p><a id="orgcd8b8b9"></a></p>
 </section>
 <section id="example" class="level2">
 <h2>Example</h2>
@@ -834,7 +829,7 @@ Filtered and smoothed <span class="math inline">\(\theta_t\)</span>–against th
 Listing 10
 </figcaption>
 </figure>
-<p><a id="org5e0df40"></a></p>
+<p><a id="org0eaa916"></a></p>
 <section id="example-1" class="level2">
 <h2>Example</h2>
 <p>Quantities besides the state values, <span class="math inline">\(\theta_t\)</span>, can be sampled sequentially (i.e. within the function <code>ffbs_step</code> in Listing <a href="#org92c224d">10</a>), or after FFBS when all <span class="math inline">\(\theta_t \mid D_T\)</span> have been sampled. These quantities can use the conditionally normal form of <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span> to derive Gibbs steps, further Rao-Blackwellize hierarchical quantities, or apply any other means of producing posterior samples conditional on <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span>.</p>
@@ -1021,18 +1016,18 @@ Posterior sample traces for the FFBS-based Gibbs sampler.
 <p>From the scale mixture formulation, we obtain the following augmented joint observation model density:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
-    \operatorname{p}(\beta_t \mid \omega, y_t, r, D_{t-1}) &amp;\propto
-    \exp\left(-\frac{\omega}{2} \left( F_t^\top \beta_t - \left( \log r + \frac{y_t - r}{2 \omega} \right) \right)^2 \right)
+    \operatorname{p}(\theta_t \mid \omega, y_t, r, D_{t-1}) &amp;\propto
+    \exp\left(-\frac{\omega}{2} \left( F_t^\top \theta_t - \left( \log r + \frac{y_t - r}{2 \omega} \right) \right)^2 \right)
     \\
     &amp;=
-    e^{-\frac{\omega}{2} \left(y^*_t - F_t^\top \beta_t \right)^2}
+    e^{-\frac{\omega}{2} \left(y^*_t - F_t^\top \theta_t \right)^2}
     \\
-    &amp;= \operatorname{p}\left( y^*_t \mid F_t^\top \beta_t, \omega^{-1/2} \right)
+    &amp;\propto \operatorname{p}\left( y^*_t \mid F_t^\top \theta_t, \omega^{-1} \right)
   \end{aligned}
 \label{eq:nb-aug-obs}
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(y^*_t = \log r + \frac{y_t - r}{2 \omega}\)</span>.</p>
-<p>The density of our “virtual” observations, <span class="math inline">\(y^*_t\)</span>, takes the form of a normal distribution, which fits nicely into our DLM framework. All that’s needed to incorporate this scale-mixture augmentation to our FFBS sampler is a step that samples <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \beta_t - \log r \right)\)</span>.</p>
+<p>The density of our “virtual” observations, <span class="math inline">\(y^*_t\)</span>, takes the form of a normal distribution, which fits nicely into our DLM framework. All that’s needed to incorporate this scale-mixture augmentation to our FFBS sampler is a step that samples <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)</span>.</p>
 <p><a id="orgc28bbe8"></a></p>
 <section id="simulation" class="level2">
 <h2>Simulation</h2>
