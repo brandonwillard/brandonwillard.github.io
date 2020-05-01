@@ -116,7 +116,7 @@ Brandon T. Willard            </a>
     </span>
           <span class="label label-default">Modified</span>
             <span class="modified">
-                <i class="fa fa-calendar"></i><time datetime="2020-04-30T00:00:00-05:00"> Thu 30 April 2020</time>
+                <i class="fa fa-calendar"></i><time datetime="2020-05-01T00:00:00-05:00"> Fri 01 May 2020</time>
             </span>
 
 
@@ -233,11 +233,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li><a href="#org08e8015">SVD-based Filtering</a></li>
 <li><a href="#org7c52007">SVD-based Smoothing</a></li>
-<li><a href="#org13c6d93">Example</a></li>
+<li><a href="#org420a7c1">Example</a></li>
 </ul></li>
 <li><a href="#org2506633">Forward-filtering Backward-sampling</a>
 <ul>
-<li><a href="#org420a7c1">Example</a></li>
+<li><a href="#org261e60b">Example</a></li>
 </ul></li>
 <li><a href="#org17ed174">Non-Gaussian Example</a>
 <ul>
@@ -730,7 +730,7 @@ Listing 6
 Listing 7
 </figcaption>
 </figure>
-<p><a id="org13c6d93"></a></p>
+<p><a id="org420a7c1"></a></p>
 </section>
 <section id="example" class="level2">
 <h2>Example</h2>
@@ -871,7 +871,7 @@ Filtered and smoothed <span class="math inline">\(\theta_t\)</span>–against th
 Listing 10
 </figcaption>
 </figure>
-<p><a id="org420a7c1"></a></p>
+<p><a id="org261e60b"></a></p>
 <section id="example-1" class="level2">
 <h2>Example</h2>
 <p>Quantities besides the state values, <span class="math inline">\(\theta_t\)</span>, can be sampled sequentially (i.e. within the function <code>ffbs_step</code> in Listing <a href="#org92c224d">10</a>), or after FFBS when all <span class="math inline">\(\theta_t \mid D_T\)</span> have been sampled. These quantities can use the conditionally normal form of <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span> to derive Gibbs steps, further Rao-Blackwellize hierarchical quantities, or apply any other means of producing posterior samples conditional on <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span>.</p>
@@ -893,9 +893,8 @@ Listing 10
 <a class="sourceLine" id="cb11-13" data-line-number="13"></a>
 <a class="sourceLine" id="cb11-14" data-line-number="14">ffbs_dlm <span class="op">=</span> tt_function([y_tt, N_obs_tt, N_theta_tt, G_tt, F_tt],</a>
 <a class="sourceLine" id="cb11-15" data-line-number="15">                       [theta_t_post, phi_W_post_tt, phi_V_post_tt,</a>
-<a class="sourceLine" id="cb11-16" data-line-number="16">                        phi_W_SS_tt, phi_V_SS_tt,</a>
-<a class="sourceLine" id="cb11-17" data-line-number="17">                        s_H_t_rev[::<span class="op">-</span><span class="dv">1</span>], U_H_t_rev[::<span class="op">-</span><span class="dv">1</span>], B_t_rev[::<span class="op">-</span><span class="dv">1</span>], a_t],</a>
-<a class="sourceLine" id="cb11-18" data-line-number="18">                       updates<span class="op">=</span>ffbs_updates)</a></code></pre></div>
+<a class="sourceLine" id="cb11-16" data-line-number="16">                        phi_W_SS_tt, phi_V_SS_tt],</a>
+<a class="sourceLine" id="cb11-17" data-line-number="17">                       updates<span class="op">=</span>ffbs_updates)</a></code></pre></div>
 <figcaption>
 Listing 11
 </figcaption>
@@ -918,25 +917,22 @@ Listing 11
 <a class="sourceLine" id="cb12-15" data-line-number="15"></a>
 <a class="sourceLine" id="cb12-16" data-line-number="16"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
 <a class="sourceLine" id="cb12-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb12-18" data-line-number="18">    theta_t_post_sim, phi_W_post_sim, phi_V_post_sim, phi_W_SS_sim, phi_V_SS_sim, s_H_t_sim, U_H_t_sim, B_t_sim, a_t_sim <span class="op">=</span> ffbs_dlm(</a>
+<a class="sourceLine" id="cb12-18" data-line-number="18">    theta_t_post_sim, phi_W_post_sim, phi_V_post_sim, phi_W_SS_sim, phi_V_SS_sim <span class="op">=</span> ffbs_dlm(</a>
 <a class="sourceLine" id="cb12-19" data-line-number="19">        y_sim,</a>
 <a class="sourceLine" id="cb12-20" data-line-number="20">        dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt],</a>
 <a class="sourceLine" id="cb12-21" data-line-number="21">        dlm_sim_values[G_tt], dlm_sim_values[F_tt])</a>
 <a class="sourceLine" id="cb12-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb12-23" data-line-number="23">    <span class="co"># np.square(y_sim - dlm_sim_values[F_tt].T.dot( theta_t_post_sim.T).T).sum()</span></a>
-<a class="sourceLine" id="cb12-24" data-line-number="24">    <span class="co"># np.square(theta_t_post_sim[1:] - dlm_sim_values[G_tt].dot(theta_t_post_sim[:-1].T).T).sum(0)</span></a>
-<a class="sourceLine" id="cb12-25" data-line-number="25"></a>
-<a class="sourceLine" id="cb12-26" data-line-number="26">    <span class="co"># Update variance scale parameters</span></a>
-<a class="sourceLine" id="cb12-27" data-line-number="27">    phi_W_tt.set_value(phi_W_post_sim)</a>
-<a class="sourceLine" id="cb12-28" data-line-number="28">    phi_V_tt.set_value(phi_V_post_sim)</a>
-<a class="sourceLine" id="cb12-29" data-line-number="29"></a>
-<a class="sourceLine" id="cb12-30" data-line-number="30">    posterior_samples[theta_label][chain].append(theta_t_post_sim)</a>
-<a class="sourceLine" id="cb12-31" data-line-number="31">    posterior_samples[phi_W_label][chain].append(phi_W_post_sim)</a>
-<a class="sourceLine" id="cb12-32" data-line-number="32">    posterior_samples[phi_V_label][chain].append(phi_V_post_sim)</a>
-<a class="sourceLine" id="cb12-33" data-line-number="33"></a>
-<a class="sourceLine" id="cb12-34" data-line-number="34">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ch">\t</span><span class="ss">(</span><span class="sc">{</span>phi_W_SS_sim<span class="sc">}</span><span class="ss">),</span><span class="ch">\t</span><span class="ss">phi_V=</span><span class="sc">{</span>phi_V_post_sim<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>phi_V_SS_sim<span class="sc">}</span><span class="ss">)&#39;</span>)</a>
-<a class="sourceLine" id="cb12-35" data-line-number="35"></a>
-<a class="sourceLine" id="cb12-36" data-line-number="36">posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> posterior_samples.items()}</a></code></pre></div>
+<a class="sourceLine" id="cb12-23" data-line-number="23">    <span class="co"># Update variance scale parameters</span></a>
+<a class="sourceLine" id="cb12-24" data-line-number="24">    phi_W_tt.set_value(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb12-25" data-line-number="25">    phi_V_tt.set_value(phi_V_post_sim)</a>
+<a class="sourceLine" id="cb12-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb12-27" data-line-number="27">    posterior_samples[theta_label][chain].append(theta_t_post_sim)</a>
+<a class="sourceLine" id="cb12-28" data-line-number="28">    posterior_samples[phi_W_label][chain].append(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb12-29" data-line-number="29">    posterior_samples[phi_V_label][chain].append(phi_V_post_sim)</a>
+<a class="sourceLine" id="cb12-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb12-31" data-line-number="31">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ch">\t</span><span class="ss">(</span><span class="sc">{</span>phi_W_SS_sim<span class="sc">}</span><span class="ss">),</span><span class="ch">\t</span><span class="ss">phi_V=</span><span class="sc">{</span>phi_V_post_sim<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>phi_V_SS_sim<span class="sc">}</span><span class="ss">)&#39;</span>)</a>
+<a class="sourceLine" id="cb12-32" data-line-number="32"></a>
+<a class="sourceLine" id="cb12-33" data-line-number="33">posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> posterior_samples.items()}</a></code></pre></div>
 <figcaption>
 Listing 12
 </figcaption>
@@ -1120,6 +1116,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 <a class="sourceLine" id="cb16-7" data-line-number="7"><span class="op">&lt;&lt;</span>svd<span class="op">-</span>ffbs<span class="op">-</span>sampler<span class="op">&gt;&gt;</span></a>
 <a class="sourceLine" id="cb16-8" data-line-number="8"><span class="op">&lt;&lt;</span>ffbs<span class="op">-</span>covar<span class="op">-</span>updates<span class="op">&gt;&gt;</span></a></code></pre></div>
 </figure>
+<p>Listing <a href="#org169b1e6">17</a> creates a Theano graph for negative-binomial model defined in <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.</p>
 <figure id="org169b1e6">
 <div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="im">from</span> symbolic_pymc.theano.random_variables <span class="im">import</span> NegBinomialRV</a>
 <a class="sourceLine" id="cb17-2" data-line-number="2"></a>
@@ -1148,7 +1145,8 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 Listing 17
 </figcaption>
 </figure>
-<figure>
+<p>Listing <a href="#orgeb47da6">18</a> specifies parameters for a simulation from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span> and samples a series.</p>
+<figure id="orgeb47da6">
 <div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" data-line-number="1">nb_dlm_sim_values <span class="op">=</span> dlm_sim_values.copy()</a>
 <a class="sourceLine" id="cb18-2" data-line-number="2">nb_dlm_sim_values[F_tt] <span class="op">=</span> np.array([[<span class="fl">1.0</span>],</a>
 <a class="sourceLine" id="cb18-3" data-line-number="3">                                    [<span class="fl">0.0</span>]], dtype<span class="op">=</span>theano.config.floatX)</a>
@@ -1172,8 +1170,11 @@ Listing 17
 <a class="sourceLine" id="cb18-21" data-line-number="21">                             nb_dlm_sim_values[r_tt])</a>
 <a class="sourceLine" id="cb18-22" data-line-number="22"></a>
 <a class="sourceLine" id="cb18-23" data-line-number="23">nb_y_sim, nb_theta_t_sim, nb_p_t_sim <span class="op">=</span> sim_nb_res</a></code></pre></div>
+<figcaption>
+Listing 18
+</figcaption>
 </figure>
-<p>In Figure <a href="#orgf266980">19</a> we plot a sample from the model in Listing <a href="#org169b1e6">17</a> for a fixed RNG seed.</p>
+<p>In Figure <a href="#orgf266980">19</a> we plot the sample generated in Listing <a href="#org169b1e6">17</a>.</p>
 <figure id="orgf266980">
 <div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" data-line-number="1">plt.clf()</a>
 <a class="sourceLine" id="cb19-2" data-line-number="2"></a>
@@ -1187,8 +1188,9 @@ Listing 19
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-dlm-sim-plot.png" alt="" />
+<img src="https://brandonwillard.github.io/drafts/figures/nb-dlm-sim-plot.png" alt="A series sampled from our negative-binomial model defined in \eqref{eq:nb-dlm}. " />
 <figcaption>
+A series sampled from our negative-binomial model defined in <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.
 </figcaption>
 </figure>
 <figure>
@@ -1209,8 +1211,9 @@ Listing 19
 <a class="sourceLine" id="cb20-15" data-line-number="15">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-theta-sim-plot.png" alt="" />
+<img src="https://brandonwillard.github.io/drafts/figures/nb-theta-sim-plot.png" alt="Simulated \theta_t values from \eqref{eq:nb-dlm}. " />
 <figcaption>
+Simulated <span class="math inline">\(\theta_t\)</span> values from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.
 </figcaption>
 </figure>
 <figure>
@@ -1224,15 +1227,16 @@ Listing 19
 <a class="sourceLine" id="cb21-8" data-line-number="8">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-p-sim-plot.png" alt="" />
+<img src="https://brandonwillard.github.io/drafts/figures/nb-p-sim-plot.png" alt="Simulated p_t \mid \theta_t values from \eqref{eq:nb-dlm}. " />
 <figcaption>
+Simulated <span class="math inline">\(p_t \mid \theta_t\)</span> values from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.
 </figcaption>
 </figure>
 <p><a id="org5b2988e"></a></p>
 </section>
 <section id="augmented-ffbs-sampler" class="level2">
 <h2>Augmented FFBS Sampler</h2>
-<p>First, we need to update our filtering code so that it can take time-varying “virtual” observation variances, <span class="math inline">\(V_t\)</span>. After this change is made, all Theano graphs that depend on the resulting objects need to be recreated, as well. This is done in Listing <a href="#orgcf3e960">22</a>.</p>
+<p>In order to create a FFBS sampler for our Pólya-Gamma DLM in <span class="math inline">\(\eqref{eq:nb-aug-obs}\)</span>, we need to update our filtering code so that it can take time-varying “virtual” observation variances, <span class="math inline">\(V_t\)</span>. After this change is made, all Theano graphs that depend on the resulting objects need to be recreated, as well. This is done in Listing <a href="#orgcf3e960">22</a>.</p>
 <figure id="orgcf3e960">
 <div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb22-1" data-line-number="1">V_t_tt <span class="op">=</span> tt.specify_shape(tt.col(), [N_obs_tt, <span class="dv">1</span>])</a>
 <a class="sourceLine" id="cb22-2" data-line-number="2">V_t_tt.name <span class="op">=</span> <span class="st">&#39;V_t&#39;</span></a>
@@ -1326,55 +1330,54 @@ Listing 22
 Listing 23
 </figcaption>
 </figure>
-<p>The model is estimated in Listing <a href="#org7545095">24</a>.</p>
+<p>Finally, the sampler steps are defined and executed in Listing <a href="#org7545095">24</a>.</p>
 <figure id="org7545095">
 <div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb24-1" data-line-number="1">nb_ffbs_dlm <span class="op">=</span> tt_function([N_obs_tt, N_theta_tt, y_tt, G_tt, F_tt, V_t_tt, r_tt],</a>
 <a class="sourceLine" id="cb24-2" data-line-number="2">                          [theta_t_post, phi_W_post_tt, omega_post_tt, y_aug_post_tt],</a>
-<a class="sourceLine" id="cb24-3" data-line-number="3">                          <span class="co"># mode=&#39;FAST_COMPILE&#39;,</span></a>
-<a class="sourceLine" id="cb24-4" data-line-number="4">                          updates<span class="op">=</span>ffbs_updates)</a>
-<a class="sourceLine" id="cb24-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb24-6" data-line-number="6">rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).set_state(rng_sim_state)</a>
-<a class="sourceLine" id="cb24-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb24-8" data-line-number="8">phi_W_tt.set_value(np.r_[<span class="fl">10.0</span>, <span class="fl">10.0</span>])</a>
-<a class="sourceLine" id="cb24-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb24-10" data-line-number="10">chain <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb24-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb24-12" data-line-number="12">theta_label <span class="op">=</span> <span class="vs">r&#39;$\theta_t \mid D_T$&#39;</span></a>
-<a class="sourceLine" id="cb24-13" data-line-number="13">phi_W_label <span class="op">=</span> <span class="vs">r&#39;$\phi_W \mid D_T$&#39;</span></a>
-<a class="sourceLine" id="cb24-14" data-line-number="14">omega_label <span class="op">=</span> <span class="vs">r&#39;$\omega_t \mid D_T$&#39;</span></a>
-<a class="sourceLine" id="cb24-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb24-16" data-line-number="16">theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></a>
-<a class="sourceLine" id="cb24-17" data-line-number="17">nb_posterior_samples <span class="op">=</span> {theta_label: [[]], phi_W_label: [[]], omega_label: [[]]}</a>
-<a class="sourceLine" id="cb24-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb24-19" data-line-number="19">V_t_sim <span class="op">=</span> np.reciprocal(omega_0)</a>
-<a class="sourceLine" id="cb24-20" data-line-number="20">y_aug_sim <span class="op">=</span> y_aug_0</a>
-<a class="sourceLine" id="cb24-21" data-line-number="21"></a>
-<a class="sourceLine" id="cb24-22" data-line-number="22"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
-<a class="sourceLine" id="cb24-23" data-line-number="23"></a>
-<a class="sourceLine" id="cb24-24" data-line-number="24">    nb_ffbs_res <span class="op">=</span> nb_ffbs_dlm(</a>
-<a class="sourceLine" id="cb24-25" data-line-number="25">        nb_dlm_sim_values[N_obs_tt],</a>
-<a class="sourceLine" id="cb24-26" data-line-number="26">        nb_dlm_sim_values[N_theta_tt],</a>
-<a class="sourceLine" id="cb24-27" data-line-number="27">        y_aug_sim,</a>
-<a class="sourceLine" id="cb24-28" data-line-number="28">        nb_dlm_sim_values[G_tt],</a>
-<a class="sourceLine" id="cb24-29" data-line-number="29">        nb_dlm_sim_values[F_tt],</a>
-<a class="sourceLine" id="cb24-30" data-line-number="30">        V_t_sim,</a>
-<a class="sourceLine" id="cb24-31" data-line-number="31">        nb_dlm_sim_values[r_tt])</a>
-<a class="sourceLine" id="cb24-32" data-line-number="32"></a>
-<a class="sourceLine" id="cb24-33" data-line-number="33">    theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> nb_ffbs_res</a>
-<a class="sourceLine" id="cb24-34" data-line-number="34"></a>
-<a class="sourceLine" id="cb24-35" data-line-number="35">    phi_W_tt.set_value(phi_W_post_sim)</a>
-<a class="sourceLine" id="cb24-36" data-line-number="36">    omega_t_tt.set_value(omega_post_sim)</a>
-<a class="sourceLine" id="cb24-37" data-line-number="37"></a>
-<a class="sourceLine" id="cb24-38" data-line-number="38">    V_t_sim <span class="op">=</span> np.reciprocal(omega_post_sim)</a>
-<a class="sourceLine" id="cb24-39" data-line-number="39">    y_aug_sim <span class="op">=</span> y_aug_post_sim</a>
-<a class="sourceLine" id="cb24-40" data-line-number="40"></a>
-<a class="sourceLine" id="cb24-41" data-line-number="41">    nb_posterior_samples[theta_label][chain].append(theta_t_post_sim)</a>
-<a class="sourceLine" id="cb24-42" data-line-number="42">    nb_posterior_samples[phi_W_label][chain].append(phi_W_post_sim)</a>
-<a class="sourceLine" id="cb24-43" data-line-number="43">    nb_posterior_samples[omega_label][chain].append(omega_post_sim)</a>
-<a class="sourceLine" id="cb24-44" data-line-number="44"></a>
-<a class="sourceLine" id="cb24-45" data-line-number="45">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ss">&#39;</span>)</a>
-<a class="sourceLine" id="cb24-46" data-line-number="46"></a>
-<a class="sourceLine" id="cb24-47" data-line-number="47">nb_posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> nb_posterior_samples.items()}</a></code></pre></div>
+<a class="sourceLine" id="cb24-3" data-line-number="3">                          updates<span class="op">=</span>ffbs_updates)</a>
+<a class="sourceLine" id="cb24-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5">rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).set_state(rng_sim_state)</a>
+<a class="sourceLine" id="cb24-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb24-7" data-line-number="7">phi_W_tt.set_value(np.r_[<span class="fl">10.0</span>, <span class="fl">10.0</span>])</a>
+<a class="sourceLine" id="cb24-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb24-9" data-line-number="9">chain <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb24-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb24-11" data-line-number="11">theta_label <span class="op">=</span> <span class="vs">r&#39;$\theta_t \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb24-12" data-line-number="12">phi_W_label <span class="op">=</span> <span class="vs">r&#39;$\phi_W \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb24-13" data-line-number="13">omega_label <span class="op">=</span> <span class="vs">r&#39;$\omega_t \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb24-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb24-15" data-line-number="15">theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></a>
+<a class="sourceLine" id="cb24-16" data-line-number="16">nb_posterior_samples <span class="op">=</span> {theta_label: [[]], phi_W_label: [[]], omega_label: [[]]}</a>
+<a class="sourceLine" id="cb24-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb24-18" data-line-number="18">V_t_sim <span class="op">=</span> np.reciprocal(omega_0)</a>
+<a class="sourceLine" id="cb24-19" data-line-number="19">y_aug_sim <span class="op">=</span> y_aug_0</a>
+<a class="sourceLine" id="cb24-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb24-21" data-line-number="21"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
+<a class="sourceLine" id="cb24-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb24-23" data-line-number="23">    nb_ffbs_res <span class="op">=</span> nb_ffbs_dlm(</a>
+<a class="sourceLine" id="cb24-24" data-line-number="24">        nb_dlm_sim_values[N_obs_tt],</a>
+<a class="sourceLine" id="cb24-25" data-line-number="25">        nb_dlm_sim_values[N_theta_tt],</a>
+<a class="sourceLine" id="cb24-26" data-line-number="26">        y_aug_sim,</a>
+<a class="sourceLine" id="cb24-27" data-line-number="27">        nb_dlm_sim_values[G_tt],</a>
+<a class="sourceLine" id="cb24-28" data-line-number="28">        nb_dlm_sim_values[F_tt],</a>
+<a class="sourceLine" id="cb24-29" data-line-number="29">        V_t_sim,</a>
+<a class="sourceLine" id="cb24-30" data-line-number="30">        nb_dlm_sim_values[r_tt])</a>
+<a class="sourceLine" id="cb24-31" data-line-number="31"></a>
+<a class="sourceLine" id="cb24-32" data-line-number="32">    theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> nb_ffbs_res</a>
+<a class="sourceLine" id="cb24-33" data-line-number="33"></a>
+<a class="sourceLine" id="cb24-34" data-line-number="34">    phi_W_tt.set_value(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb24-35" data-line-number="35">    omega_t_tt.set_value(omega_post_sim)</a>
+<a class="sourceLine" id="cb24-36" data-line-number="36"></a>
+<a class="sourceLine" id="cb24-37" data-line-number="37">    V_t_sim <span class="op">=</span> np.reciprocal(omega_post_sim)</a>
+<a class="sourceLine" id="cb24-38" data-line-number="38">    y_aug_sim <span class="op">=</span> y_aug_post_sim</a>
+<a class="sourceLine" id="cb24-39" data-line-number="39"></a>
+<a class="sourceLine" id="cb24-40" data-line-number="40">    nb_posterior_samples[theta_label][chain].append(theta_t_post_sim)</a>
+<a class="sourceLine" id="cb24-41" data-line-number="41">    nb_posterior_samples[phi_W_label][chain].append(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb24-42" data-line-number="42">    nb_posterior_samples[omega_label][chain].append(omega_post_sim)</a>
+<a class="sourceLine" id="cb24-43" data-line-number="43"></a>
+<a class="sourceLine" id="cb24-44" data-line-number="44">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ss">&#39;</span>)</a>
+<a class="sourceLine" id="cb24-45" data-line-number="45"></a>
+<a class="sourceLine" id="cb24-46" data-line-number="46">nb_posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> nb_posterior_samples.items()}</a></code></pre></div>
 <figcaption>
 Listing 24
 </figcaption>
@@ -1410,7 +1413,7 @@ Listing 24
 <a class="sourceLine" id="cb25-27" data-line-number="27">    ax.add_collection(</a>
 <a class="sourceLine" id="cb25-28" data-line-number="28">        LineCollection(theta_lines,</a>
 <a class="sourceLine" id="cb25-29" data-line-number="29">                       label<span class="op">=</span>theta_label,</a>
-<a class="sourceLine" id="cb25-30" data-line-number="30">                       alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>,</a>
+<a class="sourceLine" id="cb25-30" data-line-number="30">                       alpha<span class="op">=</span><span class="fl">0.05</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>,</a>
 <a class="sourceLine" id="cb25-31" data-line-number="31">                       <span class="op">**</span>styles)</a>
 <a class="sourceLine" id="cb25-32" data-line-number="32">    )</a>
 <a class="sourceLine" id="cb25-33" data-line-number="33"></a>
@@ -1422,9 +1425,9 @@ Listing 25
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-sim-plot.png" alt="Posterior \theta_t samples generated by a Polya-Gamma FFBS-based Gibbs sampler. " />
+<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-sim-plot.png" alt="Posterior \theta_t samples generated by our Polya-Gamma FFBS sampler. " />
 <figcaption>
-Posterior <span class="math inline">\(\theta_t\)</span> samples generated by a Polya-Gamma FFBS-based Gibbs sampler.
+Posterior <span class="math inline">\(\theta_t\)</span> samples generated by our Polya-Gamma FFBS sampler.
 </figcaption>
 </figure>
 <figure id="orgf3dfe31">
@@ -1437,9 +1440,9 @@ Listing 26
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-trace-plot.png" alt="Posterior sample traces for the Polya-Gamma FFBS-based Gibbs sampler. " />
+<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-trace-plot.png" alt="Posterior sample traces for our Polya-Gamma FFBS Gibbs sampler. " />
 <figcaption>
-Posterior sample traces for the Polya-Gamma FFBS-based Gibbs sampler.
+Posterior sample traces for our Polya-Gamma FFBS Gibbs sampler.
 </figcaption>
 </figure>
 <figure id="org3584d3a">
@@ -1473,9 +1476,9 @@ Listing 27
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-sim-pred-plot.png" alt="p_t \mid \theta_t, D_T samples generated by the Polya-Gamma FFBS-based Gibbs sampler. " />
+<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-sim-pred-plot.png" alt="p_t \mid \theta_t, D_T samples generated by our Polya-Gamma FFBS sampler. " />
 <figcaption>
-<span class="math inline">\(p_t \mid \theta_t, D_T\)</span> samples generated by the Polya-Gamma FFBS-based Gibbs sampler.
+<span class="math inline">\(p_t \mid \theta_t, D_T\)</span> samples generated by our Polya-Gamma FFBS sampler.
 </figcaption>
 </figure>
 <p><a id="org71c9f6b"></a></p>
