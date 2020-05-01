@@ -233,16 +233,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li><a href="#org08e8015">SVD-based Filtering</a></li>
 <li><a href="#org7c52007">SVD-based Smoothing</a></li>
-<li><a href="#org420a7c1">Example</a></li>
+<li><a href="#org261e60b">Example</a></li>
 </ul></li>
 <li><a href="#org2506633">Forward-filtering Backward-sampling</a>
 <ul>
-<li><a href="#org261e60b">Example</a></li>
+<li><a href="#orgb625a39">Example</a></li>
 </ul></li>
 <li><a href="#org17ed174">Non-Gaussian Example</a>
 <ul>
 <li><a href="#orgc28bbe8">Simulation</a></li>
 <li><a href="#org5b2988e">Augmented FFBS Sampler</a></li>
+<li><a href="#orgbadaeaf">COVID–19 Example</a></li>
 </ul></li>
 <li><a href="#org71c9f6b">Discussion</a></li>
 </ul>
@@ -437,7 +438,7 @@ Listing 4
   \end{gathered}
   \label{eq:dlm-post-moments}
 \end{equation}\]</span></p>
-<p>These “filtered” moments/distributions are only <strong>one</strong> kind of posterior result for a DLM, and they only take into account the data up to time <span class="math inline">\(t\)</span>. The other kind are the “smoothed” distributions, which provided posterior distributions for each time <span class="math inline">\(t\)</span> given all observations.</p>
+<p>These “filtered” moments/distributions are only <strong>one</strong> kind of posterior result for a DLM, and they only take into account the data up to time <span class="math inline">\(t\)</span>. The other kind are the “smoothed” distributions, which provide posterior distributions for each time <span class="math inline">\(t\)</span> given all observations.</p>
 <p>Notationally, we’ve used <span class="math inline">\(D_t\)</span> to signify all conditional observations and parameters up to time <span class="math inline">\(t\)</span>, so the smoothed distributions are given by <span class="math inline">\(\theta_t \mid D_T\)</span> and the following moments:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
@@ -730,7 +731,7 @@ Listing 6
 Listing 7
 </figcaption>
 </figure>
-<p><a id="org420a7c1"></a></p>
+<p><a id="org261e60b"></a></p>
 </section>
 <section id="example" class="level2">
 <h2>Example</h2>
@@ -871,115 +872,120 @@ Filtered and smoothed <span class="math inline">\(\theta_t\)</span>–against th
 Listing 10
 </figcaption>
 </figure>
-<p><a id="org261e60b"></a></p>
+<p><a id="orgb625a39"></a></p>
 <section id="example-1" class="level2">
 <h2>Example</h2>
 <p>Quantities besides the state values, <span class="math inline">\(\theta_t\)</span>, can be sampled sequentially (i.e. within the function <code>ffbs_step</code> in Listing <a href="#org92c224d">10</a>), or after FFBS when all <span class="math inline">\(\theta_t \mid D_T\)</span> have been sampled. These quantities can use the conditionally normal form of <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span> to derive Gibbs steps, further Rao-Blackwellize hierarchical quantities, or apply any other means of producing posterior samples conditional on <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span>.</p>
 <p>In this example, we will augment our original model by adding the classic gamma priors to our previously fixed state and observation scale parameters, <span class="math inline">\(\phi_W\)</span> and <span class="math inline">\(\phi_V\)</span>, respectively.</p>
-<p>This classical conjugate prior allows one to derive simple closed-form posteriors for a Gibbs sampler conditional on <span class="math inline">\(\theta_t \mid D_T\)</span>. Those posterior computations are defined in Listing <a href="#org52662b2">11</a> and used to update the shared Theano variables for <span class="math inline">\(\phi_W\)</span> and <span class="math inline">\(\phi_V\)</span> within a Gibbs sampling loop in Listing <a href="#org66be288">12</a>.</p>
-<figure id="org52662b2">
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1">phi_W_a, phi_W_b <span class="op">=</span> np.r_[<span class="fl">2.5</span>, <span class="fl">2.5</span>], np.r_[<span class="fl">0.5</span>, <span class="fl">0.5</span>]</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">phi_V_a, phi_V_b <span class="op">=</span> <span class="fl">0.125</span>, <span class="fl">0.25</span></a>
-<a class="sourceLine" id="cb11-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb11-4" data-line-number="4">phi_W_a_post_tt <span class="op">=</span> phi_W_a <span class="op">+</span> N_obs_tt <span class="op">*</span> <span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb11-5" data-line-number="5">phi_W_SS_tt <span class="op">=</span> tt.square(theta_t_diff_rev).<span class="bu">sum</span>(<span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb11-6" data-line-number="6">phi_W_b_post_tt <span class="op">=</span> phi_W_b <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> phi_W_SS_tt</a>
-<a class="sourceLine" id="cb11-7" data-line-number="7">phi_W_post_tt <span class="op">=</span> GammaRV(phi_W_a_post_tt, phi_W_b_post_tt, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;phi_W_post&#39;</span>)</a>
-<a class="sourceLine" id="cb11-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb11-9" data-line-number="9">phi_V_a_post_tt <span class="op">=</span> phi_V_a <span class="op">+</span> N_obs_tt <span class="op">*</span> <span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb11-10" data-line-number="10">phi_V_SS_tt <span class="op">=</span> tt.square(y_tt <span class="op">-</span> f_t_post).<span class="bu">sum</span>()</a>
-<a class="sourceLine" id="cb11-11" data-line-number="11">phi_V_b_post_tt <span class="op">=</span> phi_V_b <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> phi_V_SS_tt</a>
-<a class="sourceLine" id="cb11-12" data-line-number="12">phi_V_post_tt <span class="op">=</span> GammaRV(phi_V_a_post_tt, phi_V_b_post_tt, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;phi_V_post&#39;</span>)</a>
-<a class="sourceLine" id="cb11-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb11-14" data-line-number="14">ffbs_dlm <span class="op">=</span> tt_function([y_tt, N_obs_tt, N_theta_tt, G_tt, F_tt],</a>
-<a class="sourceLine" id="cb11-15" data-line-number="15">                       [theta_t_post, phi_W_post_tt, phi_V_post_tt,</a>
-<a class="sourceLine" id="cb11-16" data-line-number="16">                        phi_W_SS_tt, phi_V_SS_tt],</a>
-<a class="sourceLine" id="cb11-17" data-line-number="17">                       updates<span class="op">=</span>ffbs_updates)</a></code></pre></div>
+<p>This classical conjugate prior allows one to derive simple closed-form posteriors for a Gibbs sampler conditional on <span class="math inline">\(\theta_t \mid D_T\)</span>. Those posterior computations are defined in Listings <a href="#orged3c40b">11</a> and <a href="#org20c0e4a">12</a>, and they are used to update the shared Theano variables for <span class="math inline">\(\phi_W\)</span> and <span class="math inline">\(\phi_V\)</span> within a Gibbs sampling loop in Listing <a href="#org66be288">13</a>.</p>
+<figure id="orged3c40b">
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1">phi_W_a, phi_W_b <span class="op">=</span> theano.shared(np.r_[<span class="fl">2.5</span>, <span class="fl">2.5</span>]), theano.shared(np.r_[<span class="fl">0.5</span>, <span class="fl">0.5</span>])</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3">phi_W_a_post_tt <span class="op">=</span> phi_W_a <span class="op">+</span> N_obs_tt <span class="op">*</span> <span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">phi_W_SS_tt <span class="op">=</span> tt.square(theta_t_diff_rev).<span class="bu">sum</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5">phi_W_b_post_tt <span class="op">=</span> phi_W_b <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> phi_W_SS_tt</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">phi_W_post_tt <span class="op">=</span> GammaRV(phi_W_a_post_tt, phi_W_b_post_tt, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;phi_W_post&#39;</span>)</a></code></pre></div>
 <figcaption>
 Listing 11
 </figcaption>
 </figure>
-<figure id="org66be288">
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" data-line-number="1">rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).set_state(rng_sim_state)</a>
+<figure id="org20c0e4a">
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" data-line-number="1">phi_V_a, phi_V_b <span class="op">=</span> theano.shared(<span class="fl">0.125</span>), theano.shared(<span class="fl">0.25</span>)</a>
 <a class="sourceLine" id="cb12-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb12-3" data-line-number="3">phi_W_0 <span class="op">=</span> phi_W_a<span class="op">/</span>phi_W_b</a>
-<a class="sourceLine" id="cb12-4" data-line-number="4">phi_V_0 <span class="op">=</span> phi_V_a<span class="op">/</span>phi_V_b</a>
-<a class="sourceLine" id="cb12-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb12-6" data-line-number="6">phi_W_tt.set_value(phi_W_0)</a>
-<a class="sourceLine" id="cb12-7" data-line-number="7">phi_V_tt.set_value(phi_V_0)</a>
-<a class="sourceLine" id="cb12-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb12-9" data-line-number="9">chain <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb12-10" data-line-number="10">theta_label <span class="op">=</span> <span class="vs">r&#39;$\theta_t \mid D_T$&#39;</span></a>
-<a class="sourceLine" id="cb12-11" data-line-number="11">phi_W_label <span class="op">=</span> <span class="vs">r&#39;$\phi_W \mid D_T$&#39;</span></a>
-<a class="sourceLine" id="cb12-12" data-line-number="12">phi_V_label <span class="op">=</span> <span class="vs">r&#39;$\phi_V \mid D_T$&#39;</span></a>
-<a class="sourceLine" id="cb12-13" data-line-number="13">theta_t_post_sim, phi_W_post_sim, phi_V_post_sim <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></a>
-<a class="sourceLine" id="cb12-14" data-line-number="14">posterior_samples <span class="op">=</span> {theta_label: [[]], phi_W_label: [[]], phi_V_label: [[]]}</a>
-<a class="sourceLine" id="cb12-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb12-16" data-line-number="16"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
-<a class="sourceLine" id="cb12-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb12-18" data-line-number="18">    theta_t_post_sim, phi_W_post_sim, phi_V_post_sim, phi_W_SS_sim, phi_V_SS_sim <span class="op">=</span> ffbs_dlm(</a>
-<a class="sourceLine" id="cb12-19" data-line-number="19">        y_sim,</a>
-<a class="sourceLine" id="cb12-20" data-line-number="20">        dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt],</a>
-<a class="sourceLine" id="cb12-21" data-line-number="21">        dlm_sim_values[G_tt], dlm_sim_values[F_tt])</a>
-<a class="sourceLine" id="cb12-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb12-23" data-line-number="23">    <span class="co"># Update variance scale parameters</span></a>
-<a class="sourceLine" id="cb12-24" data-line-number="24">    phi_W_tt.set_value(phi_W_post_sim)</a>
-<a class="sourceLine" id="cb12-25" data-line-number="25">    phi_V_tt.set_value(phi_V_post_sim)</a>
-<a class="sourceLine" id="cb12-26" data-line-number="26"></a>
-<a class="sourceLine" id="cb12-27" data-line-number="27">    posterior_samples[theta_label][chain].append(theta_t_post_sim)</a>
-<a class="sourceLine" id="cb12-28" data-line-number="28">    posterior_samples[phi_W_label][chain].append(phi_W_post_sim)</a>
-<a class="sourceLine" id="cb12-29" data-line-number="29">    posterior_samples[phi_V_label][chain].append(phi_V_post_sim)</a>
-<a class="sourceLine" id="cb12-30" data-line-number="30"></a>
-<a class="sourceLine" id="cb12-31" data-line-number="31">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ch">\t</span><span class="ss">(</span><span class="sc">{</span>phi_W_SS_sim<span class="sc">}</span><span class="ss">),</span><span class="ch">\t</span><span class="ss">phi_V=</span><span class="sc">{</span>phi_V_post_sim<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>phi_V_SS_sim<span class="sc">}</span><span class="ss">)&#39;</span>)</a>
-<a class="sourceLine" id="cb12-32" data-line-number="32"></a>
-<a class="sourceLine" id="cb12-33" data-line-number="33">posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> posterior_samples.items()}</a></code></pre></div>
+<a class="sourceLine" id="cb12-3" data-line-number="3">phi_V_a_post_tt <span class="op">=</span> phi_V_a <span class="op">+</span> N_obs_tt <span class="op">*</span> <span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4">phi_V_SS_tt <span class="op">=</span> tt.square(y_tt <span class="op">-</span> f_t_post).<span class="bu">sum</span>()</a>
+<a class="sourceLine" id="cb12-5" data-line-number="5">phi_V_b_post_tt <span class="op">=</span> phi_V_b <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> phi_V_SS_tt</a>
+<a class="sourceLine" id="cb12-6" data-line-number="6">phi_V_post_tt <span class="op">=</span> GammaRV(phi_V_a_post_tt, phi_V_b_post_tt, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;phi_V_post&#39;</span>)</a></code></pre></div>
 <figcaption>
 Listing 12
 </figcaption>
 </figure>
-<p>Figure <a href="#orgce1ba55">13</a> shows the posterior <span class="math inline">\(\theta_t\)</span> samples and Figure <a href="#org6c4d373">14</a> plots the posterior sample traces.</p>
-<figure id="orgce1ba55">
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" data-line-number="1">plt.clf()</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<figure id="org66be288">
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" data-line-number="1">ffbs_dlm <span class="op">=</span> tt_function([y_tt, N_obs_tt, N_theta_tt, G_tt, F_tt],</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">                       [theta_t_post, phi_W_post_tt, phi_V_post_tt,</a>
+<a class="sourceLine" id="cb13-3" data-line-number="3">                        phi_W_SS_tt, phi_V_SS_tt],</a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">                       updates<span class="op">=</span>ffbs_updates)</a>
 <a class="sourceLine" id="cb13-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co"># bivariate_cycler =  cycler(&#39;linestyle&#39;, [&#39;-&#39;, &#39;--&#39;]) * plt_orig_cycler</span></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co"># ax.set_prop_cycle(bivariate_cycler)</span></a>
-<a class="sourceLine" id="cb13-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb13-9" data-line-number="9">thetas_shape <span class="op">=</span> posterior_samples[theta_label][<span class="dv">0</span>].shape</a>
+<a class="sourceLine" id="cb13-6" data-line-number="6">rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).set_state(rng_sim_state)</a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8">phi_W_0 <span class="op">=</span> phi_W_a.get_value()<span class="op">/</span>phi_W_b.get_value()</a>
+<a class="sourceLine" id="cb13-9" data-line-number="9">phi_V_0 <span class="op">=</span> phi_V_a.get_value()<span class="op">/</span>phi_V_b.get_value()</a>
 <a class="sourceLine" id="cb13-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb13-11" data-line-number="11">cycle <span class="op">=</span> ax._get_lines.prop_cycler</a>
-<a class="sourceLine" id="cb13-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb13-13" data-line-number="13">bivariate_obs_cycler <span class="op">=</span>  cycler(<span class="st">&#39;linestyle&#39;</span>, [<span class="st">&#39;-&#39;</span>, <span class="st">&#39;--&#39;</span>]) <span class="op">*</span> cycler(<span class="st">&#39;color&#39;</span>, [<span class="st">&#39;black&#39;</span>])</a>
-<a class="sourceLine" id="cb13-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb13-15" data-line-number="15">ax.set_prop_cycle(bivariate_obs_cycler)</a>
-<a class="sourceLine" id="cb13-16" data-line-number="16">ax.plot(theta_t_sim, label<span class="op">=</span><span class="vs">r&#39;$\theta_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>)</a>
-<a class="sourceLine" id="cb13-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb13-18" data-line-number="18">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
-<a class="sourceLine" id="cb13-19" data-line-number="19">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb13-11" data-line-number="11">phi_W_tt.set_value(phi_W_0)</a>
+<a class="sourceLine" id="cb13-12" data-line-number="12">phi_V_tt.set_value(phi_V_0)</a>
+<a class="sourceLine" id="cb13-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb13-14" data-line-number="14">chain <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-15" data-line-number="15">theta_label <span class="op">=</span> <span class="vs">r&#39;$\theta_t \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb13-16" data-line-number="16">phi_W_label <span class="op">=</span> <span class="vs">r&#39;$\phi_W \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb13-17" data-line-number="17">phi_V_label <span class="op">=</span> <span class="vs">r&#39;$\phi_V \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb13-18" data-line-number="18">theta_t_post_sim, phi_W_post_sim, phi_V_post_sim <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></a>
+<a class="sourceLine" id="cb13-19" data-line-number="19">posterior_samples <span class="op">=</span> {theta_label: [[]], phi_W_label: [[]], phi_V_label: [[]]}</a>
 <a class="sourceLine" id="cb13-20" data-line-number="20"></a>
-<a class="sourceLine" id="cb13-21" data-line-number="21"><span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(thetas_shape[<span class="op">-</span><span class="dv">1</span>]):</a>
+<a class="sourceLine" id="cb13-21" data-line-number="21"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
 <a class="sourceLine" id="cb13-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb13-23" data-line-number="23">    styles <span class="op">=</span> <span class="bu">next</span>(cycle)</a>
-<a class="sourceLine" id="cb13-24" data-line-number="24">    thetas <span class="op">=</span> posterior_samples[theta_label][<span class="dv">0</span>].T[d].T</a>
-<a class="sourceLine" id="cb13-25" data-line-number="25"></a>
-<a class="sourceLine" id="cb13-26" data-line-number="26">    theta_lines <span class="op">=</span> np.empty(thetas_shape[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> (<span class="dv">2</span>,))</a>
-<a class="sourceLine" id="cb13-27" data-line-number="27">    theta_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(thetas_shape[<span class="op">-</span><span class="dv">2</span>]), [thetas_shape[<span class="op">-</span><span class="dv">3</span>], <span class="dv">1</span>]).T</a>
-<a class="sourceLine" id="cb13-28" data-line-number="28">    theta_lines.T[<span class="dv">1</span>] <span class="op">=</span> thetas.T</a>
-<a class="sourceLine" id="cb13-29" data-line-number="29"></a>
-<a class="sourceLine" id="cb13-30" data-line-number="30">    ax.add_collection(</a>
-<a class="sourceLine" id="cb13-31" data-line-number="31">        LineCollection(theta_lines,</a>
-<a class="sourceLine" id="cb13-32" data-line-number="32">                       label<span class="op">=</span>theta_label,</a>
-<a class="sourceLine" id="cb13-33" data-line-number="33">                       alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>,</a>
-<a class="sourceLine" id="cb13-34" data-line-number="34">                       <span class="op">**</span>styles)</a>
-<a class="sourceLine" id="cb13-35" data-line-number="35">    )</a>
-<a class="sourceLine" id="cb13-36" data-line-number="36"></a>
-<a class="sourceLine" id="cb13-37" data-line-number="37">plt.tight_layout()</a>
-<a class="sourceLine" id="cb13-38" data-line-number="38"></a>
-<a class="sourceLine" id="cb13-39" data-line-number="39">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb13-23" data-line-number="23">    theta_t_post_sim, phi_W_post_sim, phi_V_post_sim, phi_W_SS_sim, phi_V_SS_sim <span class="op">=</span> ffbs_dlm(</a>
+<a class="sourceLine" id="cb13-24" data-line-number="24">        y_sim,</a>
+<a class="sourceLine" id="cb13-25" data-line-number="25">        dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt],</a>
+<a class="sourceLine" id="cb13-26" data-line-number="26">        dlm_sim_values[G_tt], dlm_sim_values[F_tt])</a>
+<a class="sourceLine" id="cb13-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb13-28" data-line-number="28">    <span class="co"># Update variance scale parameters</span></a>
+<a class="sourceLine" id="cb13-29" data-line-number="29">    phi_W_tt.set_value(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb13-30" data-line-number="30">    phi_V_tt.set_value(phi_V_post_sim)</a>
+<a class="sourceLine" id="cb13-31" data-line-number="31"></a>
+<a class="sourceLine" id="cb13-32" data-line-number="32">    posterior_samples[theta_label][chain].append(theta_t_post_sim)</a>
+<a class="sourceLine" id="cb13-33" data-line-number="33">    posterior_samples[phi_W_label][chain].append(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb13-34" data-line-number="34">    posterior_samples[phi_V_label][chain].append(phi_V_post_sim)</a>
+<a class="sourceLine" id="cb13-35" data-line-number="35"></a>
+<a class="sourceLine" id="cb13-36" data-line-number="36">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ch">\t</span><span class="ss">(</span><span class="sc">{</span>phi_W_SS_sim<span class="sc">}</span><span class="ss">),</span><span class="ch">\t</span><span class="ss">phi_V=</span><span class="sc">{</span>phi_V_post_sim<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>phi_V_SS_sim<span class="sc">}</span><span class="ss">)&#39;</span>)</a>
+<a class="sourceLine" id="cb13-37" data-line-number="37"></a>
+<a class="sourceLine" id="cb13-38" data-line-number="38">posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> posterior_samples.items()}</a></code></pre></div>
 <figcaption>
 Listing 13
+</figcaption>
+</figure>
+<p>Figure <a href="#orgce1ba55">14</a> shows the posterior <span class="math inline">\(\theta_t\)</span> samples and Figure <a href="#org6c4d373">15</a> plots the posterior sample traces.</p>
+<figure id="orgce1ba55">
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" data-line-number="1">plt.clf()</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb14-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co"># bivariate_cycler =  cycler(&#39;linestyle&#39;, [&#39;-&#39;, &#39;--&#39;]) * plt_orig_cycler</span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co"># ax.set_prop_cycle(bivariate_cycler)</span></a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb14-9" data-line-number="9">thetas_shape <span class="op">=</span> posterior_samples[theta_label][<span class="dv">0</span>].shape</a>
+<a class="sourceLine" id="cb14-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb14-11" data-line-number="11">cycle <span class="op">=</span> ax._get_lines.prop_cycler</a>
+<a class="sourceLine" id="cb14-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb14-13" data-line-number="13">bivariate_obs_cycler <span class="op">=</span>  cycler(<span class="st">&#39;linestyle&#39;</span>, [<span class="st">&#39;-&#39;</span>, <span class="st">&#39;--&#39;</span>]) <span class="op">*</span> cycler(<span class="st">&#39;color&#39;</span>, [<span class="st">&#39;black&#39;</span>])</a>
+<a class="sourceLine" id="cb14-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb14-15" data-line-number="15">ax.set_prop_cycle(bivariate_obs_cycler)</a>
+<a class="sourceLine" id="cb14-16" data-line-number="16">ax.plot(theta_t_sim, label<span class="op">=</span><span class="vs">r&#39;$\theta_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>)</a>
+<a class="sourceLine" id="cb14-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb14-18" data-line-number="18">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb14-19" data-line-number="19">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb14-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb14-21" data-line-number="21"><span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(thetas_shape[<span class="op">-</span><span class="dv">1</span>]):</a>
+<a class="sourceLine" id="cb14-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb14-23" data-line-number="23">    styles <span class="op">=</span> <span class="bu">next</span>(cycle)</a>
+<a class="sourceLine" id="cb14-24" data-line-number="24">    thetas <span class="op">=</span> posterior_samples[theta_label][<span class="dv">0</span>].T[d].T</a>
+<a class="sourceLine" id="cb14-25" data-line-number="25"></a>
+<a class="sourceLine" id="cb14-26" data-line-number="26">    theta_lines <span class="op">=</span> np.empty(thetas_shape[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> (<span class="dv">2</span>,))</a>
+<a class="sourceLine" id="cb14-27" data-line-number="27">    theta_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(thetas_shape[<span class="op">-</span><span class="dv">2</span>]), [thetas_shape[<span class="op">-</span><span class="dv">3</span>], <span class="dv">1</span>]).T</a>
+<a class="sourceLine" id="cb14-28" data-line-number="28">    theta_lines.T[<span class="dv">1</span>] <span class="op">=</span> thetas.T</a>
+<a class="sourceLine" id="cb14-29" data-line-number="29"></a>
+<a class="sourceLine" id="cb14-30" data-line-number="30">    ax.add_collection(</a>
+<a class="sourceLine" id="cb14-31" data-line-number="31">        LineCollection(theta_lines,</a>
+<a class="sourceLine" id="cb14-32" data-line-number="32">                       label<span class="op">=</span>theta_label,</a>
+<a class="sourceLine" id="cb14-33" data-line-number="33">                       alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>,</a>
+<a class="sourceLine" id="cb14-34" data-line-number="34">                       <span class="op">**</span>styles)</a>
+<a class="sourceLine" id="cb14-35" data-line-number="35">    )</a>
+<a class="sourceLine" id="cb14-36" data-line-number="36"></a>
+<a class="sourceLine" id="cb14-37" data-line-number="37">plt.tight_layout()</a>
+<a class="sourceLine" id="cb14-38" data-line-number="38"></a>
+<a class="sourceLine" id="cb14-39" data-line-number="39">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
+<figcaption>
+Listing 14
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
@@ -989,12 +995,12 @@ Posterior <span class="math inline">\(\theta_t\)</span> samples generated by a F
 </figcaption>
 </figure>
 <figure id="org6c4d373">
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="im">import</span> arviz <span class="im">as</span> az</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb14-3" data-line-number="3">az_trace <span class="op">=</span> az.from_dict(posterior<span class="op">=</span>posterior_samples)</a>
-<a class="sourceLine" id="cb14-4" data-line-number="4">az.plot_trace(az_trace, compact<span class="op">=</span><span class="va">True</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="im">import</span> arviz <span class="im">as</span> az</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb15-3" data-line-number="3">az_trace <span class="op">=</span> az.from_dict(posterior<span class="op">=</span>posterior_samples)</a>
+<a class="sourceLine" id="cb15-4" data-line-number="4">az.plot_trace(az_trace, compact<span class="op">=</span><span class="va">True</span>)</a></code></pre></div>
 <figcaption>
-Listing 14
+Listing 15
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
@@ -1004,30 +1010,30 @@ Posterior sample traces for the FFBS-based Gibbs sampler.
 </figcaption>
 </figure>
 <figure>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" data-line-number="1">plt.close(<span class="st">&#39;all&#39;</span>)</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
-<a class="sourceLine" id="cb15-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb15-5" data-line-number="5">ax.plot(y_sim, label<span class="op">=</span><span class="vs">r&#39;$y_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, color<span class="op">=</span><span class="st">&#39;black&#39;</span>)</a>
-<a class="sourceLine" id="cb15-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb15-7" data-line-number="7">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
-<a class="sourceLine" id="cb15-8" data-line-number="8">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
-<a class="sourceLine" id="cb15-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb15-10" data-line-number="10">f_t_ordinates <span class="op">=</span> np.dot(posterior_samples[theta_label][<span class="dv">0</span>], dlm_sim_values[F_tt].squeeze())</a>
-<a class="sourceLine" id="cb15-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb15-12" data-line-number="12">f_t_lines <span class="op">=</span> np.empty(f_t_ordinates.shape <span class="op">+</span> (<span class="dv">2</span>,))</a>
-<a class="sourceLine" id="cb15-13" data-line-number="13">f_t_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(f_t_ordinates.shape[<span class="dv">1</span>]), [f_t_ordinates.shape[<span class="dv">0</span>], <span class="dv">1</span>]).T</a>
-<a class="sourceLine" id="cb15-14" data-line-number="14">f_t_lines.T[<span class="dv">1</span>] <span class="op">=</span> f_t_ordinates.T</a>
-<a class="sourceLine" id="cb15-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb15-16" data-line-number="16">ax.add_collection(</a>
-<a class="sourceLine" id="cb15-17" data-line-number="17">    LineCollection(f_t_lines,</a>
-<a class="sourceLine" id="cb15-18" data-line-number="18">                   label<span class="op">=</span><span class="vs">r&#39;$E[y_t \mid \theta_t, D_T]$&#39;</span>,</a>
-<a class="sourceLine" id="cb15-19" data-line-number="19">                   alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>, color<span class="op">=</span><span class="st">&#39;red&#39;</span>)</a>
-<a class="sourceLine" id="cb15-20" data-line-number="20">)</a>
-<a class="sourceLine" id="cb15-21" data-line-number="21"></a>
-<a class="sourceLine" id="cb15-22" data-line-number="22">plt.tight_layout()</a>
-<a class="sourceLine" id="cb15-23" data-line-number="23"></a>
-<a class="sourceLine" id="cb15-24" data-line-number="24">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" data-line-number="1">plt.close(<span class="st">&#39;all&#39;</span>)</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">ax.plot(y_sim, label<span class="op">=</span><span class="vs">r&#39;$y_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, color<span class="op">=</span><span class="st">&#39;black&#39;</span>)</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb16-8" data-line-number="8">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb16-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb16-10" data-line-number="10">f_t_ordinates <span class="op">=</span> np.dot(posterior_samples[theta_label][<span class="dv">0</span>], dlm_sim_values[F_tt].squeeze())</a>
+<a class="sourceLine" id="cb16-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb16-12" data-line-number="12">f_t_lines <span class="op">=</span> np.empty(f_t_ordinates.shape <span class="op">+</span> (<span class="dv">2</span>,))</a>
+<a class="sourceLine" id="cb16-13" data-line-number="13">f_t_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(f_t_ordinates.shape[<span class="dv">1</span>]), [f_t_ordinates.shape[<span class="dv">0</span>], <span class="dv">1</span>]).T</a>
+<a class="sourceLine" id="cb16-14" data-line-number="14">f_t_lines.T[<span class="dv">1</span>] <span class="op">=</span> f_t_ordinates.T</a>
+<a class="sourceLine" id="cb16-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb16-16" data-line-number="16">ax.add_collection(</a>
+<a class="sourceLine" id="cb16-17" data-line-number="17">    LineCollection(f_t_lines,</a>
+<a class="sourceLine" id="cb16-18" data-line-number="18">                   label<span class="op">=</span><span class="vs">r&#39;$E[y_t \mid \theta_t, D_T]$&#39;</span>,</a>
+<a class="sourceLine" id="cb16-19" data-line-number="19">                   alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>, color<span class="op">=</span><span class="st">&#39;red&#39;</span>)</a>
+<a class="sourceLine" id="cb16-20" data-line-number="20">)</a>
+<a class="sourceLine" id="cb16-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb16-22" data-line-number="22">plt.tight_layout()</a>
+<a class="sourceLine" id="cb16-23" data-line-number="23"></a>
+<a class="sourceLine" id="cb16-24" data-line-number="24">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
 </figure>
 <figure id="nil" class="plot">
 <img src="https://brandonwillard.github.io/drafts/figures/ffbs-sim-pred-plot.png" alt="Posterior predicive sample means generated by a FFBS-based Gibbs sampler. " />
@@ -1106,16 +1112,6 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 <p><a id="orgc28bbe8"></a></p>
 <section id="simulation" class="level2">
 <h2>Simulation</h2>
-<figure>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="op">&lt;&lt;</span>basic<span class="op">-</span>imports<span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="op">&lt;&lt;</span>basic<span class="op">-</span>normal<span class="op">-</span>model<span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="op">&lt;&lt;</span>basic<span class="op">-</span>dlm<span class="op">-</span>sim<span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="op">&lt;&lt;</span>linalg<span class="op">-</span>theano<span class="op">-</span>ops<span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="op">&lt;&lt;</span><span class="bu">filter</span><span class="op">-</span>svd<span class="op">-</span>scan<span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="op">&lt;&lt;</span>smoother<span class="op">-</span>svd<span class="op">-</span>scan<span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="op">&lt;&lt;</span>svd<span class="op">-</span>ffbs<span class="op">-</span>sampler<span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="op">&lt;&lt;</span>ffbs<span class="op">-</span>covar<span class="op">-</span>updates<span class="op">&gt;&gt;</span></a></code></pre></div>
-</figure>
 <p>Listing <a href="#org169b1e6">17</a> creates a Theano graph for negative-binomial model defined in <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.</p>
 <figure id="org169b1e6">
 <div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="im">from</span> symbolic_pymc.theano.random_variables <span class="im">import</span> NegBinomialRV</a>
@@ -1291,137 +1287,140 @@ Simulated <span class="math inline">\(p_t \mid \theta_t\)</span> values from <sp
 <a class="sourceLine" id="cb22-51" data-line-number="51"></a>
 <a class="sourceLine" id="cb22-52" data-line-number="52">theta_t_post <span class="op">=</span> tt.join(<span class="dv">0</span>, theta_t_post_rev[::<span class="op">-</span><span class="dv">1</span>], [theta_T_post])</a>
 <a class="sourceLine" id="cb22-53" data-line-number="53"></a>
-<a class="sourceLine" id="cb22-54" data-line-number="54">f_t_post <span class="op">=</span> tt.join(<span class="dv">0</span>, f_t_rev[::<span class="op">-</span><span class="dv">1</span>], [F_tt.T.dot(theta_T_post)])</a>
-<a class="sourceLine" id="cb22-55" data-line-number="55"></a>
-<a class="sourceLine" id="cb22-56" data-line-number="56">phi_W_a_post_tt <span class="op">=</span> phi_W_a <span class="op">+</span> N_obs_tt <span class="op">*</span> <span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb22-57" data-line-number="57">phi_W_b_post_tt <span class="op">=</span> phi_W_b <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> tt.square(theta_t_diff_rev).<span class="bu">sum</span>(<span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb22-58" data-line-number="58">phi_W_post_tt <span class="op">=</span> GammaRV(phi_W_a_post_tt, phi_W_b_post_tt, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;phi_W_post&#39;</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb22-54" data-line-number="54">f_t_post <span class="op">=</span> tt.join(<span class="dv">0</span>, f_t_rev[::<span class="op">-</span><span class="dv">1</span>], [F_tt.T.dot(theta_T_post)])</a></code></pre></div>
 <figcaption>
 Listing 22
 </figcaption>
 </figure>
-<p>Next, in Listing <a href="#org81dbe8c">23</a> we sample the initial values and create Theano terms for posterior/updated <span class="math inline">\(\omega_t\)</span>-related values.</p>
-<figure id="org81dbe8c">
-<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="im">from</span> pypolyagamma <span class="im">import</span> PyPolyaGamma</a>
-<a class="sourceLine" id="cb23-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="im">from</span> symbolic_pymc.theano.random_variables <span class="im">import</span> PolyaGammaRV</a>
-<a class="sourceLine" id="cb23-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb23-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb23-6" data-line-number="6">r_sim <span class="op">=</span> np.array(nb_dlm_sim_values[r_tt], dtype<span class="op">=</span><span class="st">&#39;double&#39;</span>)</a>
-<a class="sourceLine" id="cb23-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb23-8" data-line-number="8"><span class="co"># XXX: testing</span></a>
-<a class="sourceLine" id="cb23-9" data-line-number="9">F_t_theta_0 <span class="op">=</span> np.dot(nb_theta_t_sim, nb_dlm_sim_values[F_tt])</a>
-<a class="sourceLine" id="cb23-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb23-11" data-line-number="11">omega_0 <span class="op">=</span> np.empty(nb_y_sim.shape[<span class="dv">0</span>], dtype<span class="op">=</span><span class="st">&#39;double&#39;</span>)</a>
-<a class="sourceLine" id="cb23-12" data-line-number="12">PyPolyaGamma(<span class="dv">12344</span>).pgdrawv(r_sim <span class="op">+</span> nb_y_sim.squeeze(),</a>
-<a class="sourceLine" id="cb23-13" data-line-number="13">                            F_t_theta_0.squeeze() <span class="op">-</span> np.log(r_sim),</a>
-<a class="sourceLine" id="cb23-14" data-line-number="14">                            omega_0)</a>
-<a class="sourceLine" id="cb23-15" data-line-number="15">omega_0 <span class="op">=</span> np.expand_dims(omega_0, <span class="dv">-1</span>)</a>
-<a class="sourceLine" id="cb23-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb23-17" data-line-number="17">y_aug_0 <span class="op">=</span> np.log(r_sim) <span class="op">+</span> (nb_y_sim <span class="op">-</span> r_sim) <span class="op">/</span> (<span class="fl">2.0</span> <span class="op">*</span> omega_0)</a>
-<a class="sourceLine" id="cb23-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb23-19" data-line-number="19">omega_t_tt <span class="op">=</span> theano.shared(omega_0, name<span class="op">=</span><span class="st">&#39;omega_t&#39;</span>)</a>
-<a class="sourceLine" id="cb23-20" data-line-number="20"></a>
-<a class="sourceLine" id="cb23-21" data-line-number="21">omega_post_tt <span class="op">=</span> PolyaGammaRV(r_tt <span class="op">+</span> nb_y_sim, theta_t_post.dot(F_tt) <span class="op">-</span> tt.log(r_tt), rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;omega_post&#39;</span>)</a>
-<a class="sourceLine" id="cb23-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb23-23" data-line-number="23">y_aug_post_tt <span class="op">=</span> tt.log(r_tt) <span class="op">+</span> (nb_y_sim <span class="op">-</span> r_tt) <span class="op">/</span> (<span class="fl">2.0</span> <span class="op">*</span> omega_post_tt)</a>
-<a class="sourceLine" id="cb23-24" data-line-number="24">y_aug_post_tt.name <span class="op">=</span> <span class="st">&#39;y_aug_post&#39;</span></a></code></pre></div>
-<figcaption>
-Listing 23
-</figcaption>
+<figure>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb23-1" data-line-number="1">phi_W_a_post_tt <span class="op">=</span> phi_W_a <span class="op">+</span> N_obs_tt <span class="op">*</span> <span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">phi_W_b_post_tt <span class="op">=</span> phi_W_b <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> tt.square(theta_t_diff_rev).<span class="bu">sum</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb23-3" data-line-number="3">phi_W_post_tt <span class="op">=</span> GammaRV(phi_W_a_post_tt, phi_W_b_post_tt, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;phi_W_post&#39;</span>)</a></code></pre></div>
 </figure>
-<p>Finally, the sampler steps are defined and executed in Listing <a href="#org7545095">24</a>.</p>
-<figure id="org7545095">
-<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb24-1" data-line-number="1">nb_ffbs_dlm <span class="op">=</span> tt_function([N_obs_tt, N_theta_tt, y_tt, G_tt, F_tt, V_t_tt, r_tt],</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2">                          [theta_t_post, phi_W_post_tt, omega_post_tt, y_aug_post_tt],</a>
-<a class="sourceLine" id="cb24-3" data-line-number="3">                          updates<span class="op">=</span>ffbs_updates)</a>
+<p>Next, in Listing <a href="#org81dbe8c">24</a> we sample the initial values and create Theano terms for posterior/updated <span class="math inline">\(\omega_t\)</span>-related values.</p>
+<figure id="org81dbe8c">
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="im">from</span> pypolyagamma <span class="im">import</span> PyPolyaGamma</a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="im">from</span> symbolic_pymc.theano.random_variables <span class="im">import</span> PolyaGammaRV</a>
 <a class="sourceLine" id="cb24-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb24-5" data-line-number="5">rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).set_state(rng_sim_state)</a>
-<a class="sourceLine" id="cb24-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb24-7" data-line-number="7">phi_W_tt.set_value(np.r_[<span class="fl">10.0</span>, <span class="fl">10.0</span>])</a>
-<a class="sourceLine" id="cb24-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb24-9" data-line-number="9">chain <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb24-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb24-11" data-line-number="11">theta_label <span class="op">=</span> <span class="vs">r&#39;$\theta_t \mid D_T$&#39;</span></a>
-<a class="sourceLine" id="cb24-12" data-line-number="12">phi_W_label <span class="op">=</span> <span class="vs">r&#39;$\phi_W \mid D_T$&#39;</span></a>
-<a class="sourceLine" id="cb24-13" data-line-number="13">omega_label <span class="op">=</span> <span class="vs">r&#39;$\omega_t \mid D_T$&#39;</span></a>
-<a class="sourceLine" id="cb24-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb24-15" data-line-number="15">theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></a>
-<a class="sourceLine" id="cb24-16" data-line-number="16">nb_posterior_samples <span class="op">=</span> {theta_label: [[]], phi_W_label: [[]], omega_label: [[]]}</a>
-<a class="sourceLine" id="cb24-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb24-18" data-line-number="18">V_t_sim <span class="op">=</span> np.reciprocal(omega_0)</a>
-<a class="sourceLine" id="cb24-19" data-line-number="19">y_aug_sim <span class="op">=</span> y_aug_0</a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6">y_raw_tt <span class="op">=</span> theano.shared(nb_y_sim.astype(theano.config.floatX), name<span class="op">=</span><span class="st">&#39;y_raw_t&#39;</span>)</a>
+<a class="sourceLine" id="cb24-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb24-8" data-line-number="8">r_sim <span class="op">=</span> np.array(nb_dlm_sim_values[r_tt], dtype<span class="op">=</span><span class="st">&#39;double&#39;</span>)</a>
+<a class="sourceLine" id="cb24-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb24-10" data-line-number="10"><span class="co"># XXX: testing</span></a>
+<a class="sourceLine" id="cb24-11" data-line-number="11">F_t_theta_0 <span class="op">=</span> np.dot(nb_theta_t_sim, nb_dlm_sim_values[F_tt])</a>
+<a class="sourceLine" id="cb24-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb24-13" data-line-number="13">omega_0 <span class="op">=</span> np.empty(nb_y_sim.shape[<span class="dv">0</span>], dtype<span class="op">=</span><span class="st">&#39;double&#39;</span>)</a>
+<a class="sourceLine" id="cb24-14" data-line-number="14">PyPolyaGamma(<span class="dv">12344</span>).pgdrawv(r_sim <span class="op">+</span> nb_y_sim.squeeze(),</a>
+<a class="sourceLine" id="cb24-15" data-line-number="15">                            F_t_theta_0.squeeze() <span class="op">-</span> np.log(r_sim),</a>
+<a class="sourceLine" id="cb24-16" data-line-number="16">                            omega_0)</a>
+<a class="sourceLine" id="cb24-17" data-line-number="17">omega_0 <span class="op">=</span> np.expand_dims(omega_0, <span class="dv">-1</span>)</a>
+<a class="sourceLine" id="cb24-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb24-19" data-line-number="19">y_aug_0 <span class="op">=</span> np.log(r_sim) <span class="op">+</span> (nb_y_sim <span class="op">-</span> r_sim) <span class="op">/</span> (<span class="fl">2.0</span> <span class="op">*</span> omega_0)</a>
 <a class="sourceLine" id="cb24-20" data-line-number="20"></a>
-<a class="sourceLine" id="cb24-21" data-line-number="21"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
+<a class="sourceLine" id="cb24-21" data-line-number="21">omega_t_tt <span class="op">=</span> theano.shared(omega_0, name<span class="op">=</span><span class="st">&#39;omega_t&#39;</span>)</a>
 <a class="sourceLine" id="cb24-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb24-23" data-line-number="23">    nb_ffbs_res <span class="op">=</span> nb_ffbs_dlm(</a>
-<a class="sourceLine" id="cb24-24" data-line-number="24">        nb_dlm_sim_values[N_obs_tt],</a>
-<a class="sourceLine" id="cb24-25" data-line-number="25">        nb_dlm_sim_values[N_theta_tt],</a>
-<a class="sourceLine" id="cb24-26" data-line-number="26">        y_aug_sim,</a>
-<a class="sourceLine" id="cb24-27" data-line-number="27">        nb_dlm_sim_values[G_tt],</a>
-<a class="sourceLine" id="cb24-28" data-line-number="28">        nb_dlm_sim_values[F_tt],</a>
-<a class="sourceLine" id="cb24-29" data-line-number="29">        V_t_sim,</a>
-<a class="sourceLine" id="cb24-30" data-line-number="30">        nb_dlm_sim_values[r_tt])</a>
-<a class="sourceLine" id="cb24-31" data-line-number="31"></a>
-<a class="sourceLine" id="cb24-32" data-line-number="32">    theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> nb_ffbs_res</a>
-<a class="sourceLine" id="cb24-33" data-line-number="33"></a>
-<a class="sourceLine" id="cb24-34" data-line-number="34">    phi_W_tt.set_value(phi_W_post_sim)</a>
-<a class="sourceLine" id="cb24-35" data-line-number="35">    omega_t_tt.set_value(omega_post_sim)</a>
-<a class="sourceLine" id="cb24-36" data-line-number="36"></a>
-<a class="sourceLine" id="cb24-37" data-line-number="37">    V_t_sim <span class="op">=</span> np.reciprocal(omega_post_sim)</a>
-<a class="sourceLine" id="cb24-38" data-line-number="38">    y_aug_sim <span class="op">=</span> y_aug_post_sim</a>
-<a class="sourceLine" id="cb24-39" data-line-number="39"></a>
-<a class="sourceLine" id="cb24-40" data-line-number="40">    nb_posterior_samples[theta_label][chain].append(theta_t_post_sim)</a>
-<a class="sourceLine" id="cb24-41" data-line-number="41">    nb_posterior_samples[phi_W_label][chain].append(phi_W_post_sim)</a>
-<a class="sourceLine" id="cb24-42" data-line-number="42">    nb_posterior_samples[omega_label][chain].append(omega_post_sim)</a>
-<a class="sourceLine" id="cb24-43" data-line-number="43"></a>
-<a class="sourceLine" id="cb24-44" data-line-number="44">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ss">&#39;</span>)</a>
-<a class="sourceLine" id="cb24-45" data-line-number="45"></a>
-<a class="sourceLine" id="cb24-46" data-line-number="46">nb_posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> nb_posterior_samples.items()}</a></code></pre></div>
+<a class="sourceLine" id="cb24-23" data-line-number="23">omega_post_tt <span class="op">=</span> PolyaGammaRV(r_tt <span class="op">+</span> y_raw_tt, theta_t_post.dot(F_tt) <span class="op">-</span> tt.log(r_tt), rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;omega_post&#39;</span>)</a>
+<a class="sourceLine" id="cb24-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb24-25" data-line-number="25">y_aug_post_tt <span class="op">=</span> tt.log(r_tt) <span class="op">+</span> (y_raw_tt <span class="op">-</span> r_tt) <span class="op">/</span> (<span class="fl">2.0</span> <span class="op">*</span> omega_post_tt)</a>
+<a class="sourceLine" id="cb24-26" data-line-number="26">y_aug_post_tt.name <span class="op">=</span> <span class="st">&#39;y_aug_post&#39;</span></a></code></pre></div>
 <figcaption>
 Listing 24
 </figcaption>
 </figure>
-<p>Figure <a href="#org10452de">25</a> shows the posterior <span class="math inline">\(\theta_t\)</span> samples, Figure <a href="#orgf3dfe31">26</a> plots the posterior sample traces, and Figure <a href="#org3584d3a">27</a> shows <span class="math inline">\(p_t \mid \theta_t\)</span>.</p>
-<figure id="org10452de">
-<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" data-line-number="1">plt.clf()</a>
-<a class="sourceLine" id="cb25-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb25-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
-<a class="sourceLine" id="cb25-4" data-line-number="4">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
-<a class="sourceLine" id="cb25-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb25-6" data-line-number="6">thetas_shape <span class="op">=</span> nb_posterior_samples[theta_label][<span class="dv">0</span>].shape</a>
-<a class="sourceLine" id="cb25-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb25-8" data-line-number="8">cycle <span class="op">=</span> ax._get_lines.prop_cycler</a>
-<a class="sourceLine" id="cb25-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb25-10" data-line-number="10">bivariate_obs_cycler <span class="op">=</span>  cycler(<span class="st">&#39;linestyle&#39;</span>, [<span class="st">&#39;-&#39;</span>, <span class="st">&#39;--&#39;</span>]) <span class="op">*</span> cycler(<span class="st">&#39;color&#39;</span>, [<span class="st">&#39;black&#39;</span>])</a>
-<a class="sourceLine" id="cb25-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb25-12" data-line-number="12">ax.set_prop_cycle(bivariate_obs_cycler)</a>
-<a class="sourceLine" id="cb25-13" data-line-number="13">ax.plot(nb_theta_t_sim, label<span class="op">=</span><span class="vs">r&#39;$\theta_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>)</a>
+<p>Finally, the sampler steps are defined and executed in Listing <a href="#org7545095">25</a>.</p>
+<figure id="org7545095">
+<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" data-line-number="1">nb_ffbs_dlm <span class="op">=</span> tt_function([N_obs_tt, N_theta_tt, y_tt, G_tt, F_tt, V_t_tt, r_tt],</a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">                          [theta_t_post, phi_W_post_tt, omega_post_tt, y_aug_post_tt],</a>
+<a class="sourceLine" id="cb25-3" data-line-number="3">                          updates<span class="op">=</span>ffbs_updates)</a>
+<a class="sourceLine" id="cb25-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb25-5" data-line-number="5">rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).set_state(rng_sim_state)</a>
+<a class="sourceLine" id="cb25-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb25-7" data-line-number="7">phi_W_tt.set_value(np.r_[<span class="fl">10.0</span>, <span class="fl">10.0</span>])</a>
+<a class="sourceLine" id="cb25-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb25-9" data-line-number="9">chain <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb25-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb25-11" data-line-number="11">theta_label <span class="op">=</span> <span class="vs">r&#39;$\theta_t \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb25-12" data-line-number="12">phi_W_label <span class="op">=</span> <span class="vs">r&#39;$\phi_W \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb25-13" data-line-number="13">omega_label <span class="op">=</span> <span class="vs">r&#39;$\omega_t \mid D_T$&#39;</span></a>
 <a class="sourceLine" id="cb25-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb25-15" data-line-number="15">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
-<a class="sourceLine" id="cb25-16" data-line-number="16">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb25-15" data-line-number="15">theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></a>
+<a class="sourceLine" id="cb25-16" data-line-number="16">nb_posterior_samples <span class="op">=</span> {theta_label: [[]], phi_W_label: [[]], omega_label: [[]]}</a>
 <a class="sourceLine" id="cb25-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb25-18" data-line-number="18"><span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(thetas_shape[<span class="op">-</span><span class="dv">1</span>]):</a>
-<a class="sourceLine" id="cb25-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb25-20" data-line-number="20">    styles <span class="op">=</span> <span class="bu">next</span>(cycle)</a>
-<a class="sourceLine" id="cb25-21" data-line-number="21">    thetas <span class="op">=</span> nb_posterior_samples[theta_label][<span class="dv">0</span>].T[d].T</a>
+<a class="sourceLine" id="cb25-18" data-line-number="18">V_t_sim <span class="op">=</span> np.reciprocal(omega_0)</a>
+<a class="sourceLine" id="cb25-19" data-line-number="19">y_aug_sim <span class="op">=</span> y_aug_0</a>
+<a class="sourceLine" id="cb25-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb25-21" data-line-number="21"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
 <a class="sourceLine" id="cb25-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb25-23" data-line-number="23">    theta_lines <span class="op">=</span> np.empty(thetas_shape[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> (<span class="dv">2</span>,))</a>
-<a class="sourceLine" id="cb25-24" data-line-number="24">    theta_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(thetas_shape[<span class="op">-</span><span class="dv">2</span>]), [thetas_shape[<span class="op">-</span><span class="dv">3</span>], <span class="dv">1</span>]).T</a>
-<a class="sourceLine" id="cb25-25" data-line-number="25">    theta_lines.T[<span class="dv">1</span>] <span class="op">=</span> thetas.T</a>
-<a class="sourceLine" id="cb25-26" data-line-number="26"></a>
-<a class="sourceLine" id="cb25-27" data-line-number="27">    ax.add_collection(</a>
-<a class="sourceLine" id="cb25-28" data-line-number="28">        LineCollection(theta_lines,</a>
-<a class="sourceLine" id="cb25-29" data-line-number="29">                       label<span class="op">=</span>theta_label,</a>
-<a class="sourceLine" id="cb25-30" data-line-number="30">                       alpha<span class="op">=</span><span class="fl">0.05</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>,</a>
-<a class="sourceLine" id="cb25-31" data-line-number="31">                       <span class="op">**</span>styles)</a>
-<a class="sourceLine" id="cb25-32" data-line-number="32">    )</a>
+<a class="sourceLine" id="cb25-23" data-line-number="23">    nb_ffbs_res <span class="op">=</span> nb_ffbs_dlm(</a>
+<a class="sourceLine" id="cb25-24" data-line-number="24">        nb_dlm_sim_values[N_obs_tt],</a>
+<a class="sourceLine" id="cb25-25" data-line-number="25">        nb_dlm_sim_values[N_theta_tt],</a>
+<a class="sourceLine" id="cb25-26" data-line-number="26">        y_aug_sim,</a>
+<a class="sourceLine" id="cb25-27" data-line-number="27">        nb_dlm_sim_values[G_tt],</a>
+<a class="sourceLine" id="cb25-28" data-line-number="28">        nb_dlm_sim_values[F_tt],</a>
+<a class="sourceLine" id="cb25-29" data-line-number="29">        V_t_sim,</a>
+<a class="sourceLine" id="cb25-30" data-line-number="30">        nb_dlm_sim_values[r_tt])</a>
+<a class="sourceLine" id="cb25-31" data-line-number="31"></a>
+<a class="sourceLine" id="cb25-32" data-line-number="32">    theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> nb_ffbs_res</a>
 <a class="sourceLine" id="cb25-33" data-line-number="33"></a>
-<a class="sourceLine" id="cb25-34" data-line-number="34">plt.tight_layout()</a>
-<a class="sourceLine" id="cb25-35" data-line-number="35"></a>
-<a class="sourceLine" id="cb25-36" data-line-number="36">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb25-34" data-line-number="34">    phi_W_tt.set_value(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb25-35" data-line-number="35">    omega_t_tt.set_value(omega_post_sim)</a>
+<a class="sourceLine" id="cb25-36" data-line-number="36"></a>
+<a class="sourceLine" id="cb25-37" data-line-number="37">    V_t_sim <span class="op">=</span> np.reciprocal(omega_post_sim)</a>
+<a class="sourceLine" id="cb25-38" data-line-number="38">    y_aug_sim <span class="op">=</span> y_aug_post_sim</a>
+<a class="sourceLine" id="cb25-39" data-line-number="39"></a>
+<a class="sourceLine" id="cb25-40" data-line-number="40">    nb_posterior_samples[theta_label][chain].append(theta_t_post_sim)</a>
+<a class="sourceLine" id="cb25-41" data-line-number="41">    nb_posterior_samples[phi_W_label][chain].append(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb25-42" data-line-number="42">    nb_posterior_samples[omega_label][chain].append(omega_post_sim)</a>
+<a class="sourceLine" id="cb25-43" data-line-number="43"></a>
+<a class="sourceLine" id="cb25-44" data-line-number="44">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ss">&#39;</span>)</a>
+<a class="sourceLine" id="cb25-45" data-line-number="45"></a>
+<a class="sourceLine" id="cb25-46" data-line-number="46">nb_posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> nb_posterior_samples.items()}</a></code></pre></div>
 <figcaption>
 Listing 25
+</figcaption>
+</figure>
+<p>Figure <a href="#org10452de">26</a> shows the posterior <span class="math inline">\(\theta_t\)</span> samples, Figure <a href="#orgf3dfe31">27</a> plots the posterior sample traces, and Figure <a href="#org3584d3a">28</a> shows <span class="math inline">\(p_t \mid \theta_t\)</span>.</p>
+<figure id="org10452de">
+<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" data-line-number="1">plt.clf()</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb26-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
+<a class="sourceLine" id="cb26-4" data-line-number="4">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb26-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb26-6" data-line-number="6">thetas_shape <span class="op">=</span> nb_posterior_samples[theta_label][<span class="dv">0</span>].shape</a>
+<a class="sourceLine" id="cb26-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb26-8" data-line-number="8">cycle <span class="op">=</span> ax._get_lines.prop_cycler</a>
+<a class="sourceLine" id="cb26-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb26-10" data-line-number="10">bivariate_obs_cycler <span class="op">=</span>  cycler(<span class="st">&#39;linestyle&#39;</span>, [<span class="st">&#39;-&#39;</span>, <span class="st">&#39;--&#39;</span>]) <span class="op">*</span> cycler(<span class="st">&#39;color&#39;</span>, [<span class="st">&#39;black&#39;</span>])</a>
+<a class="sourceLine" id="cb26-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb26-12" data-line-number="12">ax.set_prop_cycle(bivariate_obs_cycler)</a>
+<a class="sourceLine" id="cb26-13" data-line-number="13">ax.plot(nb_theta_t_sim, label<span class="op">=</span><span class="vs">r&#39;$\theta_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>)</a>
+<a class="sourceLine" id="cb26-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb26-15" data-line-number="15">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb26-16" data-line-number="16">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb26-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb26-18" data-line-number="18"><span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(thetas_shape[<span class="op">-</span><span class="dv">1</span>]):</a>
+<a class="sourceLine" id="cb26-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb26-20" data-line-number="20">    styles <span class="op">=</span> <span class="bu">next</span>(cycle)</a>
+<a class="sourceLine" id="cb26-21" data-line-number="21">    thetas <span class="op">=</span> nb_posterior_samples[theta_label][<span class="dv">0</span>].T[d].T</a>
+<a class="sourceLine" id="cb26-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb26-23" data-line-number="23">    theta_lines <span class="op">=</span> np.empty(thetas_shape[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> (<span class="dv">2</span>,))</a>
+<a class="sourceLine" id="cb26-24" data-line-number="24">    theta_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(thetas_shape[<span class="op">-</span><span class="dv">2</span>]), [thetas_shape[<span class="op">-</span><span class="dv">3</span>], <span class="dv">1</span>]).T</a>
+<a class="sourceLine" id="cb26-25" data-line-number="25">    theta_lines.T[<span class="dv">1</span>] <span class="op">=</span> thetas.T</a>
+<a class="sourceLine" id="cb26-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb26-27" data-line-number="27">    ax.add_collection(</a>
+<a class="sourceLine" id="cb26-28" data-line-number="28">        LineCollection(theta_lines,</a>
+<a class="sourceLine" id="cb26-29" data-line-number="29">                       label<span class="op">=</span>theta_label,</a>
+<a class="sourceLine" id="cb26-30" data-line-number="30">                       alpha<span class="op">=</span><span class="fl">0.05</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>,</a>
+<a class="sourceLine" id="cb26-31" data-line-number="31">                       <span class="op">**</span>styles)</a>
+<a class="sourceLine" id="cb26-32" data-line-number="32">    )</a>
+<a class="sourceLine" id="cb26-33" data-line-number="33"></a>
+<a class="sourceLine" id="cb26-34" data-line-number="34">plt.tight_layout()</a>
+<a class="sourceLine" id="cb26-35" data-line-number="35"></a>
+<a class="sourceLine" id="cb26-36" data-line-number="36">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
+<figcaption>
+Listing 26
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
@@ -1431,12 +1430,12 @@ Posterior <span class="math inline">\(\theta_t\)</span> samples generated by our
 </figcaption>
 </figure>
 <figure id="orgf3dfe31">
-<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="im">import</span> arviz <span class="im">as</span> az</a>
-<a class="sourceLine" id="cb26-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb26-3" data-line-number="3">az_trace <span class="op">=</span> az.from_dict(posterior<span class="op">=</span>nb_posterior_samples)</a>
-<a class="sourceLine" id="cb26-4" data-line-number="4">az.plot_trace(az_trace, compact<span class="op">=</span><span class="va">True</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="im">import</span> arviz <span class="im">as</span> az</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3">az_trace <span class="op">=</span> az.from_dict(posterior<span class="op">=</span>nb_posterior_samples)</a>
+<a class="sourceLine" id="cb27-4" data-line-number="4">az.plot_trace(az_trace, compact<span class="op">=</span><span class="va">True</span>)</a></code></pre></div>
 <figcaption>
-Listing 26
+Listing 27
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
@@ -1446,39 +1445,183 @@ Posterior sample traces for our Polya-Gamma FFBS Gibbs sampler.
 </figcaption>
 </figure>
 <figure id="org3584d3a">
-<div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb27-1" data-line-number="1">plt.close(<span class="st">&#39;all&#39;</span>)</a>
-<a class="sourceLine" id="cb27-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb27-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
-<a class="sourceLine" id="cb27-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb27-5" data-line-number="5">ax.plot(nb_p_t_sim, label<span class="op">=</span><span class="vs">r&#39;$p_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, color<span class="op">=</span><span class="st">&#39;black&#39;</span>)</a>
-<a class="sourceLine" id="cb27-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb27-7" data-line-number="7">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
-<a class="sourceLine" id="cb27-8" data-line-number="8">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
-<a class="sourceLine" id="cb27-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb27-10" data-line-number="10">mu_t_sim <span class="op">=</span> np.exp(np.dot(nb_posterior_samples[theta_label][<span class="dv">0</span>], nb_dlm_sim_values[F_tt].squeeze()))</a>
-<a class="sourceLine" id="cb27-11" data-line-number="11">p_t_sim <span class="op">=</span> mu_t_sim <span class="op">/</span> (mu_t_sim <span class="op">+</span> nb_dlm_sim_values[r_tt])</a>
-<a class="sourceLine" id="cb27-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb27-13" data-line-number="13">p_t_lines <span class="op">=</span> np.empty(p_t_sim.shape <span class="op">+</span> (<span class="dv">2</span>,))</a>
-<a class="sourceLine" id="cb27-14" data-line-number="14">p_t_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(p_t_sim.shape[<span class="dv">1</span>]), [p_t_sim.shape[<span class="dv">0</span>], <span class="dv">1</span>]).T</a>
-<a class="sourceLine" id="cb27-15" data-line-number="15">p_t_lines.T[<span class="dv">1</span>] <span class="op">=</span> p_t_sim.T</a>
-<a class="sourceLine" id="cb27-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb27-17" data-line-number="17">ax.add_collection(</a>
-<a class="sourceLine" id="cb27-18" data-line-number="18">    LineCollection(p_t_lines,</a>
-<a class="sourceLine" id="cb27-19" data-line-number="19">                   label<span class="op">=</span><span class="vs">r&#39;$p_t \mid \theta_t, D_T$&#39;</span>,</a>
-<a class="sourceLine" id="cb27-20" data-line-number="20">                   alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>, color<span class="op">=</span><span class="st">&#39;red&#39;</span>)</a>
-<a class="sourceLine" id="cb27-21" data-line-number="21">)</a>
-<a class="sourceLine" id="cb27-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb27-23" data-line-number="23">plt.tight_layout()</a>
-<a class="sourceLine" id="cb27-24" data-line-number="24"></a>
-<a class="sourceLine" id="cb27-25" data-line-number="25">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb28-1" data-line-number="1">plt.close(<span class="st">&#39;all&#39;</span>)</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb28-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
+<a class="sourceLine" id="cb28-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb28-5" data-line-number="5">ax.plot(nb_p_t_sim, label<span class="op">=</span><span class="vs">r&#39;$p_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, color<span class="op">=</span><span class="st">&#39;black&#39;</span>)</a>
+<a class="sourceLine" id="cb28-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb28-7" data-line-number="7">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb28-8" data-line-number="8">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb28-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb28-10" data-line-number="10">mu_t_sim <span class="op">=</span> np.exp(np.dot(nb_posterior_samples[theta_label][<span class="dv">0</span>], nb_dlm_sim_values[F_tt].squeeze()))</a>
+<a class="sourceLine" id="cb28-11" data-line-number="11">p_t_sim <span class="op">=</span> mu_t_sim <span class="op">/</span> (mu_t_sim <span class="op">+</span> nb_dlm_sim_values[r_tt])</a>
+<a class="sourceLine" id="cb28-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb28-13" data-line-number="13">p_t_lines <span class="op">=</span> np.empty(p_t_sim.shape <span class="op">+</span> (<span class="dv">2</span>,))</a>
+<a class="sourceLine" id="cb28-14" data-line-number="14">p_t_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(p_t_sim.shape[<span class="dv">1</span>]), [p_t_sim.shape[<span class="dv">0</span>], <span class="dv">1</span>]).T</a>
+<a class="sourceLine" id="cb28-15" data-line-number="15">p_t_lines.T[<span class="dv">1</span>] <span class="op">=</span> p_t_sim.T</a>
+<a class="sourceLine" id="cb28-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb28-17" data-line-number="17">ax.add_collection(</a>
+<a class="sourceLine" id="cb28-18" data-line-number="18">    LineCollection(p_t_lines,</a>
+<a class="sourceLine" id="cb28-19" data-line-number="19">                   label<span class="op">=</span><span class="vs">r&#39;$p_t \mid \theta_t, D_T$&#39;</span>,</a>
+<a class="sourceLine" id="cb28-20" data-line-number="20">                   alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>, color<span class="op">=</span><span class="st">&#39;red&#39;</span>)</a>
+<a class="sourceLine" id="cb28-21" data-line-number="21">)</a>
+<a class="sourceLine" id="cb28-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb28-23" data-line-number="23">plt.tight_layout()</a>
+<a class="sourceLine" id="cb28-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb28-25" data-line-number="25">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
 <figcaption>
-Listing 27
+Listing 28
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
 <img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-sim-pred-plot.png" alt="p_t \mid \theta_t, D_T samples generated by our Polya-Gamma FFBS sampler. " />
 <figcaption>
 <span class="math inline">\(p_t \mid \theta_t, D_T\)</span> samples generated by our Polya-Gamma FFBS sampler.
+</figcaption>
+</figure>
+<p><a id="orgbadaeaf"></a></p>
+</section>
+<section id="covid19-example" class="level2">
+<h2>COVID–19 Example</h2>
+<figure>
+<div class="sourceCode" id="cb29"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="im">import</span> pandas <span class="im">as</span> pd</a>
+<a class="sourceLine" id="cb29-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb29-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb29-4" data-line-number="4">url <span class="op">=</span> <span class="st">&#39;https://covidtracking.com/api/v1/states/daily.csv&#39;</span></a>
+<a class="sourceLine" id="cb29-5" data-line-number="5">states <span class="op">=</span> pd.read_csv(url, parse_dates<span class="op">=</span>[<span class="st">&#39;date&#39;</span>], index_col<span class="op">=</span>[<span class="st">&#39;state&#39;</span>,<span class="st">&#39;date&#39;</span>]).sort_index()</a>
+<a class="sourceLine" id="cb29-6" data-line-number="6">state <span class="op">=</span> <span class="st">&#39;NY&#39;</span></a>
+<a class="sourceLine" id="cb29-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb29-8" data-line-number="8">counts <span class="op">=</span> states.loc[state, [<span class="st">&#39;positive&#39;</span>, <span class="st">&#39;total&#39;</span>]].diff().loc[<span class="st">&#39;2020-03-20&#39;</span>:]</a>
+<a class="sourceLine" id="cb29-9" data-line-number="9">counts.columns <span class="op">=</span> [<span class="st">&#39;new_positive_tests&#39;</span>, <span class="st">&#39;new_total_tests&#39;</span>]</a></code></pre></div>
+</figure>
+<figure>
+<div class="sourceCode" id="cb30"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb30-1" data-line-number="1">plt.clf()</a>
+<a class="sourceLine" id="cb30-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb30-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
+<a class="sourceLine" id="cb30-4" data-line-number="4">_ <span class="op">=</span> ax.plot(counts.new_positive_tests, label<span class="op">=</span><span class="vs">r&#39;$y_t$&#39;</span>, color<span class="op">=</span><span class="st">&#39;black&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.2</span>, drawstyle<span class="op">=</span><span class="st">&#39;steps-pre&#39;</span>)</a>
+<a class="sourceLine" id="cb30-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb30-6" data-line-number="6">plt.tight_layout()</a>
+<a class="sourceLine" id="cb30-7" data-line-number="7">plt.legend()</a></code></pre></div>
+</figure>
+<figure id="nil" class="plot">
+<img src="https://brandonwillard.github.io/drafts/figures/nb-dlm-ny-plot.png" alt="COVID–19 positive test counts in NY " />
+<figcaption>
+COVID–19 positive test counts in NY
+</figcaption>
+</figure>
+<figure>
+<div class="sourceCode" id="cb31"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb31-1" data-line-number="1">nb_dlm_ny_values <span class="op">=</span> {</a>
+<a class="sourceLine" id="cb31-2" data-line-number="2">    N_obs_tt: counts.new_positive_tests.shape[<span class="dv">0</span>],</a>
+<a class="sourceLine" id="cb31-3" data-line-number="3">    N_theta_tt: <span class="dv">1</span></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4">}</a>
+<a class="sourceLine" id="cb31-5" data-line-number="5">nb_dlm_ny_values[F_tt] <span class="op">=</span> np.array([[<span class="fl">1.0</span>]], dtype<span class="op">=</span>theano.config.floatX)</a>
+<a class="sourceLine" id="cb31-6" data-line-number="6">nb_dlm_ny_values[G_tt] <span class="op">=</span> np.array([[<span class="fl">1.0</span>]], dtype<span class="op">=</span>theano.config.floatX)</a>
+<a class="sourceLine" id="cb31-7" data-line-number="7">nb_dlm_ny_values[r_tt] <span class="op">=</span> <span class="dv">1000</span></a>
+<a class="sourceLine" id="cb31-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb31-9" data-line-number="9">phi_W_a.set_value(np.r_[<span class="fl">2.5</span>])</a>
+<a class="sourceLine" id="cb31-10" data-line-number="10">phi_W_b.set_value(np.r_[<span class="fl">0.5</span>])</a>
+<a class="sourceLine" id="cb31-11" data-line-number="11">phi_W_tt.set_value(np.r_[<span class="fl">10.0</span>])</a>
+<a class="sourceLine" id="cb31-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb31-13" data-line-number="13">rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).set_state(rng_init_state)</a>
+<a class="sourceLine" id="cb31-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb31-15" data-line-number="15">y_raw_tt.set_value(np.expand_dims(counts.new_positive_tests, <span class="dv">-1</span>).astype(theano.config.floatX))</a>
+<a class="sourceLine" id="cb31-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb31-17" data-line-number="17">r_ny <span class="op">=</span> np.array(nb_dlm_ny_values[r_tt], dtype<span class="op">=</span><span class="st">&#39;double&#39;</span>)</a>
+<a class="sourceLine" id="cb31-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb31-19" data-line-number="19">omega_0 <span class="op">=</span> np.empty(counts.new_positive_tests.shape[<span class="dv">0</span>], dtype<span class="op">=</span><span class="st">&#39;double&#39;</span>)</a>
+<a class="sourceLine" id="cb31-20" data-line-number="20">PyPolyaGamma(<span class="dv">12344</span>).pgdrawv(r_ny <span class="op">+</span> counts.new_positive_tests.values,</a>
+<a class="sourceLine" id="cb31-21" data-line-number="21">                            F_t_theta_0.squeeze() <span class="op">-</span> np.log(r_ny),</a>
+<a class="sourceLine" id="cb31-22" data-line-number="22">                            omega_0)</a>
+<a class="sourceLine" id="cb31-23" data-line-number="23">omega_0 <span class="op">=</span> np.expand_dims(omega_0, <span class="dv">-1</span>)</a>
+<a class="sourceLine" id="cb31-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb31-25" data-line-number="25">y_aug_0 <span class="op">=</span> np.log(r_ny) <span class="op">+</span> (counts.new_positive_tests.values[:, np.newaxis] <span class="op">-</span> r_ny) <span class="op">/</span> (<span class="fl">2.0</span> <span class="op">*</span> omega_0)</a>
+<a class="sourceLine" id="cb31-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb31-27" data-line-number="27">omega_t_tt.set_value(omega_0)</a></code></pre></div>
+</figure>
+<figure>
+<div class="sourceCode" id="cb32"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb32-1" data-line-number="1">nb_ffbs_dlm <span class="op">=</span> tt_function([N_obs_tt, N_theta_tt, y_tt, G_tt, F_tt, V_t_tt, r_tt],</a>
+<a class="sourceLine" id="cb32-2" data-line-number="2">                          [theta_t_post, phi_W_post_tt, omega_post_tt, y_aug_post_tt],</a>
+<a class="sourceLine" id="cb32-3" data-line-number="3">                          mode<span class="op">=</span><span class="st">&#39;FAST_COMPILE&#39;</span>,</a>
+<a class="sourceLine" id="cb32-4" data-line-number="4">                          updates<span class="op">=</span>ffbs_updates)</a>
+<a class="sourceLine" id="cb32-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb32-6" data-line-number="6">rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).set_state(rng_sim_state)</a>
+<a class="sourceLine" id="cb32-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb32-8" data-line-number="8">chain <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb32-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb32-10" data-line-number="10">theta_label <span class="op">=</span> <span class="vs">r&#39;$\theta_t \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb32-11" data-line-number="11">phi_W_label <span class="op">=</span> <span class="vs">r&#39;$\phi_W \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb32-12" data-line-number="12">omega_label <span class="op">=</span> <span class="vs">r&#39;$\omega_t \mid D_T$&#39;</span></a>
+<a class="sourceLine" id="cb32-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb32-14" data-line-number="14">theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></a>
+<a class="sourceLine" id="cb32-15" data-line-number="15">nb_ny_posterior_samples <span class="op">=</span> {theta_label: [[]], phi_W_label: [[]], omega_label: [[]]}</a>
+<a class="sourceLine" id="cb32-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb32-17" data-line-number="17">V_t_sim <span class="op">=</span> np.reciprocal(omega_0)</a>
+<a class="sourceLine" id="cb32-18" data-line-number="18">y_aug_sim <span class="op">=</span> y_aug_0</a>
+<a class="sourceLine" id="cb32-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb32-20" data-line-number="20"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
+<a class="sourceLine" id="cb32-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb32-22" data-line-number="22">    nb_ffbs_res <span class="op">=</span> nb_ffbs_dlm(</a>
+<a class="sourceLine" id="cb32-23" data-line-number="23">        nb_dlm_ny_values[N_obs_tt],</a>
+<a class="sourceLine" id="cb32-24" data-line-number="24">        nb_dlm_ny_values[N_theta_tt],</a>
+<a class="sourceLine" id="cb32-25" data-line-number="25">        y_aug_sim,</a>
+<a class="sourceLine" id="cb32-26" data-line-number="26">        nb_dlm_ny_values[G_tt],</a>
+<a class="sourceLine" id="cb32-27" data-line-number="27">        nb_dlm_ny_values[F_tt],</a>
+<a class="sourceLine" id="cb32-28" data-line-number="28">        V_t_sim,</a>
+<a class="sourceLine" id="cb32-29" data-line-number="29">        nb_dlm_ny_values[r_tt])</a>
+<a class="sourceLine" id="cb32-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb32-31" data-line-number="31">    theta_t_post_sim, phi_W_post_sim, omega_post_sim, y_aug_post_sim <span class="op">=</span> nb_ffbs_res</a>
+<a class="sourceLine" id="cb32-32" data-line-number="32"></a>
+<a class="sourceLine" id="cb32-33" data-line-number="33">    phi_W_tt.set_value(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb32-34" data-line-number="34">    omega_t_tt.set_value(omega_post_sim)</a>
+<a class="sourceLine" id="cb32-35" data-line-number="35"></a>
+<a class="sourceLine" id="cb32-36" data-line-number="36">    V_t_sim <span class="op">=</span> np.reciprocal(omega_post_sim)</a>
+<a class="sourceLine" id="cb32-37" data-line-number="37">    y_aug_sim <span class="op">=</span> y_aug_post_sim</a>
+<a class="sourceLine" id="cb32-38" data-line-number="38"></a>
+<a class="sourceLine" id="cb32-39" data-line-number="39">    nb_ny_posterior_samples[theta_label][chain].append(theta_t_post_sim)</a>
+<a class="sourceLine" id="cb32-40" data-line-number="40">    nb_ny_posterior_samples[phi_W_label][chain].append(phi_W_post_sim)</a>
+<a class="sourceLine" id="cb32-41" data-line-number="41">    nb_ny_posterior_samples[omega_label][chain].append(omega_post_sim)</a>
+<a class="sourceLine" id="cb32-42" data-line-number="42"></a>
+<a class="sourceLine" id="cb32-43" data-line-number="43">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ss">&#39;</span>)</a>
+<a class="sourceLine" id="cb32-44" data-line-number="44"></a>
+<a class="sourceLine" id="cb32-45" data-line-number="45">nb_ny_posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> nb_ny_posterior_samples.items()}</a></code></pre></div>
+</figure>
+<figure>
+<div class="sourceCode" id="cb33"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="im">import</span> scipy</a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb33-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb33-4" data-line-number="4">plt.close(<span class="st">&#39;all&#39;</span>)</a>
+<a class="sourceLine" id="cb33-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb33-6" data-line-number="6">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
+<a class="sourceLine" id="cb33-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb33-8" data-line-number="8">ax.plot(counts.new_positive_tests.values, label<span class="op">=</span><span class="vs">r&#39;$y_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, color<span class="op">=</span><span class="st">&#39;black&#39;</span>)</a>
+<a class="sourceLine" id="cb33-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb33-10" data-line-number="10">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb33-11" data-line-number="11">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb33-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb33-13" data-line-number="13">mu_t_sim <span class="op">=</span> np.exp(np.dot(nb_ny_posterior_samples[theta_label][<span class="dv">0</span>], nb_dlm_ny_values[F_tt].squeeze()))</a>
+<a class="sourceLine" id="cb33-14" data-line-number="14">p_t_sim <span class="op">=</span> mu_t_sim <span class="op">/</span> (mu_t_sim <span class="op">+</span> nb_dlm_ny_values[r_tt])</a>
+<a class="sourceLine" id="cb33-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb33-16" data-line-number="16">y_t_sim <span class="op">=</span> scipy.stats.nbinom.rvs(nb_dlm_ny_values[r_tt], (<span class="fl">1.</span> <span class="op">-</span> p_t_sim)).squeeze()</a>
+<a class="sourceLine" id="cb33-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb33-18" data-line-number="18">y_t_lines <span class="op">=</span> np.empty(y_t_sim.shape <span class="op">+</span> (<span class="dv">2</span>,))</a>
+<a class="sourceLine" id="cb33-19" data-line-number="19">y_t_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(y_t_sim.shape[<span class="dv">1</span>]), [y_t_sim.shape[<span class="dv">0</span>], <span class="dv">1</span>]).T</a>
+<a class="sourceLine" id="cb33-20" data-line-number="20">y_t_lines.T[<span class="dv">1</span>] <span class="op">=</span> y_t_sim.T</a>
+<a class="sourceLine" id="cb33-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb33-22" data-line-number="22">ax.add_collection(</a>
+<a class="sourceLine" id="cb33-23" data-line-number="23">    LineCollection(y_t_lines,</a>
+<a class="sourceLine" id="cb33-24" data-line-number="24">                   label<span class="op">=</span><span class="vs">r&#39;$y_t \mid \theta_t, D_T$&#39;</span>,</a>
+<a class="sourceLine" id="cb33-25" data-line-number="25">                   alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>, color<span class="op">=</span><span class="st">&#39;red&#39;</span>)</a>
+<a class="sourceLine" id="cb33-26" data-line-number="26">)</a>
+<a class="sourceLine" id="cb33-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb33-28" data-line-number="28">plt.tight_layout()</a>
+<a class="sourceLine" id="cb33-29" data-line-number="29"></a>
+<a class="sourceLine" id="cb33-30" data-line-number="30">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
+</figure>
+<figure id="nil" class="plot">
+<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-ny-pred-plot.png" alt="y_t \mid \theta_t, D_T samples generated by our Polya-Gamma FFBS sampler. " />
+<figcaption>
+<span class="math inline">\(y_t \mid \theta_t, D_T\)</span> samples generated by our Polya-Gamma FFBS sampler.
 </figcaption>
 </figure>
 <p><a id="org71c9f6b"></a></p>
