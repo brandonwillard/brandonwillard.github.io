@@ -1,8 +1,8 @@
-#+TITLE: Dynamic Linear Model Optimizations in Theano
+#+TITLE: Dynamic Linear Models in Theano
 #+AUTHOR: Brandon T. Willard
 #+DATE: 2020-03-18
 #+EMAIL: brandonwillard@gmail.com
-#+FILETAGS: :draft:pymc3:theano:statistics:symbolic computation:python:probability theory:
+#+FILETAGS: :symbolic-pymc:theano:statistics:timeseries:dlm:ffbs:gibbs:
 
 #+STARTUP: hideblocks indent hidestars
 #+OPTIONS: author:t date:t ^:nil toc:t title:t tex:t d:(not "todo" "logbook" "note" "testing" "notes") html-preamble:t
@@ -18,21 +18,40 @@
 #+PROPERTY: header-args:latex :results html replace :exports results :eval yes
 
 #+BEGIN_abstract
-In this document we construct dynamic linear models (DLMs) in Theano and explore
-ideas for automating the production of efficient samplers.
+In this document we detail how dynamic linear models (DLMs) can be implemented
+in Theano (or similar tensor libraries), as well as a complementary
+Rao-Blackwellized sampler tailored to the structure of DLMs.  Furthermore, we
+provide an example of how DLMs can be extended--via Gaussian scale-mixtures--to
+model non-gaussian observations.  The example is a Pólya-Gamma extension to forward-filtering
+backward-sampling for negative-binomial observations.
 #+END_abstract
 
 * Introduction
 
-We start by considering the simple form of a DLM [[citep:harrison_bayesian_1999]] with
-prior \(\theta_0 \sim \operatorname{N}\left( m_0, C_0 \right)\):
+For a proper introduction of dynamic linear models and their estimation, see
+[[citet:harrison_bayesian_1999]],[[citet:PetrisDynamicLinearModels2009]], and
+[[citet:GamermanMarkovchainMonte2006]],[[citet:pole_applied_1994]].
+The focus of this document is on some practical details behind DLM estimation
+in Python--and, particularly, libraries like Theano [[citep:bergstra_theano:_2010]].
+Throughout, we use some custom random variable objects from src_python[:eval never]{symbolic-pymc}
+[[citep:Willardsymbolicpymc2019]].  This is largely
+because src_python[:eval never]{symbolic-pymc} offers a necessary non-standard
+distribution and its random variables work well within
+the src_python[:eval never]{scan} operations we employ.
 
+In the future, we plan to build optimizations that automate much of the work
+done here (and more).  This exposition sets the foundation for such work by
+first motivating the use and generality of Bayesian frameworks like DLMs, then
+by demonstrating the analytic steps that produce customized, efficient samplers.
+These are the steps that would undergo automation in the future.
+
+A DLM with prior \(\theta_0 \sim \operatorname{N}\left( m_0, C_0 \right)\) is defined as follows:
 #+BEGIN_SRC latex
 \begin{align}
-  y_t &= F_t^{\top} \theta_{t} + \epsilon_t, \quad \epsilon_t \sim \operatorname{N}\left( 0, V \right)
+  y_t &= F_t^{\top} \theta_{t} + \epsilon_t, \quad \epsilon_t \sim \operatorname{N}\left( 0, V_t \right)
   \label{eq:basic-dlm-obs}
   \\
-  \theta_t &= G_t \theta_{t-1} + \nu_t, \quad \nu_t \sim \operatorname{N}\left( 0, W \right)
+  \theta_t &= G_t \theta_{t-1} + \nu_t, \quad \nu_t \sim \operatorname{N}\left( 0, W_t \right)
   \label{eq:basic-dlm-state}
 \end{align}
 #+END_SRC
@@ -40,10 +59,10 @@ prior \(\theta_0 \sim \operatorname{N}\left( m_0, C_0 \right)\):
 #+RESULTS:
 #+begin_export html
 \begin{align}
-  y_t &= F_t^{\top} \theta_{t} + \epsilon_t, \quad \epsilon_t \sim \operatorname{N}\left( 0, V \right)
+  y_t &= F_t^{\top} \theta_{t} + \epsilon_t, \quad \epsilon_t \sim \operatorname{N}\left( 0, V_t \right)
   \label{eq:basic-dlm-obs}
   \\
-  \theta_t &= G_t \theta_{t-1} + \nu_t, \quad \nu_t \sim \operatorname{N}\left( 0, W \right)
+  \theta_t &= G_t \theta_{t-1} + \nu_t, \quad \nu_t \sim \operatorname{N}\left( 0, W_t \right)
   \label{eq:basic-dlm-state}
 \end{align}
 #+end_export
@@ -70,7 +89,7 @@ from matplotlib.collections import LineCollection
 
 from theano.printing import debugprint as tt_dprint
 
-from symbolic_pymc.theano.random_variables import NormalRV, MvNormalRV, GammaRV, observed
+from symbolic_pymc.theano.random_variables import NormalRV, MvNormalRV, GammaRV
 
 
 plt.style.use('ggplot')
@@ -143,61 +162,68 @@ Y_t_rv, Y_t_updates = theano.scan(fn=obs_step,
                                   name='Y_t')
 #+END_SRC
 
-The model in Listing [[basic-normal-model]] is our starting point.  We assume
-that a PyMC3 user--for instance--would define a timeseries model in this way,
-alongside distributional assumptions on parameters (e.g. inverse-gamma
-variances).  From there, we'll explore some ideas behind manually producing
-model-specific efficient samplers--generally by first manually deriving and
-then demonstrating said samplers.
-
 Throughout we'll use data sampled from [[eqref:eq:basic-dlm-state]] for demonstration
-purposes.  Specifically, our simulation has the following values:
+purposes.  Our simulation has the following model parameter values:
 #+BEGIN_SRC latex
-\begin{gather}
-  T = 200,\quad M = 2
-  \\
-  \phi_W = \left(1.1, 10\right),\quad \phi_V = 0.7
-  \\
-  G_t = \begin{pmatrix}
-  1 & 0.1 \\
-  0 & 1 \\
-  \end{pmatrix},\quad
-  F_t = \begin{pmatrix}
-  1 \\
-  0
-  \end{pmatrix}
-  \\
-  \theta_0 = \begin{pmatrix}
-  0 \\
-  0
-  \end{pmatrix}
+\begin{equation}
+  \begin{gathered}
+    T = 200,\quad M = 2
+    \\
+    W_t = \operatorname{diag}\left( \phi_W \right)
+    ,\quad
+    V_t = \operatorname{diag}\left( \phi_V \right)
+    \\
+    \phi_W = \left(1.1, 10\right),\quad \phi_V = 0.7
+    \\
+    G_t = \begin{pmatrix}
+    1 & 0.1 \\
+    0 & 1 \\
+    \end{pmatrix},\quad
+    F_t = \begin{pmatrix}
+    1 \\
+    0
+    \end{pmatrix}
+    \\
+    \theta_0 = \begin{pmatrix}
+    0 \\
+    0
+    \end{pmatrix}
+  \end{gathered}
   \label{eq:sim-settings}
-\end{gather}
+\end{equation}
 #+END_SRC
 
 #+RESULTS:
 #+begin_export html
-\begin{gather}
-  T = 200,\quad M = 2
-  \\
-  \phi_W = \left(1.1, 10\right),\quad \phi_V = 0.7
-  \\
-  G_t = \begin{pmatrix}
-  1 & 0.1 \\
-  0 & 1 \\
-  \end{pmatrix},\quad
-  F_t = \begin{pmatrix}
-  1 \\
-  0
-  \end{pmatrix}
-  \\
-  \theta_0 = \begin{pmatrix}
-  0 \\
-  0
-  \end{pmatrix}
+\begin{equation}
+  \begin{gathered}
+    T = 200,\quad M = 2
+    \\
+    W_t = \operatorname{diag}\left( \phi_W \right)
+    ,\quad
+    V_t = \operatorname{diag}\left( \phi_V \right)
+    \\
+    \phi_W = \left(1.1, 10\right),\quad \phi_V = 0.7
+    \\
+    G_t = \begin{pmatrix}
+    1 & 0.1 \\
+    0 & 1 \\
+    \end{pmatrix},\quad
+    F_t = \begin{pmatrix}
+    1 \\
+    0
+    \end{pmatrix}
+    \\
+    \theta_0 = \begin{pmatrix}
+    0 \\
+    0
+    \end{pmatrix}
+  \end{gathered}
   \label{eq:sim-settings}
-\end{gather}
+\end{equation}
 #+end_export
+
+A sample from [[eqref:eq:sim-settings]] is generated in Listing [[basic-dlm-sim]].
 
 #+NAME: basic-dlm-sim
 #+BEGIN_SRC python :results silent
@@ -245,12 +271,11 @@ plt.legend()
 #+RESULTS: fig:basic-dlm-sim-plot-fig
 [[file:../../figures/basic-dlm-sim-plot.png]]
 
+* Analytic Posteriors
 
-Since our goal is to automate some of the basic steps in the process of analytically
-manipulating and/or solving DLMs (for the purpose of producing efficient and accurate
-posterior estimates), we will want to compute as many closed-form operations
-as possible, and the prior predictive state and observation distributions are a
-good place to start.
+The standard DLM is essentially a [[https://en.wikipedia.org/wiki/Kalman_filter][Kalman Filter]] and enjoys many well documented
+closed-form results.  In the following, we will simply state the relevant prior
+predictive and posterior results.
 
 Given all the prior and observed data up to time \(t\), \(D_t\), these
 distribution are given by the following:
@@ -318,14 +343,18 @@ which are as follows:
 \end{equation}
 #+end_export
 
-These "filtered" moments/distributions are only *one* kind of posterior result
-for a DLM, and they only take into account the data up to time \(t\).  The other
+These "filtered" moments/distributions are one "kind" of posterior result
+for a DLM, and they only take into account the data *up to* time \(t\).  The other
 kind are the "smoothed" distributions, which provide posterior distributions
-for each time \(t\) given all observations.
+for each time \(t\) given all observations preceding *and* following \(t\).
 
 Notationally, we've used \(D_t\) to signify all conditional observations and
 parameters up to time \(t\), so the smoothed distributions are given by
-\(\theta_t \mid D_T\) and the following moments:
+\(\theta_t \mid D_T\), in contrast to \(\theta_t \mid D_t\)
+
+The smoothed \(\theta_t\) distributions are still Gaussian, i.e. \(\left(\theta_t
+\mid D_T\right) \sim \operatorname{N}\left(s_t, S_t\right)\), and their moments are
+as follows:
 #+BEGIN_SRC latex
 \begin{equation}
   \begin{aligned}
@@ -679,7 +708,7 @@ filter_res, filter_updates = theano.scan(fn=filtering_step,
 
 ** SVD-based Smoothing
 
-We can use the ideas to produce SVD versions of the smoothing equations in
+We can use the techniques above to produce SVD versions of the smoothing equations in
 [[eqref:eq:dlm-smooth-moments]].  In this case, some extra steps are required in
 order to SVD-decompose \(S_t\) in the same manner as \(R_t\) and \(C_t^{-1}\) were.
 
@@ -1058,24 +1087,50 @@ theta_t_post = tt.join(0, theta_t_post_rev[::-1], [theta_T_post])
 f_t_post = tt.join(0, f_t_rev[::-1], [F_tt.T.dot(theta_T_post)])
 #+END_SRC
 
-** Example
 Quantities besides the state values, \(\theta_t\), can be sampled sequentially (i.e.
 within the function src_python[:eval never]{ffbs_step} in Listing [[svd-ffbs-sampler]]),
 or after FFBS when all \(\theta_t \mid D_T\) have been sampled.  These quantities can use
-the conditionally normal form of \(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)
+the conditionally Gaussian form of \(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)
 to derive Gibbs steps, further Rao-Blackwellize hierarchical quantities, or
 apply any other means of producing posterior samples conditional on
 \(\left(\theta_t \mid \theta_{t+1}, D_T \right)\).
 
-In this example, we will augment our original model by adding the classic gamma
-priors to our previously fixed state and observation scale parameters, \(\phi_W\)
-and \(\phi_V\), respectively.
+In our simulation example, we will further augment our original model by adding
+the classic conjugate gamma priors to our previously fixed state and observation
+precision parameters, \(\phi_W\) and \(\phi_V\), respectively:
+#+BEGIN_SRC latex
+\begin{equation}
+  \begin{gathered}
+    \phi_{W} \sim \operatorname{Gamma}\left( a_W, b_W \right)
+    ,\quad
+    \phi_{V} \sim \operatorname{Gamma}\left( a_V, b_V \right)
+  \end{gathered}
+  \label{eq:phi-gamma-priors}
+\end{equation}
+#+END_SRC
 
 This classical conjugate prior allows one to derive simple closed-form
-posteriors for a Gibbs sampler conditional on \(\theta_t \mid D_T\).
-Those posterior computations are defined in Listings [[ffbs-posterior-phi_W]] and [[ffbs-posterior-phi_V]], and
-they are used to update the shared Theano variables for \(\phi_W\) and \(\phi_V\)
-within a Gibbs sampling loop in Listing [[ffbs-sim]].
+posteriors for a Gibbs sampler conditional on \(y_t\), \(\theta_t\), and
+\(\theta_{t-1}\), as follows:
+#+BEGIN_SRC latex
+\begin{equation}
+  \begin{gathered}
+    \phi_{W} \mid D_T \sim
+    \operatorname{Gamma}\left( a_W + \frac{N}{2}, b_W + \frac{1}{2} \sum_{t=1}^N \left( \theta_t - G_t \theta_{t-1} \right)^2 \right)
+    ,\quad
+    \phi_{V} \mid D_T \sim
+    \operatorname{Gamma}\left( a_V + \frac{N}{2}, b_V + \frac{1}{2} \sum_{t=1}^N \left( y_t - F_t^\top \theta_t \right)^2 \right)
+  \end{gathered}
+  \label{eq:phi-gamma-posteriors}
+\end{equation}
+#+END_SRC
+
+Those posterior computations are implemented in Listings [[ffbs-posterior-phi_W]]
+and [[ffbs-posterior-phi_V]], and they are used to update the shared Theano
+variables for \(\phi_W\) and \(\phi_V\) within a Gibbs sampling loop in Listing
+[[ffbs-sim]].
+
+** Simulation Example
 
 #+NAME: ffbs-posterior-phi_W
 #+BEGIN_SRC python :results silent
@@ -1095,40 +1150,6 @@ phi_V_a_post_tt = phi_V_a + N_obs_tt * 0.5
 phi_V_SS_tt = tt.square(y_tt - f_t_post).sum()
 phi_V_b_post_tt = phi_V_b + 0.5 * phi_V_SS_tt
 phi_V_post_tt = GammaRV(phi_V_a_post_tt, phi_V_b_post_tt, rng=rng_tt, name='phi_V_post')
-#+END_SRC
-
-#+NAME: inspect-priors
-#+BEGIN_SRC python :eval never :results never :exports none
-plt.close('all')
-
-fig, ax = plt.subplots(figsize=(8, 4.8))
-
-x = np.linspace(1e-5, # scipy.stats.gamma.ppf(0.01, phi_W_a[0], scale=1.0/phi_W_b[0]),
-                11.0, # scipy.stats.gamma.ppf(0.99, phi_W_a[0], scale=1.0/phi_W_b[0]),
-                10000)
-
-plt.cla()
-
-import random
-
-# phi_W_a[0], phi_W_b[0] = 1.0**2/1000.0, 1.0/1000.0
-phi_W_a[0], phi_W_b[0]
-
-rnd_smpls = np.asarray([random.gammavariate(phi_W_a[0], 1.0 / phi_W_b[0]) for i in range(10000)])
-rnd_smpls.mean()
-rnd_smpls.var()
-
-scipy_smpls = scipy.stats.gamma.rvs(phi_W_a[0], scale=1.0 / phi_W_b[0], size=10000)
-scipy_smpls.mean()
-scipy_smpls.var()
-
-ax.hist(rnd_smpls[rnd_smpls < 20], density=True)
-ax.hist(scipy_smpls, density=True)
-
-scipy.stats.gamma.pdf(0.0001, phi_W_a[0], scale=1.0 / phi_W_b[0])
-
-ax.plot(x, scipy.stats.gamma.pdf(x, phi_W_a[0], scale=1.0 / phi_W_b[0]),
-        'r-', lw=1, alpha=0.6, label='gamma pdf')
 #+END_SRC
 
 #+NAME: ffbs-sim
@@ -1160,7 +1181,7 @@ for i in range(1000):
         dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt],
         dlm_sim_values[G_tt], dlm_sim_values[F_tt])
 
-    # Update variance scale parameters
+    # Update variance precision parameters
     phi_W_tt.set_value(phi_W_post_sim)
     phi_V_tt.set_value(phi_V_post_sim)
 
@@ -1274,7 +1295,7 @@ plt.legend(framealpha=0.4)
 #+RESULTS: fig:ffbs-sim-pred-plot
 [[file:../../figures/ffbs-sim-pred-plot.png]]
 
-* Non-Gaussian Example
+* Non-Gaussian Extension
 
 Let's say we want to model count observations that are driven by a smooth time-varying process.
 We can assume a negative-binomial observation model with a log-link function--in standard GLM fashion
@@ -1358,7 +1379,7 @@ negative-binomial density function takes the following form:
 \end{equation}
 #+end_export
 
-The logit-inverse form in [[eqref:eq:nb-pmf]] has a normal scale-mixture
+The logit-inverse form in [[eqref:eq:nb-pmf]] has a Gaussian scale-mixture
 representation in the Pólya-Gamma distribution [[citep:polson_bayesian_2013]].
 Said scale-mixture is as follows:
 #+BEGIN_SRC latex
@@ -1394,7 +1415,7 @@ Said scale-mixture is as follows:
 
 where \(\kappa = a - b / 2\) and \(\omega_t \sim \operatorname{PG}\left(b, 0\right)\).
 
-When the normal scale-mixture identity of [[eqref:eq:pg-identity]] is applied to our observation model in
+When the Gaussian scale-mixture identity of [[eqref:eq:pg-identity]] is applied to our observation model in
 [[eqref:eq:nb-pmf]], \(a = y_t\), \(b = r + y_t\), \(\kappa = (y_t - r)/2\), and \(\psi = \eta_t - \log r\).
 
 From the scale mixture formulation, we obtain the following augmented joint
@@ -1404,11 +1425,14 @@ observation model density:
   \begin{aligned}
     \operatorname{p}(\theta_t \mid \omega, y_t, r, D_{t-1}) &\propto
     \exp\left(-\frac{\omega}{2} \left( F_t^\top \theta_t - \left( \log r + \frac{y_t - r}{2 \omega} \right) \right)^2 \right)
+    \operatorname{p}(\theta_t \mid D_{t-1})
     \\
     &=
     e^{-\frac{\omega}{2} \left(y^*_t - F_t^\top \theta_t \right)^2}
+    \operatorname{p}(\theta_t \mid D_{t-1})
     \\
     &\propto \operatorname{p}\left( y^*_t \mid F_t^\top \theta_t, \omega^{-1} \right)
+    \operatorname{p}(\theta_t \mid D_{t-1})
   \end{aligned}
 \label{eq:nb-aug-obs}
 \end{equation}
@@ -1432,12 +1456,26 @@ observation model density:
 
 where \(y^*_t = \log r + \frac{y_t - r}{2 \omega}\).
 
-The density of our "virtual" observations, \(y^*_t\), takes the form of a normal
-distribution, which fits nicely into our DLM framework.  All that's needed to
-incorporate this scale-mixture augmentation to our FFBS sampler is a step that
-samples \(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\).
+The reformulation at the end of [[eqref:eq:nb-aug-obs]] characterizes a distribution of
+"virtual" observations,
+#+BEGIN_SRC latex
+\begin{equation}
+  y^*_t = F_t^\top \theta_t + \epsilon^*_t,\quad
+  \epsilon^*_t \sim \operatorname{N}\left(0, V^*_t \right)
+  ,
+  \label{eq:nb-virtual-obs}
+\end{equation}
+#+END_SRC
+with \(V_t = \operatorname{diag}\left( \omega^{-1}_t \right)\).
 
-** Simulation
+The augmented observation equation in [[eqref:eq:nb-virtual-obs]] recovers our
+original DLM formulation in [[eqref:eq:basic-dlm-obs]] and--by comparison--details
+the changes needed to use the Pólya-Gamma scale-mixture.  Specifically, we need
+to sample \(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t -
+\log r \right)\) and perform the following substitutions: \(y_t \to y^*_t\) and
+\(V_t \to V^*_t\).
+
+** Simulation Example
 
 #+NAME: nb-example-requirements
 #+BEGIN_SRC python :eval never-export :noweb no-export :results silent :exports none
@@ -1448,6 +1486,7 @@ samples \(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log
 <<filter-svd-scan>>
 <<smoother-svd-scan>>
 <<svd-ffbs-sampler>>
+<<ffbs-posterior-phi_W>>
 <<ffbs-covar-updates>>
 #+END_SRC
 
@@ -1575,7 +1614,7 @@ plt.legend(framealpha=0.4)
 #+RESULTS: fig:nb-p-sim-plot
 [[file:../../figures/nb-p-sim-plot.png]]
 
-** Augmented FFBS Sampler
+* Augmented FFBS Sampler
 
 #+NAME: nb-ffbs-sampler-requirements
 #+BEGIN_SRC python :eval never-export :noweb no-export :results silent :exports none
@@ -1585,8 +1624,8 @@ plt.legend(framealpha=0.4)
 #+END_SRC
 
 In order to create a FFBS sampler for our Pólya-Gamma DLM in
-[[eqref:eq:nb-aug-obs]], we need to update our filtering code so that it can take
-time-varying "virtual" observation variances, \(V_t\).  After this change is
+[[eqref:eq:nb-aug-obs]], we need to update the filtering code to use
+time-varying "virtual" observation variances, \(V^*_t\).  After this change is
 made, all Theano graphs that depend on the resulting objects need to be
 recreated, as well.  This is done in Listing [[nb-aug-obs]].
 
@@ -1655,7 +1694,8 @@ phi_W_b_post_tt = phi_W_b + 0.5 * tt.square(theta_t_diff_rev).sum(0)
 phi_W_post_tt = GammaRV(phi_W_a_post_tt, phi_W_b_post_tt, rng=rng_tt, name='phi_W_post')
 #+END_SRC
 
-Next, in Listing [[nb-ffbs-setup]] we sample the initial values and create Theano
+** Simulation Example
+In Listing [[nb-ffbs-setup]] we sample the initial values and create Theano
 terms for posterior/updated \(\omega_t\)-related values.
 
 #+NAME: nb-ffbs-setup
@@ -1786,7 +1826,7 @@ plt.legend(framealpha=0.4)
 
 #+ATTR_ORG: :width 900
 #+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
-#+CAPTION: Posterior \(\theta_t\) samples generated by our Polya-Gamma FFBS sampler.
+#+CAPTION: Posterior \(\theta_t\) samples generated by our Pólya-Gamma FFBS sampler.
 #+RESULTS: fig:nb-ffbs-sim-plot
 [[file:../../figures/nb-ffbs-sim-plot.png]]
 
@@ -1801,7 +1841,7 @@ az.plot_trace(az_trace, compact=True)
 
 #+ATTR_ORG: :width 900
 #+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
-#+CAPTION: Posterior sample traces for our Polya-Gamma FFBS Gibbs sampler.
+#+CAPTION: Posterior sample traces for our Pólya-Gamma FFBS Gibbs sampler.
 #+RESULTS: fig:nb-ffbs-trace-plot
 [[file:../../figures/nb-ffbs-trace-plot.png]]
 
@@ -1837,25 +1877,28 @@ plt.legend(framealpha=0.4)
 
 #+ATTR_ORG: :width 900
 #+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
-#+CAPTION: \(p_t \mid \theta_t, D_T\) samples generated by our Polya-Gamma FFBS sampler.
+#+CAPTION: \(p_t \mid \theta_t, D_T\) samples generated by our Pólya-Gamma FFBS sampler.
 #+RESULTS: fig:nb-ffbs-sim-pred-plot
 [[file:../../figures/nb-ffbs-sim-pred-plot.png]]
-
 
 ** COVID-19 Example
 
 As another example, we'll use data from the COVID-19 outbreak in New York and we'll only concentrate
-on the positive test counts.
+on the positive test counts.  We do not make any assertions about the results; we
+simply want to apply our implementation to a real-life dataset.  If anything, we would simply like to
+highlight the potential provided by these flexible and constructive Bayesian frameworks and offer
+a concrete starting point for motivated statisticians and Python developers.
+
+To start, Listing [[pull-ny-data]] pulls and formats the COVID-19 data and Figure [[fig:nb-dlm-ny-plot-fig]]
+plots it.
 
 #+NAME: nb-ny-requirements
-#+BEGIN_SRC python :eval never-export :noweb no-export :results silent :exports none
-<<nb-ffbs-sampler-requirements-imports>>
+#+BEGIN_SRC python :eval never-export :noweb no-export :results silent :exports none :tangle covid-19-nbinom-model.py
+<<nb-ffbs-sampler-requirements>>
 <<nb-aug-obs>>
 <<nb-ffbs-posterior-phi_W>>
 <<nb-ffbs-setup>>
 #+END_SRC
-
-Listing [[pull-ny-data]] pulls and formats the COVID-19.  The data is plotted in Figure [[fig:nb-dlm-ny-plot-fig]].
 
 #+NAME: pull-ny-data
 #+BEGIN_SRC python :results silent
@@ -1888,7 +1931,8 @@ plt.legend()
 [[file:../../figures/nb-dlm-ny-plot.png]]
 
 
-Our model will be a simple Gaussian walk, which is given by the following values:
+Our example model is a simple Gaussian walk with an unknown evolution variance (i.e. again, modeled
+by a gamma prior on the precision \(\phi_W\)) given by the following values:
 #+BEGIN_SRC latex
 \begin{equation}
   \begin{gathered}
@@ -2112,828 +2156,40 @@ plt.legend(framealpha=0.4)
 #+CAPTION: Posterior predictive values for the negative-binomial NY data model.
 #+RESULTS: fig:nb-ffbs-ny-pred-plot
 [[file:../../figures/nb-ffbs-ny-pred-plot.png]]
-* Theano Optimizations                                             :noexport:
-
-Another reason to use src_python[:eval never]{scan} is that it comes with a
-number of symbolic simplifications that can result in better estimates and/or
-performance.
-
-Let's start by simply canonicalizing the model's graph.
-
-#+NAME: basic-dlm-canon
-#+BEGIN_SRC python :results silent
-from theano.gof.graph import inputs as tt_inputs
-
-from symbolic_pymc.theano.utils import canonicalize
-
-
-Y_t_opt = canonicalize(Y_t_rv, in_place=False)
-#+END_SRC
-
-#+NAME: basic-dlm-canon-dprint
-#+BEGIN_SRC python :wrap "SRC python :eval never"
-tt_dprint(Y_t_opt, depth=5)
-#+END_SRC
-
-#+RESULTS: basic-dlm-canon-dprint
-#+begin_SRC python :eval never
-for{cpu,Y} [id A] ''
- |Subtensor{int64} [id B] ''
- | |Shape [id C] ''
- | | |Subtensor{int64:int64:int8} [id D] ''
- | |   |for{cpu,theta} [id E] ''
- | |   |ScalarFromTensor [id F] ''
- | |   |ScalarFromTensor [id G] ''
- | |   |Constant{1} [id H]
- | |Constant{0} [id I]
- |Subtensor{int64:int64:int64} [id J] ''
- | |for{cpu,theta} [id E] ''
- | |ScalarFromTensor [id K] ''
- | | |Elemwise{switch,no_inplace} [id L] ''
- | |   |Elemwise{le,no_inplace} [id M] ''
- | |   |TensorConstant{0} [id N]
- | |   |Elemwise{minimum,no_inplace} [id O] ''
- | |ScalarFromTensor [id P] ''
- | | |Elemwise{switch,no_inplace} [id Q] ''
- | |   |Elemwise{le,no_inplace} [id M] ''
- | |   |TensorConstant{0} [id N]
- | |   |Elemwise{minimum,no_inplace} [id R] ''
- | |Constant{1} [id S]
- |Subtensor{int64} [id B] ''
- |rng [id T]
- |F_tt [id U]
- |invgamma_rv.1 [id V] 'eps_scale'
-   |TensorConstant{0.5} [id W]
-   |TensorConstant{0.5} [id W]
-   |TensorConstant{1.0} [id X]
-   |TensorConstant{[]} [id Y]
-   |rng [id T]
-
-Inner graphs of the scan ops:
-
-for{cpu,Y} [id A] ''
- >Elemwise{add,no_inplace} [id Z] ''
- > |InplaceDimShuffle{0} [id BA] ''
- > | |Dot22 [id BB] ''
- > |   |F_tt_copy [id BC] -> [id U]
- > |   |InplaceDimShuffle{0,x} [id BD] ''
- > |     |<TensorType(float64, vector)> [id BE] -> [id J]
- > |InplaceDimShuffle{x} [id BF] ''
- >   |normal_rv.1 [id BG] 'eps'
- >     |TensorConstant{0} [id BH]
- >     |eps_scale_copy [id BI] -> [id V]
- >     |TensorConstant{[]} [id BJ]
- >     |rng_copy [id BK] -> [id T]
-
-for{cpu,theta} [id E] ''
- >Elemwise{add,no_inplace} [id BL] ''
- > |InplaceDimShuffle{0} [id BM] ''
- > | |Dot22 [id BN] ''
- > |   |G_tt_copy [id BO] -> [id BP]
- > |   |InplaceDimShuffle{0,x} [id BQ] ''
- > |     |theta_0[t-1] [id BR] -> [id BS]
- > |multivariate_normal_rv.1 [id BT] 'nu'
- >   |Elemwise{second,no_inplace} [id BU] ''
- >   | |theta_0[t-1] [id BR] -> [id BS]
- >   | |TensorConstant{(1,) of 0.0} [id BV]
- >   |<TensorType(float64, matrix)> [id BW] -> [id BX]
- >   |TensorConstant{[]} [id BY]
- >   |rng_copy [id BZ] -> [id T]
-
-for{cpu,theta} [id E] ''
- >Elemwise{add,no_inplace} [id BL] ''
-
-
-#+end_SRC
-
-The canonicalized graph clones the original variables, so we need to use those from now on.
-
-#+NAME: basic-dlm-canon-remap-values
-#+BEGIN_SRC python :results silent
-names_to_inputs = {i.name: i for i in tt_inputs([Y_t_opt])}
-
-dlm_opt_sim_values = {names_to_inputs[k.name]: v for k, v in dlm_sim_values.items()}
-#+END_SRC
-
-We can reset the seed and recompute the simulated values to confirm that our
-canonicalized graph is--numerically--the same as our original graph.
-
-#+NAME: basic-dlm-canon-sim
-#+BEGIN_SRC python :results silent
-rng_state = np.random.RandomState(np.random.MT19937(np.random.SeedSequence(1234)))
-rng.set_value(rng_state)
-
-y_opt_sim = Y_t_opt.eval(dlm_opt_sim_values)
-
-assert np.allclose(y_opt_sim, y_sim)
-#+END_SRC
-
-#+NAME: basic-dlm-canon-sim-plot
-#+BEGIN_SRC python :results silent
-plt.plot(y_opt_sim, label='y_opt_sim')
-plt.legend()
-#+END_SRC
-
-Considering the prior predictive equations, how might we go about
-transforming the graphs above so that they represent the "implied
-distributions" like the prior predictive?
-
-More specifically, consider the src_python[:eval never]{scan} sub-graphs
-(i.e. labeled by src_python[:eval never]{for} in the debug print-outs).  These
-graphs represent the evolution equations and contain terms like
-\(G_t \theta_{t-1} + \nu_t\), which we know correspond to prior predictive
-distributions like \(\theta_t \mid D_{t-1}\).
-
-Really, there is no reason to leave terms like \(G_t \theta_{t-1} + \nu_t\)
-in that form; instead, we can prefer a "canonical" form of our terms that
-better represent everything we know about them.  In this case, we know
-that the term is the random variable \(\theta_t \mid D_{t-1}\), we know what
-its moments are, and we clearly have a means of codifying that in Theano.
-
-This leads us to the need for random variable-specific canonicalizations
-in Theano.  These canonicalizations will apparently involve some general
-properties of random variables, such as
-\(A \epsilon \sim \operatorname{N}\left(A \mu, A^\top \Sigma^2 A \right)\)
-for \(\epsilon \sim \operatorname{N}\left(0, \Sigma^2\right)\), but
-it will also involve some Theano-specific details that aren't always clearly
-mapped to mathematical properties.
-
-For instance, in our canonicalized model graph,
-new src_python[:eval never]{InplaceDimShuffle} operations appear within the
-sub-graphs corresponding to our \(G_t \theta_{t-1} + \nu_t\) term.  These
-operations manipulate the dimensions of terms and correspond to simple
-[[https://en.wikipedia.org/wiki/Tensor_reshaping][tensor reshaping]].
-With an understanding of the relationship between these algebraic
-properties and the operators/implementations in Theano, we can construct Theano
-optimizations that produce robust canonical terms for random variables
-(i.e. terms that are more amenable to performance or accuracy optimizations).
-
-* Random Variable Canonicalization                                 :noexport:
-
-Let's start with some optimizations that will produce prior predictive
-distributions.  The prior predictive moments are derived from a few simple
-linear algebraic and probability theoretic properties.  Namely,
-the following identities:
-#+NAME: canon-identities
-\begin{align}
-  A \beta + b &\sim \operatorname{N}\left( b + \mu, A^\top \Sigma^2 A \right), \quad
-  \beta \sim \operatorname{N}\left( \mu, \Sigma^2 \right)
-  \\
-  \beta + \epsilon &\sim \operatorname{N}\left( \mu + \nu, \Sigma^2 + \Omega^2 \right), \quad
-  \epsilon \sim \operatorname{N}\left( \nu, \Omega^2 \right)
-\end{align}
-
-These identities can be interpreted as replacement rules from left-to-right, so that their
-application results in more random variable forms in a graph.  The effect of these rules
-is that linear algebraic operations are "lifted" into the arguments of random variables.
-
-#+NAME: kanren-normal-imports
-#+BEGIN_SRC python :results silent
-from operator import add
-from functools import partial
-
-from unification import var
-
-from etuples import etuple
-
-from theano.tensor.nlinalg import matrix_dot, matrix_inverse
-
-from kanren import run, eq
-from kanren.core import lall, conde
-from kanren.graph import reduceo, walko, applyo
-from kanren.constraints import isinstanceo
-
-from symbolic_pymc.meta import MetaSymbol
-from symbolic_pymc.theano.ops import RandomVariable
-from symbolic_pymc.theano.meta import mt, TheanoMetaTensorVariable, TheanoMetaTensorConstant, TheanoMetaApply
-#+END_SRC
-
-#+NAME: kanren-normal-helpers
-#+BEGIN_SRC python :results silent
-def tt_at_least_nd(x, n=1):
-
-    if isinstance(x, MetaSymbol):
-        x = x.reify()
-
-    ndim = getattr(x, 'ndim', None)
-
-    if ndim < n:
-        return x.dimshuffle(*(['x'] * n))
-    else:
-        return x
-
-#+END_SRC
-
-#+NAME: kanren-normal-helpers-tests
-#+BEGIN_SRC python :exports none :results silent
-assert np.array_equal(tt_at_least_nd(tt.as_tensor_variable(1.0), n=1).eval(), np.r_[1.0])
-assert np.array_equal(tt_at_least_nd(tt.as_tensor_variable([1.0]), n=1).eval(), np.r_[1.0])
-assert np.array_equal(tt_at_least_nd(tt.as_tensor_variable(1.0), n=2).eval(), np.c_[[1.0]])
-assert np.array_equal(tt_at_least_nd(tt.as_tensor_variable([1.0]), n=2).eval(), np.c_[[1.0]])
-#+END_SRC
-
-#+NAME: kanren-normal-canonicalizations
-#+BEGIN_SRC python :results silent
-from kanren.goals import permuteo
-
-
-def normal_lifto(in_expr, out_expr):
-    """Create a goal that lifts normal random variable operations."""
-    A, b = var(), var()
-    mu, Sigma, sd = var(), var(), var()
-    size, rng, name = var(), var(), var()
-
-    var_op_lv = var()
-    var_apply_lv = TheanoMetaTensorVariable(var(), TheanoMetaApply(var_op_lv, var(), var()), var(), var())
-
-    mu_2, Sigma_2, rng_2, size_2, name_2 = [var() for i in range(5)]
-
-    ds_input = var()
-    ds_in_args_1 = (var(), var(), var())
-    ds_in_args_2 = (var(), var(), var())
-
-    return conde(
-        [
-            # tt.squeeze(A.dimshuffle('x')) == A
-            eq(in_expr, mt.DimShuffle(*ds_in_args_1)(mt.DimShuffle(*ds_in_args_2)(ds_input))),
-            dbgo((ds_in_args_1, ds_in_args_2), msg='squeeze/dimshuffle'),
-            permuteo((ds_in_args_1, ds_in_args_2), (((True,), (), var()), ((), ('x',), var()))),
-            eq(out_expr, ds_input)
-        ],
-        [
-            # Univariate normals to multivariates
-            #
-            # Canonicalization should remove inverses like the following:
-            #
-            # sqd_test = tt.squeeze(tt.scalar('a').dimshuffle('x'))
-            #
-            # sqd_canon = canonicalize(sqd_test)
-            #
-            # tt_dprint(sqd_test)
-            # tt_dprint(sqd_canon)
-            eq(in_expr, mt.NormalRV(mu, sd, size, rng, name=name)),
-            eq(out_expr, etuple(mt.squeeze,
-                                etuple(mt.MvNormalRV,
-                                       etuple(tt_at_least_nd, mu),
-                                       etuple(tt_at_least_nd, sd, 2),
-                                       size, rng, name=name))),
-        ],
-        [
-            # MvNormal convolution
-            eq(in_expr, mt.add(mt.MvNormalRV(mu, Sigma, size, rng, name=name),
-                               mt.MvNormalRV(mu_2, Sigma_2, size_2, rng_2, name=name_2))),
-            eq(out_expr, etuple(mt.MvNormalRV,
-                                mt.add(mu, mu_2),
-                                mt.add(Sigma, Sigma_2),
-                                size, rng, name=etuple(add, name, '-', name_2))),
-        ],
-        [
-            # Constant addition
-            isinstanceo(b, TheanoMetaTensorConstant),
-            eq(in_expr, mt.add(b, mt.MvNormalRV(mu, Sigma, size, rng, name=name))),
-            eq(out_expr, mt.MvNormalRV(mt.add(b, mu), Sigma, size, rng, name=name)),
-        ],
-        [
-            # Constant dot product
-            isinstanceo(A, TheanoMetaTensorConstant),
-            eq(in_expr, mt.dot(A, mt.MvNormalRV(mu, Sigma, size, rng, name=name))),
-            eq(out_expr, etuple(mt.MvNormalRV,
-                                etuple(mt.dot, A, mu),
-                                etuple(matrix_dot, etuple(tt.transpose, A), Sigma, A),
-                                size, rng, name=name))
-        ],
-    )
-
-#+END_SRC
-
-#+NAME: test-normal-canonicalizations
-#+BEGIN_SRC python :exports none :results silent
-test_norm_1_tt = NormalRV(0, 1)
-# test_norm_1_tt = NormalRV(0, 1, size=(2, 3))
-
-q_lv = var()
-res = run(0, q_lv, walko(partial(reduceo, normal_lifto), test_norm_1_tt, q_lv))
-
-uni_to_mv_norm_tt = res[0].eval_obj.reify()
-
-assert isinstance(uni_to_mv_norm_tt.owner.op, tt.DimShuffle)
-
-from symbolic_pymc.theano.random_variables import MvNormalRVType
-
-mv_owner = uni_to_mv_norm_tt.owner.inputs[0].owner
-
-assert isinstance(mv_owner.op, MvNormalRVType)
-assert mv_owner.inputs[0].ndim == 1
-assert mv_owner.inputs[1].ndim == 2
-assert np.array_equal(mv_owner.inputs[2].data, [])
-assert uni_to_mv_norm_tt.owner.inputs[0].name == test_norm_1_tt.name
-#+END_SRC
-
-#+NAME: inspect-scan-properties
-#+BEGIN_SRC python :exports none :results silent
-
-tt_dprint(theta_t_rv)
-
-theta_scan_op = theta_t_rv.owner.inputs[0].owner.op
-theta_scan_inputs = theta_t_rv.owner.inputs[0].owner.inputs
-
-# Why isn't the initial value here?!
-theta_scan_op.info
-
-tt_dprint(theta_scan_inputs)
-
-# Looks like this is the closest we'll get to the initial value's
-# (i.e. `theta[0]`) graph.
-# It's wrapped in a `theano.scan_module.scan_utils.expand_empty` call.
-# More specifically this graph is created by
-# theano.scan_module.scan_utils.expand_empty(
-#     tt.unbroadcast(tensor.shape_padleft(actual_arg), 0),
-#     actual_n_steps)
-tt_dprint(theta_scan_inputs[1])
-
-theta_tm1 = theta_scan_op.inputs[0]
-
-tt_dprint(theta_scan_op.inputs)
-tt_dprint(theta_scan_op.outputs)
-
-# Note: `tt.second(x, y)` allocates a tensor with shape `x.shape` with values `y`
-# E.g. `tt.second(np.c_[[1, 3], [4, 5]], 0)`
-#+END_SRC
-
-#+NAME: test-scan-canonicalization
-#+BEGIN_SRC python :exports none :results silent
-
-def exprs_in_scan_output(in_expr, out_expr):
-    inputs_lv, info_lv = var(), var()
-    scan_output_in, scan_output_out = var(), var()
-
-    in_scan_lv = mt.Scan(inputs_lv, [scan_output_in], info_lv)
-    out_scan_lv = etuple(mt.Scan, inputs_lv, scan_output_out, info_lv)
-
-    def make_list(x):
-        return [x]
-
-    scan_output_out_raw = var()
-
-    # XXX: Why isn't this matching?!
-    ds_input = var()
-    ds_in_args_1 = (var(), var(), var())
-    ds_in_args_2 = (var(), var(), var())
-    pat_expr = mt.DimShuffle(*ds_in_args_1)(mt.DimShuffle(*ds_in_args_2)(ds_input))
-
-
-    return conde([normal_lifto(in_expr, out_expr)],
-                 [
-                     eq(in_expr, pat_expr),
-                     # XXX: This case should be present!
-                     dbgo((ds_in_args_1, ds_in_args_2), msg='dimshuffle')
-                 ],
-                 [
-                     eq(in_expr, in_scan_lv),
-                     walko(partial(reduceo, exprs_in_scan_output), scan_output_in, scan_output_out_raw),
-                     # Force etuple results to evaluate
-                     applyo(make_list, etuple(scan_output_out_raw), scan_output_out),
-                     eq(out_expr, out_scan_lv)
-                 ])
-
-
-q_lv = var()
-output_mt = run(1, q_lv, walko(partial(reduceo, exprs_in_scan_output), Y_t_rv, q_lv))
-
-output_new = output_mt[0].eval_obj.reify()
-
-
-tt_dprint(output_new)
-
-output_new_canon = canonicalize(output_new)
-
-tt_dprint(output_new_canon)
-
-
-# XXX: What's the deal with this missed squeeze/dimshuffle?
-theta_scan_output = output_new.owner.op.outputs[0]
-tt_dprint(theta_scan_output)
-
-in_expr = mt(theta_scan_output.owner.inputs[1])
-
-in_expr.owner.op.rands
-
-unify(in_expr, pat_expr)
-#+END_SRC
-
-#+NAME: canon-rules-opt
-#+BEGIN_SRC python :results silent
-from symbolic_pymc.theano.ops import RandomVariable
-
-normal_rv_canonicalize_patterns = [
-    # XXX: Doesn't handle different sizes!
-    tt.gof.opt.PatternSub(
-        (tt.add,
-         (MvNormalRV, 'mu', 'Sigma', 'size', 'rng'),
-         (MvNormalRV, 'mu_2', 'Sigma_2', 'size', 'rng'),
-         ),
-        (MvNormalRV,
-         (tt.add, 'mu', 'mu_2'),
-         (tt.add, 'Sigma', 'Sigma_2'), 'size', 'rng'),
-        allow_multiple_clients=True,
-        name='mv_normal_add_fuse'
-    ),
-    tt.gof.opt.PatternSub(
-        (tt.add,
-         {'pattern': 'A', 'constraint': lambda e: not isinstance(e.type, RandomVariable)},
-         (MvNormalRV, 'mu', 'Sigma', 'size', 'rng')),
-        (MvNormalRV, (tt.add, 'A', 'mu'), 'Sigma', 'size', 'rng'),
-        allow_multiple_clients=True,
-        name='mv_normal_add_promote'
-    ),
-    tt.gof.opt.PatternSub(
-        (tt.mul,
-         'a',
-         (NormalRV, 'mu', 'sd', 'size', 'rng')),
-        (NormalRV,
-         (tt.mul, 'a', 'mu'),
-         (tt.mul, 'sd', (tt.sqrt, 'a')), 'size', 'rng'),
-        allow_multiple_clients=True,
-        name='scalar_normal_mul_lift'
-    ),
-    # XXX: Doesn't handle different sizes!
-    tt.gof.opt.PatternSub(
-        (tt.add,
-         (NormalRV, 'mu', 'sd', 'size', 'rng'),
-         (NormalRV, 'mu_2', 'sd_2', 'size', 'rng')),
-        (NormalRV,
-         (tt.add, 'mu', 'mu_2'),
-         (tt.add, 'sd', 'sd_2'), 'size', 'rng'),
-        allow_multiple_clients=True,
-        name='scalar_normal_add_fuse'
-    ),
-    tt.gof.opt.PatternSub(
-        (tt.add,
-         {'pattern': 'a', 'constraint': lambda e: not isinstance(e.type, RandomVariable)},
-         (NormalRV, 'mu', 'sd', 'size', 'rng'),
-         ),
-        (NormalRV, (tt.add, 'a', 'mu'), 'sd', 'size', 'rng'),
-        allow_multiple_clients=True,
-        name='scalar_normal_add_promote'
-    ),
-]
-
-normal_rv_canonicalize = tt.gof.opt.EquilibriumOptimizer(normal_rv_canonicalize_patterns,
-                                                         max_use_ratio=10)
-
-# optdb.register('normal_rv_canonicalize',
-#                normal_rv_canonicalize, 0.5,
-#                'rv_canonicalize')
-#+END_SRC
-
-In Listing [[canon-rules-opt]], we reproduced the same rules for univariate and
-multivariate normal distributions.  Instead, we could've canonicalized such that
-univariate distributions are turned into degenerate multivariate distributions,
-putting everything on the same dimensional "footing".
-
-While perhaps not the best for numeric sampling, this is acceptable for canonicalization,
-especially because canonicalization is distinct from concerns about computational efficiency.
-A separate efficiency-based reformulation can be done once a model's graph has been assessed
-in canonical form.
-
-These new replacement rules can be applied as in Listing [[basic-dlm-canon-rv-example]].
-
-#+NAME: basic-dlm-canon-rv-example
-#+BEGIN_SRC python :results silent
-from symbolic_pymc.theano.utils import optimize_graph
-
-Y_t_canon_rv = optimize_graph(Y_t_opt, normal_rv_canonicalize)
-#+END_SRC
-
-Unfortunately, as Listing [[basic-dlm-canon-rv-example-dprint]] shows, the resulting
-graph is in no way affected by these rules!  Again, we would like to see our
-rules applied to the \( G_t \theta_{t-1} + \nu \) sub-graph.
-
-#+NAME: basic-dlm-canon-rv-example-dprint
-#+BEGIN_SRC python :wrap "SRC python :eval never"
-tt_dprint(Y_t_canon_rv, depth=5)
-#+END_SRC
-
-#+RESULTS: basic-dlm-canon-rv-example-dprint
-#+begin_SRC python :eval never
-for{cpu,Y} [id A] ''
- |Subtensor{int64} [id B] ''
- | |Shape [id C] ''
- | | |Subtensor{int64:int64:int8} [id D] ''
- | |   |for{cpu,theta} [id E] ''
- | |   |ScalarFromTensor [id F] ''
- | |   |ScalarFromTensor [id G] ''
- | |   |Constant{1} [id H]
- | |Constant{0} [id I]
- |Subtensor{int64:int64:int64} [id J] ''
- | |for{cpu,theta} [id E] ''
- | |ScalarFromTensor [id K] ''
- | | |Elemwise{switch,no_inplace} [id L] ''
- | |   |Elemwise{le,no_inplace} [id M] ''
- | |   |TensorConstant{0} [id N]
- | |   |Elemwise{minimum,no_inplace} [id O] ''
- | |ScalarFromTensor [id P] ''
- | | |Elemwise{switch,no_inplace} [id Q] ''
- | |   |Elemwise{le,no_inplace} [id M] ''
- | |   |TensorConstant{0} [id N]
- | |   |Elemwise{minimum,no_inplace} [id R] ''
- | |Constant{1} [id S]
- |Subtensor{int64} [id B] ''
- |rng [id T]
- |F_tt [id U]
- |invgamma_rv.1 [id V] 'eps_scale'
-   |TensorConstant{0.5} [id W]
-   |TensorConstant{0.5} [id W]
-   |TensorConstant{1.0} [id X]
-   |TensorConstant{[]} [id Y]
-   |rng [id T]
-
-Inner graphs of the scan ops:
-
-for{cpu,Y} [id A] ''
- >Elemwise{add,no_inplace} [id Z] ''
- > |InplaceDimShuffle{0} [id BA] ''
- > | |Dot22 [id BB] ''
- > |   |F_tt_copy [id BC] -> [id U]
- > |   |InplaceDimShuffle{0,x} [id BD] ''
- > |     |<TensorType(float64, vector)> [id BE] -> [id J]
- > |InplaceDimShuffle{x} [id BF] ''
- >   |normal_rv.1 [id BG] 'eps'
- >     |TensorConstant{0} [id BH]
- >     |eps_scale_copy [id BI] -> [id V]
- >     |TensorConstant{[]} [id BJ]
- >     |rng_copy [id BK] -> [id T]
-
-for{cpu,theta} [id E] ''
- >Elemwise{add,no_inplace} [id BL] ''
- > |InplaceDimShuffle{0} [id BM] ''
- > | |Dot22 [id BN] ''
- > |   |G_tt_copy [id BO] -> [id BP]
- > |   |InplaceDimShuffle{0,x} [id BQ] ''
- > |     |theta[t-1] [id BR] -> [id BS]
- > |multivariate_normal_rv.1 [id BT] 'nu'
- >   |Elemwise{second,no_inplace} [id BU] ''
- >   | |theta[t-1] [id BR] -> [id BS]
- >   | |TensorConstant{(1,) of 0.0} [id BV]
- >   |<TensorType(float64, matrix)> [id BW] -> [id BX]
- >   |TensorConstant{[]} [id BY]
- >   |rng_copy [id BZ] -> [id T]
-
-for{cpu,theta} [id E] ''
- >Elemwise{add,no_inplace} [id BL] ''
-
-
-#+end_SRC
-
-The problem is that--among other
-things--our src_python[:eval never]{RandomVariable} terms are wrapped
-by src_python[:eval never]{DimShuffle} operations that do not appear in our
-replacement rules.  If we were to add these src_python[:eval never]{DimShuffle}s
-to the rules, we would have twice as many rules to run!  The best approach to
-fixing this problem is to consider src_python[:eval never]{DimShuffle}
-and src_python[:eval never]{RandomVariable} interactions in the context of
-canonicalization.
-
-** DimShuffle
-
-As we mentioned, src_python[:eval never]{DimShuffle}s get in the way of more
-general math-level considerations.  For example,
-the src_python[:eval never]{DimShuffle}
-in src_python[:eval never]{tt.dot(A, DimShuffle(NormalRV(...)))} prevents us
-from easily spotting the
-underlying src_python[:eval never]{tt.dot(A, NormalRV(...))}.
-
-First, let's look at the src_python[:eval never]{DimShuffle}s that are
-currently getting in the way of our src_python[:eval never]{RandomVariable}
-rewrite rules.
-
-#+NAME: basic-dlm-dimshuffle-example-dprint
-#+BEGIN_SRC python :wrap "SRC python :eval never"
-tt_dprint(Y_t_opt.owner.op.fn, depth=5)
-#+END_SRC
-
-#+RESULTS: basic-dlm-dimshuffle-example-dprint
-#+begin_SRC python :eval never
-Elemwise{add,no_inplace} [id A] ''   5
- |InplaceDimShuffle{0} [id B] ''   4
- | |Dot22 [id C] ''   3
- |   |F_tt_copy [id D]
- |   |InplaceDimShuffle{0,x} [id E] ''   2
- |     |<TensorType(float64, vector)> [id F]
- |InplaceDimShuffle{x} [id G] ''   1
-   |normal_rv.1 [id H] 'eps'   0
-     |TensorConstant{0} [id I]
-     |eps_scale_copy [id J]
-     |TensorConstant{[]} [id K]
-     |rng_copy [id L]
-
-
-#+end_SRC
-
-From Listing [[basic-dlm-dimshuffle-example-dprint]], we can see
-two src_python[:eval never]{DimShuffle}s applied to both random variable terms
-in the src_python[:eval never]{scan} graph for \(F_t^\top \theta_t + \epsilon_t\).
-The first term is just labeled as src_python[:eval never]{<TensorType...>} and
-isn't truly a src_python[:eval never]{RandomVariable}, although we know it
-should be (i.e. after applying the rules to the src_python[:eval never]{scan}
-producing those \(\theta_t\) values).
-However, the \(\epsilon_t\) src_python[:eval never]{RandomVariable} term is
-present as the second argument to src_python[:eval never]{Elemwise{add...}}, but
-it's wrapped by a src_python[:eval never]{DimShuffle}.
-
-#+NAME: basic-dlm-dimshuffle-example
-#+BEGIN_SRC python :wrap "SRC python :eval never"
-dmshf_tt = Y_t_rv.owner.op.fn.outputs[0].variable.owner.inputs[1].owner
-
-tt_dprint(dmshf_tt)
-#+END_SRC
-
-#+RESULTS: basic-dlm-dimshuffle-example
-#+begin_SRC python :eval never
-InplaceDimShuffle{x} [id A] ''
- |normal_rv.1 [id B] 'eps'
-   |TensorConstant{0} [id C]
-   |eps_scale_copy [id D]
-   |TensorConstant{[]} [id E]
-   |rng_copy [id F]
-
-
-#+end_SRC
-
-Listing [[basic-dlm-dimshuffle-params]] shows the parameters of
-the src_python[:eval never]{DimShuffle} operator, or essentially what it's
-supposed to do to the src_python[:eval never]{RandomVariable}: add an extra
-broadcastable dimension.
-
-#+NAME: basic-dlm-dimshuffle-params
-#+BEGIN_SRC python :wrap "SRC python :eval never"
-print(f"DimShuffle.inplace={dmshf_tt.op.inplace},\t"
-      f"DimShuffle.new_order={dmshf_tt.op.new_order},\t"
-      f"DimShuffle.input_broadcastable={dmshf_tt.op.input_broadcastable}")
-#+END_SRC
-
-#+RESULTS: basic-dlm-dimshuffle-params
-#+begin_SRC python :eval never
-DimShuffle.inplace=True,	DimShuffle.new_order=('x',),	DimShuffle.input_broadcastable=()
-
-
-#+end_SRC
-
-Given the parameterization of our src_python[:eval never]{RandomVariable}
-operators, this can be accomplished by simply making
-the src_python[:eval never]{RandomVariable}'s inputs broadcastable
-(i.e. "lifting" the src_python[:eval never]{DimShuffle} to the inputs) or by
-applying the src_python[:eval never]{DimShuffle} to the size parameter
-of src_python[:eval never]{RandomVariable}.
-
-For example, Listing shows that both approaches produce the same result.
-
-#+NAME: rv-dimshuffle-lift-example
-#+BEGIN_SRC python :wrap "SRC python :eval never"
-test_rng_state = np.random.RandomState(np.random.MT19937(np.random.SeedSequence(1234)))
-test_rng = theano.shared(test_rng_state, name='rng')
-
-norm_lifted_inputs_sample = NormalRV(tt.as_tensor_variable(0.0).dimshuffle('x'),
-                                 tt.as_tensor_variable(1.0).dimshuffle('x'),
-                                 rng=test_rng).eval()
-
-test_rng.set_value(np.random.RandomState(np.random.MT19937(np.random.SeedSequence(1234))))
-
-norm_altered_size_sample = NormalRV(0, 1, size=[1], rng=test_rng).eval()
-
-print(f"lift inputs: {norm_lifted_inputs_sample}, \talter size: {norm_altered_size_sample}")
-
-#+END_SRC
-
-#+RESULTS: rv-dimshuffle-lift-example
-#+begin_SRC python :eval never
-lift inputs: [-0.9581156], 	alter size: [-0.9581156]
-
-
-#+end_SRC
-
-Given the existing design of Theano, we could consider univariate normals
-as src_python[:eval never]{Elemwise} operators and then add special
-considerations for sampling "batches".  This is reasonable, because normal
-random variable mapping is linear in the same way that
-most src_python[:eval never]{Elemwise} tensor operations are.  This approach
-would confer many of the expected properties and optimizations/canonicalization
-to univariate normal random variables; however, it would not address
-multivariate normals.
-
-Here we will address only some cases of src_python[:eval never]{DimShuffle}
-and src_python[:eval never]{RandomVariable} interactions.
-We start by naively lifting src_python[:eval never]{DimShuffle} operations
-through all normal src_python[:eval never]{RandomVariable}s.
-
-#+NAME: sympymc-lift-dimshuffle-normalrv
-#+BEGIN_SRC python :exports none :eval never
-normal_rv_dimshuffle_patterns = [
-    tt.gof.opt.PatternSub(
-        ((tt.DimShuffle, 'input_broadcastable', 'new_order', 'inplace'),
-         (NormalRV, 'mu', 'sd', 'size', 'rng', 'name')),
-        (NormalRV,
-         ((tt.DimShuffle, 'input_broadcastable', 'new_order', 'inplace'), 'mu'),
-         ((tt.DimShuffle, 'input_broadcastable', 'new_order', 'inplace'), 'sd'),
-          'size', 'rng', 'name'),
-        allow_multiple_clients=True,
-        name='normal_dimshuffle_lift'
-    )]
-
-normal_rv_dimshuffle_canon = tt.gof.opt.EquilibriumOptimizer(normal_rv_dimshuffle_patterns,
-                                                             max_use_ratio=10)
-tt_dprint(Y_t_opt)
-
-Y_t_canon_rv = optimize_graph(Y_t_opt, normal_rv_dimshuffle_canon)
-
-tt_dprint(Y_t_canon_rv)
-
-Y_t_canon_rv = optimize_graph(Y_t_canon_rv, normal_rv_canonicalize)
-
-tt_dprint(Y_t_canon_rv)
-#+END_SRC
-
-#+NAME: testing-3
-#+BEGIN_SRC python :exports none :eval never
-# @register_canonicalize
-@local_optimizer([DimShuffle])
-def local_lift_DimShuffle_through_NormalRV(node):
-    """
-    These optimizations "lift" (i.e. propagate towards the inputs) `DimShuffle`
-    through normal distributions.  It puts the graph into a more standard
-    shape, and later allows us to merge consecutive `DimShuffle`s.
-
-    In general, this prevents `DimShuffle`s from getting in the way of more
-    general math-level considerations.  For example, the `DimShuffle` in
-    `tt.dot(A, DimShuffle(NormalRV(...)))` prevents us from easily spotting the
-    underlying `tt.dot(A, NormalRV(...))`.
-
-    """
-    if not isinstance(node.op, tt.basic.DimShuffle):
-        return False
-
-    owner = node.inputs[0].owner
-
-    if not (owner and isinstance(owner.op, RandomVariable)):
-        return False
-
-    import pdb; pdb.set_trace()
-
-    rv_smpl = node.inputs[0]
-
-    new_order = node.op.new_order
-    # owner.inputs
-
-    # shape = tuple(shape_reps) + tuple(shape_ind) + tuple(shape_supp)
-
-    new_dist_params = None
-    new_size = None
-
-    ret = [owner.op(*new_dist_params, size=new_size, rng=rng, name=rv_smpl.name)]
-
-    copy_stack_trace(rv_smpl, ret)
-
-    return ret
-
-
-# Let's inspect the kind of `[Inplace]DimShuffle`s we're dealing with
-tt_dprint(Y_t_rv.owner.op.fn, depth=5)
-
-dmshf_op = Y_t_rv.owner.op.fn.outputs[0].variable.owner.inputs[1].owner.op
-dmshf_op.inplace
-dmshf_op.new_order
-dmshf_op.input_broadcastable
-
-test_mvn_tt = MvNormalRV(np.r_[0, 10, 100], np.diag([0.1, 0.01, 0.001]), size=3)
-
-dmshf_mvn_tt = test_mvn_tt.dimshuffle([0, 1, 'x'])
-
-# dmshf_mvn_tt.owner.op.new_order
-# dmshf_mvn_tt.owner.op.input_broadcastable
-
-test_mvn.eval()
-dmshf_mvn_tt.eval()
-
-# Now, how does the `DimShuffle`d result translate to a `MvNomalRV`?
-# We might be able to generalize if we can simplify the action of the `size` parameter.
-
-test_mvn_base_tt = MvNormalRV(np.r_[0, 10, 100], np.diag([0.1, 0.01, 0.001]))
-
-# test_mvn_rpt_tt = tt.tile(test_mvn_base_tt, [3, 1])
-
-test_mvn_rpt_tt.eval()
-
-test_mvn_2_tt = MvNormalRV(np.r_[0, 10, 100], np.diag([0.1, 0.01, 0.001]), size=3)
-
-normal_rv_canonicalize = tt.gof.opt.EquilibriumOptimizer(normal_rv_canonicalize_patterns,
-                                                         max_use_ratio=10)
-opt_res = optimize_graph(test_mvn_2_tt, local_lift_DimShuffle_through_NormalRV)
-tt_dprint(opt_res, depth=5)
-#+END_SRC
-
 * Discussion
 
-So far, we've only shown how to perform FFBS for DLMs in Theano...
+We've implemented a highly extensible Bayesian timeseries framework with
+respectable model coverage (e.g. ARIMA models, polynomial trends, Fourier
+seasonality, dynamic regression, etc.), and shown how such a basic class can be
+extended to non-Gaussian observations. Additionally, we were able to show how an
+existing model-specialized sampler, i.e. FFBS, can be adapted alongside such an
+extension using the conditional linearity provided by a Gaussian scale-mixture.
+
+In general, the same scale-mixture and conditional linearity techniques can be
+employed for other observation distributions (e.g. Beta, Binomial), as well as
+state-of-the-art shrinkage and sparsity priors
+[[citep:BhadraDefaultBayesiananalysis2016]],[[citep:datta2016bayesian]].
+
+Although we used Gibbs sampling, these techniques do not necessitate it; one can
+use Metropolis--or any other mathematically sound--steps instead.
+
+Bayesian frameworks like these have considerable flexibility and are amenable to
+much analytic creativity; unfortunately, we don't often see this--directly, at
+least--in practice.  There are clearly some roadblocks to the average applied
+statistics/data science developer when attempting to implement these models straight
+from published papers.  Those roadblocks often involve subtle numeric stability
+issues and a sometimes non-standard mathematics proficiency.
+
+We hope that future automations will be able to address more straight-forward
+numerical stability issues by--for instance--automating the SVD-based
+reformulations used herein.  The scale mixture manipulations are likewise
+amenable to certain automations, but, at the very least, it would serve
+the Bayesian community--and all who desire to construct non-trivial principled
+statistical models--well to develop low-level tools that codify and generate such
+scale-mixture variations.  In this way, even experimentation by knowledgeable
+developers will be much easier and less error-prone.
+
+
 
 #+BIBLIOGRAPHYSTYLE: plainnat
 #+BIBLIOGRAPHY: ../tex/dlm-optimizations.bib
