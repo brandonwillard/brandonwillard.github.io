@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
-    <title>Dynamic Linear Model Optimizations in Theano - Brandon T. Willard</title>
+    <title>Dynamic Linear Models in Theano - Brandon T. Willard</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -9,25 +9,25 @@
 
 
 
-<link rel="canonical" href="https://brandonwillard.github.io/drafts/dynamic-linear-model-optimizations-in-theano.html">
+<link rel="canonical" href="https://brandonwillard.github.io/dynamic-linear-models-in-theano.html">
 
         <meta name="author" content="Brandon T. Willard" />
-        <meta name="keywords" content="draft,pymc3,theano,statistics,symbolic computation,python,probability theory" />
+        <meta name="keywords" content="symbolic-pymc,theano,statistics,timeseries,dlm,ffbs,gibbs" />
 
         <meta property="og:site_name" content="Brandon T. Willard" />
         <meta property="og:type" content="article"/>
-        <meta property="og:title" content="Dynamic Linear Model Optimizations in Theano"/>
-        <meta property="og:url" content="https://brandonwillard.github.io/drafts/dynamic-linear-model-optimizations-in-theano.html"/>
+        <meta property="og:title" content="Dynamic Linear Models in Theano"/>
+        <meta property="og:url" content="https://brandonwillard.github.io/dynamic-linear-models-in-theano.html"/>
         <meta property="og:description" content=""/>
         <meta property="article:published_time" content="2020-03-18" />
             <meta property="article:section" content="articles" />
-            <meta property="article:tag" content="draft" />
-            <meta property="article:tag" content="pymc3" />
+            <meta property="article:tag" content="symbolic-pymc" />
             <meta property="article:tag" content="theano" />
             <meta property="article:tag" content="statistics" />
-            <meta property="article:tag" content="symbolic computation" />
-            <meta property="article:tag" content="python" />
-            <meta property="article:tag" content="probability theory" />
+            <meta property="article:tag" content="timeseries" />
+            <meta property="article:tag" content="dlm" />
+            <meta property="article:tag" content="ffbs" />
+            <meta property="article:tag" content="gibbs" />
             <meta property="article:author" content="Brandon T. Willard" />
 
 
@@ -99,10 +99,10 @@ Brandon T. Willard            </a>
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="https://brandonwillard.github.io/drafts/dynamic-linear-model-optimizations-in-theano.html"
+                    <a href="https://brandonwillard.github.io/dynamic-linear-models-in-theano.html"
                        rel="bookmark"
-                       title="Permalink to Dynamic Linear Model Optimizations in Theano">
-                        Dynamic Linear Model Optimizations in Theano
+                       title="Permalink to Dynamic Linear Models in Theano">
+                        Dynamic Linear Models in Theano
                     </a>
                 </h1>
             </header>
@@ -116,7 +116,7 @@ Brandon T. Willard            </a>
     </span>
           <span class="label label-default">Modified</span>
             <span class="modified">
-                <i class="fa fa-calendar"></i><time datetime="2020-05-01T00:00:00-05:00"> Fri 01 May 2020</time>
+                <i class="fa fa-calendar"></i><time datetime="2020-05-02T00:00:00-05:00"> Sat 02 May 2020</time>
             </span>
 
 
@@ -124,19 +124,19 @@ Brandon T. Willard            </a>
 
 
 <span class="label label-default">Tags</span>
-	<a href="https://brandonwillard.github.io/tag/draft.html">draft</a>
-        /
-	<a href="https://brandonwillard.github.io/tag/pymc3.html">pymc3</a>
+	<a href="https://brandonwillard.github.io/tag/symbolic-pymc.html">symbolic-pymc</a>
         /
 	<a href="https://brandonwillard.github.io/tag/theano.html">theano</a>
         /
 	<a href="https://brandonwillard.github.io/tag/statistics.html">statistics</a>
         /
-	<a href="https://brandonwillard.github.io/tag/symbolic-computation.html">symbolic computation</a>
+	<a href="https://brandonwillard.github.io/tag/timeseries.html">timeseries</a>
         /
-	<a href="https://brandonwillard.github.io/tag/python.html">python</a>
+	<a href="https://brandonwillard.github.io/tag/dlm.html">dlm</a>
         /
-	<a href="https://brandonwillard.github.io/tag/probability-theory.html">probability theory</a>
+	<a href="https://brandonwillard.github.io/tag/ffbs.html">ffbs</a>
+        /
+	<a href="https://brandonwillard.github.io/tag/gibbs.html">gibbs</a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
@@ -147,7 +147,7 @@ Brandon T. Willard            </a>
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Brandon T. Willard" />
-  <title>Dynamic Linear Model Optimizations in Theano</title>
+  <title>Dynamic Linear Models in Theano</title>
   <style type="text/css">code{white-space: pre;}</style>
   <style type="text/css">
 a.sourceLine { display: inline-block; line-height: 1.25; }
@@ -217,7 +217,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <body>
 <!--  -->
 <!-- <div id="header"> -->
-<!-- <h1 class="title">Dynamic Linear Model Optimizations in Theano</h1> -->
+<!-- <h1 class="title">Dynamic Linear Models in Theano</h1> -->
 <!--  -->
 <!--  -->
 <!-- <h2 class="author">Brandon T. Willard</h2> -->
@@ -228,31 +228,41 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <!-- </div> -->
 <!--  -->
 <ul>
-<li><a href="#orgc2c9c18">Introduction</a></li>
-<li><a href="#org036625c">Posterior Estimation</a>
+<li><a href="#org8ae0857">Introduction</a></li>
+<li><a href="#org8873a63">Analytic Posteriors</a></li>
+<li><a href="#orgefb3ef8">Posterior Estimation</a>
 <ul>
-<li><a href="#org08e8015">SVD-based Filtering</a></li>
-<li><a href="#org7c52007">SVD-based Smoothing</a></li>
-<li><a href="#org261e60b">Example</a></li>
+<li><a href="#org1d9986d">SVD-based Filtering</a></li>
+<li><a href="#org350fa8d">SVD-based Smoothing</a></li>
+<li><a href="#org9beb158">Example</a></li>
 </ul></li>
-<li><a href="#org2506633">Forward-filtering Backward-sampling</a>
+<li><a href="#orgaa30fc5">Forward-filtering Backward-sampling</a>
 <ul>
-<li><a href="#orgb625a39">Example</a></li>
+<li><a href="#org231ac83">Simulation Example</a></li>
 </ul></li>
-<li><a href="#org17ed174">Non-Gaussian Example</a>
+<li><a href="#orge6290b1">Non-Gaussian Extension</a>
 <ul>
-<li><a href="#orgc28bbe8">Simulation</a></li>
-<li><a href="#org5b2988e">Augmented FFBS Sampler</a></li>
-<li><a href="#orgbadaeaf">COVID–19 Example</a></li>
+<li><a href="#orgeeb5707">Simulation Example</a></li>
 </ul></li>
-<li><a href="#org71c9f6b">Discussion</a></li>
+<li><a href="#orgd705951">Augmented FFBS Sampler</a>
+<ul>
+<li><a href="#orgafe10a4">Simulation Example</a></li>
+<li><a href="#orgf74c6fe">COVID–19 Example</a></li>
+</ul></li>
+<li><a href="#org24da3be">Discussion</a></li>
 </ul>
 <div class="abstract">
-<p>In this document we construct dynamic linear models (DLMs) in Theano and explore ideas for automating the production of efficient samplers.</p>
+<p>In this document we detail how dynamic linear models (DLMs) can be implemented in Theano (or similar tensor libraries), as well as a complementary Rao-Blackwellized sampler tailored to the structure of DLMs. Furthermore, we provide an example of how DLMs can be extended–via Gaussian scale-mixtures–to model non-gaussian observations. The example is a Pólya-Gamma extension to forward-filtering backward-sampling for negative-binomial observations.</p>
 </div>
-<p><a id="orgc2c9c18"></a></p>
+<p><a id="org8ae0857"></a></p>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
+<p>For a proper introduction of dynamic linear models and their estimation, see <a id="4bbd465b4e78e5c5151b0cbba54d984e"><a href="#harrison_bayesian_1999">Harrison &amp; West (1999)</a></a>,<a id="1c3f471fd137724bd53b01eb4d6534fe"><a href="#PetrisDynamicLinearModels2009">Petris, Petrone &amp; Campagnoli (2009)</a></a>, and <a id="8247a823e73eba801aad2942a49b03be"><a href="#GamermanMarkovchainMonte2006">Gamerman &amp; Lopes (2006)</a></a>,<a id="c6a5d83a82b5963f42264d85625b5153"><a href="#pole_applied_1994">Pole, West &amp; Harrison (1994)</a></a>. The focus of this document is on some practical details behind DLM estimation in Python–and, particularly, libraries like Theano <a id="25fdcab375e353d7bb32eec7b13064c6"><a href="#bergstra_theano:_2010">(Bergstra, Breuleux, Bastien, Lamblin, Pascanu, Desjardins, Turian, Warde-Farley &amp; Bengio 2010)</a></a>. Throughout, we use some custom random variable objects from <code>symbolic-pymc</code> <a id="e8fa26b92264fca946be25e6b617fc56"><a href="#Willardsymbolicpymc2019">(Willard 2019)</a></a>. This is largely because <code>symbolic-pymc</code> offers a necessary non-standard distribution and its random variables work well within the <code>scan</code> operations we employ.</p>
+<p>In the future, we plan to build optimizations that automate much of the work done here (and more). This exposition sets the foundation for such work by first motivating the use and generality of Bayesian frameworks like DLMs, then by demonstrating the analytic steps that produce customized, efficient samplers. These are the steps that would undergo automation in the future.</p>
+<p><a id="org8873a63"></a></p>
+</section>
+<section id="analytic-posteriors" class="level1">
+<h1>Analytic Posteriors</h1>
 <p>We start by considering the simple form of a DLM <a id="4bbd465b4e78e5c5151b0cbba54d984e"><a href="#harrison_bayesian_1999">(Harrison &amp; West 1999)</a></a> with prior <span class="math inline">\(\theta_0 \sim \operatorname{N}\left( m_0, C_0 \right)\)</span>:</p>
 <p><span class="math display">\[\begin{align}
   y_t &amp;= F_t^{\top} \theta_{t} + \epsilon_t, \quad \epsilon_t \sim \operatorname{N}\left( 0, V \right)
@@ -262,7 +272,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \label{eq:basic-dlm-state}
 \end{align}\]</span></p>
 <p>for <span class="math inline">\(t \in \{1, \dots, T\}\)</span>, <span class="math inline">\(y_t \in \mathbb{R}\)</span>, and <span class="math inline">\(\theta_t \in \mathbb{R}^{M}\)</span>.</p>
-<p>The most “notationally” faithful representation of the timeseries model in <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> using Theano is provided in Listing <a href="#org27bfd8a">2</a>. It represents the notion of a recursion–to the best of Theano’s ability–by way of the <code>scan</code> operator.</p>
+<p>The most “notationally” faithful representation of the timeseries model in <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> using Theano is provided in Listing <a href="#orge6ada13">2</a>. It represents the notion of a recursion–to the best of Theano’s ability–by way of the <code>scan</code> operator.</p>
 <figure>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"></a>
@@ -288,7 +298,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb1-22" data-line-number="22"><span class="co"># theano.config.mode = &quot;FAST_COMPILE&quot;</span></a>
 <a class="sourceLine" id="cb1-23" data-line-number="23">tt.config.compute_test_value <span class="op">=</span> <span class="st">&#39;ignore&#39;</span></a></code></pre></div>
 </figure>
-<figure id="org27bfd8a">
+<figure id="orge6ada13">
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"></a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">N_obs_tt <span class="op">=</span> tt.iscalar(<span class="st">&quot;N_obs&quot;</span>)</a>
 <a class="sourceLine" id="cb2-3" data-line-number="3">N_theta_tt <span class="op">=</span> tt.iscalar(<span class="st">&quot;N_theta&quot;</span>)</a>
@@ -350,29 +360,35 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 Listing 2
 </figcaption>
 </figure>
-<p>The model in Listing <a href="#org27bfd8a">2</a> is our starting point. We assume that a PyMC3 user–for instance–would define a timeseries model in this way, alongside distributional assumptions on parameters (e.g. inverse-gamma variances). From there, we’ll explore some ideas behind manually producing model-specific efficient samplers–generally by first manually deriving and then demonstrating said samplers.</p>
-<p>Throughout we’ll use data sampled from <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> for demonstration purposes. Specifically, our simulation has the following values:</p>
-<p><span class="math display">\[\begin{gather}
-  T = 200,\quad M = 2
-  \\
-  \phi_W = \left(1.1, 10\right),\quad \phi_V = 0.7
-  \\
-  G_t = \begin{pmatrix}
-  1 &amp; 0.1 \\
-  0 &amp; 1 \\
-  \end{pmatrix},\quad
-  F_t = \begin{pmatrix}
-  1 \\
-  0
-  \end{pmatrix}
-  \\
-  \theta_0 = \begin{pmatrix}
-  0 \\
-  0
-  \end{pmatrix}
+<p>Throughout we’ll use data sampled from <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> for demonstration purposes. Our simulation has the following model parameter values:</p>
+<p><span class="math display">\[\begin{equation}
+  \begin{gathered}
+    T = 200,\quad M = 2
+    \\
+    W_t = \operatorname{diag}\left( \phi_W \right)
+    ,\quad
+    V_t = \operatorname{diag}\left( \phi_V \right)
+    \\
+    \phi_W = \left(1.1, 10\right),\quad \phi_V = 0.7
+    \\
+    G_t = \begin{pmatrix}
+    1 &amp; 0.1 \\
+    0 &amp; 1 \\
+    \end{pmatrix},\quad
+    F_t = \begin{pmatrix}
+    1 \\
+    0
+    \end{pmatrix}
+    \\
+    \theta_0 = \begin{pmatrix}
+    0 \\
+    0
+    \end{pmatrix}
+  \end{gathered}
   \label{eq:sim-settings}
-\end{gather}\]</span></p>
-<figure>
+\end{equation}\]</span></p>
+<p>A sample from <span class="math inline">\(\eqref{eq:sim-settings}\)</span> is generated in Listing <a href="#org721f0b8">3</a>.</p>
+<figure id="org721f0b8">
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="im">from</span> theano <span class="im">import</span> function <span class="im">as</span> tt_function</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb3-3" data-line-number="3">dlm_sim_values <span class="op">=</span> {</a>
@@ -395,9 +411,12 @@ Listing 2
 <a class="sourceLine" id="cb3-20" data-line-number="20">y_sim, theta_t_sim <span class="op">=</span> simulate_dlm(dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt], dlm_sim_values[G_tt], dlm_sim_values[F_tt])</a>
 <a class="sourceLine" id="cb3-21" data-line-number="21"></a>
 <a class="sourceLine" id="cb3-22" data-line-number="22">rng_sim_state <span class="op">=</span> rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).get_state()</a></code></pre></div>
+<figcaption>
+Listing 3
+</figcaption>
 </figure>
-<p>In Figure <a href="#orgece0fee">4</a> we plot a sample from the model in Listing <a href="#org27bfd8a">2</a> for a fixed RNG seed.</p>
-<figure id="orgece0fee">
+<p>In Figure <a href="#org04355d9">4</a> we plot a sample from the model in Listing <a href="#orge6ada13">2</a> for a fixed RNG seed.</p>
+<figure id="org04355d9">
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1">plt.clf()</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb4-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
@@ -410,11 +429,11 @@ Listing 4
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/basic-dlm-sim-plot.png" alt="" />
+<img src="https://brandonwillard.github.io/figures/basic-dlm-sim-plot.png" alt="" />
 <figcaption>
 </figcaption>
 </figure>
-<p>Since our goal is to automate some of the basic steps in the process of analytically manipulating and/or solving DLMs (for the purpose of producing efficient and accurate posterior estimates), we will want to compute as many closed-form operations as possible, and the prior predictive state and observation distributions are a good place to start.</p>
+<p>The standard DLM is essentially a <a href="https://en.wikipedia.org/wiki/Kalman_filter">Kalman Filter</a> and enjoys many well documented closed-form results. In the following, we will simply state the relevant prior predictive and posterior results.</p>
 <p>Given all the prior and observed data up to time <span class="math inline">\(t\)</span>, <span class="math inline">\(D_t\)</span>, these distribution are given by the following:</p>
 <p><span class="math display">\[\begin{align}
   \theta_{t} \mid D_{t-1} &amp;\sim \operatorname{N}\left( a_{t}, R_{t} \right)
@@ -438,8 +457,9 @@ Listing 4
   \end{gathered}
   \label{eq:dlm-post-moments}
 \end{equation}\]</span></p>
-<p>These “filtered” moments/distributions are only <strong>one</strong> kind of posterior result for a DLM, and they only take into account the data up to time <span class="math inline">\(t\)</span>. The other kind are the “smoothed” distributions, which provide posterior distributions for each time <span class="math inline">\(t\)</span> given all observations.</p>
-<p>Notationally, we’ve used <span class="math inline">\(D_t\)</span> to signify all conditional observations and parameters up to time <span class="math inline">\(t\)</span>, so the smoothed distributions are given by <span class="math inline">\(\theta_t \mid D_T\)</span> and the following moments:</p>
+<p>These “filtered” moments/distributions are one “kind” of posterior result for a DLM, and they only take into account the data <strong>up to</strong> time <span class="math inline">\(t\)</span>. The other kind are the “smoothed” distributions, which provide posterior distributions for each time <span class="math inline">\(t\)</span> given all observations preceding <strong>and</strong> following <span class="math inline">\(t\)</span>.</p>
+<p>Notationally, we’ve used <span class="math inline">\(D_t\)</span> to signify all conditional observations and parameters up to time <span class="math inline">\(t\)</span>, so the smoothed distributions are given by <span class="math inline">\(\theta_t \mid D_T\)</span>, in contrast to <span class="math inline">\(\theta_t \mid D_t\)</span></p>
+<p>The smoothed <span class="math inline">\(\theta_t\)</span> distributions are still Gaussian, i.e. <span class="math inline">\(\left(\theta_t \mid D_T\right) \sim \operatorname{N}\left(s_t, S_t\right)\)</span> and its moments are as follows:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
     s_t &amp;= m_t + C_t G_{t+1}^\top R_{t+1}^{-1} \left( s_{t+1} - a_{t+1} \right)
@@ -453,11 +473,11 @@ Listing 4
 </div>
 <p>The standard approach is called forward-filtering backward-sampling (FFBS) and uses smoothed posteriors <span class="math inline">\(\theta_t \mid \theta_{t+1}, D_T\)</span> conditioned on all other parameters.</p>
 <p>We’ll build up to forward-backward sampling in what follows, but, first, we need to establish how the requisite quantities can be computed symbolically.</p>
-<p><a id="org036625c"></a></p>
+<p><a id="orgefb3ef8"></a></p>
 </section>
 <section id="posterior-estimation" class="level1">
 <h1>Posterior Estimation</h1>
-<p>In Listings <a href="#org7278e18">6</a> and <a href="#org874cba4">7</a>, we demonstrate how the posterior moments in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> and <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span> can be computed in Theano.</p>
+<p>In Listings <a href="#org224c0e5">6</a> and <a href="#org911f8da">7</a>, we demonstrate how the posterior moments in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> and <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span> can be computed in Theano.</p>
 <p>Unfortunately, if we attempt to implement the exact closed-form updates in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> or <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span>, our results will be fraught with numerical errors. This is a very basic issue with naively implemented Kalman filters. The solution to these issues usually involves some analytic reformulations that compensate for the covariance matrix subtractions. The standard approaches generally use some form of matrix decomposition that directly accounts for the positive semi-definite nature of the covariance matrices.</p>
 <p>The approach taken here is based on the singular value decomposition (SVD) and effectively computes only one symmetric “half” of the updated covariances. The SVD also allows for easy inversions. See <a id="0ae04c048b20d07f32d7f0f75bb51483"><a href="#ZhangFixedintervalsmoothingalgorithm1996">Zhang &amp; Li (1996)</a></a> for more details, or <a id="3a4d89388a434d7b1b91dc8690f3a03b"><a href="#PetrisDynamiclinearmodels2009">Petris, Petrone &amp; Campagnoli (2009)</a></a> for a concise overview of the procedure in the context of DLMs.</p>
 <figure>
@@ -489,7 +509,7 @@ Listing 4
 <a class="sourceLine" id="cb5-26" data-line-number="26">        res_subtensor <span class="op">=</span> y[tt.isinf(y)]</a>
 <a class="sourceLine" id="cb5-27" data-line-number="27">        <span class="cf">return</span> tt.set_subtensor(res_subtensor, <span class="fl">0.0</span>)</a></code></pre></div>
 </figure>
-<p><a id="org08e8015"></a></p>
+<p><a id="org1d9986d"></a></p>
 <section id="svd-based-filtering" class="level2">
 <h2>SVD-based Filtering</h2>
 <p>The SVD forms of the filtering equations in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> are produced through creative use of the SVDs of its component matrices. Using a slightly modified version of the formulation established in <a id="3a4d89388a434d7b1b91dc8690f3a03b"><a href="#PetrisDynamiclinearmodels2009">Petris, Petrone &amp; Campagnoli (2009)</a></a>, the SVD for a matrix <span class="math inline">\(M\)</span> is given by <span class="math inline">\(M = U_{M} D_{M} V_{M}^\top\)</span>. A symmetric matrix then takes the form <span class="math inline">\(M = U_{M} D_{M} U_{M}^\top\)</span> and its “square-root” is given by <span class="math inline">\(M = N_M^\top N_M\)</span> with <span class="math inline">\(N_M = S_{M} U_{M}^\top\)</span> and <span class="math inline">\(S_{M} = D_{M}^{1/2}\)</span>. Likewise, matrix (generalized) inverses take the form <span class="math inline">\(M^{-1} = U_{M} S_{M}^{-1} U_{M}^\top\)</span>.</p>
@@ -523,8 +543,8 @@ Listing 4
 \end{equation}\]</span></p>
 <p>Again, we compute the SVD of <span class="math inline">\(N_{C_t^{-1}}\)</span> at this step and obtain <span class="math inline">\(V_{N_{C_t^{-1}}}\)</span> and <span class="math inline">\(D_{N_{C_t^{-1}}}\)</span>.</p>
 <p>This time, the block square-root matrix relationship isn’t so direct, and we have to multiply by <span class="math inline">\(U_{R_t}\)</span>: <span class="math inline">\(U_{R_t} N_{C_t^{-1}}^\top N_{C_t^{-1}} U_{R_t}^\top = C_t^{-1}\)</span>. However, since the additional <span class="math inline">\(U_{R_t}\)</span> terms are orthogonal, we are able to derive the SVD of <span class="math inline">\(C_t\)</span> as <span class="math inline">\(U_{C_t} = U_{R_t} V_{N_{C_t^{-1}}}\)</span> and <span class="math inline">\(S_{C_t} = D_{N_{C_t^{-1}}}^{-1}\)</span>.</p>
-<p>These quantities are computed in Listing <a href="#org7278e18">6</a>.</p>
-<figure id="org7278e18">
+<p>These quantities are computed in Listing <a href="#org224c0e5">6</a>.</p>
+<figure id="org224c0e5">
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="im">from</span> theano.tensor.nlinalg <span class="im">import</span> svd</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb6-3" data-line-number="3"></a>
@@ -599,7 +619,7 @@ Listing 4
 Listing 6
 </figcaption>
 </figure>
-<p><a id="org7c52007"></a></p>
+<p><a id="org350fa8d"></a></p>
 </section>
 <section id="svd-based-smoothing" class="level2">
 <h2>SVD-based Smoothing</h2>
@@ -654,7 +674,7 @@ Listing 6
   \label{eq:N_S_t}
 \end{equation}\]</span></p>
 <p>Again, we take the SVD of <span class="math inline">\(N_{S_t}\)</span> and derive the SVD of <span class="math inline">\(S_t\)</span> as <span class="math inline">\(U_{S_t} = V_{N_{S_t}}\)</span> and <span class="math inline">\(D_{S_t} = D_{N_{S_t}}^2 = S_{S_t}^2\)</span>.</p>
-<figure id="org874cba4">
+<figure id="org911f8da">
 <div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">def</span> smoother_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, s_tp1, U_S_tp1, S_S_tp1, G_tp1, N_W_tp1_inv):</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Smooth a series starting from the &quot;forward&quot;/sequentially computed posterior moments.&quot;&quot;&quot;</span></a>
 <a class="sourceLine" id="cb7-3" data-line-number="3"></a>
@@ -731,12 +751,12 @@ Listing 6
 Listing 7
 </figcaption>
 </figure>
-<p><a id="org261e60b"></a></p>
+<p><a id="org9beb158"></a></p>
 </section>
 <section id="example" class="level2">
 <h2>Example</h2>
-<p>Listing <a href="#orgad4c1a3">8</a> computes the filtered and smoothed means for our simulated series, and Figure <a href="#org50d26f8">9</a> shows the results.</p>
-<figure id="orgad4c1a3">
+<p>Listing <a href="#org6c20a11">8</a> computes the filtered and smoothed means for our simulated series, and Figure <a href="#org822c0f2">9</a> shows the results.</p>
+<figure id="org6c20a11">
 <div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" data-line-number="1">filter_smooth_dlm <span class="op">=</span> tt_function([y_tt, N_theta_tt, G_tt, F_tt], [m_t, s_t])</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co"># phi_W_tt.set_value(phi_W_true)</span></a>
@@ -749,7 +769,7 @@ Listing 7
 Listing 8
 </figcaption>
 </figure>
-<figure id="org50d26f8">
+<figure id="org822c0f2">
 <div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="im">from</span> cycler <span class="im">import</span> cycler</a>
 <a class="sourceLine" id="cb9-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb9-3" data-line-number="3">bivariate_cycler <span class="op">=</span> plt_orig_cycler <span class="op">*</span> cycler(<span class="st">&#39;linestyle&#39;</span>, [<span class="st">&#39;-&#39;</span>, <span class="st">&#39;--&#39;</span>])</a>
@@ -768,12 +788,12 @@ Listing 9
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/svd-steps-sim-plot.png" alt="Filtered and smoothed \theta_t–against the true \theta_t–computed using the SVD approach. " />
+<img src="https://brandonwillard.github.io/figures/svd-steps-sim-plot.png" alt="Filtered and smoothed \theta_t–against the true \theta_t–computed using the SVD approach. " />
 <figcaption>
 Filtered and smoothed <span class="math inline">\(\theta_t\)</span>–against the true <span class="math inline">\(\theta_t\)</span>–computed using the SVD approach.
 </figcaption>
 </figure>
-<p><a id="org2506633"></a></p>
+<p><a id="orgaa30fc5"></a></p>
 </section>
 </section>
 <section id="forward-filtering-backward-sampling" class="level1">
@@ -789,8 +809,8 @@ Filtered and smoothed <span class="math inline">\(\theta_t\)</span>–against th
   \end{gathered}
   \label{eq:ffbs-moments}
 \end{equation}\]</span></p>
-<p>Since all the quantities in <span class="math inline">\(\eqref{eq:ffbs-moments}\)</span> appear in the filtering and smoothing moments, we can use the SVD-based approach described earlier to perform the updates and sampling. We reproduce the relevant subset of calculations in Listing <a href="#org92c224d">10</a>.</p>
-<figure id="org92c224d">
+<p>Since all the quantities in <span class="math inline">\(\eqref{eq:ffbs-moments}\)</span> appear in the filtering and smoothing moments, we can use the SVD-based approach described earlier to perform the updates and sampling. We reproduce the relevant subset of calculations in Listing <a href="#org6d942a3">10</a>.</p>
+<figure id="org6d942a3">
 <div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">def</span> ffbs_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, theta_tp1, F_tp1, G_tp1, N_W_tp1_inv, rng):</a>
 <a class="sourceLine" id="cb10-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;Perform forward-filtering backward-sampling.&quot;&quot;&quot;</span></a>
 <a class="sourceLine" id="cb10-3" data-line-number="3"></a>
@@ -872,13 +892,32 @@ Filtered and smoothed <span class="math inline">\(\theta_t\)</span>–against th
 Listing 10
 </figcaption>
 </figure>
-<p><a id="orgb625a39"></a></p>
-<section id="example-1" class="level2">
-<h2>Example</h2>
-<p>Quantities besides the state values, <span class="math inline">\(\theta_t\)</span>, can be sampled sequentially (i.e. within the function <code>ffbs_step</code> in Listing <a href="#org92c224d">10</a>), or after FFBS when all <span class="math inline">\(\theta_t \mid D_T\)</span> have been sampled. These quantities can use the conditionally normal form of <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span> to derive Gibbs steps, further Rao-Blackwellize hierarchical quantities, or apply any other means of producing posterior samples conditional on <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span>.</p>
-<p>In this example, we will augment our original model by adding the classic gamma priors to our previously fixed state and observation scale parameters, <span class="math inline">\(\phi_W\)</span> and <span class="math inline">\(\phi_V\)</span>, respectively.</p>
-<p>This classical conjugate prior allows one to derive simple closed-form posteriors for a Gibbs sampler conditional on <span class="math inline">\(\theta_t \mid D_T\)</span>. Those posterior computations are defined in Listings <a href="#orged3c40b">11</a> and <a href="#org20c0e4a">12</a>, and they are used to update the shared Theano variables for <span class="math inline">\(\phi_W\)</span> and <span class="math inline">\(\phi_V\)</span> within a Gibbs sampling loop in Listing <a href="#org66be288">13</a>.</p>
-<figure id="orged3c40b">
+<p>Quantities besides the state values, <span class="math inline">\(\theta_t\)</span>, can be sampled sequentially (i.e. within the function <code>ffbs_step</code> in Listing <a href="#org6d942a3">10</a>), or after FFBS when all <span class="math inline">\(\theta_t \mid D_T\)</span> have been sampled. These quantities can use the conditionally Gaussian form of <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span> to derive Gibbs steps, further Rao-Blackwellize hierarchical quantities, or apply any other means of producing posterior samples conditional on <span class="math inline">\(\left(\theta_t \mid \theta_{t+1}, D_T \right)\)</span>.</p>
+<p>In our simulation example, we will further augment our original model by adding the classic conjugate gamma priors to our previously fixed state and observation precision parameters, <span class="math inline">\(\phi_W\)</span> and <span class="math inline">\(\phi_V\)</span>, respectively:</p>
+<p><span class="math display">\[\begin{equation}
+  \begin{gathered}
+    \phi_{W} \sim \operatorname{Gamma}\left( a_W, b_W \right)
+    ,\quad
+    \phi_{V} \sim \operatorname{Gamma}\left( a_V, b_V \right)
+  \end{gathered}
+  \label{eq:phi-gamma-priors}
+\end{equation}\]</span></p>
+<p>This classical conjugate prior allows one to derive simple closed-form posteriors for a Gibbs sampler conditional on <span class="math inline">\(y_t\)</span>, <span class="math inline">\(\theta_t\)</span>, and <span class="math inline">\(\theta_{t-1}\)</span>, as follows:</p>
+<p><span class="math display">\[\begin{equation}
+  \begin{gathered}
+    \phi_{W} \mid D_T \sim
+    \operatorname{Gamma}\left( a_W + \frac{N}{2}, b_W + \frac{1}{2} \sum_{t=1}^N \left( \theta_t - G_t \theta_{t-1} \right)^2 \right)
+    ,\quad
+    \phi_{V} \mid D_T \sim
+    \operatorname{Gamma}\left( a_V + \frac{N}{2}, b_V + \frac{1}{2} \sum_{t=1}^N \left( y_t - F_t^\top \theta_t \right)^2 \right)
+  \end{gathered}
+  \label{eq:phi-gamma-posteriors}
+\end{equation}\]</span></p>
+<p>Those posterior computations are implemented in Listings <a href="#org4e5c0a0">11</a> and <a href="#org1156a41">12</a>, and they are used to update the shared Theano variables for <span class="math inline">\(\phi_W\)</span> and <span class="math inline">\(\phi_V\)</span> within a Gibbs sampling loop in Listing <a href="#org005b0cb">13</a>.</p>
+<p><a id="org231ac83"></a></p>
+<section id="simulation-example" class="level2">
+<h2>Simulation Example</h2>
+<figure id="org4e5c0a0">
 <div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1">phi_W_a, phi_W_b <span class="op">=</span> theano.shared(np.r_[<span class="fl">2.5</span>, <span class="fl">2.5</span>]), theano.shared(np.r_[<span class="fl">0.5</span>, <span class="fl">0.5</span>])</a>
 <a class="sourceLine" id="cb11-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb11-3" data-line-number="3">phi_W_a_post_tt <span class="op">=</span> phi_W_a <span class="op">+</span> N_obs_tt <span class="op">*</span> <span class="fl">0.5</span></a>
@@ -889,7 +928,7 @@ Listing 10
 Listing 11
 </figcaption>
 </figure>
-<figure id="org20c0e4a">
+<figure id="org1156a41">
 <div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" data-line-number="1">phi_V_a, phi_V_b <span class="op">=</span> theano.shared(<span class="fl">0.125</span>), theano.shared(<span class="fl">0.25</span>)</a>
 <a class="sourceLine" id="cb12-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb12-3" data-line-number="3">phi_V_a_post_tt <span class="op">=</span> phi_V_a <span class="op">+</span> N_obs_tt <span class="op">*</span> <span class="fl">0.5</span></a>
@@ -900,7 +939,7 @@ Listing 11
 Listing 12
 </figcaption>
 </figure>
-<figure id="org66be288">
+<figure id="org005b0cb">
 <div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" data-line-number="1">ffbs_dlm <span class="op">=</span> tt_function([y_tt, N_obs_tt, N_theta_tt, G_tt, F_tt],</a>
 <a class="sourceLine" id="cb13-2" data-line-number="2">                       [theta_t_post, phi_W_post_tt, phi_V_post_tt,</a>
 <a class="sourceLine" id="cb13-3" data-line-number="3">                        phi_W_SS_tt, phi_V_SS_tt],</a>
@@ -928,7 +967,7 @@ Listing 12
 <a class="sourceLine" id="cb13-25" data-line-number="25">        dlm_sim_values[N_obs_tt], dlm_sim_values[N_theta_tt],</a>
 <a class="sourceLine" id="cb13-26" data-line-number="26">        dlm_sim_values[G_tt], dlm_sim_values[F_tt])</a>
 <a class="sourceLine" id="cb13-27" data-line-number="27"></a>
-<a class="sourceLine" id="cb13-28" data-line-number="28">    <span class="co"># Update variance scale parameters</span></a>
+<a class="sourceLine" id="cb13-28" data-line-number="28">    <span class="co"># Update variance precision parameters</span></a>
 <a class="sourceLine" id="cb13-29" data-line-number="29">    phi_W_tt.set_value(phi_W_post_sim)</a>
 <a class="sourceLine" id="cb13-30" data-line-number="30">    phi_V_tt.set_value(phi_V_post_sim)</a>
 <a class="sourceLine" id="cb13-31" data-line-number="31"></a>
@@ -943,8 +982,8 @@ Listing 12
 Listing 13
 </figcaption>
 </figure>
-<p>Figure <a href="#orgce1ba55">14</a> shows the posterior <span class="math inline">\(\theta_t\)</span> samples and Figure <a href="#org6c4d373">15</a> plots the posterior sample traces.</p>
-<figure id="orgce1ba55">
+<p>Figure <a href="#org010a945">14</a> shows the posterior <span class="math inline">\(\theta_t\)</span> samples and Figure <a href="#org968df9e">15</a> plots the posterior sample traces.</p>
+<figure id="org010a945">
 <div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" data-line-number="1">plt.clf()</a>
 <a class="sourceLine" id="cb14-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb14-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
@@ -989,12 +1028,12 @@ Listing 14
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/ffbs-sim-theta-plot.png" alt="Posterior \theta_t samples generated by a FFBS-based Gibbs sampler. " />
+<img src="https://brandonwillard.github.io/figures/ffbs-sim-theta-plot.png" alt="Posterior \theta_t samples generated by a FFBS-based Gibbs sampler. " />
 <figcaption>
 Posterior <span class="math inline">\(\theta_t\)</span> samples generated by a FFBS-based Gibbs sampler.
 </figcaption>
 </figure>
-<figure id="org6c4d373">
+<figure id="org968df9e">
 <div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="im">import</span> arviz <span class="im">as</span> az</a>
 <a class="sourceLine" id="cb15-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb15-3" data-line-number="3">az_trace <span class="op">=</span> az.from_dict(posterior<span class="op">=</span>posterior_samples)</a>
@@ -1004,7 +1043,7 @@ Listing 15
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/ffbs-sim-trace-plot.png" alt="Posterior sample traces for the FFBS-based Gibbs sampler. " />
+<img src="https://brandonwillard.github.io/figures/ffbs-sim-trace-plot.png" alt="Posterior sample traces for the FFBS-based Gibbs sampler. " />
 <figcaption>
 Posterior sample traces for the FFBS-based Gibbs sampler.
 </figcaption>
@@ -1036,16 +1075,16 @@ Posterior sample traces for the FFBS-based Gibbs sampler.
 <a class="sourceLine" id="cb16-24" data-line-number="24">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/ffbs-sim-pred-plot.png" alt="Posterior predicive sample means generated by a FFBS-based Gibbs sampler. " />
+<img src="https://brandonwillard.github.io/figures/ffbs-sim-pred-plot.png" alt="Posterior predicive sample means generated by a FFBS-based Gibbs sampler. " />
 <figcaption>
 Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 </figcaption>
 </figure>
-<p><a id="org17ed174"></a></p>
+<p><a id="orge6290b1"></a></p>
 </section>
 </section>
-<section id="non-gaussian-example" class="level1">
-<h1>Non-Gaussian Example</h1>
+<section id="non-gaussian-extension" class="level1">
+<h1>Non-Gaussian Extension</h1>
 <p>Let’s say we want to model count observations that are driven by a smooth time-varying process. We can assume a negative-binomial observation model with a log-link function–in standard GLM fashion <a id="820d466dbb5494bd5a5cb080d0b82638"><a href="#mccullagh_generalized_1989">(McCullagh &amp; Nelder 1989)</a></a>–and connect it to the same state and observation dynamics as the basic DLM in <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> via its mean <span class="math inline">\(\mu_t = \exp\left(\eta_t\right)\)</span>:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
@@ -1079,7 +1118,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
   \end{aligned}
 \label{eq:nb-pmf}
 \end{equation}\]</span></p>
-<p>The logit-inverse form in <span class="math inline">\(\eqref{eq:nb-pmf}\)</span> has a normal scale-mixture representation in the Pólya-Gamma distribution <a id="2776c69c558410bc65a3a0a0f1ff5bf4"><a href="#polson_bayesian_2013">(Polson, Scott &amp; Windle 2013)</a></a>. Said scale-mixture is as follows:</p>
+<p>The logit-inverse form in <span class="math inline">\(\eqref{eq:nb-pmf}\)</span> has a Gaussian scale-mixture representation in the Pólya-Gamma distribution <a id="2776c69c558410bc65a3a0a0f1ff5bf4"><a href="#polson_bayesian_2013">(Polson, Scott &amp; Windle 2013)</a></a>. Said scale-mixture is as follows:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
     \frac{e^{\psi a}}{\left(1 + e^{\psi}\right)^b} &amp;=
@@ -1093,27 +1132,38 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 \label{eq:pg-identity}
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(\kappa = a - b / 2\)</span> and <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(b, 0\right)\)</span>.</p>
-<p>When the normal scale-mixture identity of <span class="math inline">\(\eqref{eq:pg-identity}\)</span> is applied to our observation model in <span class="math inline">\(\eqref{eq:nb-pmf}\)</span>, <span class="math inline">\(a = y_t\)</span>, <span class="math inline">\(b = r + y_t\)</span>, <span class="math inline">\(\kappa = (y_t - r)/2\)</span>, and <span class="math inline">\(\psi = \eta_t - \log r\)</span>.</p>
+<p>When the Gaussian scale-mixture identity of <span class="math inline">\(\eqref{eq:pg-identity}\)</span> is applied to our observation model in <span class="math inline">\(\eqref{eq:nb-pmf}\)</span>, <span class="math inline">\(a = y_t\)</span>, <span class="math inline">\(b = r + y_t\)</span>, <span class="math inline">\(\kappa = (y_t - r)/2\)</span>, and <span class="math inline">\(\psi = \eta_t - \log r\)</span>.</p>
 <p>From the scale mixture formulation, we obtain the following augmented joint observation model density:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
     \operatorname{p}(\theta_t \mid \omega, y_t, r, D_{t-1}) &amp;\propto
     \exp\left(-\frac{\omega}{2} \left( F_t^\top \theta_t - \left( \log r + \frac{y_t - r}{2 \omega} \right) \right)^2 \right)
+    \operatorname{p}(\theta_t \mid D_{t-1})
     \\
     &amp;=
     e^{-\frac{\omega}{2} \left(y^*_t - F_t^\top \theta_t \right)^2}
+    \operatorname{p}(\theta_t \mid D_{t-1})
     \\
     &amp;\propto \operatorname{p}\left( y^*_t \mid F_t^\top \theta_t, \omega^{-1} \right)
+    \operatorname{p}(\theta_t \mid D_{t-1})
   \end{aligned}
 \label{eq:nb-aug-obs}
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(y^*_t = \log r + \frac{y_t - r}{2 \omega}\)</span>.</p>
-<p>The density of our “virtual” observations, <span class="math inline">\(y^*_t\)</span>, takes the form of a normal distribution, which fits nicely into our DLM framework. All that’s needed to incorporate this scale-mixture augmentation to our FFBS sampler is a step that samples <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)</span>.</p>
-<p><a id="orgc28bbe8"></a></p>
-<section id="simulation" class="level2">
-<h2>Simulation</h2>
-<p>Listing <a href="#org169b1e6">17</a> creates a Theano graph for negative-binomial model defined in <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.</p>
-<figure id="org169b1e6">
+<p>The reformulation at the end of <span class="math inline">\(\eqref{nb-aug-obs}\)</span> characterizes a distribution of “virtual” observations,</p>
+<p><span class="math display">\[\begin{equation}
+  y^*_t = F_t^\top \theta_t + \epsilon^*_t,\quad
+  \epsilon^*_t \sim \operatorname{N}\left(0, V^*_t \right)
+  ,
+  \label{eq:nb-virtual-obs}
+\end{equation}\]</span></p>
+<p>with <span class="math inline">\(V_t = \operatorname{diag}\left( \omega^{-1}_t \right)\)</span>.</p>
+<p>The augmented observation equation in <span class="math inline">\(\eqref{eq:nb-virtual-obs}\)</span> recovers our original DLM formulation and details the changes needed to use the Pólya-Gamma scale-mixture. Specifically, we need to sample <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)</span> and perform the following substitutions: <span class="math inline">\(y_t \to y^*_t\)</span> and <span class="math inline">\(V_t \to V^*_t\)</span>.</p>
+<p><a id="orgeeb5707"></a></p>
+<section id="simulation-example-1" class="level2">
+<h2>Simulation Example</h2>
+<p>Listing <a href="#orga5ba480">17</a> creates a Theano graph for negative-binomial model defined in <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.</p>
+<figure id="orga5ba480">
 <div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="im">from</span> symbolic_pymc.theano.random_variables <span class="im">import</span> NegBinomialRV</a>
 <a class="sourceLine" id="cb17-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb17-3" data-line-number="3"></a>
@@ -1141,8 +1191,8 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 Listing 17
 </figcaption>
 </figure>
-<p>Listing <a href="#orgeb47da6">18</a> specifies parameters for a simulation from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span> and samples a series.</p>
-<figure id="orgeb47da6">
+<p>Listing <a href="#org1bd6385">18</a> specifies parameters for a simulation from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span> and samples a series.</p>
+<figure id="org1bd6385">
 <div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" data-line-number="1">nb_dlm_sim_values <span class="op">=</span> dlm_sim_values.copy()</a>
 <a class="sourceLine" id="cb18-2" data-line-number="2">nb_dlm_sim_values[F_tt] <span class="op">=</span> np.array([[<span class="fl">1.0</span>],</a>
 <a class="sourceLine" id="cb18-3" data-line-number="3">                                    [<span class="fl">0.0</span>]], dtype<span class="op">=</span>theano.config.floatX)</a>
@@ -1170,8 +1220,8 @@ Listing 17
 Listing 18
 </figcaption>
 </figure>
-<p>In Figure <a href="#orgf266980">19</a> we plot the sample generated in Listing <a href="#org169b1e6">17</a>.</p>
-<figure id="orgf266980">
+<p>In Figure <a href="#orgf31ba4c">19</a> we plot the sample generated in Listing <a href="#orga5ba480">17</a>.</p>
+<figure id="orgf31ba4c">
 <div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" data-line-number="1">plt.clf()</a>
 <a class="sourceLine" id="cb19-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb19-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
@@ -1184,7 +1234,7 @@ Listing 19
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-dlm-sim-plot.png" alt="A series sampled from our negative-binomial model defined in \eqref{eq:nb-dlm}. " />
+<img src="https://brandonwillard.github.io/figures/nb-dlm-sim-plot.png" alt="A series sampled from our negative-binomial model defined in \eqref{eq:nb-dlm}. " />
 <figcaption>
 A series sampled from our negative-binomial model defined in <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.
 </figcaption>
@@ -1207,7 +1257,7 @@ A series sampled from our negative-binomial model defined in <span class="math i
 <a class="sourceLine" id="cb20-15" data-line-number="15">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-theta-sim-plot.png" alt="Simulated \theta_t values from \eqref{eq:nb-dlm}. " />
+<img src="https://brandonwillard.github.io/figures/nb-theta-sim-plot.png" alt="Simulated \theta_t values from \eqref{eq:nb-dlm}. " />
 <figcaption>
 Simulated <span class="math inline">\(\theta_t\)</span> values from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.
 </figcaption>
@@ -1223,17 +1273,18 @@ Simulated <span class="math inline">\(\theta_t\)</span> values from <span class=
 <a class="sourceLine" id="cb21-8" data-line-number="8">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-p-sim-plot.png" alt="Simulated p_t \mid \theta_t values from \eqref{eq:nb-dlm}. " />
+<img src="https://brandonwillard.github.io/figures/nb-p-sim-plot.png" alt="Simulated p_t \mid \theta_t values from \eqref{eq:nb-dlm}. " />
 <figcaption>
 Simulated <span class="math inline">\(p_t \mid \theta_t\)</span> values from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.
 </figcaption>
 </figure>
-<p><a id="org5b2988e"></a></p>
+<p><a id="orgd705951"></a></p>
 </section>
-<section id="augmented-ffbs-sampler" class="level2">
-<h2>Augmented FFBS Sampler</h2>
-<p>In order to create a FFBS sampler for our Pólya-Gamma DLM in <span class="math inline">\(\eqref{eq:nb-aug-obs}\)</span>, we need to update our filtering code so that it can take time-varying “virtual” observation variances, <span class="math inline">\(V_t\)</span>. After this change is made, all Theano graphs that depend on the resulting objects need to be recreated, as well. This is done in Listing <a href="#orgcf3e960">22</a>.</p>
-<figure id="orgcf3e960">
+</section>
+<section id="augmented-ffbs-sampler" class="level1">
+<h1>Augmented FFBS Sampler</h1>
+<p>In order to create a FFBS sampler for our Pólya-Gamma DLM in <span class="math inline">\(\eqref{eq:nb-aug-obs}\)</span>, we need to update the filtering code to use time-varying “virtual” observation variances, <span class="math inline">\(V^*_t\)</span>. After this change is made, all Theano graphs that depend on the resulting objects need to be recreated, as well. This is done in Listing <a href="#org6e0be06">22</a>.</p>
+<figure id="org6e0be06">
 <div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb22-1" data-line-number="1">V_t_tt <span class="op">=</span> tt.specify_shape(tt.col(), [N_obs_tt, <span class="dv">1</span>])</a>
 <a class="sourceLine" id="cb22-2" data-line-number="2">V_t_tt.name <span class="op">=</span> <span class="st">&#39;V_t&#39;</span></a>
 <a class="sourceLine" id="cb22-3" data-line-number="3"></a>
@@ -1297,8 +1348,11 @@ Listing 22
 <a class="sourceLine" id="cb23-2" data-line-number="2">phi_W_b_post_tt <span class="op">=</span> phi_W_b <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> tt.square(theta_t_diff_rev).<span class="bu">sum</span>(<span class="dv">0</span>)</a>
 <a class="sourceLine" id="cb23-3" data-line-number="3">phi_W_post_tt <span class="op">=</span> GammaRV(phi_W_a_post_tt, phi_W_b_post_tt, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;phi_W_post&#39;</span>)</a></code></pre></div>
 </figure>
-<p>Next, in Listing <a href="#org81dbe8c">24</a> we sample the initial values and create Theano terms for posterior/updated <span class="math inline">\(\omega_t\)</span>-related values.</p>
-<figure id="org81dbe8c">
+<p><a id="orgafe10a4"></a></p>
+<section id="simulation-example-2" class="level2">
+<h2>Simulation Example</h2>
+<p>In Listing <a href="#orgdf7d0e4">24</a> we sample the initial values and create Theano terms for posterior/updated <span class="math inline">\(\omega_t\)</span>-related values.</p>
+<figure id="orgdf7d0e4">
 <div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="im">from</span> pypolyagamma <span class="im">import</span> PyPolyaGamma</a>
 <a class="sourceLine" id="cb24-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb24-3" data-line-number="3"><span class="im">from</span> symbolic_pymc.theano.random_variables <span class="im">import</span> PolyaGammaRV</a>
@@ -1329,8 +1383,8 @@ Listing 22
 Listing 24
 </figcaption>
 </figure>
-<p>Finally, the sampler steps are defined and executed in Listing <a href="#org7545095">25</a>.</p>
-<figure id="org7545095">
+<p>Finally, the sampler steps are defined and executed in Listing <a href="#org2dd74e9">25</a>.</p>
+<figure id="org2dd74e9">
 <div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" data-line-number="1">nb_ffbs_dlm <span class="op">=</span> tt_function([N_obs_tt, N_theta_tt, y_tt, G_tt, F_tt, V_t_tt, r_tt],</a>
 <a class="sourceLine" id="cb25-2" data-line-number="2">                          [theta_t_post, phi_W_post_tt, omega_post_tt, y_aug_post_tt],</a>
 <a class="sourceLine" id="cb25-3" data-line-number="3">                          updates<span class="op">=</span>ffbs_updates)</a>
@@ -1381,8 +1435,8 @@ Listing 24
 Listing 25
 </figcaption>
 </figure>
-<p>Figure <a href="#org10452de">26</a> shows the posterior <span class="math inline">\(\theta_t\)</span> samples, Figure <a href="#orgf3dfe31">27</a> plots the posterior sample traces, and Figure <a href="#org3584d3a">28</a> shows <span class="math inline">\(p_t \mid \theta_t\)</span>.</p>
-<figure id="org10452de">
+<p>Figure <a href="#orgf9a4406">26</a> shows the posterior <span class="math inline">\(\theta_t\)</span> samples, Figure <a href="#orga6f3d67">27</a> plots the posterior sample traces, and Figure <a href="#org528d6ec">28</a> shows <span class="math inline">\(p_t \mid \theta_t\)</span>.</p>
+<figure id="orgf9a4406">
 <div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" data-line-number="1">plt.clf()</a>
 <a class="sourceLine" id="cb26-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb26-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
@@ -1424,12 +1478,12 @@ Listing 26
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-sim-plot.png" alt="Posterior \theta_t samples generated by our Polya-Gamma FFBS sampler. " />
+<img src="https://brandonwillard.github.io/figures/nb-ffbs-sim-plot.png" alt="Posterior \theta_t samples generated by our Pólya-Gamma FFBS sampler. " />
 <figcaption>
-Posterior <span class="math inline">\(\theta_t\)</span> samples generated by our Polya-Gamma FFBS sampler.
+Posterior <span class="math inline">\(\theta_t\)</span> samples generated by our Pólya-Gamma FFBS sampler.
 </figcaption>
 </figure>
-<figure id="orgf3dfe31">
+<figure id="orga6f3d67">
 <div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="im">import</span> arviz <span class="im">as</span> az</a>
 <a class="sourceLine" id="cb27-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb27-3" data-line-number="3">az_trace <span class="op">=</span> az.from_dict(posterior<span class="op">=</span>nb_posterior_samples)</a>
@@ -1439,12 +1493,12 @@ Listing 27
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-trace-plot.png" alt="Posterior sample traces for our Polya-Gamma FFBS Gibbs sampler. " />
+<img src="https://brandonwillard.github.io/figures/nb-ffbs-trace-plot.png" alt="Posterior sample traces for our Pólya-Gamma FFBS Gibbs sampler. " />
 <figcaption>
-Posterior sample traces for our Polya-Gamma FFBS Gibbs sampler.
+Posterior sample traces for our Pólya-Gamma FFBS Gibbs sampler.
 </figcaption>
 </figure>
-<figure id="org3584d3a">
+<figure id="org528d6ec">
 <div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb28-1" data-line-number="1">plt.close(<span class="st">&#39;all&#39;</span>)</a>
 <a class="sourceLine" id="cb28-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb28-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
@@ -1475,16 +1529,18 @@ Listing 28
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-sim-pred-plot.png" alt="p_t \mid \theta_t, D_T samples generated by our Polya-Gamma FFBS sampler. " />
+<img src="https://brandonwillard.github.io/figures/nb-ffbs-sim-pred-plot.png" alt="p_t \mid \theta_t, D_T samples generated by our Pólya-Gamma FFBS sampler. " />
 <figcaption>
-<span class="math inline">\(p_t \mid \theta_t, D_T\)</span> samples generated by our Polya-Gamma FFBS sampler.
+<span class="math inline">\(p_t \mid \theta_t, D_T\)</span> samples generated by our Pólya-Gamma FFBS sampler.
 </figcaption>
 </figure>
-<p><a id="orgbadaeaf"></a></p>
+<p><a id="orgf74c6fe"></a></p>
 </section>
 <section id="covid19-example" class="level2">
 <h2>COVID–19 Example</h2>
-<figure>
+<p>As another example, we’ll use data from the COVID–19 outbreak in New York and we’ll only concentrate on the positive test counts. We do not make any qualitative assertions about the results; we simply want to apply our implementation to a real-life dataset. If anything, we would simply like to highlight the potential provided by these flexible and constructive Bayesian frameworks and provide a concrete starting point for motivated Python developers.</p>
+<p>To start, Listing <a href="#org703a0b2">29</a> pulls and formats the COVID–19 data and Figure <a href="#org9c1b4d3">30</a> plots it.</p>
+<figure id="org703a0b2">
 <div class="sourceCode" id="cb29"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="im">import</span> pandas <span class="im">as</span> pd</a>
 <a class="sourceLine" id="cb29-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb29-3" data-line-number="3"></a>
@@ -1494,8 +1550,11 @@ Listing 28
 <a class="sourceLine" id="cb29-7" data-line-number="7"></a>
 <a class="sourceLine" id="cb29-8" data-line-number="8">counts <span class="op">=</span> states.loc[state, [<span class="st">&#39;positive&#39;</span>, <span class="st">&#39;total&#39;</span>]].diff().loc[<span class="st">&#39;2020-03-20&#39;</span>:]</a>
 <a class="sourceLine" id="cb29-9" data-line-number="9">counts.columns <span class="op">=</span> [<span class="st">&#39;new_positive_tests&#39;</span>, <span class="st">&#39;new_total_tests&#39;</span>]</a></code></pre></div>
+<figcaption>
+Listing 29
+</figcaption>
 </figure>
-<figure>
+<figure id="org9c1b4d3">
 <div class="sourceCode" id="cb30"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb30-1" data-line-number="1">plt.clf()</a>
 <a class="sourceLine" id="cb30-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb30-3" data-line-number="3">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
@@ -1503,14 +1562,40 @@ Listing 28
 <a class="sourceLine" id="cb30-5" data-line-number="5"></a>
 <a class="sourceLine" id="cb30-6" data-line-number="6">plt.tight_layout()</a>
 <a class="sourceLine" id="cb30-7" data-line-number="7">plt.legend()</a></code></pre></div>
+<figcaption>
+Listing 30
+</figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-dlm-ny-plot.png" alt="COVID–19 positive test counts in NY " />
+<img src="https://brandonwillard.github.io/figures/nb-dlm-ny-plot.png" alt="COVID–19 positive test counts in NY " />
 <figcaption>
 COVID–19 positive test counts in NY
 </figcaption>
 </figure>
-<figure>
+<p>Our example model is a simple Gaussian walk given by the following values:</p>
+<p><span class="math display">\[\begin{equation}
+  \begin{gathered}
+    F_t = \begin{pmatrix}
+      1
+    \end{pmatrix}
+    ,\quad
+    G_t = \begin{pmatrix}
+      1
+    \end{pmatrix}
+    \\
+    W_t = \begin{pmatrix}
+      \phi_{W}^{-1}
+    \end{pmatrix}
+    , \quad
+    \phi_{W} \sim \operatorname{Gamma}\left(2.5, 0.5\right)
+    , \quad
+    \phi_{W} = 10
+  \end{gathered}
+  \label{eq:ny-model-settings}
+  \;.
+\end{equation}\]</span></p>
+<p>Again, we set <span class="math inline">\(r = 1000\)</span>, effectively making our negative-binomial a Poisson approximation. Listing <a href="#org2352b66">31</a> sets the initial values in <span class="math inline">\(\eqref{eq:ny-model-settings}\)</span> and Listing <a href="#orgde4fb94">32</a> specifies the sampler loop.</p>
+<figure id="org2352b66">
 <div class="sourceCode" id="cb31"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb31-1" data-line-number="1">nb_dlm_ny_values <span class="op">=</span> {</a>
 <a class="sourceLine" id="cb31-2" data-line-number="2">    N_obs_tt: counts.new_positive_tests.shape[<span class="dv">0</span>],</a>
 <a class="sourceLine" id="cb31-3" data-line-number="3">    N_theta_tt: <span class="dv">1</span></a>
@@ -1538,11 +1623,14 @@ COVID–19 positive test counts in NY
 <a class="sourceLine" id="cb31-25" data-line-number="25">y_aug_0 <span class="op">=</span> np.log(r_ny) <span class="op">+</span> (counts.new_positive_tests.values[:, np.newaxis] <span class="op">-</span> r_ny) <span class="op">/</span> (<span class="fl">2.0</span> <span class="op">*</span> omega_0)</a>
 <a class="sourceLine" id="cb31-26" data-line-number="26"></a>
 <a class="sourceLine" id="cb31-27" data-line-number="27">omega_t_tt.set_value(omega_0)</a></code></pre></div>
+<figcaption>
+Listing 31
+</figcaption>
 </figure>
-<figure>
+<figure id="orgde4fb94">
 <div class="sourceCode" id="cb32"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb32-1" data-line-number="1">nb_ffbs_dlm <span class="op">=</span> tt_function([N_obs_tt, N_theta_tt, y_tt, G_tt, F_tt, V_t_tt, r_tt],</a>
 <a class="sourceLine" id="cb32-2" data-line-number="2">                          [theta_t_post, phi_W_post_tt, omega_post_tt, y_aug_post_tt],</a>
-<a class="sourceLine" id="cb32-3" data-line-number="3">                          mode<span class="op">=</span><span class="st">&#39;FAST_COMPILE&#39;</span>,</a>
+<a class="sourceLine" id="cb32-3" data-line-number="3">                          <span class="co"># mode=&#39;FAST_COMPILE&#39;,</span></a>
 <a class="sourceLine" id="cb32-4" data-line-number="4">                          updates<span class="op">=</span>ffbs_updates)</a>
 <a class="sourceLine" id="cb32-5" data-line-number="5"></a>
 <a class="sourceLine" id="cb32-6" data-line-number="6">rng_tt.get_value(borrow<span class="op">=</span><span class="va">True</span>).set_state(rng_sim_state)</a>
@@ -1559,7 +1647,7 @@ COVID–19 positive test counts in NY
 <a class="sourceLine" id="cb32-17" data-line-number="17">V_t_sim <span class="op">=</span> np.reciprocal(omega_0)</a>
 <a class="sourceLine" id="cb32-18" data-line-number="18">y_aug_sim <span class="op">=</span> y_aug_0</a>
 <a class="sourceLine" id="cb32-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb32-20" data-line-number="20"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
+<a class="sourceLine" id="cb32-20" data-line-number="20"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5000</span>):</a>
 <a class="sourceLine" id="cb32-21" data-line-number="21"></a>
 <a class="sourceLine" id="cb32-22" data-line-number="22">    nb_ffbs_res <span class="op">=</span> nb_ffbs_dlm(</a>
 <a class="sourceLine" id="cb32-23" data-line-number="23">        nb_dlm_ny_values[N_obs_tt],</a>
@@ -1584,61 +1672,124 @@ COVID–19 positive test counts in NY
 <a class="sourceLine" id="cb32-42" data-line-number="42"></a>
 <a class="sourceLine" id="cb32-43" data-line-number="43">    <span class="bu">print</span>(<span class="ss">f&#39;i=</span><span class="sc">{i}</span><span class="ss">,</span><span class="ch">\t</span><span class="ss">phi_W=</span><span class="sc">{</span>phi_W_post_sim<span class="sc">}</span><span class="ss">&#39;</span>)</a>
 <a class="sourceLine" id="cb32-44" data-line-number="44"></a>
-<a class="sourceLine" id="cb32-45" data-line-number="45">nb_ny_posterior_samples <span class="op">=</span> {k: np.asarray(v) <span class="cf">for</span> k,v <span class="kw">in</span> nb_ny_posterior_samples.items()}</a></code></pre></div>
-</figure>
-<figure>
-<div class="sourceCode" id="cb33"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="im">import</span> scipy</a>
-<a class="sourceLine" id="cb33-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb33-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb33-4" data-line-number="4">plt.close(<span class="st">&#39;all&#39;</span>)</a>
-<a class="sourceLine" id="cb33-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb33-6" data-line-number="6">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
-<a class="sourceLine" id="cb33-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb33-8" data-line-number="8">ax.plot(counts.new_positive_tests.values, label<span class="op">=</span><span class="vs">r&#39;$y_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, color<span class="op">=</span><span class="st">&#39;black&#39;</span>)</a>
-<a class="sourceLine" id="cb33-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb33-10" data-line-number="10">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
-<a class="sourceLine" id="cb33-11" data-line-number="11">ax.autoscale(enable<span class="op">=</span><span class="va">False</span>)</a>
-<a class="sourceLine" id="cb33-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb33-13" data-line-number="13">mu_t_sim <span class="op">=</span> np.exp(np.dot(nb_ny_posterior_samples[theta_label][<span class="dv">0</span>], nb_dlm_ny_values[F_tt].squeeze()))</a>
-<a class="sourceLine" id="cb33-14" data-line-number="14">p_t_sim <span class="op">=</span> mu_t_sim <span class="op">/</span> (mu_t_sim <span class="op">+</span> nb_dlm_ny_values[r_tt])</a>
-<a class="sourceLine" id="cb33-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb33-16" data-line-number="16">y_t_sim <span class="op">=</span> scipy.stats.nbinom.rvs(nb_dlm_ny_values[r_tt], (<span class="fl">1.</span> <span class="op">-</span> p_t_sim)).squeeze()</a>
-<a class="sourceLine" id="cb33-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb33-18" data-line-number="18">y_t_lines <span class="op">=</span> np.empty(y_t_sim.shape <span class="op">+</span> (<span class="dv">2</span>,))</a>
-<a class="sourceLine" id="cb33-19" data-line-number="19">y_t_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(y_t_sim.shape[<span class="dv">1</span>]), [y_t_sim.shape[<span class="dv">0</span>], <span class="dv">1</span>]).T</a>
-<a class="sourceLine" id="cb33-20" data-line-number="20">y_t_lines.T[<span class="dv">1</span>] <span class="op">=</span> y_t_sim.T</a>
-<a class="sourceLine" id="cb33-21" data-line-number="21"></a>
-<a class="sourceLine" id="cb33-22" data-line-number="22">ax.add_collection(</a>
-<a class="sourceLine" id="cb33-23" data-line-number="23">    LineCollection(y_t_lines,</a>
-<a class="sourceLine" id="cb33-24" data-line-number="24">                   label<span class="op">=</span><span class="vs">r&#39;$y_t \mid \theta_t, D_T$&#39;</span>,</a>
-<a class="sourceLine" id="cb33-25" data-line-number="25">                   alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>, color<span class="op">=</span><span class="st">&#39;red&#39;</span>)</a>
-<a class="sourceLine" id="cb33-26" data-line-number="26">)</a>
-<a class="sourceLine" id="cb33-27" data-line-number="27"></a>
-<a class="sourceLine" id="cb33-28" data-line-number="28">plt.tight_layout()</a>
-<a class="sourceLine" id="cb33-29" data-line-number="29"></a>
-<a class="sourceLine" id="cb33-30" data-line-number="30">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
-</figure>
-<figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/drafts/figures/nb-ffbs-ny-pred-plot.png" alt="y_t \mid \theta_t, D_T samples generated by our Polya-Gamma FFBS sampler. " />
+<a class="sourceLine" id="cb32-45" data-line-number="45"><span class="co"># Convert and thin samples</span></a>
+<a class="sourceLine" id="cb32-46" data-line-number="46">nb_ny_posterior_samples <span class="op">=</span> {k: np.asarray(v)[:, <span class="dv">1000</span>:] <span class="cf">for</span> k,v <span class="kw">in</span> nb_ny_posterior_samples.items()}</a></code></pre></div>
 <figcaption>
-<span class="math inline">\(y_t \mid \theta_t, D_T\)</span> samples generated by our Polya-Gamma FFBS sampler.
+Listing 32
 </figcaption>
 </figure>
-<p><a id="org71c9f6b"></a></p>
+<figure>
+<div class="sourceCode" id="cb33"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="im">import</span> arviz <span class="im">as</span> az</a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb33-3" data-line-number="3">az_trace <span class="op">=</span> az.from_dict(posterior<span class="op">=</span>nb_ny_posterior_samples)</a>
+<a class="sourceLine" id="cb33-4" data-line-number="4">az.plot_trace(az_trace, compact<span class="op">=</span><span class="va">True</span>)</a></code></pre></div>
+</figure>
+<figure id="nil" class="plot">
+<img src="https://brandonwillard.github.io/figures/nb-ffbs-ny-trace-plot.png" alt="Posterior sample traces for the NY data. " />
+<figcaption>
+Posterior sample traces for the NY data.
+</figcaption>
+</figure>
+<figure>
+<div class="sourceCode" id="cb34"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb34-1" data-line-number="1">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
+<a class="sourceLine" id="cb34-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb34-3" data-line-number="3">thetas_shape <span class="op">=</span> nb_ny_posterior_samples[theta_label][<span class="dv">0</span>].shape</a>
+<a class="sourceLine" id="cb34-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb34-5" data-line-number="5">cycle <span class="op">=</span> ax._get_lines.prop_cycler</a>
+<a class="sourceLine" id="cb34-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb34-7" data-line-number="7">bivariate_obs_cycler <span class="op">=</span>  cycler(<span class="st">&#39;linestyle&#39;</span>, [<span class="st">&#39;-&#39;</span>, <span class="st">&#39;--&#39;</span>]) <span class="op">*</span> cycler(<span class="st">&#39;color&#39;</span>, [<span class="st">&#39;black&#39;</span>])</a>
+<a class="sourceLine" id="cb34-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb34-9" data-line-number="9">ax.set_prop_cycle(bivariate_obs_cycler)</a>
+<a class="sourceLine" id="cb34-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb34-11" data-line-number="11"><span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(thetas_shape[<span class="op">-</span><span class="dv">1</span>]):</a>
+<a class="sourceLine" id="cb34-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb34-13" data-line-number="13">    styles <span class="op">=</span> <span class="bu">next</span>(cycle)</a>
+<a class="sourceLine" id="cb34-14" data-line-number="14">    thetas <span class="op">=</span> nb_ny_posterior_samples[theta_label][<span class="dv">0</span>].T[d].T</a>
+<a class="sourceLine" id="cb34-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb34-16" data-line-number="16">    theta_lines <span class="op">=</span> np.empty(thetas_shape[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> (<span class="dv">2</span>,))</a>
+<a class="sourceLine" id="cb34-17" data-line-number="17">    theta_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(thetas_shape[<span class="op">-</span><span class="dv">2</span>]), [thetas_shape[<span class="op">-</span><span class="dv">3</span>], <span class="dv">1</span>]).T</a>
+<a class="sourceLine" id="cb34-18" data-line-number="18">    theta_lines.T[<span class="dv">1</span>] <span class="op">=</span> thetas.T</a>
+<a class="sourceLine" id="cb34-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb34-20" data-line-number="20">    ax.add_collection(</a>
+<a class="sourceLine" id="cb34-21" data-line-number="21">        LineCollection(theta_lines,</a>
+<a class="sourceLine" id="cb34-22" data-line-number="22">                       label<span class="op">=</span>theta_label,</a>
+<a class="sourceLine" id="cb34-23" data-line-number="23">                       alpha<span class="op">=</span><span class="fl">0.05</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>,</a>
+<a class="sourceLine" id="cb34-24" data-line-number="24">                       <span class="op">**</span>styles)</a>
+<a class="sourceLine" id="cb34-25" data-line-number="25">    )</a>
+<a class="sourceLine" id="cb34-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb34-27" data-line-number="27">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb34-28" data-line-number="28">plt.tight_layout()</a>
+<a class="sourceLine" id="cb34-29" data-line-number="29"></a>
+<a class="sourceLine" id="cb34-30" data-line-number="30">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
+</figure>
+<figure id="nil" class="plot">
+<img src="https://brandonwillard.github.io/figures/nb-ffbs-ny-sim-plot.png" alt="Posterior \theta_t samples for the negative-binomial NY data model. " />
+<figcaption>
+Posterior <span class="math inline">\(\theta_t\)</span> samples for the negative-binomial NY data model.
+</figcaption>
+</figure>
+<figure>
+<div class="sourceCode" id="cb35"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="im">import</span> scipy</a>
+<a class="sourceLine" id="cb35-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb35-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb35-4" data-line-number="4">plt.close(<span class="st">&#39;all&#39;</span>)</a>
+<a class="sourceLine" id="cb35-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb35-6" data-line-number="6">fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>))</a>
+<a class="sourceLine" id="cb35-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb35-8" data-line-number="8">ax.plot(counts.new_positive_tests.values, label<span class="op">=</span><span class="vs">r&#39;$y_t$&#39;</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, color<span class="op">=</span><span class="st">&#39;black&#39;</span>)</a>
+<a class="sourceLine" id="cb35-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb35-10" data-line-number="10">mu_t_sim <span class="op">=</span> np.exp(np.dot(nb_ny_posterior_samples[theta_label][<span class="dv">0</span>], nb_dlm_ny_values[F_tt].squeeze()))</a>
+<a class="sourceLine" id="cb35-11" data-line-number="11">p_t_sim <span class="op">=</span> mu_t_sim <span class="op">/</span> (mu_t_sim <span class="op">+</span> nb_dlm_ny_values[r_tt])</a>
+<a class="sourceLine" id="cb35-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb35-13" data-line-number="13">y_t_sim <span class="op">=</span> scipy.stats.nbinom.rvs(nb_dlm_ny_values[r_tt], (<span class="fl">1.</span> <span class="op">-</span> p_t_sim)).squeeze()</a>
+<a class="sourceLine" id="cb35-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb35-15" data-line-number="15">y_t_lines <span class="op">=</span> np.empty(y_t_sim.shape <span class="op">+</span> (<span class="dv">2</span>,))</a>
+<a class="sourceLine" id="cb35-16" data-line-number="16">y_t_lines.T[<span class="dv">0</span>] <span class="op">=</span> np.tile(np.arange(y_t_sim.shape[<span class="dv">1</span>]), [y_t_sim.shape[<span class="dv">0</span>], <span class="dv">1</span>]).T</a>
+<a class="sourceLine" id="cb35-17" data-line-number="17">y_t_lines.T[<span class="dv">1</span>] <span class="op">=</span> y_t_sim.T</a>
+<a class="sourceLine" id="cb35-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb35-19" data-line-number="19">ax.add_collection(</a>
+<a class="sourceLine" id="cb35-20" data-line-number="20">    LineCollection(y_t_lines,</a>
+<a class="sourceLine" id="cb35-21" data-line-number="21">                   label<span class="op">=</span><span class="vs">r&#39;$y_t \mid \theta_t, D_T$&#39;</span>,</a>
+<a class="sourceLine" id="cb35-22" data-line-number="22">                   alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>, color<span class="op">=</span><span class="st">&#39;red&#39;</span>),</a>
+<a class="sourceLine" id="cb35-23" data-line-number="23">)</a>
+<a class="sourceLine" id="cb35-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb35-25" data-line-number="25">ax.autoscale(enable<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb35-26" data-line-number="26">plt.tight_layout()</a>
+<a class="sourceLine" id="cb35-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb35-28" data-line-number="28">plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</a></code></pre></div>
+</figure>
+<figure id="nil" class="plot">
+<img src="https://brandonwillard.github.io/figures/nb-ffbs-ny-pred-plot.png" alt="Posterior predictive values for the negative-binomial NY data model. " />
+<figcaption>
+Posterior predictive values for the negative-binomial NY data model.
+</figcaption>
+</figure>
+<p><a id="org24da3be"></a></p>
 </section>
 </section>
 <section id="discussion" class="level1">
 <h1>Discussion</h1>
-<p>So far, we’ve only shown how to perform FFBS for DLMs in Theano…</p>
+<p>We’ve implemented a highly extensible Bayesian timeseries framework with respectable model coverage (e.g. ARIMA models, polynomial trends, Fourier seasonality, dynamic regression, etc.), and shown how such a basic class can be extended to non-Gaussian observations. Additionally, we were able to show how an existing model-specialized sampler, i.e. FFBS, can be adapted alongside such an extension using the conditional linearity provided by a Gaussian scale-mixture.</p>
+<p>In general, the same scale-mixture and conditional linearity techniques can be employed for other observation distributions (e.g. Beta, Binomial), as well as state-of-the-art shrinkage and sparsity priors <a id="4902d622d6ba9f93a92f53f2df8a726b"><a href="#BhadraDefaultBayesiananalysis2016">(Bhadra, Datta, Polson &amp; Willard 2016)</a></a>,<a id="4d6738c60064f8c0e0d27f8cd67cff8c"><a href="#datta2016bayesian">(Datta &amp; Dunson 2016)</a></a>.</p>
+<p>Although we used Gibbs sampling, these techniques do not necessitate it; one can use Metropolis–or any other mathematically sound–steps instead.</p>
+<p>Bayesian frameworks like these have considerable flexibility and are amenable to much analytic creativity; unfortunately, we don’t often see this–directly, at least–in practice. There are clearly some roadblocks to the average applied statistics/data science developer when attempting to implement these models straight from published papers. Those roadblocks often involve subtle numeric stability issues and a sometimes non-standard mathematics proficiency.</p>
+<p>We hope that future automations will be able to address more straight-forward numerical stability issues by–for instance–automating the SVD-based reformulations used herein. The scale mixture manipulations are likewise amenable to certain automations, but, at the very least, it would serve the Bayesian community–and all who desire to construct non-trivial principled statistical models–well to develop low-level tools that codify and generate such scale-mixture variations. In this way, even experimentation by knowledgeable developers will be much easier and less error-prone.</p>
 </section>
 <section id="bibliography" class="level1">
 <h1>Bibliography</h1>
 <p><a id="harrison_bayesian_1999"></a> Harrison &amp; West, Bayesian Forecasting &amp; Dynamic Models, Springer (1999). <a href="#4bbd465b4e78e5c5151b0cbba54d984e">↩</a></p>
+<p><a id="PetrisDynamicLinearModels2009"></a> Petris, Petrone &amp; Campagnoli, Dynamic Linear Models, Springer (2009). <a href="#1c3f471fd137724bd53b01eb4d6534fe">↩</a></p>
+<p><a id="GamermanMarkovchainMonte2006"></a> Gamerman &amp; Lopes, Markov Chain Monte Carlo: Stochastic Simulation for Bayesian Inference, CRC Press (2006). <a href="#8247a823e73eba801aad2942a49b03be">↩</a></p>
+<p><a id="pole_applied_1994"></a> Pole, West &amp; Harrison, Applied Bayesian Forecasting and Time Series Analysis, CRC Press (1994). <a href="#c6a5d83a82b5963f42264d85625b5153">↩</a></p>
+<p><a id="bergstra_theano:_2010"></a> Bergstra, Breuleux, Bastien, Lamblin, Pascanu, Desjardins, Turian, Warde-Farley &amp; Bengio, Theano: A CPU and GPU Math Expression Compiler, in in: Proceedings of the Python for Scientific Computing Conference (SciPy), edited by (2010) <a href="#25fdcab375e353d7bb32eec7b13064c6">↩</a></p>
+<p><a id="Willardsymbolicpymc2019"></a> Willard, Symbolic-Pymc, <i></i>, (2019). <a href="https://github.com/pymc-devs/symbolic-pymc">link</a>. <a href="#e8fa26b92264fca946be25e6b617fc56">↩</a></p>
 <p><a id="ZhangFixedintervalsmoothingalgorithm1996"></a> Zhang &amp; Li, Fixed-Interval Smoothing Algorithm Based on Singular Value Decomposition, 916–921, in in: , Proceedings of the 1996 IEEE International Conference on Control Applications, 1996, edited by (1996) <a href="#0ae04c048b20d07f32d7f0f75bb51483">↩</a></p>
 <p><a id="PetrisDynamiclinearmodels2009"></a> Petris, Petrone &amp; Campagnoli, Dynamic Linear Models, Springer (2009). <a href="#3a4d89388a434d7b1b91dc8690f3a03b">↩</a></p>
 <p><a id="Fruhwirth-SchnatterDataaugmentationdynamic1994"></a> Fr&quot;uhwirth-Schnatter, Data Augmentation and Dynamic Linear Models, <i>Journal of time series analysis</i>, <b>15(2)</b>, 183–202 (1994). <a href="http://onlinelibrary.wiley.com/doi/10.1111/j.1467-9892.1994.tb00184.x/abstract">link</a>. <a href="#66fb99775f308e808a193bd7bb2d2038">↩</a></p>
 <p><a id="mccullagh_generalized_1989"></a> McCullagh &amp; Nelder, Generalized Linear Models, CRC press (1989). <a href="#820d466dbb5494bd5a5cb080d0b82638">↩</a></p>
 <p><a id="polson_bayesian_2013"></a> Polson, Scott &amp; Windle, Bayesian Inference for Logistic Models Using P'olyaLatent Variables, <i>Journal of the American Statistical Association</i>, <b>108(504)</b>, 1339–1349 (2013). <a href="http://www.tandfonline.com/doi/abs/10.1080/01621459.2013.829001">link</a>. <a href="#2776c69c558410bc65a3a0a0f1ff5bf4">↩</a></p>
+<p><a id="BhadraDefaultBayesiananalysis2016"></a> Bhadra, Datta, Polson &amp; Willard, Default Bayesian analysis with global-local shrinkage priors, <i>Biometrika</i>, <b>103(4)</b>, 955–969 (2016). <a href="http://dx.doi.org/10.1093/biomet/asw041">doi</a>. <a href="#4902d622d6ba9f93a92f53f2df8a726b">↩</a></p>
+<p><a id="datta2016bayesian"></a> Datta &amp; Dunson, Bayesian Inference on Quasi-Sparse Count Data, <i>Biometrika</i>, <b>103(4)</b>, 971–983 (2016). <a href="#4d6738c60064f8c0e0d27f8cd67cff8c">↩</a></p>
 </section>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -1662,8 +1813,8 @@ MathJax.Hub.Config({
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'brandonwillard-github-io'; // required: replace example with your forum shortname
 
-                    var disqus_identifier = 'dynamic-linear-model-optimizations-in-theano';
-                var disqus_url = 'https://brandonwillard.github.io/drafts/dynamic-linear-model-optimizations-in-theano.html';
+                    var disqus_identifier = 'dynamic-linear-models-in-theano';
+                var disqus_url = 'https://brandonwillard.github.io/dynamic-linear-models-in-theano.html';
 
             var disqus_config = function () {
                 this.language = "en";
@@ -1724,7 +1875,7 @@ MathJax.Hub.Config({
    <div class="container">
       <hr>
       <div class="row">
-         <div class="col-xs-10">&copy; 2019 Brandon T. Willard
+         <div class="col-xs-10">&copy; 2020 Brandon T. Willard
             &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>                <p><small>  <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
