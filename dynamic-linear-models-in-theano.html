@@ -238,15 +238,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li><a href="#orgaa30fc5">Forward-filtering Backward-sampling</a>
 <ul>
-<li><a href="#org231ac83">Simulation Example</a></li>
+<li><a href="#orgafe10a4">Simulation Example</a></li>
 </ul></li>
 <li><a href="#orge6290b1">Non-Gaussian Extension</a>
 <ul>
-<li><a href="#orgeeb5707">Simulation Example</a></li>
+<li><a href="#orgefcf875">Simulation Example</a></li>
 </ul></li>
 <li><a href="#orgd705951">Augmented FFBS Sampler</a>
 <ul>
-<li><a href="#orgafe10a4">Simulation Example</a></li>
+<li><a href="#org77f511d">Simulation Example</a></li>
 <li><a href="#orgf74c6fe">COVID–19 Example</a></li>
 </ul></li>
 <li><a href="#org24da3be">Discussion</a></li>
@@ -259,16 +259,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1>Introduction</h1>
 <p>For a proper introduction of dynamic linear models and their estimation, see <a id="4bbd465b4e78e5c5151b0cbba54d984e"><a href="#harrison_bayesian_1999">Harrison &amp; West (1999)</a></a>,<a id="1c3f471fd137724bd53b01eb4d6534fe"><a href="#PetrisDynamicLinearModels2009">Petris, Petrone &amp; Campagnoli (2009)</a></a>, and <a id="8247a823e73eba801aad2942a49b03be"><a href="#GamermanMarkovchainMonte2006">Gamerman &amp; Lopes (2006)</a></a>,<a id="c6a5d83a82b5963f42264d85625b5153"><a href="#pole_applied_1994">Pole, West &amp; Harrison (1994)</a></a>. The focus of this document is on some practical details behind DLM estimation in Python–and, particularly, libraries like Theano <a id="25fdcab375e353d7bb32eec7b13064c6"><a href="#bergstra_theano:_2010">(Bergstra, Breuleux, Bastien, Lamblin, Pascanu, Desjardins, Turian, Warde-Farley &amp; Bengio 2010)</a></a>. Throughout, we use some custom random variable objects from <code>symbolic-pymc</code> <a id="e8fa26b92264fca946be25e6b617fc56"><a href="#Willardsymbolicpymc2019">(Willard 2019)</a></a>. This is largely because <code>symbolic-pymc</code> offers a necessary non-standard distribution and its random variables work well within the <code>scan</code> operations we employ.</p>
 <p>In the future, we plan to build optimizations that automate much of the work done here (and more). This exposition sets the foundation for such work by first motivating the use and generality of Bayesian frameworks like DLMs, then by demonstrating the analytic steps that produce customized, efficient samplers. These are the steps that would undergo automation in the future.</p>
-<p><a id="org8873a63"></a></p>
-</section>
-<section id="analytic-posteriors" class="level1">
-<h1>Analytic Posteriors</h1>
-<p>We start by considering the simple form of a DLM <a id="4bbd465b4e78e5c5151b0cbba54d984e"><a href="#harrison_bayesian_1999">(Harrison &amp; West 1999)</a></a> with prior <span class="math inline">\(\theta_0 \sim \operatorname{N}\left( m_0, C_0 \right)\)</span>:</p>
+<p>A DLM with prior <span class="math inline">\(\theta_0 \sim \operatorname{N}\left( m_0, C_0 \right)\)</span> is defined as follows:</p>
 <p><span class="math display">\[\begin{align}
-  y_t &amp;= F_t^{\top} \theta_{t} + \epsilon_t, \quad \epsilon_t \sim \operatorname{N}\left( 0, V \right)
+  y_t &amp;= F_t^{\top} \theta_{t} + \epsilon_t, \quad \epsilon_t \sim \operatorname{N}\left( 0, V_t \right)
   \label{eq:basic-dlm-obs}
   \\
-  \theta_t &amp;= G_t \theta_{t-1} + \nu_t, \quad \nu_t \sim \operatorname{N}\left( 0, W \right)
+  \theta_t &amp;= G_t \theta_{t-1} + \nu_t, \quad \nu_t \sim \operatorname{N}\left( 0, W_t \right)
   \label{eq:basic-dlm-state}
 \end{align}\]</span></p>
 <p>for <span class="math inline">\(t \in \{1, \dots, T\}\)</span>, <span class="math inline">\(y_t \in \mathbb{R}\)</span>, and <span class="math inline">\(\theta_t \in \mathbb{R}^{M}\)</span>.</p>
@@ -433,6 +429,10 @@ Listing 4
 <figcaption>
 </figcaption>
 </figure>
+<p><a id="org8873a63"></a></p>
+</section>
+<section id="analytic-posteriors" class="level1">
+<h1>Analytic Posteriors</h1>
 <p>The standard DLM is essentially a <a href="https://en.wikipedia.org/wiki/Kalman_filter">Kalman Filter</a> and enjoys many well documented closed-form results. In the following, we will simply state the relevant prior predictive and posterior results.</p>
 <p>Given all the prior and observed data up to time <span class="math inline">\(t\)</span>, <span class="math inline">\(D_t\)</span>, these distribution are given by the following:</p>
 <p><span class="math display">\[\begin{align}
@@ -914,7 +914,7 @@ Listing 10
   \label{eq:phi-gamma-posteriors}
 \end{equation}\]</span></p>
 <p>Those posterior computations are implemented in Listings <a href="#org4e5c0a0">11</a> and <a href="#org1156a41">12</a>, and they are used to update the shared Theano variables for <span class="math inline">\(\phi_W\)</span> and <span class="math inline">\(\phi_V\)</span> within a Gibbs sampling loop in Listing <a href="#org005b0cb">13</a>.</p>
-<p><a id="org231ac83"></a></p>
+<p><a id="orgafe10a4"></a></p>
 <section id="simulation-example" class="level2">
 <h2>Simulation Example</h2>
 <figure id="org4e5c0a0">
@@ -1158,8 +1158,8 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
   \label{eq:nb-virtual-obs}
 \end{equation}\]</span></p>
 <p>with <span class="math inline">\(V_t = \operatorname{diag}\left( \omega^{-1}_t \right)\)</span>.</p>
-<p>The augmented observation equation in <span class="math inline">\(\eqref{eq:nb-virtual-obs}\)</span> recovers our original DLM formulation and details the changes needed to use the Pólya-Gamma scale-mixture. Specifically, we need to sample <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)</span> and perform the following substitutions: <span class="math inline">\(y_t \to y^*_t\)</span> and <span class="math inline">\(V_t \to V^*_t\)</span>.</p>
-<p><a id="orgeeb5707"></a></p>
+<p>The augmented observation equation in <span class="math inline">\(\eqref{eq:nb-virtual-obs}\)</span> recovers our original DLM formulation in <span class="math inline">\(\eqref{eq:basic-dlm-obs}\)</span> and–by comparison–details the changes needed to use the Pólya-Gamma scale-mixture. Specifically, we need to sample <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)</span> and perform the following substitutions: <span class="math inline">\(y_t \to y^*_t\)</span> and <span class="math inline">\(V_t \to V^*_t\)</span>.</p>
+<p><a id="orgefcf875"></a></p>
 <section id="simulation-example-1" class="level2">
 <h2>Simulation Example</h2>
 <p>Listing <a href="#orga5ba480">17</a> creates a Theano graph for negative-binomial model defined in <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.</p>
@@ -1348,7 +1348,7 @@ Listing 22
 <a class="sourceLine" id="cb23-2" data-line-number="2">phi_W_b_post_tt <span class="op">=</span> phi_W_b <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> tt.square(theta_t_diff_rev).<span class="bu">sum</span>(<span class="dv">0</span>)</a>
 <a class="sourceLine" id="cb23-3" data-line-number="3">phi_W_post_tt <span class="op">=</span> GammaRV(phi_W_a_post_tt, phi_W_b_post_tt, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&#39;phi_W_post&#39;</span>)</a></code></pre></div>
 </figure>
-<p><a id="orgafe10a4"></a></p>
+<p><a id="org77f511d"></a></p>
 <section id="simulation-example-2" class="level2">
 <h2>Simulation Example</h2>
 <p>In Listing <a href="#orgdf7d0e4">24</a> we sample the initial values and create Theano terms for posterior/updated <span class="math inline">\(\omega_t\)</span>-related values.</p>
