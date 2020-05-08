@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/brandon-t-willard.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2020-05-02T00:00:00-05:00</updated><entry><title>Dynamic Linear Models in Theano</title><link href="https://brandonwillard.github.io/dynamic-linear-models-in-theano.html" rel="alternate"></link><published>2020-03-18T00:00:00-05:00</published><updated>2020-05-02T00:00:00-05:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2020-03-18:/dynamic-linear-models-in-theano.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/brandon-t-willard.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2020-05-08T00:00:00-05:00</updated><entry><title>Dynamic Linear Models in Theano</title><link href="https://brandonwillard.github.io/dynamic-linear-models-in-theano.html" rel="alternate"></link><published>2020-03-18T00:00:00-05:00</published><updated>2020-05-08T00:00:00-05:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2020-03-18:/dynamic-linear-models-in-theano.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -97,15 +97,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="#orgaa30fc5"&gt;Forward-filtering Backward-sampling&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="#orgbd15c1f"&gt;Simulation Example&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#orgcc57629"&gt;Simulation Example&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="#orge6290b1"&gt;Non-Gaussian Extension&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="#org6721516"&gt;Simulation Example&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#orgdd478f1"&gt;Simulation Example&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="#orgd705951"&gt;Augmented FFBS Sampler&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="#orgf450f93"&gt;Simulation Example&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#org68ce824"&gt;Simulation Example&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="#orgf74c6fe"&gt;COVID–19 Example&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="#org24da3be"&gt;Discussion&lt;/a&gt;&lt;/li&gt;
@@ -142,7 +142,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;a class="sourceLine" id="cb1-11" data-line-number="11"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb1-12" data-line-number="12"&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano.printing &lt;span class="im"&gt;import&lt;/span&gt; debugprint &lt;span class="im"&gt;as&lt;/span&gt; tt_dprint&lt;/a&gt;
 &lt;a class="sourceLine" id="cb1-13" data-line-number="13"&gt;&lt;/a&gt;
-&lt;a class="sourceLine" id="cb1-14" data-line-number="14"&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.theano.random_variables &lt;span class="im"&gt;import&lt;/span&gt; NormalRV, MvNormalRV, GammaRV, observed&lt;/a&gt;
+&lt;a class="sourceLine" id="cb1-14" data-line-number="14"&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.theano.random_variables &lt;span class="im"&gt;import&lt;/span&gt; NormalRV, MvNormalRV, GammaRV&lt;/a&gt;
 &lt;a class="sourceLine" id="cb1-15" data-line-number="15"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb1-16" data-line-number="16"&gt;&lt;/a&gt;
 &lt;a class="sourceLine" id="cb1-17" data-line-number="17"&gt;plt.style.use(&lt;span class="st"&gt;&amp;#39;ggplot&amp;#39;&lt;/span&gt;)&lt;/a&gt;
@@ -482,7 +482,7 @@ Listing 6
 &lt;/section&gt;
 &lt;section id="svd-based-smoothing" class="level2"&gt;
 &lt;h2&gt;SVD-based Smoothing&lt;/h2&gt;
-&lt;p&gt;We can use the ideas to produce SVD versions of the smoothing equations in &lt;span class="math inline"&gt;\(\eqref{eq:dlm-smooth-moments}\)&lt;/span&gt;. In this case, some extra steps are required in order to SVD-decompose &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt; in the same manner as &lt;span class="math inline"&gt;\(R_t\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(C_t^{-1}\)&lt;/span&gt; were.&lt;/p&gt;
+&lt;p&gt;We can use the techniques above to produce SVD versions of the smoothing equations in &lt;span class="math inline"&gt;\(\eqref{eq:dlm-smooth-moments}\)&lt;/span&gt;. In this case, some extra steps are required in order to SVD-decompose &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt; in the same manner as &lt;span class="math inline"&gt;\(R_t\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(C_t^{-1}\)&lt;/span&gt; were.&lt;/p&gt;
 &lt;p&gt;First, notice that our target, &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt;, is a difference of matrices, unlike the matrix sums that comprised &lt;span class="math inline"&gt;\(R_t\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(C_t^{-1}\)&lt;/span&gt; above. Furthermore, &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt; is given as a difference of a (transformed) difference. To address the latter, we start by expanding &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt; and setting &lt;span class="math inline"&gt;\(B_t = C_t G_{t+1}^\top R_{t+1}^{-1}\)&lt;/span&gt; to obtain&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   \begin{aligned}
@@ -773,7 +773,7 @@ Listing 10
   \label{eq:phi-gamma-posteriors}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Those posterior computations are implemented in Listings &lt;a href="#org4e5c0a0"&gt;11&lt;/a&gt; and &lt;a href="#org1156a41"&gt;12&lt;/a&gt;, and they are used to update the shared Theano variables for &lt;span class="math inline"&gt;\(\phi_W\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\phi_V\)&lt;/span&gt; within a Gibbs sampling loop in Listing &lt;a href="#org005b0cb"&gt;13&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a id="orgbd15c1f"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a id="orgcc57629"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section id="simulation-example" class="level2"&gt;
 &lt;h2&gt;Simulation Example&lt;/h2&gt;
 &lt;figure id="org4e5c0a0"&gt;
@@ -1018,7 +1018,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;with &lt;span class="math inline"&gt;\(V_t = \operatorname{diag}\left( \omega^{-1}_t \right)\)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;The augmented observation equation in &lt;span class="math inline"&gt;\(\eqref{eq:nb-virtual-obs}\)&lt;/span&gt; recovers our original DLM formulation in &lt;span class="math inline"&gt;\(\eqref{eq:basic-dlm-obs}\)&lt;/span&gt; and–by comparison–details the changes needed to use the Pólya-Gamma scale-mixture. Specifically, we need to sample &lt;span class="math inline"&gt;\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)&lt;/span&gt; and perform the following substitutions: &lt;span class="math inline"&gt;\(y_t \to y^*_t\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(V_t \to V^*_t\)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a id="org6721516"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a id="orgdd478f1"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section id="simulation-example-1" class="level2"&gt;
 &lt;h2&gt;Simulation Example&lt;/h2&gt;
 &lt;p&gt;Listing &lt;a href="#orga5ba480"&gt;17&lt;/a&gt; creates a Theano graph for negative-binomial model defined in &lt;span class="math inline"&gt;\(\eqref{eq:nb-dlm}\)&lt;/span&gt;.&lt;/p&gt;
@@ -1207,7 +1207,7 @@ Listing 22
 &lt;a class="sourceLine" id="cb23-2" data-line-number="2"&gt;phi_W_b_post_tt &lt;span class="op"&gt;=&lt;/span&gt; phi_W_b &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="fl"&gt;0.5&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; tt.square(theta_t_diff_rev).&lt;span class="bu"&gt;sum&lt;/span&gt;(&lt;span class="dv"&gt;0&lt;/span&gt;)&lt;/a&gt;
 &lt;a class="sourceLine" id="cb23-3" data-line-number="3"&gt;phi_W_post_tt &lt;span class="op"&gt;=&lt;/span&gt; GammaRV(phi_W_a_post_tt, phi_W_b_post_tt, rng&lt;span class="op"&gt;=&lt;/span&gt;rng_tt, name&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;phi_W_post&amp;#39;&lt;/span&gt;)&lt;/a&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/figure&gt;
-&lt;p&gt;&lt;a id="orgf450f93"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a id="org68ce824"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section id="simulation-example-2" class="level2"&gt;
 &lt;h2&gt;Simulation Example&lt;/h2&gt;
 &lt;p&gt;In Listing &lt;a href="#orgdf7d0e4"&gt;24&lt;/a&gt; we sample the initial values and create Theano terms for posterior/updated &lt;span class="math inline"&gt;\(\omega_t\)&lt;/span&gt;-related values.&lt;/p&gt;
