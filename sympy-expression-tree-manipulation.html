@@ -389,14 +389,14 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 <p>We could probably perform a manual reworking of <code>sympy.Q.is_true(n &gt; i)</code> to <code>sympy.Q.is_true(n - i &gt; 0)</code>, which is of course equivalent to <code>sympy.Q.positive(n - i)</code>: the result we want.</p>
 <p>If one were to provide this functionality, there’s still the question of how the relevant <code>AssumptionsContext</code>s would be created and passed around/nested during the subexpression replacements. There is no apparent means of adding this sort of functionality through the <code>Basic.replace</code> interface, so this path looks less appealing. However, nesting <code>with</code> blocks from strategies in <code>sympy.strategies</code> does seem quite possible. For example, in <code>sympy.strategies.traverse.sall</code>, one could possibly wrap the <code>return</code> statement after the <code>map(rule, ...)</code> call in a <code>with sympy.assuming(...):</code> block that contains the assumptions for any variables arising as, say, the index of a <code>Sum</code>–like in our case. In this scenario, code in the subexpressions would be able to ask questions like <code>sympy.Q.is_true(n &gt; i)</code> without altering the global assumptions context or the objects involved.</p>
 <p>Anyway, that’s all I wanted to cover here. Perhaps later I’ll post a hack for the assumptions approach, but–at the very least–I’ll try to follow up with a more direct solution that uses <code>sympy.strategies</code>.</p>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+<script>
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 </script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
 </body>
 </html>
 

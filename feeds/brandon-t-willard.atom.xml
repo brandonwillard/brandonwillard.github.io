@@ -1651,14 +1651,14 @@ Posterior predictive values for the negative-binomial NY data model.
 &lt;p&gt;&lt;a id="BhadraDefaultBayesiananalysis2016"&gt;&lt;/a&gt; Bhadra, Datta, Polson &amp;amp; Willard, Default Bayesian analysis with global-local shrinkage priors, &lt;i&gt;Biometrika&lt;/i&gt;, &lt;b&gt;103(4)&lt;/b&gt;, 955–969 (2016). &lt;a href="http://dx.doi.org/10.1093/biomet/asw041"&gt;doi&lt;/a&gt;. &lt;a href="#4902d622d6ba9f93a92f53f2df8a726b"&gt;↩︎&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a id="datta2016bayesian"&gt;&lt;/a&gt; Datta &amp;amp; Dunson, Bayesian Inference on Quasi-Sparse Count Data, &lt;i&gt;Biometrika&lt;/i&gt;, &lt;b&gt;103(4)&lt;/b&gt;, 971–983 (2016). &lt;a href="#4d6738c60064f8c0e0d27f8cd67cff8c"&gt;↩︎&lt;/a&gt;&lt;/p&gt;
 &lt;/section&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category><category term="symbolic-pymc"></category><category term="theano"></category><category term="statistics"></category><category term="timeseries"></category><category term="dlm"></category><category term="ffbs"></category><category term="gibbs"></category></entry><entry><title>Symbolic PyMC Radon Example in PyMC4</title><link href="https://brandonwillard.github.io/symbolic-pymc-radon-example-in-pymc4.html" rel="alternate"></link><published>2019-09-08T00:00:00-05:00</published><updated>2019-10-24T00:00:00-05:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2019-09-08:/symbolic-pymc-radon-example-in-pymc4.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
@@ -2995,14 +2995,14 @@ Listing 53
 &lt;p&gt;For single search-and-replace objectives, this amount of manual developer intervention/orchestration might be excusable; however, for objectives requiring the evaluation of multiple graph transformation, this approach is mostly unmaintainable and extremely difficult to compartmentalize.&lt;/p&gt;
 &lt;p&gt;This demonstration barely even scratches the surface of what’s possible using miniKanren and relational programming for graph manipulation and symbolic statistical model optimization. As the &lt;code&gt;symbolic-pymc&lt;/code&gt; project advances, we’ll cover examples in which miniKanren’s more distinct offerings are demonstrated.&lt;/p&gt;
 &lt;/section&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category><category term="pymc4"></category><category term="tensorflow"></category><category term="symbolic computation"></category><category term="python"></category><category term="symbolic-pymc"></category></entry><entry><title>Random Variables in Theano</title><link href="https://brandonwillard.github.io/random-variables-in-theano.html" rel="alternate"></link><published>2018-12-28T00:00:00-06:00</published><updated>2019-02-04T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-28:/random-variables-in-theano.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
@@ -4491,14 +4491,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;li&gt;and more optimizations that specifically target MCMC schemes (e.g. automatic conversion to scale mixture decompositions).&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/section&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category><category term="pymc3"></category><category term="theano"></category><category term="statistics"></category><category term="symbolic computation"></category><category term="python"></category><category term="probability theory"></category></entry><entry><title>Readable Strings and Relational Programming in Hy</title><link href="https://brandonwillard.github.io/readable-strings-and-relational-programming-in-hy.html" rel="alternate"></link><published>2018-12-20T00:00:00-06:00</published><updated>2019-01-07T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-20:/readable-strings-and-relational-programming-in-hy.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
@@ -4989,14 +4989,14 @@ ast-res&lt;/code&gt;&lt;/pre&gt;
 &lt;/section&gt;
 &lt;/section&gt;
 &lt;/section&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category><category term="hy"></category><category term="relational programming"></category><category term="python"></category></entry><entry><title>Data Science at Citybase</title><link href="https://brandonwillard.github.io/data-science-at-citybase.html" rel="alternate"></link><published>2018-12-18T00:00:00-06:00</published><updated>2019-10-22T00:00:00-05:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-18:/data-science-at-citybase.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
@@ -5027,14 +5027,14 @@ MathJax.Hub.Config({
 &lt;h1&gt;Bibliography&lt;/h1&gt;
 &lt;p&gt;&lt;a id="WillardProgrammingIntelligentCity2018a"&gt;&lt;/a&gt;[WillardProgrammingIntelligentCity2018a] Willard, Programming an Intelligent City: The Role of Data Science, &lt;i&gt;CityBase&lt;/i&gt;, (2018). &lt;a href="https://thecitybase.com/programming-an-intelligent-city-the-role-of-data-science/"&gt;link&lt;/a&gt;. &lt;a href="#c26e94c1b0b80ac3545371089d4f9936"&gt;↩︎&lt;/a&gt;&lt;/p&gt;
 &lt;/section&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category><category term="statistics"></category><category term="symbolic computation"></category><category term="citybase"></category></entry><entry><title>Symbolic Math in PyMC3</title><link href="https://brandonwillard.github.io/symbolic-math-in-pymc3.html" rel="alternate"></link><published>2018-12-18T00:00:00-06:00</published><updated>2018-12-26T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2018-12-18:/symbolic-math-in-pymc3.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
@@ -5624,14 +5624,14 @@ Graph of a single term scaled in a normal-normal convolution after the convoluti
 &lt;h1&gt;Bibliography&lt;/h1&gt;
 &lt;p&gt;&lt;a id="WillardRoleSymbolicComputation2017"&gt;&lt;/a&gt;[WillardRoleSymbolicComputation2017] Willard, A Role for Symbolic Computation in the General Estimation of Statistical Models, &lt;i&gt;Brandon T. Willard&lt;/i&gt;, (2017). &lt;a href="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html"&gt;link&lt;/a&gt;. &lt;a href="#4407b21e48ab9ff17c017e8d62684725"&gt;↩︎&lt;/a&gt;&lt;/p&gt;
 &lt;/section&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category><category term="pymc3"></category><category term="theano"></category><category term="statistics"></category><category term="symbolic computation"></category><category term="python"></category><category term="probability theory"></category></entry><entry><title>More Proximal Estimation</title><link href="https://brandonwillard.github.io/more-proximal-estimation.html" rel="alternate"></link><published>2017-03-06T00:00:00-06:00</published><updated>2017-03-06T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2017-03-06:/more-proximal-estimation.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
@@ -6289,14 +6289,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/section&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category></entry><entry><title>A Role for Symbolic Computation in the General Estimation of Statistical Models</title><link href="https://brandonwillard.github.io/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html" rel="alternate"></link><published>2017-01-18T00:00:00-06:00</published><updated>2017-01-18T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2017-01-18:/a-role-for-symbolic-computation-in-the-general-estimation-of-statistical-models.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
@@ -6824,14 +6824,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/section&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category></entry></feed>

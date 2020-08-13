@@ -110,7 +110,7 @@ Brandon T. Willard            </a>
     </span>
           <span class="label label-default">Modified</span>
             <span class="modified">
-                <i class="fa fa-calendar"></i><time datetime="2020-08-12T00:00:00-05:00"> Wed 12 August 2020</time>
+                <i class="fa fa-calendar"></i><time datetime="2020-08-13T00:00:00-05:00"> Thu 13 August 2020</time>
             </span>
 
 
@@ -296,12 +296,12 @@ Listing 2
     Y_t = \mathbb{I}\left\{ S_t = 1 \right\} \delta\left\{ Y_t = 0 \right\} +
     \mathbb{I}\left\{ S_t &gt; 1 \right\} Z_t
     \\
-    Z_t \sim \operatorname{Pois}\left( \lambda^{(S_t)} \right)
-    \\
+    Z_t \sim \operatorname{Pois}\left( \lambda^{(S_t)} \right),
+    \quad
     S_t \sim \operatorname{Categorical}\left( \pi_t \right)
     \\
-    \pi_t = \Gamma_t \pi_{t-1}
-    \\
+    \pi_t = \Gamma_t \pi_{t-1},
+    \quad
     \Gamma_t =
     \begin{pmatrix}
       {p^{(1)}}^\top_{t}
@@ -311,10 +311,14 @@ Listing 2
       {p^{(S)}}^\top_{t}
     \end{pmatrix}
     \\
-    p^{(s)}_t = \operatorname{multi-logit}^{-1}\left( x_t \xi^{(s)} \right)
+    p^{(s)}_t = \operatorname{multilogit}^{-1}\left( x_t^\top \xi^{(s)} \right),
+    \quad
+    \lambda^{(s)}_t = \exp\left(x_t^\top \beta \right),
+    \quad
+    s \in \left\{ 1, \dots, S \right\}
   \end{gathered}
 \end{equation}\]</span></p>
-<p>Listings <a href="#org03e006a">4</a> and <a href="#org37d161a">5</a> import the necessary Python libraries and simulate a design matrix <span class="math inline">\(X_t\)</span> with seasonal indicators. Listing <a href="#orgd4f0b0b">6</a> defines the Theano sample-space graph that represents Equation <span class="math inline">\(\eqref{eq:hmm-model}\)</span> under some standard priors for the terms <span class="math inline">\(\lambda^{(s)}\)</span>, <span class="math inline">\(\pi_0\)</span>, <span class="math inline">\(S_0\)</span>, and <span class="math inline">\(\xi^{(s)}\)</span>.</p>
+<p>Listings <a href="#org03e006a">4</a> and <a href="#org37d161a">5</a> import the necessary Python libraries and simulate a design matrix, <span class="math inline">\(X\)</span>, with seasonal indicators. Listing <a href="#orgd4f0b0b">6</a> defines the Theano sample-space graph that represents Equation <span class="math inline">\(\eqref{eq:hmm-model}\)</span> under some standard priors for the terms <span class="math inline">\(\lambda^{(s)}\)</span>, <span class="math inline">\(\pi_0\)</span>, <span class="math inline">\(S_0\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\xi^{(s)}\)</span>.</p>
 <figure id="org03e006a">
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -336,16 +340,12 @@ Listing 2
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a>theano.config.compute_test_value <span class="op">=</span> <span class="st">&#39;warn&#39;</span></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a></span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true"></a></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a><span class="co"># def tt_softmax(x, axis=-1):</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a><span class="co">#     res = tt.exp(x - pm.math.logsumexp(x, axis=axis, keepdims=True))</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a><span class="co">#     return res</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true"></a><span class="kw">def</span> tt_multilogit_inv(ys):</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true"></a>    exp_ys <span class="op">=</span> tt.exp(ys)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true"></a>    res <span class="op">=</span> tt.concatenate(</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true"></a>        [exp_ys, tt.ones(<span class="bu">tuple</span>(exp_ys.shape)[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> (<span class="dv">1</span>,))], axis<span class="op">=-</span><span class="dv">1</span>)</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true"></a>    res <span class="op">=</span> res <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> tt.<span class="bu">sum</span>(exp_ys, axis<span class="op">=-</span><span class="dv">1</span>))[..., <span class="va">None</span>]</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true"></a>    <span class="cf">return</span> res</span></code></pre></div>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a><span class="kw">def</span> tt_multilogit_inv(ys):</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a>    exp_ys <span class="op">=</span> tt.exp(ys)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a>    res <span class="op">=</span> tt.concatenate(</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a>        [exp_ys, tt.ones(<span class="bu">tuple</span>(exp_ys.shape)[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> (<span class="dv">1</span>,))], axis<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true"></a>    res <span class="op">=</span> res <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> tt.<span class="bu">sum</span>(exp_ys, axis<span class="op">=-</span><span class="dv">1</span>))[..., <span class="va">None</span>]</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true"></a>    <span class="cf">return</span> res</span></code></pre></div>
 <figcaption>
 Listing 4
 </figcaption>
@@ -417,7 +417,7 @@ Listing 5
 Listing 6
 </figcaption>
 </figure>
-<p>Notice how all of the dimension values are either defined as shared variables or derived from the shapes of shared variables. We could just as well have used purely symbolic variables for these terms. More importantly, this is something that is fundamentally impossible to do in PyMC3. This also implies that, in this context, the total number of mixture components–i.e. <span class="math inline">\(S\)</span>–represented by <code>S_tt</code>, can be a random variables–or entire models–itself!</p>
+<p>Notice how all of the dimension values are either defined as shared variables or derived from the shapes of shared variables. We could just as well have used purely symbolic variables for these terms. More importantly, this is something that is fundamentally impossible to do in PyMC3. This also implies that, in this context, the total number of mixture components–i.e. <span class="math inline">\(S\)</span>–represented by <code>S_tt</code>, can itself be a random variable–or an entire model!</p>
 <p><a id="orgf368ef9"></a></p>
 </section>
 <section id="sampling-model-graphs" class="level1">
@@ -426,7 +426,7 @@ Listing 6
 <p><a id="orgec13666"></a></p>
 <section id="prior-predictive-sampling" class="level2">
 <h2>Prior Predictive Sampling</h2>
-<p>In Listing <a href="#orgba4a672">7</a> we compile a Theano function that is able to draw samples from the model in Listing <a href="#orgd4f0b0b">6</a>. More specifically, we created a function that computes <span class="math inline">\(\left( y_t, s_t \right) \sim \left( Y_t, S_t \right)\)</span>.</p>
+<p>In Listing <a href="#orgba4a672">7</a> we compile a Theano function that is able to draw samples from the model in Listing <a href="#orgd4f0b0b">6</a>. More specifically, we created a function that computes <span class="math inline">\(\left( s_t, y_t \right) \sim \left( S_t, Y_t \right)\)</span>.</p>
 <figure id="orgba4a672">
 <div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>hmm_sampler <span class="op">=</span> theano.function([], [S_rv, Y_rv])</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
@@ -462,7 +462,7 @@ Listing 8
 <figcaption>
 </figcaption>
 </figure>
-<p>Figure <a href="#orga771deb">8</a> plots the samples in <code>theano_samples</code>. Unfortunately, sampling from the prior predictive produces very “random” series, but, if we wanted to–say–generate samples conditional on very specific values of the seasonal transition matrix parameters, <span class="math inline">\(\xi^{(S_t)}_t\)</span>, we could compile a different sampling function that takes those parameters as arguments. Simply put, we want a function that computes <span class="math inline">\(\left( y_t, S_t \right) \sim \left( Y_t, S_t \mid \xi^{(S_t)}_t \right)\)</span>.</p>
+<p>Figure <a href="#orga771deb">8</a> plots the samples in <code>theano_samples</code>. Unfortunately, sampling from the prior predictive produces very “random” series, but, if we wanted to–say–generate samples conditional on very specific values of the seasonal transition matrix parameters, <span class="math inline">\(\xi^{(S_t)}_t\)</span>, we could compile a different sampling function that takes those parameters as arguments. Simply put, we want a function that computes <span class="math inline">\(\left( s_t, y_t \right) \sim \left( S_t, Y_t \mid \xi^{(S_t)}_t \right)\)</span>.</p>
 <p>Listing <a href="#orgbe5c57e">9</a> compiles such a function in Theano and uses it draw samples given specific values of <span class="math inline">\(\xi^{(S_t)}_t\)</span> that demonstrate higher probabilities of staying in–and transitioning to–the zero value state during weekdays and late hours.</p>
 <figure id="orgbe5c57e">
 <div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="im">import</span> scipy <span class="im">as</span> sp</span>
@@ -546,13 +546,15 @@ Listing 9
 <figure id="org93b5bbe">
 <div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="im">from</span> traceback <span class="im">import</span> print_exc</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>S_rv_vals <span class="op">=</span> theano_samples[<span class="st">&quot;S_rv&quot;</span>]</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="cf">try</span>:</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>    hmm_cond_sampler <span class="op">=</span> theano.function([S_rv], Y_rv)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>    Y_rv_sim <span class="op">=</span> hmm_cond_sampler(S_rv_vals)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a><span class="cf">except</span> <span class="pp">Exception</span>:</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a>    print_exc(limit<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>S_rv_vals <span class="op">=</span> S_rv.tag.test_value</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>lambda_vals <span class="op">=</span> lambdas_tt.tag.test_value</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a><span class="cf">try</span>:</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a>    hmm_cond_sampler <span class="op">=</span> theano.function([S_rv, lambdas_tt], Y_rv)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a>    Y_rv_sim <span class="op">=</span> hmm_cond_sampler(S_rv_vals, lambda_vals)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a><span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a>    print_exc(limit<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div>
 <figcaption>
 Listing 12
 </figcaption>
@@ -578,8 +580,9 @@ Listing 12
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true"></a>                              ],</span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true"></a>                              strict<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true"></a></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true"></a>hmm_cond_sampler <span class="op">=</span> theano.function([S_rv, lambdas_tt], Y_given_S_rv)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true"></a>Y_given_S_np <span class="op">=</span> hmm_cond_sampler(S_rv_vals, lambdas_tt_vals)</span></code></pre></div>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true"></a>Y_sampler <span class="op">=</span> theano.function([S_rv, lambdas_tt], Y_given_S_rv)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true"></a>Y_given_S_np <span class="op">=</span> Y_sampler(S_rv.tag.test_value, lambdas_tt.tag.test_value)</span></code></pre></div>
 <figcaption>
 Listing 14
 </figcaption>
@@ -590,7 +593,7 @@ Listing 14
 <section id="log-likelihood" class="level1">
 <h1>Log-likelihood</h1>
 <p>In contrast to Theano sample-space graphs, there are Theano measure-space graphs, which–for our purposes–will correspond to Theano graphs that compute the log-likelihoods of terms in a model.</p>
-<p>PyMC3 creates generates these kinds of Theano graphs in <code>Distribution.logp</code>–and the methods that call it.</p>
+<p>PyMC3 creates these kinds of Theano graphs in <code>Distribution.logp</code>–and the methods that call it.</p>
 <p>Working from our original sample-space model graph in Listing <a href="#orgd4f0b0b">6</a>, we can create a log-likelihood graph with a simple two-step process</p>
 <ol type="1">
 <li>for each <code>RandomVariable</code> create new variables to serve as inputs to a log-likelihood, then</li>
@@ -611,69 +614,115 @@ Listing 15
 <p>The log-likelihood in Listing <a href="#orgab0b430">15</a> is–of course–conditional on the <span class="math inline">\(\pi_0\)</span> term, but we could easily create a joint log-likelihood by performing the same operation for <span class="math inline">\(\pi_0\)</span> and adding the two log-likelihood graphs.</p>
 <p>Unfortunately, more steps are needed when <code>Scan</code>s are involved. If we want to create a log-likehood graph for <span class="math inline">\(S_{0:T}\)</span>, then–just like the conditional sample-space graph in Listing <a href="#org1ee081e">14</a>–we need to first transform the <code>Scan</code> so that it “conditions on” <span class="math inline">\(S_{0:T}\)</span>–i.e. converts its output <code>S_rv</code> into an input.</p>
 <figure>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a><span class="kw">def</span> S_ll_step(S_t, S_tm1, Gamma_t):</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>    S_ll_t <span class="op">=</span> pm.Categorical.dist(Gamma_t[S_tm1]).logp(S_t)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>    <span class="cf">return</span> S_ll_t</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a>S_ll, _ <span class="op">=</span> theano.scan(fn<span class="op">=</span>S_ll_step,</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a>                      sequences<span class="op">=</span>[</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a>                          {<span class="st">&quot;initial&quot;</span>: S_0_rv, <span class="st">&quot;taps&quot;</span>: [<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>]},</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true"></a>                          Gammas_tt,</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true"></a>                      ],</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true"></a>                      outputs_info<span class="op">=</span>[</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true"></a>                          {},</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true"></a>                      ],</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true"></a>                      strict<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a>S_in <span class="op">=</span> tt.ivector(<span class="st">&quot;S&quot;</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a><span class="kw">def</span> S_ll_step(S_t, S_tm1, Gamma_t):</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a>    S_ll_t <span class="op">=</span> pm.Categorical.dist(Gamma_t[S_tm1]).logp(S_t)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a>    <span class="cf">return</span> S_ll_t</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a>S_ll, _ <span class="op">=</span> theano.scan(fn<span class="op">=</span>S_ll_step,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true"></a>                      sequences<span class="op">=</span>[</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true"></a>                          {<span class="st">&quot;input&quot;</span>: S_in, <span class="st">&quot;taps&quot;</span>: [<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>]},</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true"></a>                          Gammas_tt,</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true"></a>                      ],</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true"></a>                      outputs_info<span class="op">=</span>[</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true"></a>                          {},</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true"></a>                      ],</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true"></a>                      strict<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
 </figure>
-<p>The basics for this functionality were introduced in <a href="https://github.com/pymc-devs/symbolic-pymc/pull/113">#113</a> and <a href="https://github.com/pymc-devs/symbolic-pymc/pull/114">#114</a>. The latter introduces a “push-out” optimization that helps expose <code>RandomVariable</code>s hidden within the internal sub-graphs of <code>Scan</code> operators.</p>
-<p>For instance, <span class="math inline">\(S_t\)</span> is a <code>RandomVariable</code> created within a <code>Scan</code> operator. Had <span class="math inline">\(S_t\)</span> not been specified as an output of the inner function <code>state_step</code>, this “push-out” optimization would redefine the model so that it is.</p>
+<p>The situation for <span class="math inline">\(Y_{0:T}\)</span> is a little more complicated; it requires log-likelihood conversions in the <code>emissions_tt</code> term outside of the <code>Scan</code> <strong>and</strong> an update to the <code>Scan</code> so that it uses the log-likelihoods derived from <code>emissions_tt</code>. An implementation is given in Listing <a href="#org282f7ae">17</a>.</p>
+<figure id="org282f7ae">
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a>Y_in <span class="op">=</span> tt.vector(<span class="st">&quot;Y&quot;</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a>lambdas_in <span class="op">=</span> tt.vector(<span class="st">&quot;Y&quot;</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a>emissions_ll_tt <span class="op">=</span> tt.stack([</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a>    pm.Constant.dist(<span class="dv">0</span>).logp(Y_in),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a>    pm.Poisson.dist(lambdas_in).logp(Y_in)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a>], axis<span class="op">=</span><span class="dv">1</span>).squeeze()</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true"></a><span class="kw">def</span> S_ll_step(S_t, emissions_ll_t, Gamma_t):</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true"></a>    Y_ll_t <span class="op">=</span> emissions_ll_t[S_t]</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true"></a>    <span class="cf">return</span> Y_ll_t</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a>Y_ll, _ <span class="op">=</span> theano.scan(fn<span class="op">=</span>S_ll_step,</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true"></a>                      sequences<span class="op">=</span>[</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true"></a>                          S_in,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true"></a>                          emissions_ll_tt,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true"></a>                          Gammas_tt,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true"></a>                      ],</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true"></a>                      outputs_info<span class="op">=</span>[</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true"></a>                          {},</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true"></a>                      ],</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true"></a>                      strict<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
+<figcaption>
+Listing 17
+</figcaption>
+</figure>
+<p>The functionality for automating these two steps in the non-<code>Scan</code> case already exist in <code>symbolic-pymc</code>, and the requisite functionality for simple case of <code>Scan</code> was introduced in <a href="https://github.com/pymc-devs/symbolic-pymc/pull/113">#113</a> and <a href="https://github.com/pymc-devs/symbolic-pymc/pull/114">#114</a>.</p>
+<p>The latter changes introduce a “push-out” optimization that helps expose <code>RandomVariable</code>s hidden within the internal sub-graphs of <code>Scan</code> operators.</p>
+<p>For instance, in the original Theano graph model, <span class="math inline">\(S_t\)</span> is a <code>RandomVariable</code> created within the <code>Scan</code> operator’s inner-graph (via the step function run by <code>Scan</code>). Had <span class="math inline">\(S_t\)</span> not been specified as an output of the inner function <code>state_step</code>, this “push-out” optimization would redefine the model so that it is.</p>
 <p>Additionally, functions were added in #114 that automate the process of turning <code>state_step</code> into the <code>Y_given_S_step</code> in Listing <a href="#org1ee081e">14</a>. This is how we can automate the construction of conditional sample-space graphs and log-likelihood graphs.</p>
 <p><a id="org1814110"></a></p>
 </section>
 <section id="pymc3-distributions" class="level1">
 <h1>PyMC3 <code>Distribution</code>s</h1>
-<p>In order to represent <code>Scan</code>s in a PyMC3 model object, we need to automatically construct a PyMC3 <code>Distribution</code> class for the <code>Scan</code>s. The core requirement for that involves the construction of a valid <code>Distribution.logp</code> function, which can now be done using the features introduced in the aforementioned PRs.</p>
-<figure>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="im">from</span> pymc3.distributions.distribution <span class="im">import</span> draw_values, _DrawValuesContext</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a><span class="kw">class</span> YRvDist(pymc3.Distribution):</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, S, lambdas, <span class="op">**</span>kwargs):</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">**</span>kwargs)</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a>        <span class="va">self</span>.S <span class="op">=</span> S</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a>        <span class="va">self</span>.lambdas <span class="op">=</span> lambdas</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true"></a></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true"></a>    <span class="kw">def</span> random(<span class="va">self</span>, point<span class="op">=</span><span class="va">None</span>, size<span class="op">=</span><span class="va">None</span>):</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true"></a>        <span class="cf">with</span> _DrawValuesContext() <span class="im">as</span> draw_context:</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true"></a></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a>            term_smpl <span class="op">=</span> draw_context.drawn_vars.get((<span class="va">self</span>.states, <span class="dv">1</span>), <span class="va">None</span>)</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true"></a></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true"></a>            <span class="cf">if</span> term_smpl <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true"></a>                point[<span class="va">self</span>.states.name] <span class="op">=</span> term_smpl</span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true"></a></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true"></a>            S, lambdas <span class="op">=</span> draw_values([<span class="va">self</span>.S, <span class="va">self</span>.lambdas], point<span class="op">=</span>point, size<span class="op">=</span>size)</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true"></a></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true"></a>            res <span class="op">=</span> hmm_cond_sampler(S, lambdas)</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true"></a></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true"></a>        <span class="cf">return</span> res</span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true"></a></span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true"></a>    <span class="kw">def</span> logp(<span class="va">self</span>, <span class="op">*</span>args):</span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true"></a>        <span class="cf">pass</span></span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true"></a></span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true"></a></span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true"></a><span class="cf">with</span> pm.Model() <span class="im">as</span> test_model:</span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true"></a>    S_rv <span class="op">=</span> SRvDist(<span class="st">&quot;S&quot;</span>)</span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true"></a>    lambdas_rv <span class="op">=</span> LambdasRvDist(<span class="st">&quot;lambdas&quot;</span>)</span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true"></a>    Y_rv <span class="op">=</span> YRvDist(<span class="st">&quot;Y&quot;</span>, S_rv, lambdas_rv, observed<span class="op">=</span>y_tt)</span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true"></a></span>
-<span id="cb17-33"><a href="#cb17-33" aria-hidden="true"></a><span class="cf">with</span> test_model:</span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true"></a>    posteriors <span class="op">=</span> pm.sample()</span>
-<span id="cb17-35"><a href="#cb17-35" aria-hidden="true"></a></span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true"></a><span class="cf">with</span> test_model:</span>
-<span id="cb17-37"><a href="#cb17-37" aria-hidden="true"></a>    pp_trace <span class="op">=</span> pm.sample_posterior_predictive(posteriors, <span class="bu">vars</span><span class="op">=</span>[<span class="st">&#39;Y_rv&#39;</span>])</span></code></pre></div>
+<p>In order to use a complicated model like ours in Listing <a href="#orgd4f0b0b">6</a> within PyMC3, we need to construct a PyMC3 <code>Distribution</code> class using the conditional sampler functions and the log-likelihood graphs we derived above from the original model graph. Basically, the log-likelihood graphs comprise the body of the <code>Distribution.logp</code> method, and the conditional samplers comprise the <code>Distribution.random</code> method.</p>
+<p>Unfortunately, the shape issues and sampler problems of PyMC3 aren’t actually removed in this process, since we’re moving out of the Theano framework in which those problems are solved.</p>
+<p>Listing <a href="#org4451b17">18</a> constructs the <code>Distribution</code> class for <span class="math inline">\(Y_{0:T}\)</span>–or <code>Y_rv</code>.</p>
+<figure id="org4451b17">
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="im">from</span> pymc3.distributions.distribution <span class="im">import</span> draw_values, _DrawValuesContext</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true"></a><span class="kw">class</span> YRvDist(pymc3.Distribution):</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, S, lambdas, <span class="op">**</span>kwargs):</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">**</span>kwargs)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true"></a>        <span class="va">self</span>.S <span class="op">=</span> S</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true"></a>        <span class="va">self</span>.lambdas <span class="op">=</span> lambdas</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true"></a>    <span class="kw">def</span> random(<span class="va">self</span>, point<span class="op">=</span><span class="va">None</span>, size<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true"></a>        <span class="cf">with</span> _DrawValuesContext() <span class="im">as</span> draw_context:</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true"></a>            <span class="co"># </span><span class="al">FIXME</span><span class="co">: Are we sure the &quot;size&quot; value in the tuple key will be `1`?</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true"></a>            <span class="co"># This `_DrawValuesContext` confuses me.</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true"></a>            term_smpl <span class="op">=</span> draw_context.drawn_vars.get((<span class="va">self</span>.states, <span class="dv">1</span>), <span class="va">None</span>)</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true"></a>            <span class="cf">if</span> term_smpl <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true"></a>                point[<span class="va">self</span>.states.name] <span class="op">=</span> term_smpl</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true"></a></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true"></a>            S, lambdas <span class="op">=</span> draw_values([<span class="va">self</span>.S, <span class="va">self</span>.lambdas], point<span class="op">=</span>point, size<span class="op">=</span>size)</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true"></a></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true"></a>            res <span class="op">=</span> Y_sampler(S, lambdas)</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true"></a></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true"></a>        <span class="cf">return</span> res</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true"></a></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true"></a>    <span class="kw">def</span> logp(<span class="va">self</span>, y, s, lambdas):</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true"></a>        log_lik <span class="op">=</span> tt_clone(Y_ll, replacements<span class="op">=</span>{</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true"></a>            Y_in: y,</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true"></a>            S_in: s,</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true"></a>            lambdas_in: lambdas,</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true"></a>        })</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true"></a>        <span class="cf">return</span> log_lik</span></code></pre></div>
+<figcaption>
+Listing 18
+</figcaption>
 </figure>
-<p>Unfortunately, this approach involves tedious and error-prone duplication and would make the modeling process much more difficult. Alternatively, we can use Theano model graphs to specify models—instead of PyMC3 (and Theano)—and automatically convert them to PyMC3 <code>Model</code> objects only when necessary (e.g. to use NUTS).</p>
+<p>The <code>Distribution</code> objects constructed in this way can now be used to define and estimate a regular PyMC3 model, as demonstrated in Listing <a href="#orgfa5a81c">19</a>.</p>
+<figure id="orgfa5a81c">
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="cf">with</span> pm.Model() <span class="im">as</span> test_model:</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a>    S_rv <span class="op">=</span> SRvDist(<span class="st">&quot;S&quot;</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>    lambdas_rv <span class="op">=</span> LambdasRvDist(<span class="st">&quot;lambdas&quot;</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a>    Y_rv <span class="op">=</span> YRvDist(<span class="st">&quot;Y&quot;</span>, S_rv, lambdas_rv, observed<span class="op">=</span>y_tt)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true"></a><span class="cf">with</span> test_model:</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true"></a>    posteriors <span class="op">=</span> pm.sample()</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true"></a><span class="cf">with</span> test_model:</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true"></a>    pp_trace <span class="op">=</span> pm.sample_posterior_predictive(posteriors, <span class="bu">vars</span><span class="op">=</span>[<span class="st">&#39;Y_rv&#39;</span>])</span></code></pre></div>
+<figcaption>
+Listing 19
+</figcaption>
+</figure>
 <p><a id="org5dd61b7"></a></p>
 </section>
 <section id="discussion" class="level1">
@@ -686,14 +735,14 @@ Listing 15
 <h1>Bibliography</h1>
 <p><a id="WillardDynamicLinearModels2020"></a> Willard, Dynamic Linear Models in Theano, <i>Brandon T. Willard</i>, (2020). <a href="https://brandonwillard.github.io/dynamic-linear-models-in-theano.html">link</a>. <a href="#a23de30ae46f889e89283d2bc1f0cba0">↩︎</a></p>
 </section>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+<script>
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 </script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
 </body>
 </html>
 

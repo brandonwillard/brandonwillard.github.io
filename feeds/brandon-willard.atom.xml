@@ -451,14 +451,14 @@ X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/section&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category></entry><entry><title>SymPy Expression Tree Manipulation</title><link href="https://brandonwillard.github.io/sympy-expression-tree-manipulation.html" rel="alternate"></link><published>2016-10-27T00:00:00-05:00</published><updated>2016-10-27T00:00:00-05:00</updated><author><name>Brandon Willard</name></author><id>tag:brandonwillard.github.io,2016-10-27:/sympy-expression-tree-manipulation.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
@@ -739,14 +739,14 @@ a E{\left (n,a,b,g,z_{1},z_{2} \right )} - \frac{b}{g} E{\left
 &lt;p&gt;We could probably perform a manual reworking of &lt;code&gt;sympy.Q.is_true(n &amp;gt; i)&lt;/code&gt; to &lt;code&gt;sympy.Q.is_true(n - i &amp;gt; 0)&lt;/code&gt;, which is of course equivalent to &lt;code&gt;sympy.Q.positive(n - i)&lt;/code&gt;: the result we want.&lt;/p&gt;
 &lt;p&gt;If one were to provide this functionality, there’s still the question of how the relevant &lt;code&gt;AssumptionsContext&lt;/code&gt;s would be created and passed around/nested during the subexpression replacements. There is no apparent means of adding this sort of functionality through the &lt;code&gt;Basic.replace&lt;/code&gt; interface, so this path looks less appealing. However, nesting &lt;code&gt;with&lt;/code&gt; blocks from strategies in &lt;code&gt;sympy.strategies&lt;/code&gt; does seem quite possible. For example, in &lt;code&gt;sympy.strategies.traverse.sall&lt;/code&gt;, one could possibly wrap the &lt;code&gt;return&lt;/code&gt; statement after the &lt;code&gt;map(rule, ...)&lt;/code&gt; call in a &lt;code&gt;with sympy.assuming(...):&lt;/code&gt; block that contains the assumptions for any variables arising as, say, the index of a &lt;code&gt;Sum&lt;/code&gt;–like in our case. In this scenario, code in the subexpressions would be able to ask questions like &lt;code&gt;sympy.Q.is_true(n &amp;gt; i)&lt;/code&gt; without altering the global assumptions context or the objects involved.&lt;/p&gt;
 &lt;p&gt;Anyway, that’s all I wanted to cover here. Perhaps later I’ll post a hack for the assumptions approach, but–at the very least–I’ll try to follow up with a more direct solution that uses &lt;code&gt;sympy.strategies&lt;/code&gt;.&lt;/p&gt;
-&lt;script type="text/x-mathjax-config"&gt;
-MathJax.Hub.Config({
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } },
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
+&lt;script&gt;
+ window.MathJax = {
+     tex: {
+         tags: "ams"
+     }
+ };
 &lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </content><category term="articles"></category></entry></feed>
