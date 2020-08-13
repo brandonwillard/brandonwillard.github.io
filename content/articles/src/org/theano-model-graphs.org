@@ -1,0 +1,829 @@
+#+TITLE: Theano Model Graphs
+#+AUTHOR: Brandon T. Willard
+#+DATE: 2020-08-11
+#+EMAIL: brandonwillard@gmail.com
+#+FILETAGS: :draft:theano:pymc3:symbolic-pymc:
+
+#+STARTUP: hideblocks indent hidestars
+#+OPTIONS: author:t date:t ^:nil toc:t title:t tex:t d:(not "todo" "logbook" "note" "testing" "notes") html-preamble:t
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+#+STYLE: <link rel="stylesheet" type="text/css" href="../extra/custom.css" />
+
+#+PROPERTY: header-args :eval never-export :exports both :results output drawer replace
+#+PROPERTY: header-args+ :session theano-model-graphs :comments noweb
+#+PROPERTY: header-args:python :noweb-sep "\n\n"
+#+PROPERTY: header-args:latex :results html replace :exports results :eval yes
+
+* Introduction
+
+This document describes how Theano graphs can be used as a focal point
+for Bayesian model specification, and how these graphs can be bridged with PyMC3
+objects and--as a result--produce a dramatically more robust and simplified
+foundation for PyMC3.
+
+Yes, PyMC3 does use Theano--and, thus, Theano graphs--but it doesn't explicitly
+build a graph for the relationships between random variables.  In the following,
+we call such graphs [Theano] /sample-space graphs/ and we'll show how all the
+forms of sampling performed by PyMC3 (i.e. prior and posterior predictive) can
+be implemented using these graphs.  We'll also demonstrate how the
+log-likelihood graphs currently used by PyMC3 can be constructed from such
+graphs.
+
+Before we go any further, let's look at a simple example of a sample-space graph.
+
+:EXAMPLE:
+Consider the model in Equation [[eqref:eq:simple-model]].
+#+BEGIN_SRC latex
+\begin{equation}
+  \label{eq:simple-model}
+  Y = a Z + b, \quad Z \sim \operatorname{N}\left( 0, \sigma^2 \right)
+  \;,
+\end{equation}
+#+END_SRC
+
+#+RESULTS:
+#+begin_export html
+\begin{equation}
+  \label{eq:simple-model}
+  Y = a Z + b, \quad Z \sim \operatorname{N}\left( 0, \sigma^2 \right)
+  \;,
+\end{equation}
+#+end_export
+
+Equation [[eqref:eq:simple-model]] can be represented by the Theano graph in Listing
+[[simple-model-graph]].
+
+#+NAME: simple-model-graph
+#+BEGIN_SRC python :results silent
+import theano
+import theano.tensor as tt
+
+from symbolic_pymc.theano.random_variables import NormalRV
+
+
+a_tt = tt.vector('a')
+b_tt = tt.vector('b')
+
+sigma_tt = tt.scalar('sigma')
+
+Z_rv = NormalRV(0, sigma_tt**2, name='Z')
+
+Y_rv = a_tt * Z_rv + b_tt
+#+END_SRC
+
+When \(Y\) is an observed variable, the Theano graph represented by
+src_python[:eval never]{Y_rv} is our sample-space graph of interest.
+The graph for src_python[:eval never]{Z_rv} is also a sample-space graph,
+and, in some cases, we'll refer to src_python[:eval never]{Y_rv} as
+a /model graph/ due to its more direct correspondence to a model of interest
+(e.g. Equation [[eqref:eq:simple-model]]).
+
+Naturally, the Theano tensors objects src_python[:eval never]{Z_rv}
+and src_python[:eval never]{Y_rv} are random variables, but--more
+specifically--the former is a direct output of
+a src_python[:eval never]{RandomVariable} operator, while the latter
+is a function of the aforementioned src_python[:eval never]{RandomVariable}
+output.  This distinction will be important in what follows, but it suffices to
+say that both represent random draws from a distribution.
+
+We can sample either of them--or both--by simply compiling the graphs into
+functions and evaluating those functions.  This is demonstrated in Listing
+[[sample-simple-model-graph]].
+
+#+NAME: sample-simple-model-graph
+#+BEGIN_SRC python :results value :wrap "SRC python :eval never"
+import numpy as np
+
+
+Y_sampler = theano.function([a_tt, b_tt, sigma_tt], [Z_rv, Y_rv])
+
+Y_sampler(np.r_[0.0, 1.0], np.r_[0.1, 0.3], 0.9)
+#+END_SRC
+
+#+RESULTS: sample-simple-model-graph
+#+begin_SRC python :eval never
+[array(-1.60047139), array([ 0.1       , -1.30047139])]
+#+end_SRC
+:END:
+
+Throughout this exposition we'll use a non-trivial hidden Markov model (HMM) as
+our guiding example.  These sorts of time-series are difficult to implement in
+PyMC3 due to their reliance on the challenging src_python[:eval never]{Scan}
+function, symbolic shape issues in PyMC3, and the general complexity involved in
+writing their log-likelihoods and sampling functions--especially when one needs
+to iterate on hierarchical changes to such models.  As a result, anything that
+can improve their ease of use within PyMC3 is a worthwhile consideration.
+
+:REMARK:
+For other types of time-series that are represented and computed as Theano model
+graphs see [[citet:WillardDynamicLinearModels2020]].  In those examples, custom
+samplers are constructed by hand in Theano; however, here we're interested in
+using PyMC3 to generate posterior samples.
+:END:
+
+That said, we'll demonstrate how the sample-space graphs for HMMs can be
+specified with relative ease, and we'll build up to the construction of a custom
+PyMC3 src_python[:eval never]{Distribution} class based entirely on
+transformations of the original sample-space graph.
+
+Ultimately, the process of deriving this src_python[:eval never]{Distribution}
+class demonstrates how all of the model information and objects required by
+PyMC3 can be derived from a sample-space graph.  As a result, automation of this
+process would provide a new foundation for PyMC; one that can leverage Theano to
+perform all the complicated sampling and doesn't suffer from the same symbolic
+shape limitations, and one for which it is much simpler to reason about a model
+systematically.  This new PyMC would also set the stage for specialized
+optimizations that could dramatically improve performance.
+
+* The Hidden Markov Model
+
+The model we'll be focusing on is defined in Equation [[eqref:eq:hmm-model]].  In it, our
+observation model--given by \(Y_t\)--is an HMM with a single Dirac-delta
+emission at the point \(Y_t = 0\) and Poisson emissions for the remaining
+states \(1 < S_t \leq S\).  It is specified as a mixture, in part to reflect the fact
+that this sort of "non-homogeneous" emissions model also covers
+"zero-inflation".  The Markov transitions are driven by a time-varying
+transition probability matrix in the style of multinomial regression, with a
+covariate matrix \(x_t\) and a corresponding set of parameters \(\xi^{(s)}\)
+for each \(s \in \left\{1, \dots, S\right\}\).
+
+#+BEGIN_SRC latex
+\begin{equation}
+  \label{eq:hmm-model}
+  \begin{gathered}
+    Y_t = \mathbb{I}\left\{ S_t = 1 \right\} \delta\left\{ Y_t = 0 \right\} +
+    \mathbb{I}\left\{ S_t > 1 \right\} Z_t
+    \\
+    Z_t \sim \operatorname{Pois}\left( \lambda^{(S_t)} \right),
+    \quad
+    S_t \sim \operatorname{Categorical}\left( \pi_t \right)
+    \\
+    \pi_t = \Gamma_t \pi_{t-1},
+    \quad
+    \Gamma_t =
+    \begin{pmatrix}
+      {p^{(1)}}^\top_{t}
+      \\
+      \vdots
+      \\
+      {p^{(S)}}^\top_{t}
+    \end{pmatrix}
+    \\
+    p^{(s)}_t = \operatorname{multilogit}^{-1}\left( x_t^\top \xi^{(s)} \right),
+    \quad
+    \lambda^{(s)}_t = \exp\left(x_t^\top \beta \right),
+    \quad
+    s \in \left\{ 1, \dots, S \right\}
+  \end{gathered}
+\end{equation}
+#+END_SRC
+
+Listings [[theano-hmm-example-setup]] and [[create-design-matrix]] import the necessary
+Python libraries and simulate a design matrix, \(X\), with seasonal indicators.
+Listing [[theano-hmm-example-model]] defines the Theano sample-space graph that
+represents Equation [[eqref:eq:hmm-model]] under some standard priors for the
+terms \(\lambda^{(s)}\), \(\pi_0\), \(S_0\), \(\beta\), and \(\xi^{(s)}\).
+
+#+NAME: theano-hmm-example-setup
+#+BEGIN_SRC python :results silent
+import numpy as np
+import pandas as pd
+
+import theano
+import theano.tensor as tt
+
+import pymc3 as pm
+import patsy
+
+from symbolic_pymc.theano.random_variables import (
+    NormalRV, HalfNormalRV, PoissonRV,
+    DirichletRV, CategoricalRV
+)
+
+
+theano.config.cxx = ""
+theano.config.mode = "FAST_COMPILE"
+theano.config.compute_test_value = 'warn'
+
+
+def tt_multilogit_inv(ys):
+    exp_ys = tt.exp(ys)
+    res = tt.concatenate(
+        [exp_ys, tt.ones(tuple(exp_ys.shape)[:-1] + (1,))], axis=-1)
+    res = res / (1 + tt.sum(exp_ys, axis=-1))[..., None]
+    return res
+
+#+END_SRC
+
+#+NAME: create-design-matrix
+#+BEGIN_SRC python :results silent
+start_date = pd.Timestamp('2019-12-29 00:00:00')
+time_index = pd.date_range(start=start_date,
+                           end=start_date + pd.Timedelta('4W'),
+                           closed='left',
+                           freq='1h')
+X_df = pd.DataFrame({
+    'weekday': time_index.weekday,
+    'hour': time_index.hour
+}, index=time_index)
+
+
+formula_str = "~ 1 + C(weekday) + C(hour)"
+X_df = patsy.dmatrix(formula_str, X_df, return_type="dataframe")
+#+END_SRC
+
+#+NAME: plot_split_timeseries
+#+BEGIN_SRC python :exports none :results none
+import pandas as pd
+
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import matplotlib.transforms as mtrans
+
+from matplotlib.ticker import MaxNLocator
+
+
+def plot_split_timeseries(data,
+                          split_freq='W', split_max=5,
+                          use_twin=False, twin_plot_kwargs=None,
+                          figsize=(15, 15),
+                          title=None, label=None,
+                          drawstyle='steps-pre', linewidth=0.5,
+                          plot_fn=lambda ax, data, **kwargs: ax.plot(data, **kwargs),
+                          ,**plot_kwds):
+
+    data = pd.DataFrame(data)
+
+    if use_twin and len(data.columns) != 2:
+        raise ValueError("Option `use_twin` is only applicable for a two column `DataFrame`.")
+
+    split_offset = pd.tseries.frequencies.to_offset(split_freq)
+
+    grouper = pd.Grouper(freq=split_offset.freqstr, closed='left')
+    obs_splits = [y_split for n, y_split in data.groupby(grouper)]
+
+    if split_max:
+        obs_splits = obs_splits[:split_max]
+
+    n_partitions = len(obs_splits)
+
+    plt.clf()
+
+    fig, axes = plt.subplots(nrows=n_partitions,
+                             sharey=True,
+                             sharex=False,
+                             figsize=figsize)
+
+    major_offset = mtrans.ScaledTranslation(0, -10/72., fig.dpi_scale_trans)
+
+    axes[0].set_title(title)
+
+    return_axes = []
+    for i, ax in enumerate(axes):
+        split_data = obs_splits[i]
+
+        if use_twin:
+            alt_data = split_data.iloc[:, 1].to_frame()
+            split_data = split_data.iloc[:, 0].to_frame()
+
+            if label is None:
+                label = split_data.columns[0]
+
+        plot_fn(ax,
+                split_data,
+                label=label,
+                drawstyle=drawstyle,
+                linewidth=linewidth,
+                ,**plot_kwds)
+
+        ax.xaxis.set_minor_locator(mdates.HourLocator(byhour=range(0, 23, 3)))
+        ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+        ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=range(0, 7, 1)))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %a'))
+
+        # Shift the major tick labels down
+        for xlabel in ax.xaxis.get_majorticklabels():
+            xlabel.set_transform(xlabel.get_transform() + major_offset)
+
+        legend_lines = ax.get_lines()
+        legend_labels = list(split_data.columns)
+
+        if use_twin:
+            alt_ax = ax.twinx()
+            alt_ax._get_lines.get_next_color()
+            alt_ax.plot(alt_data,
+                        label=alt_data.columns[0],
+                        linewidth=linewidth,
+                        ,**twin_plot_kwargs)
+
+            alt_ax.grid(False)
+
+            twin_lines, twin_labels = alt_ax.get_legend_handles_labels()
+            legend_lines += twin_lines
+            legend_labels += twin_labels
+
+            return_axes.append((ax, alt_ax))
+        else:
+            return_axes.append(ax)
+
+        # Make sure Matplotlib shows the true date range and doesn't
+        # choose its own
+        split_start_date = split_offset.rollback(split_data.index.min())
+        split_end_date = split_start_date + split_offset
+
+        assert split_data.index.min() >= split_start_date
+        assert split_data.index.max() <= split_end_date
+
+        ax.set_xlim(split_start_date, split_end_date)
+
+        ax.legend(legend_lines, legend_labels)
+
+    plt.tight_layout()
+
+    return return_axes
+#+END_SRC
+
+#+NAME: theano-hmm-example-model
+#+BEGIN_SRC python :results silent
+rng_state = np.random.RandomState(np.random.MT19937(np.random.SeedSequence(1234)))
+rng_init_state = rng_state.get_state()
+rng_tt = theano.shared(rng_state, name='rng', borrow=True)
+rng_tt.tag.is_rng = True
+rng_tt.default_update = rng_tt
+
+X_tt = theano.shared(X_df.values, name="X", borrow=True)
+
+S_tt = theano.shared(2, name="S")
+M_tt = X_tt.shape[1]
+T_tt = X_tt.shape[0]
+
+betas_rv = HalfNormalRV(1.0, size=(M_tt, S_tt - 1), rng=rng_tt, name="betas")
+lambdas_tt = tt.exp(1 + X_tt.dot(betas_rv))
+
+pi_0_rv = DirichletRV(tt.ones((S_tt,)), rng=rng_tt, name="pi_0")
+
+xis_rv = NormalRV(tt.zeros((M_tt, S_tt, S_tt - 1)), 1.0, rng=rng_tt, name="xis")
+p_t_tt = tt.tensordot(X_tt, xis_rv, axes=((1,), (0,)))
+Gammas_tt = tt_multilogit_inv(p_t_tt)
+
+S_0_rv = CategoricalRV(pi_0_rv, rng=rng_tt, name="S_0")
+
+emissions_tt = tt.stack([
+    tt.zeros((T_tt, 1)),
+    PoissonRV(lambdas_tt, rng=rng_tt, name="Y_t")
+], axis=1).squeeze()
+
+
+def state_step(Gamma_t, emissions_t, S_tm1, rng):
+    S_t = CategoricalRV(Gamma_t[S_tm1], rng=rng, name="S_t")
+    Y_t = emissions_t[S_t]
+    return S_t, Y_t
+
+state_steps, _ = theano.scan(fn=state_step,
+                             sequences=[Gammas_tt, emissions_tt],
+                             non_sequences=[rng_tt],
+                             outputs_info=[
+                                 {"initial": S_0_rv, "taps": [-1]},
+                                 {},
+                             ],
+                             strict=True)
+
+S_rv, Y_rv = state_steps
+#+END_SRC
+
+Notice how all of the dimension values are either defined as shared variables or
+derived from the shapes of shared variables.  We could just as well have used
+purely symbolic variables for these terms.  More importantly, this is something
+that is fundamentally impossible to do in PyMC3.  This also implies that, in
+this context, the total number of mixture components--i.e. \(S\)--represented
+by src_python[:eval never]{S_tt}, can itself be a random variable--or an entire
+model!
+
+* Sampling Model Graphs
+
+In this section, we show how all the sampling functionality of PyMC3 is already
+provided by Theano.
+
+** Prior Predictive Sampling
+In Listing [[theano-hmm-example-sampler]] we compile a Theano function that is able
+to draw samples from the model in Listing [[theano-hmm-example-model]].
+More specifically, we created a function that computes \( \left( s_t, y_t
+\right) \sim \left( S_t, Y_t \right) \).
+
+#+NAME: theano-hmm-example-sampler
+#+BEGIN_SRC python :results silent
+hmm_sampler = theano.function([], [S_rv, Y_rv])
+
+theano_samples = hmm_sampler()
+theano_samples = dict(zip(["S_rv", "Y_rv"], theano_samples))
+#+END_SRC
+
+The samples produced by the compiled
+function src_python[:eval never]{hmm_sampler} are effectively the same type of
+samples that src_python[:eval never]{pymc3.sample_prior_predictive} would
+produce; however, in this case, Theano automatically handles variable
+dependencies in a way
+that src_python[:eval never]{pymc3.sample_prior_predictive} currently
+cannot--plus, it has all the advantages of Theano compilation (e.g. algebraic
+optimizations, C-compiled functions).
+
+#+NAME: fig:theano-hmm-example-plot
+#+BEGIN_SRC python :results graphics file :file ../../figures/theano-hmm-example-simulation.png
+y_samples_df = pd.DataFrame(np.stack([theano_samples["Y_rv"], theano_samples["S_rv"]], axis=1),
+                            columns=("y", "s"),
+                            index=X_df.index)
+
+axes = plot_split_timeseries(y_samples_df,
+                             figsize=(15, 10),
+                             use_twin=True,
+                             twin_plot_kwargs={
+                                 "alpha": 0.8,
+                                 "linestyle": "--",
+                                 "drawstyle": "steps-pre"
+                             })
+
+for ax, alt_ax in axes:
+    alt_ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+#+END_SRC
+
+#+ATTR_ORG: :width 900
+#+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
+#+CAPTION:
+#+RESULTS: fig:theano-hmm-example-plot
+[[file:../../theano-hmm-example-simulation.png]]
+
+
+Figure [[fig:theano-hmm-example-plot]] plots the samples
+in src_python[:eval never]{theano_samples}.  Unfortunately, sampling from the prior predictive
+produces very "random" series, but, if we wanted to--say--generate samples conditional on very
+specific values of the seasonal transition matrix parameters, \(\xi^{(S_t)}_t\), we could
+compile a different sampling function that takes those parameters as arguments.
+Simply put, we want a function that computes \(\left( s_t, y_t \right) \sim \left( S_t, Y_t
+\mid \xi^{(S_t)}_t \right)\).
+
+Listing [[theano-hmm-example-seasonal-transition-params]] compiles such a function
+in Theano and uses it draw samples given specific values of \(\xi^{(S_t)}_t\) that
+demonstrate higher probabilities of staying in--and transitioning to--the zero value state
+during weekdays and late hours.
+
+#+NAME: theano-hmm-example-seasonal-transition-params
+#+BEGIN_SRC python :results silent
+import scipy as sp
+
+
+xi_0_np = pd.Series(
+    # The coefficients used to compute the state zero-to-zero transition probabilities
+    # For two states, these are basically run through a logistic function, and
+    # the state zero-to-one transition probabilities are 1 minus the logistic
+    # values.
+    np.array([0.0] +
+             [0.0, 0.0, 0.0, 0.0, 0.0, -2.0, -2.0] +
+             [4.0] * 9 + list(-np.geomspace(1e-3, 3, num=13))),
+    index=X_df.columns)
+
+xi_1_np = pd.Series(
+    # The coefficients for the state one-to-zero transition probabilities
+    np.array([-1.0] +
+             [0.5, 0.5, 0.5, 0.5, 0.5, -3.0, -3.0] +
+             [4.0] * 9 + list(-np.geomspace(1, 3, num=13))),
+    index=X_df.columns)
+
+xis_np = np.stack([xi_0_np, xi_1_np], axis=1)[..., None]
+
+hmm_cond_sampler = theano.function([xis_rv], [S_rv, Y_rv])
+
+theano_samples = dict(zip(["S_rv", "Y_rv"], hmm_cond_sampler(xis_np)))
+#+END_SRC
+
+#+NAME: fig:theano-hmm-example-cond-plot
+#+BEGIN_SRC python :results graphics file :file ../../figures/theano-hmm-example-simulation.png
+y_samples_df = pd.DataFrame(np.stack([theano_samples["Y_rv"], theano_samples["S_rv"]], axis=1),
+                            columns=("y", "s"),
+                            index=X_df.index)
+
+axes = plot_split_timeseries(y_samples_df,
+                             figsize=(15, 10),
+                             use_twin=True,
+                             twin_plot_kwargs={
+                                 "alpha": 0.8,
+                                 "linestyle": "--",
+                                 "drawstyle": "steps-pre"
+                             })
+
+for ax, alt_ax in axes:
+    alt_ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+#+END_SRC
+
+#+ATTR_ORG: :width 900
+#+ATTR_LATEX: :width 1.0\textwidth :height 1.0\textwidth :float t :options [keepaspectratio] :placement [p!]
+#+CAPTION:
+#+RESULTS: fig:theano-hmm-example-cond-plot
+[[file:../../figures/theano-hmm-example-simulation.png]]
+
+** Posterior Predictive Sampling
+Now that we know how to draw samples conditional on terms
+#+NAME: posterior-sampling-loop-example
+#+BEGIN_SRC python :eval never
+posterior_samples = pm.sample(...)
+
+#
+# pm.sample_posterior_predictive(...)
+#
+posterior_samples = [{"S_rv": ..., }, {"S_rv": ...}, ..., {...}]
+pp_samples = []
+for sample_i in posterior_samples:
+
+    S_posteriors_i = sample_i['S_rv']
+    lambda_posteriors_i = sample_i['lambda_rv']
+
+    # xis_posteriors_i = [...]
+
+    pp_sample = Y_rv.distribution.random(point={
+        "S_rv": S_posteriors_i,
+        "lambda_rv": lambda_posteriors_i
+    })
+    pp_samples.append(pp_sample)
+#+END_SRC
+
+Listing [[theano-hmm-example-sampler-S_rv]] demonstrates a fundamental
+limitation with the sample-space graph models: we can't condition on
+arbitrary random variables.
+
+#+NAME: theano-hmm-example-sampler-S_rv
+#+BEGIN_SRC python :wrap "SRC python :eval never"
+from traceback import print_exc
+
+
+S_rv_vals = S_rv.tag.test_value
+lambda_vals = lambdas_tt.tag.test_value
+
+try:
+    hmm_cond_sampler = theano.function([S_rv, lambdas_tt], Y_rv)
+    Y_rv_sim = hmm_cond_sampler(S_rv_vals, lambda_vals)
+except Exception:
+    print_exc(limit=0)
+#+END_SRC
+
+#+RESULTS: theano-hmm-example-sampler-S_rv
+#+begin_SRC python :eval never
+Traceback (most recent call last):
+theano.compile.function_module.UnusedInputError: theano.function was asked to create a function computing outputs given certain inputs, but the provided input variable at index 0 is not part of the computational graph needed to compute the outputs: Subtensor{int64::}.0.
+To make this error into a warning, you can pass the parameter on_unused_input='warn' to theano.function. To disable it completely, use on_unused_input='ignore'.
+
+
+#+end_SRC
+
+The problem is that our original sample-space model graph in Listing
+[[theano-hmm-example-model]] generates the vector of all \(S_t\), \(S_{0:T}\), in
+the same Theano src_python[:eval never]{Scan} that generate all the \(Y_t\); in
+other words, \(Y_{0:T}\) isn't a function of \(S_{0:T}\) according the the
+Theano graph.
+
+Simply put, we need to create a graph that "condition on" \(S_{0:T}\), or--in
+other words--convert the src_python[:eval never]{Scan}
+output src_python[:eval never]{S_rv} into an input.
+
+#+NAME: hmm-Y-given-S-graph
+#+BEGIN_SRC python :results silent
+def Y_given_S_step(S_t, emissions_t):
+    Y_t = emissions_t[S_t]
+    return Y_t
+
+Y_given_S_rv, _ = theano.scan(fn=Y_given_S_step,
+                              sequences=[S_rv, emissions_tt],
+                              non_sequences=[],
+                              outputs_info=[
+                                  {},
+                              ],
+                              strict=True)
+
+Y_sampler = theano.function([S_rv, lambdas_tt], Y_given_S_rv)
+
+Y_given_S_np = Y_sampler(S_rv.tag.test_value, lambdas_tt.tag.test_value)
+#+END_SRC
+
+* Log-likelihood
+
+In contrast to Theano sample-space graphs, there are Theano measure-space
+graphs, which--for our purposes--will correspond to Theano graphs that compute
+the log-likelihoods of terms in a model.
+
+PyMC3 creates these kinds of Theano graphs
+in src_python[:eval never]{Distribution.logp}--and the methods that call it.
+
+Working from our original sample-space model graph in Listing
+[[theano-hmm-example-model]], we can create a log-likelihood graph with a simple
+two-step process
+1. for each src_python[:eval never]{RandomVariable} create new variables to serve as inputs to a log-likelihood, then
+2. replace each src_python[:eval never]{RandomVariable} with its log-likelihood graphs--the latter being dependent on the previously created input variables.
+
+Fortunately, we can use the existing src_python[:eval never]{Distribution.logp}
+implementations to complete the second step.
+
+To demonstrate, Listing [[hmm-S_0-log-likelihood]] follows the above two steps in
+order to construct a log-likelihood graph for the \(S_0\) term.
+
+#+NAME: hmm-S_0-log-likelihood
+#+BEGIN_SRC python :results silent
+# Create new variables for the values of `pi_0_rv` and `S_0_rv`
+pi_0_in = tt.vector("pi_0")
+S_0_in = tt.ivector("S_0")
+# Create the log-likelihood graph for `S_0_rv`
+S_0_ll = pm.Categorical.dist(pi_0_in).logp(S_0_in)
+#+END_SRC
+
+The log-likelihood in Listing [[hmm-S_0-log-likelihood]] is--of course--conditional
+on the \(\pi_0\) term, but we could easily create a joint log-likelihood by
+performing the same operation for \(\pi_0\) and adding the two log-likelihood
+graphs.
+
+Unfortunately, more steps are needed when src_python[:eval never]{Scan}s are
+involved.  If we want to create a log-likehood graph for \(S_{0:T}\), then--just
+like the conditional sample-space graph in Listing [[hmm-Y-given-S-graph]]--we need
+to first transform the src_python[:eval never]{Scan} so
+that it "conditions on" \(S_{0:T}\)--i.e. converts its
+output src_python[:eval never]{S_rv} into an input.
+
+#+NAME: hmm-S-log-likelihood
+#+BEGIN_SRC python :results silent
+S_in = tt.ivector("S")
+
+
+def S_ll_step(S_t, S_tm1, Gamma_t):
+    S_ll_t = pm.Categorical.dist(Gamma_t[S_tm1]).logp(S_t)
+    return S_ll_t
+
+S_ll, _ = theano.scan(fn=S_ll_step,
+                      sequences=[
+                          {"input": S_in, "taps": [0, -1]},
+                          Gammas_tt,
+                      ],
+                      outputs_info=[
+                          {},
+                      ],
+                      strict=True)
+#+END_SRC
+
+:TODO:
+-Evaluate the log-likelihood graph src_python[:eval never]{S_ll}.
+:END:
+
+The situation for \(Y_{0:T}\) is a little more complicated; it requires
+log-likelihood conversions in the src_python[:eval never]{emissions_tt} term
+outside of the src_python[:eval never]{Scan} *and* an update to the
+src_python[:eval never]{Scan} so that it uses the log-likelihoods derived from
+src_python[:eval never]{emissions_tt}.  An implementation is given in Listing
+[[hmm-Y-log-likelihood]].
+
+#+NAME: hmm-Y-log-likelihood
+#+BEGIN_SRC python :results silent
+Y_in = tt.vector("Y")
+lambdas_in = tt.vector("Y")
+
+emissions_ll_tt = tt.stack([
+    pm.Constant.dist(0).logp(Y_in),
+    pm.Poisson.dist(lambdas_in).logp(Y_in)
+], axis=1).squeeze()
+
+def S_ll_step(S_t, emissions_ll_t, Gamma_t):
+    Y_ll_t = emissions_ll_t[S_t]
+    return Y_ll_t
+
+Y_ll, _ = theano.scan(fn=S_ll_step,
+                      sequences=[
+                          S_in,
+                          emissions_ll_tt,
+                          Gammas_tt,
+                      ],
+                      outputs_info=[
+                          {},
+                      ],
+                      strict=True)
+#+END_SRC
+
+The functionality for automating these two steps in the
+non-src_python[:eval never]{Scan} case already exist in src_python[:eval never]{symbolic-pymc},
+and the requisite functionality for simple case of src_python[:eval never]{Scan} was
+introduced in [[https://github.com/pymc-devs/symbolic-pymc/pull/113][#113]] and [[https://github.com/pymc-devs/symbolic-pymc/pull/114][#114]].
+
+The latter changes introduce a "push-out" optimization that helps
+expose src_python[:eval never]{RandomVariable}s hidden within the internal
+sub-graphs of src_python[:eval never]{Scan} operators.
+
+For instance, in the original Theano graph model, \(S_t\) is
+a src_python[:eval never]{RandomVariable} created within
+the src_python[:eval never]{Scan} operator's inner-graph (via the step function
+run by src_python[:eval never]{Scan}).  Had \(S_t\) not been specified as an
+output of the inner function src_python[:eval never]{state_step}, this
+"push-out" optimization would redefine the model so that it is.
+
+Additionally, functions were added in #114 that automate the process of
+turning src_python[:eval never]{state_step} into
+the src_python[:eval never]{Y_given_S_step} in Listing [[hmm-Y-given-S-graph]].
+This is how we can automate the construction of conditional sample-space graphs
+and log-likelihood graphs.
+
+* PyMC3 src_python[:eval never]{Distribution}s
+
+In order to use a complicated model like ours in Listing
+[[theano-hmm-example-model]] within PyMC3, we need to construct a
+PyMC3 src_python[:eval never]{Distribution} class using the conditional sampler
+functions and the log-likelihood graphs we derived above from the original model graph.
+Basically, the log-likelihood graphs comprise the body of
+the src_python[:eval never]{Distribution.logp} method, and the conditional samplers
+comprise the src_python[:eval never]{Distribution.random} method.
+
+Unfortunately, the shape issues and sampler problems of PyMC3 aren't actually
+removed in this process, since we're moving out of the Theano framework in which
+those problems are solved.
+
+Listing [[pymc3-dist-class-Y_t]] constructs the src_python[:eval never]{Distribution}
+class for \(Y_{0:T}\)--or src_python[:eval never]{Y_rv}.
+
+#+NAME: pymc3-dist-class-Y_t
+#+BEGIN_SRC python :results silent
+from pymc3.distributions.distribution import draw_values, _DrawValuesContext
+
+
+class YRvDist(pymc3.Distribution):
+    def __init__(self, S, lambdas, **kwargs):
+        super().__init__(**kwargs)
+        self.S = S
+        self.lambdas = lambdas
+
+    def random(self, point=None, size=None):
+        with _DrawValuesContext() as draw_context:
+
+            # FIXME: Are we sure the "size" value in the tuple key will be `1`?
+            # This `_DrawValuesContext` confuses me.
+            term_smpl = draw_context.drawn_vars.get((self.states, 1), None)
+
+            if term_smpl is not None:
+                point[self.states.name] = term_smpl
+
+            S, lambdas = draw_values([self.S, self.lambdas], point=point, size=size)
+
+            res = Y_sampler(S, lambdas)
+
+        return res
+
+    def logp(self, y, s, lambdas):
+        log_lik = tt_clone(Y_ll, replacements={
+            Y_in: y,
+            S_in: s,
+            lambdas_in: lambdas,
+        })
+        return log_lik
+#+END_SRC
+
+:TODO:
+-Implement src_python[:eval never]{SRvDist}
+-Implement src_python[:eval never]{LambdasRvDist}
+:END:
+
+The src_python[:eval never]{Distribution} objects constructed in this way
+can now be used to define and estimate a regular PyMC3 model, as demonstrated in
+Listing [[example-distribution-usage]].
+
+#+NAME: example-distribution-usage
+#+BEGIN_SRC python :eval never
+with pm.Model() as test_model:
+    S_rv = SRvDist("S")
+    lambdas_rv = LambdasRvDist("lambdas")
+    Y_rv = YRvDist("Y", S_rv, lambdas_rv, observed=y_tt)
+
+with test_model:
+    posteriors = pm.sample()
+
+with test_model:
+    pp_trace = pm.sample_posterior_predictive(posteriors, vars=['Y_rv'])
+#+END_SRC
+
+* Discussion
+:TODO:
+-Discuss the current state of automation
+:END:
+
+Regarding the compilation of Theano "model graphs" to PyMC3 (i.e. functionality
+that would allow us to produce posterior predictive samples using Theano while
+still being able to estimate), I've added most of the key functionality in PR
+[[https://github.com/pymc-devs/symbolic-pymc/pull/113][#113]] and [[https://github.com/pymc-devs/symbolic-pymc/pull/114][#114]].
+
+Part of the functionality introduced there allows us to automatically produce
+new Theano graphs with inputs for each random variable dependency embedded in
+a src_python[:eval never]{Scan}.  It's currently being used just to produce the
+log-likelihood graphs, but it's also what we need in order to construct a fast
+Theano src_python[:eval never]{function} that produces posterior predictive
+samples.  Writing a posterior predictive sampler that does this is the next
+step.
+
+The existing src_python[:eval never]{symbolic_pymc.theano.pymc3.graph_model}
+function does this for simple Theano model graphs, but it does not work with
+the src_python[:eval never]{Scan}s we need to use in order to define
+time-series model graphs.
+
+#+BIBLIOGRAPHYSTYLE: plainnat
+#+BIBLIOGRAPHY: ../tex/theano-model-graphs.bib
