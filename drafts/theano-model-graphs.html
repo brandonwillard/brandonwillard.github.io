@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Theano Model Graphs - Brandon T. Willard</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://brandonwillard.github.io/drafts/theano-model-graphs.html">
+
+        <meta name="author" content="Brandon T. Willard" />
+        <meta name="keywords" content="draft,theano,pymc3,symbolic-pymc" />
+
+        <meta property="og:site_name" content="Brandon T. Willard" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Theano Model Graphs"/>
+        <meta property="og:url" content="https://brandonwillard.github.io/drafts/theano-model-graphs.html"/>
+        <meta property="og:description" content=""/>
+        <meta property="article:published_time" content="2020-08-11" />
+            <meta property="article:section" content="articles" />
+            <meta property="article:tag" content="draft" />
+            <meta property="article:tag" content="theano" />
+            <meta property="article:tag" content="pymc3" />
+            <meta property="article:tag" content="symbolic-pymc" />
+            <meta property="article:author" content="Brandon T. Willard" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://brandonwillard.github.io/theme/css/bootstrap.readable.min.css" type="text/css"/>
+    <link href="https://brandonwillard.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://brandonwillard.github.io/theme/css/academicons.min.css" rel="stylesheet">
+
+    <link href="https://brandonwillard.github.io/theme/css/pygments/vim.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://brandonwillard.github.io/theme/css/style.css" type="text/css"/>
+        <link href="https://brandonwillard.github.io/extra/custom.css" rel="stylesheet">
+
+        <link href="https://brandonwillard.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Brandon T. Willard ATOM Feed"/>
+
+        <link href="https://brandonwillard.github.io/feeds/all.rss.xml" type="application/rss+xml" rel="alternate"
+              title="Brandon T. Willard RSS Feed"/>
+        <link href="https://brandonwillard.github.io/feeds/articles.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Brandon T. Willard articles ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://brandonwillard.github.io/" class="navbar-brand">
+Brandon T. Willard            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://brandonwillard.github.io/pages/publications.html">
+                             Publications
+                          </a></li>
+                         <li><a href="https://brandonwillard.github.io/pages/projects.html">
+                             Projects
+                          </a></li>
+                         <li><a href="https://brandonwillard.github.io/pages/about.html">
+                             About
+                          </a></li>
+                        <li class="active">
+                            <a href="https://brandonwillard.github.io/category/articles.html">Articles</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://brandonwillard.github.io/drafts/theano-model-graphs.html"
+                       rel="bookmark"
+                       title="Permalink to Theano Model Graphs">
+                        Theano Model Graphs
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2020-08-11T00:00:00-05:00"> Tue 11 August 2020</time>
+    </span>
+          <span class="label label-default">Modified</span>
+            <span class="modified">
+                <i class="fa fa-calendar"></i><time datetime="2020-08-12T00:00:00-05:00"> Wed 12 August 2020</time>
+            </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://brandonwillard.github.io/tag/draft.html">draft</a>
+        /
+	<a href="https://brandonwillard.github.io/tag/theano.html">theano</a>
+        /
+	<a href="https://brandonwillard.github.io/tag/pymc3.html">pymc3</a>
+        /
+	<a href="https://brandonwillard.github.io/tag/symbolic-pymc.html">symbolic-pymc</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Brandon T. Willard" />
+  <title>Theano Model Graphs</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script>
+</head>
+<body>
+<!--  -->
+<!-- <div id="header"> -->
+<!-- <h1 class="title">Theano Model Graphs</h1> -->
+<!--  -->
+<!--  -->
+<!-- <h2 class="author">Brandon T. Willard</h2> -->
+<!--  -->
+<!--  -->
+<!-- <h3 class="date">2020–08–11</h3> -->
+<!--  -->
+<!-- </div> -->
+<!--  -->
+<ul>
+<li><a href="#org2971a11">Introduction</a></li>
+<li><a href="#org1f4bfa0">The Hidden Markov Model</a></li>
+<li><a href="#orgf368ef9">Sampling Model Graphs</a>
+<ul>
+<li><a href="#orgec13666">Prior Predictive Sampling</a></li>
+<li><a href="#org7593fb2">Posterior Predictive Sampling</a></li>
+</ul></li>
+<li><a href="#org7a0a3fe">Log-likelihood</a></li>
+<li><a href="#org1814110">PyMC3 <code>Distribution</code>s</a></li>
+<li><a href="#org5dd61b7">Discussion</a></li>
+</ul>
+<p><a id="org2971a11"></a></p>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>This document describes how Theano graphs can be used as a focal point for Bayesian model specification, and how these graphs can be bridged with PyMC3 objects and–as a result–produce a dramatically more robust and simplified foundation for PyMC3.</p>
+<p>Yes, PyMC3 does use Theano–and, thus, Theano graphs–but it doesn’t explicitly build a graph for the relationships between random variables. In the following, we call such graphs [Theano] <em>sample-space graphs</em> and we’ll show how all the forms of sampling performed by PyMC3 (i.e. prior and posterior predictive) can be implemented using these graphs. We’ll also demonstrate how the log-likelihood graphs currently used by PyMC3 can be constructed from such graphs.</p>
+<p>Before we go any further, let’s look at a simple example of a sample-space graph.</p>
+<div class="example" data-markdown="">
+<p>Consider the model in Equation <span class="math inline">\(\eqref{eq:simple-model}\)</span>.</p>
+<p><span class="math display">\[\begin{equation}
+  \label{eq:simple-model}
+  Y = a Z + b, \quad Z \sim \operatorname{N}\left( 0, \sigma^2 \right)
+  \;,
+\end{equation}\]</span></p>
+<p>Equation <span class="math inline">\(\eqref{eq:simple-model}\)</span> can be represented by the Theano graph in Listing <a href="#org2c5668f">1</a>.</p>
+<figure id="org2c5668f">
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="im">import</span> theano</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="im">import</span> theano.tensor <span class="im">as</span> tt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="im">from</span> symbolic_pymc.theano.random_variables <span class="im">import</span> NormalRV</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>a_tt <span class="op">=</span> tt.vector(<span class="st">&#39;a&#39;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>b_tt <span class="op">=</span> tt.vector(<span class="st">&#39;b&#39;</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>sigma_tt <span class="op">=</span> tt.scalar(<span class="st">&#39;sigma&#39;</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>Z_rv <span class="op">=</span> NormalRV(<span class="dv">0</span>, sigma_tt<span class="op">**</span><span class="dv">2</span>, name<span class="op">=</span><span class="st">&#39;Z&#39;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>Y_rv <span class="op">=</span> a_tt <span class="op">*</span> Z_rv <span class="op">+</span> b_tt</span></code></pre></div>
+<figcaption>
+Listing 1
+</figcaption>
+</figure>
+<p>When <span class="math inline">\(Y\)</span> is an observed variable, the Theano graph represented by <code>Y_rv</code> is our sample-space graph of interest. The graph for <code>Z_rv</code> is also a sample-space graph, and, in some cases, we’ll refer to <code>Y_rv</code> as a <em>model graph</em> due to its more direct correspondence to a model of interest (e.g. Equation <span class="math inline">\(\eqref{eq:simple-model}\)</span>).</p>
+<p>Naturally, the Theano tensors objects <code>Z_rv</code> and <code>Y_rv</code> are random variables, but–more specifically–the former is a direct output of a <code>RandomVariable</code> operator, while the latter is a function of the aforementioned <code>RandomVariable</code> output. This distinction will be important in what follows, but it suffices to say that both represent random draws from a distribution.</p>
+<p>We can sample either of them–or both–by simply compiling the graphs into functions and evaluating those functions. This is demonstrated in Listing <a href="#orge56924b">2</a>.</p>
+<figure id="orge56924b">
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>Y_sampler <span class="op">=</span> theano.function([a_tt, b_tt, sigma_tt], [Z_rv, Y_rv])</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>Y_sampler(np.r_[<span class="fl">0.0</span>, <span class="fl">1.0</span>], np.r_[<span class="fl">0.1</span>, <span class="fl">0.3</span>], <span class="fl">0.9</span>)</span></code></pre></div>
+<figcaption>
+Listing 2
+</figcaption>
+</figure>
+<figure>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>[array(<span class="op">-</span><span class="fl">1.60047139</span>), array([ <span class="fl">0.1</span>       , <span class="op">-</span><span class="fl">1.30047139</span>])]</span></code></pre></div>
+</figure>
+</div>
+<p>Throughout this exposition we’ll use a non-trivial hidden Markov model (HMM) as our guiding example. These sorts of time-series are difficult to implement in PyMC3 due to their reliance on the challenging <code>Scan</code> function, symbolic shape issues in PyMC3, and the general complexity involved in writing their log-likelihoods and sampling functions–especially when one needs to iterate on hierarchical changes to such models. As a result, anything that can improve their ease of use within PyMC3 is a worthwhile consideration.</p>
+<div class="remark" data-markdown="">
+<p>For other types of time-series that are represented and computed as Theano model graphs see <a id="a23de30ae46f889e89283d2bc1f0cba0"><a href="#WillardDynamicLinearModels2020">Willard (2020)</a></a>. In those examples, custom samplers are constructed by hand in Theano; however, here we’re interested in using PyMC3 to generate posterior samples.</p>
+</div>
+<p>That said, we’ll demonstrate how the sample-space graphs for HMMs can be specified with relative ease, and we’ll build up to the construction of a custom PyMC3 <code>Distribution</code> class based entirely on transformations of the original sample-space graph.</p>
+<p>Ultimately, the process of deriving this <code>Distribution</code> class demonstrates how all of the model information and objects required by PyMC3 can be derived from a sample-space graph. As a result, automation of this process would provide a new foundation for PyMC; one that can leverage Theano to perform all the complicated sampling and doesn’t suffer from the same symbolic shape limitations, and one for which it is much simpler to reason about a model systematically. This new PyMC would also set the stage for specialized optimizations that could dramatically improve performance.</p>
+<p><a id="org1f4bfa0"></a></p>
+</section>
+<section id="the-hidden-markov-model" class="level1">
+<h1>The Hidden Markov Model</h1>
+<p>The model we’ll be focusing on is defined in Equation <span class="math inline">\(\eqref{eq:hmm-model}\)</span>. In it, our observation model–given by <span class="math inline">\(Y_t\)</span>–is an HMM with a single Dirac-delta emission at the point <span class="math inline">\(Y_t = 0\)</span> and Poisson emissions for the remaining states <span class="math inline">\(1 &lt; S_t \leq S\)</span>. It is specified as a mixture, in part to reflect the fact that this sort of “non-homogeneous” emissions model also covers “zero-inflation”. The Markov transitions are driven by a time-varying transition probability matrix in the style of multinomial regression, with a covariate matrix <span class="math inline">\(x_t\)</span> and a corresponding set of parameters <span class="math inline">\(\xi^{(s)}\)</span> for each <span class="math inline">\(s \in \left\{1, \dots, S\right\}\)</span>.</p>
+<p><span class="math display">\[\begin{equation}
+  \label{eq:hmm-model}
+  \begin{gathered}
+    Y_t = \mathbb{I}\left\{ S_t = 1 \right\} \delta\left\{ Y_t = 0 \right\} +
+    \mathbb{I}\left\{ S_t &gt; 1 \right\} Z_t
+    \\
+    Z_t \sim \operatorname{Pois}\left( \lambda^{(S_t)} \right)
+    \\
+    S_t \sim \operatorname{Categorical}\left( \pi_t \right)
+    \\
+    \pi_t = \Gamma_t \pi_{t-1}
+    \\
+    \Gamma_t =
+    \begin{pmatrix}
+      {p^{(1)}}^\top_{t}
+      \\
+      \vdots
+      \\
+      {p^{(S)}}^\top_{t}
+    \end{pmatrix}
+    \\
+    p^{(s)}_t = \operatorname{multi-logit}^{-1}\left( x_t \xi^{(s)} \right)
+  \end{gathered}
+\end{equation}\]</span></p>
+<p>Listings <a href="#org03e006a">4</a> and <a href="#org37d161a">5</a> import the necessary Python libraries and simulate a design matrix <span class="math inline">\(X_t\)</span> with seasonal indicators. Listing <a href="#orgd4f0b0b">6</a> defines the Theano sample-space graph that represents Equation <span class="math inline">\(\eqref{eq:hmm-model}\)</span> under some standard priors for the terms <span class="math inline">\(\lambda^{(s)}\)</span>, <span class="math inline">\(\pi_0\)</span>, <span class="math inline">\(S_0\)</span>, and <span class="math inline">\(\xi^{(s)}\)</span>.</p>
+<figure id="org03e006a">
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="im">import</span> theano</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="im">import</span> theano.tensor <span class="im">as</span> tt</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="im">import</span> pymc3 <span class="im">as</span> pm</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a><span class="im">import</span> patsy</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a><span class="im">from</span> symbolic_pymc.theano.random_variables <span class="im">import</span> (</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>    NormalRV, HalfNormalRV, PoissonRV,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>    DirichletRV, CategoricalRV</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>theano.config.cxx <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a>theano.config.mode <span class="op">=</span> <span class="st">&quot;FAST_COMPILE&quot;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a>theano.config.compute_test_value <span class="op">=</span> <span class="st">&#39;warn&#39;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a><span class="co"># def tt_softmax(x, axis=-1):</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a><span class="co">#     res = tt.exp(x - pm.math.logsumexp(x, axis=axis, keepdims=True))</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a><span class="co">#     return res</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true"></a><span class="kw">def</span> tt_multilogit_inv(ys):</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true"></a>    exp_ys <span class="op">=</span> tt.exp(ys)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true"></a>    res <span class="op">=</span> tt.concatenate(</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true"></a>        [exp_ys, tt.ones(<span class="bu">tuple</span>(exp_ys.shape)[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> (<span class="dv">1</span>,))], axis<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true"></a>    res <span class="op">=</span> res <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> tt.<span class="bu">sum</span>(exp_ys, axis<span class="op">=-</span><span class="dv">1</span>))[..., <span class="va">None</span>]</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true"></a>    <span class="cf">return</span> res</span></code></pre></div>
+<figcaption>
+Listing 4
+</figcaption>
+</figure>
+<figure id="org37d161a">
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>start_date <span class="op">=</span> pd.Timestamp(<span class="st">&#39;2019-12-29 00:00:00&#39;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>time_index <span class="op">=</span> pd.date_range(start<span class="op">=</span>start_date,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>                           end<span class="op">=</span>start_date <span class="op">+</span> pd.Timedelta(<span class="st">&#39;4W&#39;</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>                           closed<span class="op">=</span><span class="st">&#39;left&#39;</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>                           freq<span class="op">=</span><span class="st">&#39;1h&#39;</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>X_df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    <span class="st">&#39;weekday&#39;</span>: time_index.weekday,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>    <span class="st">&#39;hour&#39;</span>: time_index.hour</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>}, index<span class="op">=</span>time_index)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>formula_str <span class="op">=</span> <span class="st">&quot;~ 1 + C(weekday) + C(hour)&quot;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a>X_df <span class="op">=</span> patsy.dmatrix(formula_str, X_df, return_type<span class="op">=</span><span class="st">&quot;dataframe&quot;</span>)</span></code></pre></div>
+<figcaption>
+Listing 5
+</figcaption>
+</figure>
+<figure id="orgd4f0b0b">
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>rng_state <span class="op">=</span> np.random.RandomState(np.random.MT19937(np.random.SeedSequence(<span class="dv">1234</span>)))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>rng_init_state <span class="op">=</span> rng_state.get_state()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>rng_tt <span class="op">=</span> theano.shared(rng_state, name<span class="op">=</span><span class="st">&#39;rng&#39;</span>, borrow<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>rng_tt.tag.is_rng <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>rng_tt.default_update <span class="op">=</span> rng_tt</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>X_tt <span class="op">=</span> theano.shared(X_df.values, name<span class="op">=</span><span class="st">&quot;X&quot;</span>, borrow<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>S_tt <span class="op">=</span> theano.shared(<span class="dv">2</span>, name<span class="op">=</span><span class="st">&quot;S&quot;</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>M_tt <span class="op">=</span> X_tt.shape[<span class="dv">1</span>]</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>T_tt <span class="op">=</span> X_tt.shape[<span class="dv">0</span>]</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>betas_rv <span class="op">=</span> HalfNormalRV(<span class="fl">1.0</span>, size<span class="op">=</span>(M_tt, S_tt <span class="op">-</span> <span class="dv">1</span>), rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&quot;betas&quot;</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>lambdas_tt <span class="op">=</span> tt.exp(<span class="dv">1</span> <span class="op">+</span> X_tt.dot(betas_rv))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a>pi_0_rv <span class="op">=</span> DirichletRV(tt.ones((S_tt,)), rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&quot;pi_0&quot;</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a>xis_rv <span class="op">=</span> NormalRV(tt.zeros((M_tt, S_tt, S_tt <span class="op">-</span> <span class="dv">1</span>)), <span class="fl">1.0</span>, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&quot;xis&quot;</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a>p_t_tt <span class="op">=</span> tt.tensordot(X_tt, xis_rv, axes<span class="op">=</span>((<span class="dv">1</span>,), (<span class="dv">0</span>,)))</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a>Gammas_tt <span class="op">=</span> tt_multilogit_inv(p_t_tt)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a>S_0_rv <span class="op">=</span> CategoricalRV(pi_0_rv, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&quot;S_0&quot;</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true"></a>emissions_tt <span class="op">=</span> tt.stack([</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true"></a>    tt.zeros((T_tt, <span class="dv">1</span>)),</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true"></a>    PoissonRV(lambdas_tt, rng<span class="op">=</span>rng_tt, name<span class="op">=</span><span class="st">&quot;Y_t&quot;</span>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true"></a>], axis<span class="op">=</span><span class="dv">1</span>).squeeze()</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true"></a><span class="kw">def</span> state_step(Gamma_t, emissions_t, S_tm1, rng):</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true"></a>    S_t <span class="op">=</span> CategoricalRV(Gamma_t[S_tm1], rng<span class="op">=</span>rng, name<span class="op">=</span><span class="st">&quot;S_t&quot;</span>)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true"></a>    Y_t <span class="op">=</span> emissions_t[S_t]</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true"></a>    <span class="cf">return</span> S_t, Y_t</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true"></a>state_steps, _ <span class="op">=</span> theano.scan(fn<span class="op">=</span>state_step,</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true"></a>                             sequences<span class="op">=</span>[Gammas_tt, emissions_tt],</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true"></a>                             non_sequences<span class="op">=</span>[rng_tt],</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true"></a>                             outputs_info<span class="op">=</span>[</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true"></a>                                 {<span class="st">&quot;initial&quot;</span>: S_0_rv, <span class="st">&quot;taps&quot;</span>: [<span class="op">-</span><span class="dv">1</span>]},</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true"></a>                                 {},</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true"></a>                             ],</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true"></a>                             strict<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true"></a>S_rv, Y_rv <span class="op">=</span> state_steps</span></code></pre></div>
+<figcaption>
+Listing 6
+</figcaption>
+</figure>
+<p>Notice how all of the dimension values are either defined as shared variables or derived from the shapes of shared variables. We could just as well have used purely symbolic variables for these terms. More importantly, this is something that is fundamentally impossible to do in PyMC3. This also implies that, in this context, the total number of mixture components–i.e. <span class="math inline">\(S\)</span>–represented by <code>S_tt</code>, can be a random variables–or entire models–itself!</p>
+<p><a id="orgf368ef9"></a></p>
+</section>
+<section id="sampling-model-graphs" class="level1">
+<h1>Sampling Model Graphs</h1>
+<p>In this section, we show how all the sampling functionality of PyMC3 is already provided by Theano.</p>
+<p><a id="orgec13666"></a></p>
+<section id="prior-predictive-sampling" class="level2">
+<h2>Prior Predictive Sampling</h2>
+<p>In Listing <a href="#orgba4a672">7</a> we compile a Theano function that is able to draw samples from the model in Listing <a href="#orgd4f0b0b">6</a>. More specifically, we created a function that computes <span class="math inline">\(\left( y_t, s_t \right) \sim \left( Y_t, S_t \right)\)</span>.</p>
+<figure id="orgba4a672">
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>hmm_sampler <span class="op">=</span> theano.function([], [S_rv, Y_rv])</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>theano_samples <span class="op">=</span> hmm_sampler()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>theano_samples <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>([<span class="st">&quot;S_rv&quot;</span>, <span class="st">&quot;Y_rv&quot;</span>], theano_samples))</span></code></pre></div>
+<figcaption>
+Listing 7
+</figcaption>
+</figure>
+<p>The samples produced by the compiled function <code>hmm_sampler</code> are effectively the same type of samples that <code>pymc3.sample_prior_predictive</code> would produce; however, in this case, Theano automatically handles variable dependencies in a way that <code>pymc3.sample_prior_predictive</code> currently cannot–plus, it has all the advantages of Theano compilation (e.g. algebraic optimizations, C-compiled functions).</p>
+<figure id="orga771deb">
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>y_samples_df <span class="op">=</span> pd.DataFrame(np.stack([theano_samples[<span class="st">&quot;Y_rv&quot;</span>], theano_samples[<span class="st">&quot;S_rv&quot;</span>]], axis<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>                            columns<span class="op">=</span>(<span class="st">&quot;y&quot;</span>, <span class="st">&quot;s&quot;</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>                            index<span class="op">=</span>X_df.index)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>axes <span class="op">=</span> plot_split_timeseries(y_samples_df,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>                             figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">10</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>                             use_twin<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>                             twin_plot_kwargs<span class="op">=</span>{</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a>                                 <span class="st">&quot;alpha&quot;</span>: <span class="fl">0.8</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a>                                 <span class="st">&quot;linestyle&quot;</span>: <span class="st">&quot;--&quot;</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a>                                 <span class="st">&quot;drawstyle&quot;</span>: <span class="st">&quot;steps-pre&quot;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a>                             })</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a><span class="cf">for</span> ax, alt_ax <span class="kw">in</span> axes:</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a>    alt_ax.yaxis.set_major_locator(MaxNLocator(integer<span class="op">=</span><span class="va">True</span>))</span></code></pre></div>
+<figcaption>
+Listing 8
+</figcaption>
+</figure>
+<figure id="nil" class="plot">
+<img src="https://brandonwillard.github.io/drafts/theano-hmm-example-simulation.png" title="fig:" alt="" />
+<figcaption>
+</figcaption>
+</figure>
+<p>Figure <a href="#orga771deb">8</a> plots the samples in <code>theano_samples</code>. Unfortunately, sampling from the prior predictive produces very “random” series, but, if we wanted to–say–generate samples conditional on very specific values of the seasonal transition matrix parameters, <span class="math inline">\(\xi^{(S_t)}_t\)</span>, we could compile a different sampling function that takes those parameters as arguments. Simply put, we want a function that computes <span class="math inline">\(\left( y_t, S_t \right) \sim \left( Y_t, S_t \mid \xi^{(S_t)}_t \right)\)</span>.</p>
+<p>Listing <a href="#orgbe5c57e">9</a> compiles such a function in Theano and uses it draw samples given specific values of <span class="math inline">\(\xi^{(S_t)}_t\)</span> that demonstrate higher probabilities of staying in–and transitioning to–the zero value state during weekdays and late hours.</p>
+<figure id="orgbe5c57e">
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="im">import</span> scipy <span class="im">as</span> sp</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>xi_0_np <span class="op">=</span> pd.Series(</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    <span class="co"># The coefficients used to compute the state zero-to-zero transition probabilities</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>    <span class="co"># For two states, these are basically run through a logistic function, and</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>    <span class="co"># the state zero-to-one transition probabilities are 1 minus the logistic</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>    <span class="co"># values.</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>    np.array([<span class="fl">0.0</span>] <span class="op">+</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>             [<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">2.0</span>] <span class="op">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a>             [<span class="fl">4.0</span>] <span class="op">*</span> <span class="dv">9</span> <span class="op">+</span> <span class="bu">list</span>(<span class="op">-</span>np.geomspace(<span class="fl">1e-3</span>, <span class="dv">3</span>, num<span class="op">=</span><span class="dv">13</span>))),</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a>    index<span class="op">=</span>X_df.columns)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a>xi_1_np <span class="op">=</span> pd.Series(</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true"></a>    <span class="co"># The coefficients for the state one-to-zero transition probabilities</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true"></a>    np.array([<span class="op">-</span><span class="fl">1.0</span>] <span class="op">+</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true"></a>             [<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">3.0</span>, <span class="op">-</span><span class="fl">3.0</span>] <span class="op">+</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true"></a>             [<span class="fl">4.0</span>] <span class="op">*</span> <span class="dv">9</span> <span class="op">+</span> <span class="bu">list</span>(<span class="op">-</span>np.geomspace(<span class="dv">1</span>, <span class="dv">3</span>, num<span class="op">=</span><span class="dv">13</span>))),</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true"></a>    index<span class="op">=</span>X_df.columns)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true"></a></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true"></a>xis_np <span class="op">=</span> np.stack([xi_0_np, xi_1_np], axis<span class="op">=</span><span class="dv">1</span>)[..., <span class="va">None</span>]</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true"></a>hmm_cond_sampler <span class="op">=</span> theano.function([xis_rv], [S_rv, Y_rv])</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true"></a></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true"></a>theano_samples <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>([<span class="st">&quot;S_rv&quot;</span>, <span class="st">&quot;Y_rv&quot;</span>], hmm_cond_sampler(xis_np)))</span></code></pre></div>
+<figcaption>
+Listing 9
+</figcaption>
+</figure>
+<figure>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>y_samples_df <span class="op">=</span> pd.DataFrame(np.stack([theano_samples[<span class="st">&quot;Y_rv&quot;</span>], theano_samples[<span class="st">&quot;S_rv&quot;</span>]], axis<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>                            columns<span class="op">=</span>(<span class="st">&quot;y&quot;</span>, <span class="st">&quot;s&quot;</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>                            index<span class="op">=</span>X_df.index)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>axes <span class="op">=</span> plot_split_timeseries(y_samples_df,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>                             figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">10</span>),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>                             use_twin<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>                             twin_plot_kwargs<span class="op">=</span>{</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a>                                 <span class="st">&quot;alpha&quot;</span>: <span class="fl">0.8</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a>                                 <span class="st">&quot;linestyle&quot;</span>: <span class="st">&quot;--&quot;</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a>                                 <span class="st">&quot;drawstyle&quot;</span>: <span class="st">&quot;steps-pre&quot;</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true"></a>                             })</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true"></a><span class="cf">for</span> ax, alt_ax <span class="kw">in</span> axes:</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true"></a>    alt_ax.yaxis.set_major_locator(MaxNLocator(integer<span class="op">=</span><span class="va">True</span>))</span></code></pre></div>
+</figure>
+<figure id="nil" class="plot">
+<img src="https://brandonwillard.github.io/drafts/figures/theano-hmm-example-simulation.png" title="fig:" alt="" />
+<figcaption>
+</figcaption>
+</figure>
+<p><a id="org7593fb2"></a></p>
+</section>
+<section id="posterior-predictive-sampling" class="level2">
+<h2>Posterior Predictive Sampling</h2>
+<p>Now that we know how to draw samples conditional on terms</p>
+<figure>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>posterior_samples <span class="op">=</span> pm.sample(...)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a><span class="co">#</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a><span class="co"># pm.sample_posterior_predictive(...)</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a><span class="co">#</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>posterior_samples <span class="op">=</span> [{<span class="st">&quot;S_rv&quot;</span>: ..., }, {<span class="st">&quot;S_rv&quot;</span>: ...}, ..., {...}]</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a>pp_samples <span class="op">=</span> []</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a><span class="cf">for</span> sample_i <span class="kw">in</span> posterior_samples:</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a>    S_posteriors_i <span class="op">=</span> sample_i[<span class="st">&#39;S_rv&#39;</span>]</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a>    lambda_posteriors_i <span class="op">=</span> sample_i[<span class="st">&#39;lambda_rv&#39;</span>]</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true"></a>    <span class="co"># xis_posteriors_i = [...]</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true"></a>    pp_sample <span class="op">=</span> Y_rv.distribution.random(point<span class="op">=</span>{</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true"></a>        <span class="st">&quot;S_rv&quot;</span>: S_posteriors_i,</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true"></a>        <span class="st">&quot;lambda_rv&quot;</span>: lambda_posteriors_i</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true"></a>    })</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true"></a>    pp_samples.append(pp_sample)</span></code></pre></div>
+</figure>
+<p>Listing <a href="#org93b5bbe">12</a> demonstrates a fundamental limitation with the sample-space graph models: we can’t condition on arbitrary random variables.</p>
+<figure id="org93b5bbe">
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="im">from</span> traceback <span class="im">import</span> print_exc</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>S_rv_vals <span class="op">=</span> theano_samples[<span class="st">&quot;S_rv&quot;</span>]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="cf">try</span>:</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>    hmm_cond_sampler <span class="op">=</span> theano.function([S_rv], Y_rv)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>    Y_rv_sim <span class="op">=</span> hmm_cond_sampler(S_rv_vals)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a><span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a>    print_exc(limit<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div>
+<figcaption>
+Listing 12
+</figcaption>
+</figure>
+<figure>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>Traceback (most recent call last):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>theano.<span class="bu">compile</span>.function_module.UnusedInputError: theano.function was asked to create a function computing outputs given certain inputs, but the provided <span class="bu">input</span> variable at index <span class="dv">0</span> <span class="kw">is</span> <span class="kw">not</span> part of the computational graph needed to compute the outputs: Subtensor{int64::}<span class="fl">.0</span>.</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>To make this error into a warning, you can <span class="cf">pass</span> the parameter on_unused_input<span class="op">=</span><span class="st">&#39;warn&#39;</span> to theano.function. To disable it completely, use on_unused_input<span class="op">=</span><span class="st">&#39;ignore&#39;</span>.</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a></span></code></pre></div>
+</figure>
+<p>The problem is that our original sample-space model graph in Listing <a href="#orgd4f0b0b">6</a> generates the vector of all <span class="math inline">\(S_t\)</span>, <span class="math inline">\(S_{0:T}\)</span>, in the same Theano <code>Scan</code> that generate all the <span class="math inline">\(Y_t\)</span>; in other words, <span class="math inline">\(Y_{0:T}\)</span> isn’t a function of <span class="math inline">\(S_{0:T}\)</span> according the the Theano graph.</p>
+<p>Simply put, we need to create a graph that “condition on” <span class="math inline">\(S_{0:T}\)</span>, or–in other words–convert the <code>Scan</code> output <code>S_rv</code> into an input.</p>
+<figure id="org1ee081e">
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">def</span> Y_given_S_step(S_t, emissions_t):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>    Y_t <span class="op">=</span> emissions_t[S_t]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>    <span class="cf">return</span> Y_t</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>Y_given_S_rv, _ <span class="op">=</span> theano.scan(fn<span class="op">=</span>Y_given_S_step,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a>                              sequences<span class="op">=</span>[S_rv, emissions_tt],</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a>                              non_sequences<span class="op">=</span>[],</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true"></a>                              outputs_info<span class="op">=</span>[</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true"></a>                                  {},</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true"></a>                              ],</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true"></a>                              strict<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true"></a>hmm_cond_sampler <span class="op">=</span> theano.function([S_rv, lambdas_tt], Y_given_S_rv)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true"></a>Y_given_S_np <span class="op">=</span> hmm_cond_sampler(S_rv_vals, lambdas_tt_vals)</span></code></pre></div>
+<figcaption>
+Listing 14
+</figcaption>
+</figure>
+<p><a id="org7a0a3fe"></a></p>
+</section>
+</section>
+<section id="log-likelihood" class="level1">
+<h1>Log-likelihood</h1>
+<p>In contrast to Theano sample-space graphs, there are Theano measure-space graphs, which–for our purposes–will correspond to Theano graphs that compute the log-likelihoods of terms in a model.</p>
+<p>PyMC3 creates generates these kinds of Theano graphs in <code>Distribution.logp</code>–and the methods that call it.</p>
+<p>Working from our original sample-space model graph in Listing <a href="#orgd4f0b0b">6</a>, we can create a log-likelihood graph with a simple two-step process</p>
+<ol type="1">
+<li>for each <code>RandomVariable</code> create new variables to serve as inputs to a log-likelihood, then</li>
+<li>replace each <code>RandomVariable</code> with its log-likelihood graphs–the latter being dependent on the previously created input variables.</li>
+</ol>
+<p>Fortunately, we can use the existing <code>Distribution.logp</code> implementations to complete the second step.</p>
+<p>To demonstrate, Listing <a href="#orgab0b430">15</a> follows the above two steps in order to construct a log-likelihood graph for the <span class="math inline">\(S_0\)</span> term.</p>
+<figure id="orgab0b430">
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="co"># Create new variables for the values of `pi_0_rv` and `S_0_rv`</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>pi_0_in <span class="op">=</span> tt.vector(<span class="st">&quot;pi_0&quot;</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>S_0_in <span class="op">=</span> tt.ivector(<span class="st">&quot;S_0&quot;</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a><span class="co"># Create the log-likelihood graph for `S_0_rv`</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>S_0_ll <span class="op">=</span> pm.Categorical.dist(pi_0_in).logp(S_0_in)</span></code></pre></div>
+<figcaption>
+Listing 15
+</figcaption>
+</figure>
+<p>The log-likelihood in Listing <a href="#orgab0b430">15</a> is–of course–conditional on the <span class="math inline">\(\pi_0\)</span> term, but we could easily create a joint log-likelihood by performing the same operation for <span class="math inline">\(\pi_0\)</span> and adding the two log-likelihood graphs.</p>
+<p>Unfortunately, more steps are needed when <code>Scan</code>s are involved. If we want to create a log-likehood graph for <span class="math inline">\(S_{0:T}\)</span>, then–just like the conditional sample-space graph in Listing <a href="#org1ee081e">14</a>–we need to first transform the <code>Scan</code> so that it “conditions on” <span class="math inline">\(S_{0:T}\)</span>–i.e. converts its output <code>S_rv</code> into an input.</p>
+<figure>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a><span class="kw">def</span> S_ll_step(S_t, S_tm1, Gamma_t):</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>    S_ll_t <span class="op">=</span> pm.Categorical.dist(Gamma_t[S_tm1]).logp(S_t)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>    <span class="cf">return</span> S_ll_t</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a>S_ll, _ <span class="op">=</span> theano.scan(fn<span class="op">=</span>S_ll_step,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a>                      sequences<span class="op">=</span>[</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a>                          {<span class="st">&quot;initial&quot;</span>: S_0_rv, <span class="st">&quot;taps&quot;</span>: [<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>]},</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true"></a>                          Gammas_tt,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true"></a>                      ],</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true"></a>                      outputs_info<span class="op">=</span>[</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true"></a>                          {},</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true"></a>                      ],</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true"></a>                      strict<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
+</figure>
+<p>The basics for this functionality were introduced in <a href="https://github.com/pymc-devs/symbolic-pymc/pull/113">#113</a> and <a href="https://github.com/pymc-devs/symbolic-pymc/pull/114">#114</a>. The latter introduces a “push-out” optimization that helps expose <code>RandomVariable</code>s hidden within the internal sub-graphs of <code>Scan</code> operators.</p>
+<p>For instance, <span class="math inline">\(S_t\)</span> is a <code>RandomVariable</code> created within a <code>Scan</code> operator. Had <span class="math inline">\(S_t\)</span> not been specified as an output of the inner function <code>state_step</code>, this “push-out” optimization would redefine the model so that it is.</p>
+<p>Additionally, functions were added in #114 that automate the process of turning <code>state_step</code> into the <code>Y_given_S_step</code> in Listing <a href="#org1ee081e">14</a>. This is how we can automate the construction of conditional sample-space graphs and log-likelihood graphs.</p>
+<p><a id="org1814110"></a></p>
+</section>
+<section id="pymc3-distributions" class="level1">
+<h1>PyMC3 <code>Distribution</code>s</h1>
+<p>In order to represent <code>Scan</code>s in a PyMC3 model object, we need to automatically construct a PyMC3 <code>Distribution</code> class for the <code>Scan</code>s. The core requirement for that involves the construction of a valid <code>Distribution.logp</code> function, which can now be done using the features introduced in the aforementioned PRs.</p>
+<figure>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="im">from</span> pymc3.distributions.distribution <span class="im">import</span> draw_values, _DrawValuesContext</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a><span class="kw">class</span> YRvDist(pymc3.Distribution):</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, S, lambdas, <span class="op">**</span>kwargs):</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">**</span>kwargs)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a>        <span class="va">self</span>.S <span class="op">=</span> S</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a>        <span class="va">self</span>.lambdas <span class="op">=</span> lambdas</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true"></a>    <span class="kw">def</span> random(<span class="va">self</span>, point<span class="op">=</span><span class="va">None</span>, size<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true"></a>        <span class="cf">with</span> _DrawValuesContext() <span class="im">as</span> draw_context:</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a>            term_smpl <span class="op">=</span> draw_context.drawn_vars.get((<span class="va">self</span>.states, <span class="dv">1</span>), <span class="va">None</span>)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true"></a>            <span class="cf">if</span> term_smpl <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true"></a>                point[<span class="va">self</span>.states.name] <span class="op">=</span> term_smpl</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true"></a></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true"></a>            S, lambdas <span class="op">=</span> draw_values([<span class="va">self</span>.S, <span class="va">self</span>.lambdas], point<span class="op">=</span>point, size<span class="op">=</span>size)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true"></a>            res <span class="op">=</span> hmm_cond_sampler(S, lambdas)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true"></a></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true"></a>        <span class="cf">return</span> res</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true"></a></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true"></a>    <span class="kw">def</span> logp(<span class="va">self</span>, <span class="op">*</span>args):</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true"></a>        <span class="cf">pass</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true"></a></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true"></a></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true"></a><span class="cf">with</span> pm.Model() <span class="im">as</span> test_model:</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true"></a>    S_rv <span class="op">=</span> SRvDist(<span class="st">&quot;S&quot;</span>)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true"></a>    lambdas_rv <span class="op">=</span> LambdasRvDist(<span class="st">&quot;lambdas&quot;</span>)</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true"></a>    Y_rv <span class="op">=</span> YRvDist(<span class="st">&quot;Y&quot;</span>, S_rv, lambdas_rv, observed<span class="op">=</span>y_tt)</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true"></a></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true"></a><span class="cf">with</span> test_model:</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true"></a>    posteriors <span class="op">=</span> pm.sample()</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true"></a></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true"></a><span class="cf">with</span> test_model:</span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true"></a>    pp_trace <span class="op">=</span> pm.sample_posterior_predictive(posteriors, <span class="bu">vars</span><span class="op">=</span>[<span class="st">&#39;Y_rv&#39;</span>])</span></code></pre></div>
+</figure>
+<p>Unfortunately, this approach involves tedious and error-prone duplication and would make the modeling process much more difficult. Alternatively, we can use Theano model graphs to specify models—instead of PyMC3 (and Theano)—and automatically convert them to PyMC3 <code>Model</code> objects only when necessary (e.g. to use NUTS).</p>
+<p><a id="org5dd61b7"></a></p>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+<p>Regarding the compilation of Theano “model graphs” to PyMC3 (i.e. functionality that would allow us to produce posterior predictive samples using Theano while still being able to estimate), I’ve added most of the key functionality in PR <a href="https://github.com/pymc-devs/symbolic-pymc/pull/113">#113</a> and <a href="https://github.com/pymc-devs/symbolic-pymc/pull/114">#114</a>.</p>
+<p>Part of the functionality introduced there allows us to automatically produce new Theano graphs with inputs for each random variable dependency embedded in a <code>Scan</code>. It’s currently being used just to produce the log-likelihood graphs, but it’s also what we need in order to construct a fast Theano <code>function</code> that produces posterior predictive samples. Writing a posterior predictive sampler that does this is the next step.</p>
+<p>The existing <code>symbolic_pymc.theano.pymc3.graph_model</code> function does this for simple Theano model graphs, but it does not work with the <code>Scan</code>s we need to use in order to define time-series model graphs.</p>
+</section>
+<section id="bibliography" class="level1">
+<h1>Bibliography</h1>
+<p><a id="WillardDynamicLinearModels2020"></a> Willard, Dynamic Linear Models in Theano, <i>Brandon T. Willard</i>, (2020). <a href="https://brandonwillard.github.io/dynamic-linear-models-in-theano.html">link</a>. <a href="#a23de30ae46f889e89283d2bc1f0cba0">↩︎</a></p>
+</section>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  CommonHTML: { linebreaks: { automatic: true } },
+  "HTML-CSS": { linebreaks: { automatic: true } },
+  SVG: { linebreaks: { automatic: true } },
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+</body>
+</html>
+
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'brandonwillard-github-io'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "en";
+
+                        this.page.identifier = '2020-08-11-theano-model-graphs';
+                        this.page.url = 'https://brandonwillard.github.io/drafts/theano-model-graphs.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<div id="aboutme">
+        <p>
+            <img width="100%" class="img-thumbnail" src="https://brandonwillard.github.io//images/profile-pic.png"/>
+        </p>
+    <p>
+      <strong>About Brandon T. Willard</strong><br/>
+        applied math/stats person
+    </p>
+</div><!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://github.com/brandonwillard"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="https://scholar.google.com/citations?user=g0oUxG4AAAAJ&hl=en"><i class="ai ai-google-scholar ai-lg"></i> google scholar</a></li>
+    <li class="list-group-item"><a href="https://www.linkedin.com/in/brandon-t-willard-468bb410/"><i class="fa fa-linkedin fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="https://bitbucket.io/brandonwillard"><i class="fa fa-bitbucket-square fa-lg"></i> bitbucket</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Brandon T. Willard
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>                <p><small>  <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by-nc/4.0/80x15.png" /></a>
+    Content
+  licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/deed.en">Creative Commons Attribution-NonCommercial 4.0 International License</a>, except where indicated otherwise.
+</small></p>
+         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://brandonwillard.github.io/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://brandonwillard.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://brandonwillard.github.io/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'brandonwillard-github-io'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-91585967-1', '');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>
