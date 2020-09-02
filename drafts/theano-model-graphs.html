@@ -235,13 +235,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Yes, PyMC3 does use Theano–and, thus, Theano graphs–but it doesn’t explicitly build a graph for the relationships between random variables. In the following, we call such graphs [Theano] <em>sample-space graphs</em> and we’ll show how all the forms of sampling performed by PyMC3 (i.e. prior and posterior predictive) can be implemented using these graphs. We’ll also demonstrate how the log-likelihood graphs currently used by PyMC3 can be constructed from such graphs.</p>
 <p>Before we go any further, let’s look at a simple example of a sample-space graph.</p>
 <div class="example" data-markdown="">
-<p>Consider the model in Equation <span class="math inline">\(\eqref{eq:simple-model}\)</span>.</p>
+<p>Consider the model in Equation .</p>
 <p><span class="math display">\[\begin{equation}
   \label{eq:simple-model}
   Y = a Z + b, \quad Z \sim \operatorname{N}\left( 0, \sigma^2 \right)
   \;,
 \end{equation}\]</span></p>
-<p>Equation <span class="math inline">\(\eqref{eq:simple-model}\)</span> can be represented by the Theano graph in Listing <a href="#org2c5668f">1</a>.</p>
+<p>Equation  can be represented by the Theano graph in Listing <a href="#org2c5668f">1</a>.</p>
 <figure id="org2c5668f">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="im">import</span> theano</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="im">import</span> theano.tensor <span class="im">as</span> tt</span>
@@ -261,7 +261,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 Listing 1
 </figcaption>
 </figure>
-<p>When <span class="math inline">\(Y\)</span> is an observed variable, the Theano graph represented by <code>Y_rv</code> is our sample-space graph of interest. The graph for <code>Z_rv</code> is also a sample-space graph, and, in some cases, we’ll refer to <code>Y_rv</code> as a <em>model graph</em> due to its more direct correspondence to a model of interest (e.g. Equation <span class="math inline">\(\eqref{eq:simple-model}\)</span>).</p>
+<p>When <span class="math inline">\(Y\)</span> is an observed variable, the Theano graph represented by <code>Y_rv</code> is our sample-space graph of interest. The graph for <code>Z_rv</code> is also a sample-space graph, and, in some cases, we’ll refer to <code>Y_rv</code> as a <em>model graph</em> due to its more direct correspondence to a model of interest (e.g. Equation ).</p>
 <p>Naturally, the Theano tensors objects <code>Z_rv</code> and <code>Y_rv</code> are random variables, but–more specifically–the former is a direct output of a <code>RandomVariable</code> operator, while the latter is a function of the aforementioned <code>RandomVariable</code> output. This distinction will be important in what follows, but it suffices to say that both represent random draws from a distribution.</p>
 <p>We can sample either of them–or both–by simply compiling the graphs into functions and evaluating those functions. This is demonstrated in Listing <a href="#orge56924b">2</a>.</p>
 <figure id="orge56924b">
@@ -289,7 +289,7 @@ Listing 2
 </section>
 <section id="the-hidden-markov-model" class="level1">
 <h1>The Hidden Markov Model</h1>
-<p>The model we’ll be focusing on is defined in Equation <span class="math inline">\(\eqref{eq:hmm-model}\)</span>. In it, our observation model–given by <span class="math inline">\(Y_t\)</span>–is an HMM with a single Dirac-delta emission at the point <span class="math inline">\(Y_t = 0\)</span> and Poisson emissions for the remaining states <span class="math inline">\(1 &lt; S_t \leq S\)</span>. It is specified as a mixture, in part to reflect the fact that this sort of “non-homogeneous” emissions model also covers “zero-inflation”. The Markov transitions are driven by a time-varying transition probability matrix in the style of multinomial regression, with a covariate matrix <span class="math inline">\(x_t\)</span> and a corresponding set of parameters <span class="math inline">\(\xi^{(s)}\)</span> for each <span class="math inline">\(s \in \left\{1, \dots, S\right\}\)</span>.</p>
+<p>The model we’ll be focusing on is defined in Equation ). In it, our observation model–given by <span class="math inline">\(Y_t\)</span>–is an HMM with a single Dirac-delta emission at the point <span class="math inline">\(Y_t = 0\)</span> and Poisson emissions for the remaining states <span class="math inline">\(1 &lt; S_t \leq S\)</span>. It is specified as a mixture, in part to reflect the fact that this sort of “non-homogeneous” emissions model also covers “zero-inflation”. The Markov transitions are driven by a time-varying transition probability matrix in the style of multinomial regression, with a covariate matrix <span class="math inline">\(x_t\)</span> and a corresponding set of parameters <span class="math inline">\(\xi^{(s)}\)</span> for each (s {1, , S}.</p>
 <p><span class="math display">\[\begin{equation}
   \label{eq:hmm-model}
   \begin{gathered}
@@ -318,7 +318,7 @@ Listing 2
     s \in \left\{ 1, \dots, S \right\}
   \end{gathered}
 \end{equation}\]</span></p>
-<p>Listings <a href="#org03e006a">4</a> and <a href="#org37d161a">5</a> import the necessary Python libraries and simulate a design matrix, <span class="math inline">\(X\)</span>, with seasonal indicators. Listing <a href="#orgd4f0b0b">6</a> defines the Theano sample-space graph that represents Equation <span class="math inline">\(\eqref{eq:hmm-model}\)</span> under some standard priors for the terms <span class="math inline">\(\lambda^{(s)}\)</span>, <span class="math inline">\(\pi_0\)</span>, <span class="math inline">\(S_0\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\xi^{(s)}\)</span>.</p>
+<p>Listings <a href="#org03e006a">4</a> and <a href="#org37d161a">5</a> import the necessary Python libraries and simulate a design matrix, <span class="math inline">\(X\)</span>, with seasonal indicators. Listing <a href="#orgd4f0b0b">6</a> defines the Theano sample-space graph that represents Equation ) under some standard priors for the terms <span class="math inline">\(\lambda^{(s)}\)</span>, <span class="math inline">\(\pi_0\)</span>, <span class="math inline">\(S_0\)</span>, <span class="math inline">\(\beta\)</span>, and (^{(s)}.</p>
 <figure id="org03e006a">
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>

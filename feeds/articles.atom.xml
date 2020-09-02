@@ -128,7 +128,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \label{eq:basic-dlm-state}
 \end{align}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;for &lt;span class="math inline"&gt;\(t \in \{1, \dots, T\}\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(y_t \in \mathbb{R}\)&lt;/span&gt;, and &lt;span class="math inline"&gt;\(\theta_t \in \mathbb{R}^{M}\)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;The most “notationally” faithful representation of the timeseries model in &lt;span class="math inline"&gt;\(\eqref{eq:basic-dlm-state}\)&lt;/span&gt; using Theano is provided in Listing &lt;a href="#orge6ada13"&gt;2&lt;/a&gt;. It represents the notion of a recursion–to the best of Theano’s ability–by way of the &lt;code&gt;scan&lt;/code&gt; operator.&lt;/p&gt;
+&lt;p&gt;The most “notationally” faithful representation of the timeseries model in  using Theano is provided in Listing &lt;a href="#orge6ada13"&gt;2&lt;/a&gt;. It represents the notion of a recursion–to the best of Theano’s ability–by way of the &lt;code&gt;scan&lt;/code&gt; operator.&lt;/p&gt;
 &lt;figure&gt;
 &lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb1-1"&gt;&lt;a href="#cb1-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; numpy &lt;span class="im"&gt;as&lt;/span&gt; np&lt;/span&gt;
 &lt;span id="cb1-2"&gt;&lt;a href="#cb1-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
@@ -216,7 +216,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 Listing 2
 &lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p&gt;Throughout we’ll use data sampled from &lt;span class="math inline"&gt;\(\eqref{eq:basic-dlm-state}\)&lt;/span&gt; for demonstration purposes. Our simulation has the following model parameter values:&lt;/p&gt;
+&lt;p&gt;Throughout we’ll use data sampled from  for demonstration purposes. Our simulation has the following model parameter values:&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   \begin{gathered}
     T = 200,\quad M = 2
@@ -243,7 +243,7 @@ Listing 2
   \end{gathered}
   \label{eq:sim-settings}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;A sample from &lt;span class="math inline"&gt;\(\eqref{eq:sim-settings}\)&lt;/span&gt; is generated in Listing &lt;a href="#org721f0b8"&gt;3&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;A sample from  is generated in Listing &lt;a href="#org721f0b8"&gt;3&lt;/a&gt;.&lt;/p&gt;
 &lt;figure id="org721f0b8"&gt;
 &lt;div class="sourceCode" id="cb3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb3-1"&gt;&lt;a href="#cb3-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano &lt;span class="im"&gt;import&lt;/span&gt; function &lt;span class="im"&gt;as&lt;/span&gt; tt_function&lt;/span&gt;
 &lt;span id="cb3-2"&gt;&lt;a href="#cb3-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
@@ -337,8 +337,8 @@ Listing 4
 &lt;/section&gt;
 &lt;section id="posterior-estimation" class="level1"&gt;
 &lt;h1&gt;Posterior Estimation&lt;/h1&gt;
-&lt;p&gt;In Listings &lt;a href="#org224c0e5"&gt;6&lt;/a&gt; and &lt;a href="#org911f8da"&gt;7&lt;/a&gt;, we demonstrate how the posterior moments in &lt;span class="math inline"&gt;\(\eqref{eq:dlm-post-moments}\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\eqref{eq:dlm-smooth-moments}\)&lt;/span&gt; can be computed in Theano.&lt;/p&gt;
-&lt;p&gt;Unfortunately, if we attempt to implement the exact closed-form updates in &lt;span class="math inline"&gt;\(\eqref{eq:dlm-post-moments}\)&lt;/span&gt; or &lt;span class="math inline"&gt;\(\eqref{eq:dlm-smooth-moments}\)&lt;/span&gt;, our results will be fraught with numerical errors. This is a very basic issue with naively implemented Kalman filters. The solution to these issues usually involves some analytic reformulations that compensate for the covariance matrix subtractions. The standard approaches generally use some form of matrix decomposition that directly accounts for the positive semi-definite nature of the covariance matrices.&lt;/p&gt;
+&lt;p&gt;In Listings &lt;a href="#org224c0e5"&gt;6&lt;/a&gt; and &lt;a href="#org911f8da"&gt;7&lt;/a&gt;, we demonstrate how the posterior moments in  and  can be computed in Theano.&lt;/p&gt;
+&lt;p&gt;Unfortunately, if we attempt to implement the exact closed-form updates in  or , our results will be fraught with numerical errors. This is a very basic issue with naively implemented Kalman filters. The solution to these issues usually involves some analytic reformulations that compensate for the covariance matrix subtractions. The standard approaches generally use some form of matrix decomposition that directly accounts for the positive semi-definite nature of the covariance matrices.&lt;/p&gt;
 &lt;p&gt;The approach taken here is based on the singular value decomposition (SVD) and effectively computes only one symmetric “half” of the updated covariances. The SVD also allows for easy inversions. See &lt;a id="0ae04c048b20d07f32d7f0f75bb51483"&gt;&lt;a href="#ZhangFixedintervalsmoothingalgorithm1996"&gt;Zhang &amp;amp; Li (1996)&lt;/a&gt;&lt;/a&gt; for more details, or &lt;a id="3a4d89388a434d7b1b91dc8690f3a03b"&gt;&lt;a href="#PetrisDynamiclinearmodels2009"&gt;Petris, Petrone &amp;amp; Campagnoli (2009)&lt;/a&gt;&lt;/a&gt; for a concise overview of the procedure in the context of DLMs.&lt;/p&gt;
 &lt;figure&gt;
 &lt;div class="sourceCode" id="cb5"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb5-1"&gt;&lt;a href="#cb5-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; warnings&lt;/span&gt;
@@ -372,7 +372,7 @@ Listing 4
 &lt;p&gt;&lt;a id="org1d9986d"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section id="svd-based-filtering" class="level2"&gt;
 &lt;h2&gt;SVD-based Filtering&lt;/h2&gt;
-&lt;p&gt;The SVD forms of the filtering equations in &lt;span class="math inline"&gt;\(\eqref{eq:dlm-post-moments}\)&lt;/span&gt; are produced through creative use of the SVDs of its component matrices. Using a slightly modified version of the formulation established in &lt;a id="3a4d89388a434d7b1b91dc8690f3a03b"&gt;&lt;a href="#PetrisDynamiclinearmodels2009"&gt;Petris, Petrone &amp;amp; Campagnoli (2009)&lt;/a&gt;&lt;/a&gt;, the SVD for a matrix &lt;span class="math inline"&gt;\(M\)&lt;/span&gt; is given by &lt;span class="math inline"&gt;\(M = U_{M} D_{M} V_{M}^\top\)&lt;/span&gt;. A symmetric matrix then takes the form &lt;span class="math inline"&gt;\(M = U_{M} D_{M} U_{M}^\top\)&lt;/span&gt; and its “square-root” is given by &lt;span class="math inline"&gt;\(M = N_M^\top N_M\)&lt;/span&gt; with &lt;span class="math inline"&gt;\(N_M = S_{M} U_{M}^\top\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(S_{M} = D_{M}^{1/2}\)&lt;/span&gt;. Likewise, matrix (generalized) inverses take the form &lt;span class="math inline"&gt;\(M^{-1} = U_{M} S_{M}^{-1} U_{M}^\top\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;The SVD forms of the filtering equations in  are produced through creative use of the SVDs of its component matrices. Using a slightly modified version of the formulation established in &lt;a id="3a4d89388a434d7b1b91dc8690f3a03b"&gt;&lt;a href="#PetrisDynamiclinearmodels2009"&gt;Petris, Petrone &amp;amp; Campagnoli (2009)&lt;/a&gt;&lt;/a&gt;, the SVD for a matrix &lt;span class="math inline"&gt;\(M\)&lt;/span&gt; is given by &lt;span class="math inline"&gt;\(M = U_{M} D_{M} V_{M}^\top\)&lt;/span&gt;. A symmetric matrix then takes the form &lt;span class="math inline"&gt;\(M = U_{M} D_{M} U_{M}^\top\)&lt;/span&gt; and its “square-root” is given by &lt;span class="math inline"&gt;\(M = N_M^\top N_M\)&lt;/span&gt; with &lt;span class="math inline"&gt;\(N_M = S_{M} U_{M}^\top\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(S_{M} = D_{M}^{1/2}\)&lt;/span&gt;. Likewise, matrix (generalized) inverses take the form &lt;span class="math inline"&gt;\(M^{-1} = U_{M} S_{M}^{-1} U_{M}^\top\)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;The idea here is that we can combine these SVD identities to derive square-root relationship between the SVD of &lt;span class="math inline"&gt;\(C_t^{-1}\)&lt;/span&gt; and the SVDs of &lt;span class="math inline"&gt;\(C_{t-1}\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(W_t\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(V_t\)&lt;/span&gt;, and &lt;span class="math inline"&gt;\(R_t\)&lt;/span&gt;, then we can easily invert &lt;span class="math inline"&gt;\(C_t^{-1}\)&lt;/span&gt; to arrive at the desired numerically stable SVD of &lt;span class="math inline"&gt;\(C_t\)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;First, note that &lt;span class="math inline"&gt;\(N_{R_t}^\top N_{R_t} = G_t C_{t-1} G_t^\top + W_t = R_t\)&lt;/span&gt; for&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
@@ -483,7 +483,7 @@ Listing 6
 &lt;/section&gt;
 &lt;section id="svd-based-smoothing" class="level2"&gt;
 &lt;h2&gt;SVD-based Smoothing&lt;/h2&gt;
-&lt;p&gt;We can use the techniques above to produce SVD versions of the smoothing equations in &lt;span class="math inline"&gt;\(\eqref{eq:dlm-smooth-moments}\)&lt;/span&gt;. In this case, some extra steps are required in order to SVD-decompose &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt; in the same manner as &lt;span class="math inline"&gt;\(R_t\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(C_t^{-1}\)&lt;/span&gt; were.&lt;/p&gt;
+&lt;p&gt;We can use the techniques above to produce SVD versions of the smoothing equations in . In this case, some extra steps are required in order to SVD-decompose &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt; in the same manner as &lt;span class="math inline"&gt;\(R_t\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(C_t^{-1}\)&lt;/span&gt; were.&lt;/p&gt;
 &lt;p&gt;First, notice that our target, &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt;, is a difference of matrices, unlike the matrix sums that comprised &lt;span class="math inline"&gt;\(R_t\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(C_t^{-1}\)&lt;/span&gt; above. Furthermore, &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt; is given as a difference of a (transformed) difference. To address the latter, we start by expanding &lt;span class="math inline"&gt;\(S_t\)&lt;/span&gt; and setting &lt;span class="math inline"&gt;\(B_t = C_t G_{t+1}^\top R_{t+1}^{-1}\)&lt;/span&gt; to obtain&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   \begin{aligned}
@@ -520,7 +520,7 @@ Listing 6
   \label{eq:N_H_t_inv}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;By inverting the SVD of &lt;span class="math inline"&gt;\(N_{H_t}^{-1}\)&lt;/span&gt; we obtain the SVD of &lt;span class="math inline"&gt;\(H_t\)&lt;/span&gt; as &lt;span class="math inline"&gt;\(U_{H_t} = U_{C_t} V_{N_{H_t}^{-1}}\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(D_{H_t} = {D_{N_{H_t}^{-1}}}^{-2} = S_{H_t}^2\)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;Finally, using &lt;span class="math inline"&gt;\(\eqref{eq:S_t_decomp}\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\eqref{eq:N_H_t_inv}\)&lt;/span&gt; we can derive the last blocked square-root decomposition &lt;span class="math inline"&gt;\(S_t = N_{S_t}^\top N_{S_t}\)&lt;/span&gt;:&lt;/p&gt;
+&lt;p&gt;Finally, using  and  we can derive the last blocked square-root decomposition &lt;span class="math inline"&gt;\(S_t = N_{S_t}^\top N_{S_t}\)&lt;/span&gt;:&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   \begin{aligned}
     N_{S_t} &amp;amp;=
@@ -669,7 +669,7 @@ Filtered and smoothed &lt;span class="math inline"&gt;\(\theta_t\)&lt;/span&gt;�
   \end{gathered}
   \label{eq:ffbs-moments}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Since all the quantities in &lt;span class="math inline"&gt;\(\eqref{eq:ffbs-moments}\)&lt;/span&gt; appear in the filtering and smoothing moments, we can use the SVD-based approach described earlier to perform the updates and sampling. We reproduce the relevant subset of calculations in Listing &lt;a href="#org6d942a3"&gt;10&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Since all the quantities in  appear in the filtering and smoothing moments, we can use the SVD-based approach described earlier to perform the updates and sampling. We reproduce the relevant subset of calculations in Listing &lt;a href="#org6d942a3"&gt;10&lt;/a&gt;.&lt;/p&gt;
 &lt;figure id="org6d942a3"&gt;
 &lt;div class="sourceCode" id="cb10"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb10-1"&gt;&lt;a href="#cb10-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="kw"&gt;def&lt;/span&gt; ffbs_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, theta_tp1, F_tp1, G_tp1, N_W_tp1_inv, rng):&lt;/span&gt;
 &lt;span id="cb10-2"&gt;&lt;a href="#cb10-2" aria-hidden="true"&gt;&lt;/a&gt;    &lt;span class="co"&gt;&amp;quot;&amp;quot;&amp;quot;Perform forward-filtering backward-sampling.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;/span&gt;
@@ -945,7 +945,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 &lt;/section&gt;
 &lt;section id="non-gaussian-extension" class="level1"&gt;
 &lt;h1&gt;Non-Gaussian Extension&lt;/h1&gt;
-&lt;p&gt;Let’s say we want to model count observations that are driven by a smooth time-varying process. We can assume a negative-binomial observation model with a log-link function–in standard GLM fashion &lt;a id="820d466dbb5494bd5a5cb080d0b82638"&gt;&lt;a href="#mccullagh_generalized_1989"&gt;(McCullagh &amp;amp; Nelder 1989)&lt;/a&gt;&lt;/a&gt;–and connect it to the same state and observation dynamics as the basic DLM in &lt;span class="math inline"&gt;\(\eqref{eq:basic-dlm-state}\)&lt;/span&gt; via its mean &lt;span class="math inline"&gt;\(\mu_t = \exp\left(\eta_t\right)\)&lt;/span&gt;:&lt;/p&gt;
+&lt;p&gt;Let’s say we want to model count observations that are driven by a smooth time-varying process. We can assume a negative-binomial observation model with a log-link function–in standard GLM fashion &lt;a id="820d466dbb5494bd5a5cb080d0b82638"&gt;&lt;a href="#mccullagh_generalized_1989"&gt;(McCullagh &amp;amp; Nelder 1989)&lt;/a&gt;&lt;/a&gt;–and connect it to the same state and observation dynamics as the basic DLM in  via its mean &lt;span class="math inline"&gt;\(\mu_t = \exp\left(\eta_t\right)\)&lt;/span&gt;:&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   \begin{aligned}
     Y_t &amp;amp;\sim \operatorname{NB}\left(r, p_t\right)
@@ -978,7 +978,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
   \end{aligned}
 \label{eq:nb-pmf}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;The logit-inverse form in &lt;span class="math inline"&gt;\(\eqref{eq:nb-pmf}\)&lt;/span&gt; has a Gaussian scale-mixture representation in the Pólya-Gamma distribution &lt;a id="2776c69c558410bc65a3a0a0f1ff5bf4"&gt;&lt;a href="#polson_bayesian_2013"&gt;(Polson, Scott &amp;amp; Windle 2013)&lt;/a&gt;&lt;/a&gt;. Said scale-mixture is as follows:&lt;/p&gt;
+&lt;p&gt;The logit-inverse form in  has a Gaussian scale-mixture representation in the Pólya-Gamma distribution &lt;a id="2776c69c558410bc65a3a0a0f1ff5bf4"&gt;&lt;a href="#polson_bayesian_2013"&gt;(Polson, Scott &amp;amp; Windle 2013)&lt;/a&gt;&lt;/a&gt;. Said scale-mixture is as follows:&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   \begin{aligned}
     \frac{e^{\psi a}}{\left(1 + e^{\psi}\right)^b} &amp;amp;=
@@ -992,7 +992,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 \label{eq:pg-identity}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;where &lt;span class="math inline"&gt;\(\kappa = a - b / 2\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\omega_t \sim \operatorname{PG}\left(b, 0\right)\)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;When the Gaussian scale-mixture identity of &lt;span class="math inline"&gt;\(\eqref{eq:pg-identity}\)&lt;/span&gt; is applied to our observation model in &lt;span class="math inline"&gt;\(\eqref{eq:nb-pmf}\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(a = y_t\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(b = r + y_t\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(\kappa = (y_t - r)/2\)&lt;/span&gt;, and &lt;span class="math inline"&gt;\(\psi = \eta_t - \log r\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;When the Gaussian scale-mixture identity of  is applied to our observation model in , &lt;span class="math inline"&gt;\(a = y_t\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(b = r + y_t\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(\kappa = (y_t - r)/2\)&lt;/span&gt;, and &lt;span class="math inline"&gt;\(\psi = \eta_t - \log r\)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;From the scale mixture formulation, we obtain the following augmented joint observation model density:&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   \begin{aligned}
@@ -1010,7 +1010,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 \label{eq:nb-aug-obs}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;where &lt;span class="math inline"&gt;\(y^*_t = \log r + \frac{y_t - r}{2 \omega}\)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;The reformulation at the end of &lt;span class="math inline"&gt;\(\eqref{eq:nb-aug-obs}\)&lt;/span&gt; characterizes a distribution of “virtual” observations,&lt;/p&gt;
+&lt;p&gt;The reformulation at the end of  characterizes a distribution of “virtual” observations,&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
   y^*_t = F_t^\top \theta_t + \epsilon^*_t,\quad
   \epsilon^*_t \sim \operatorname{N}\left(0, V^*_t \right)
@@ -1018,11 +1018,11 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
   \label{eq:nb-virtual-obs}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;with &lt;span class="math inline"&gt;\(V_t = \operatorname{diag}\left( \omega^{-1}_t \right)\)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;The augmented observation equation in &lt;span class="math inline"&gt;\(\eqref{eq:nb-virtual-obs}\)&lt;/span&gt; recovers our original DLM formulation in &lt;span class="math inline"&gt;\(\eqref{eq:basic-dlm-obs}\)&lt;/span&gt; and–by comparison–details the changes needed to use the Pólya-Gamma scale-mixture. Specifically, we need to sample &lt;span class="math inline"&gt;\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)&lt;/span&gt; and perform the following substitutions: &lt;span class="math inline"&gt;\(y_t \to y^*_t\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(V_t \to V^*_t\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;The augmented observation equation in  recovers our original DLM formulation in  and–by comparison–details the changes needed to use the Pólya-Gamma scale-mixture. Specifically, we need to sample &lt;span class="math inline"&gt;\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)&lt;/span&gt; and perform the following substitutions: &lt;span class="math inline"&gt;\(y_t \to y^*_t\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(V_t \to V^*_t\)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;a id="orgeef4d98"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section id="simulation-example-1" class="level2"&gt;
 &lt;h2&gt;Simulation Example&lt;/h2&gt;
-&lt;p&gt;Listing &lt;a href="#orga5ba480"&gt;17&lt;/a&gt; creates a Theano graph for negative-binomial model defined in &lt;span class="math inline"&gt;\(\eqref{eq:nb-dlm}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Listing &lt;a href="#orga5ba480"&gt;17&lt;/a&gt; creates a Theano graph for negative-binomial model defined in .&lt;/p&gt;
 &lt;figure id="orga5ba480"&gt;
 &lt;div class="sourceCode" id="cb17"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb17-1"&gt;&lt;a href="#cb17-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;from&lt;/span&gt; symbolic_pymc.theano.random_variables &lt;span class="im"&gt;import&lt;/span&gt; NegBinomialRV&lt;/span&gt;
 &lt;span id="cb17-2"&gt;&lt;a href="#cb17-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
@@ -1051,7 +1051,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 Listing 17
 &lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p&gt;Listing &lt;a href="#org1bd6385"&gt;18&lt;/a&gt; specifies parameters for a simulation from &lt;span class="math inline"&gt;\(\eqref{eq:nb-dlm}\)&lt;/span&gt; and samples a series.&lt;/p&gt;
+&lt;p&gt;Listing &lt;a href="#org1bd6385"&gt;18&lt;/a&gt; specifies parameters for a simulation from  and samples a series.&lt;/p&gt;
 &lt;figure id="org1bd6385"&gt;
 &lt;div class="sourceCode" id="cb18"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb18-1"&gt;&lt;a href="#cb18-1" aria-hidden="true"&gt;&lt;/a&gt;nb_dlm_sim_values &lt;span class="op"&gt;=&lt;/span&gt; dlm_sim_values.copy()&lt;/span&gt;
 &lt;span id="cb18-2"&gt;&lt;a href="#cb18-2" aria-hidden="true"&gt;&lt;/a&gt;nb_dlm_sim_values[F_tt] &lt;span class="op"&gt;=&lt;/span&gt; np.array([[&lt;span class="fl"&gt;1.0&lt;/span&gt;],&lt;/span&gt;
@@ -1094,9 +1094,9 @@ Listing 19
 &lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;figure id="nil" class="plot"&gt;
-&lt;img src="https://brandonwillard.github.io/figures/nb-dlm-sim-plot.png" title="fig:" alt="A series sampled from our negative-binomial model defined in \eqref{eq:nb-dlm}. " /&gt;
+&lt;img src="https://brandonwillard.github.io/figures/nb-dlm-sim-plot.png" title="fig:" alt="A series sampled from our negative-binomial model defined in ). " /&gt;
 &lt;figcaption&gt;
-A series sampled from our negative-binomial model defined in &lt;span class="math inline"&gt;\(\eqref{eq:nb-dlm}\)&lt;/span&gt;.
+A series sampled from our negative-binomial model defined in (.
 &lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;figure&gt;
@@ -1117,9 +1117,9 @@ A series sampled from our negative-binomial model defined in &lt;span class="mat
 &lt;span id="cb20-15"&gt;&lt;a href="#cb20-15" aria-hidden="true"&gt;&lt;/a&gt;plt.legend(framealpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.4&lt;/span&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/figure&gt;
 &lt;figure id="nil" class="plot"&gt;
-&lt;img src="https://brandonwillard.github.io/figures/nb-theta-sim-plot.png" title="fig:" alt="Simulated \theta_t values from \eqref{eq:nb-dlm}. " /&gt;
+&lt;img src="https://brandonwillard.github.io/figures/nb-theta-sim-plot.png" title="fig:" alt="Simulated \theta_t values from ). " /&gt;
 &lt;figcaption&gt;
-Simulated &lt;span class="math inline"&gt;\(\theta_t\)&lt;/span&gt; values from &lt;span class="math inline"&gt;\(\eqref{eq:nb-dlm}\)&lt;/span&gt;.
+Simulated &lt;span class="math inline"&gt;\(\theta_t\)&lt;/span&gt; values from (.
 &lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;figure&gt;
@@ -1133,9 +1133,9 @@ Simulated &lt;span class="math inline"&gt;\(\theta_t\)&lt;/span&gt; values from 
 &lt;span id="cb21-8"&gt;&lt;a href="#cb21-8" aria-hidden="true"&gt;&lt;/a&gt;plt.legend(framealpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.4&lt;/span&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/figure&gt;
 &lt;figure id="nil" class="plot"&gt;
-&lt;img src="https://brandonwillard.github.io/figures/nb-p-sim-plot.png" title="fig:" alt="Simulated p_t \mid \theta_t values from \eqref{eq:nb-dlm}. " /&gt;
+&lt;img src="https://brandonwillard.github.io/figures/nb-p-sim-plot.png" title="fig:" alt="Simulated p_t \mid \theta_t values from ). " /&gt;
 &lt;figcaption&gt;
-Simulated &lt;span class="math inline"&gt;\(p_t \mid \theta_t\)&lt;/span&gt; values from &lt;span class="math inline"&gt;\(\eqref{eq:nb-dlm}\)&lt;/span&gt;.
+Simulated &lt;span class="math inline"&gt;\(p_t \mid \theta_t\)&lt;/span&gt; values from (.
 &lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;p&gt;&lt;a id="orgd705951"&gt;&lt;/a&gt;&lt;/p&gt;
@@ -1143,7 +1143,7 @@ Simulated &lt;span class="math inline"&gt;\(p_t \mid \theta_t\)&lt;/span&gt; val
 &lt;/section&gt;
 &lt;section id="augmented-ffbs-sampler" class="level1"&gt;
 &lt;h1&gt;Augmented FFBS Sampler&lt;/h1&gt;
-&lt;p&gt;In order to create a FFBS sampler for our Pólya-Gamma DLM in &lt;span class="math inline"&gt;\(\eqref{eq:nb-aug-obs}\)&lt;/span&gt;, we need to update the filtering code to use time-varying “virtual” observation variances, &lt;span class="math inline"&gt;\(V^*_t\)&lt;/span&gt;. After this change is made, all Theano graphs that depend on the resulting objects need to be recreated, as well. This is done in Listing &lt;a href="#org6e0be06"&gt;22&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In order to create a FFBS sampler for our Pólya-Gamma DLM in , we need to update the filtering code to use time-varying “virtual” observation variances, &lt;span class="math inline"&gt;\(V^*_t\)&lt;/span&gt;. After this change is made, all Theano graphs that depend on the resulting objects need to be recreated, as well. This is done in Listing &lt;a href="#org6e0be06"&gt;22&lt;/a&gt;.&lt;/p&gt;
 &lt;figure id="org6e0be06"&gt;
 &lt;div class="sourceCode" id="cb22"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb22-1"&gt;&lt;a href="#cb22-1" aria-hidden="true"&gt;&lt;/a&gt;V_t_tt &lt;span class="op"&gt;=&lt;/span&gt; tt.specify_shape(tt.col(), [N_obs_tt, &lt;span class="dv"&gt;1&lt;/span&gt;])&lt;/span&gt;
 &lt;span id="cb22-2"&gt;&lt;a href="#cb22-2" aria-hidden="true"&gt;&lt;/a&gt;V_t_tt.name &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;V_t&amp;#39;&lt;/span&gt;&lt;/span&gt;
@@ -1454,7 +1454,7 @@ COVID–19 positive test counts in NY
   \label{eq:ny-model-settings}
   \;.
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Again, we set &lt;span class="math inline"&gt;\(r = 1000\)&lt;/span&gt;, effectively making our negative-binomial a Poisson approximation. Listing &lt;a href="#org2352b66"&gt;31&lt;/a&gt; sets the initial values in &lt;span class="math inline"&gt;\(\eqref{eq:ny-model-settings}\)&lt;/span&gt; and Listing &lt;a href="#orgde4fb94"&gt;32&lt;/a&gt; specifies the sampler loop.&lt;/p&gt;
+&lt;p&gt;Again, we set &lt;span class="math inline"&gt;\(r = 1000\)&lt;/span&gt;, effectively making our negative-binomial a Poisson approximation. Listing &lt;a href="#org2352b66"&gt;31&lt;/a&gt; sets the initial values in  and Listing &lt;a href="#orgde4fb94"&gt;32&lt;/a&gt; specifies the sampler loop.&lt;/p&gt;
 &lt;figure id="org2352b66"&gt;
 &lt;div class="sourceCode" id="cb31"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb31-1"&gt;&lt;a href="#cb31-1" aria-hidden="true"&gt;&lt;/a&gt;nb_dlm_ny_values &lt;span class="op"&gt;=&lt;/span&gt; {&lt;/span&gt;
 &lt;span id="cb31-2"&gt;&lt;a href="#cb31-2" aria-hidden="true"&gt;&lt;/a&gt;    N_obs_tt: counts.new_positive_tests.shape[&lt;span class="dv"&gt;0&lt;/span&gt;],&lt;/span&gt;
@@ -1925,7 +1925,7 @@ Listing 9
   \end{gathered}
 \label{eq:model-2}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Models &lt;span class="math inline"&gt;\(\eqref{eq:model-1}\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\eqref{eq:model-2}\)&lt;/span&gt; are represented in (log) measure space, respectively, as follows:&lt;/p&gt;
+&lt;p&gt;Models ) and ( are represented in (log) measure space, respectively, as follows:&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{align}
     \log p(Y, X) &amp;amp;= \log P(Y\mid X) + \log P(X)
     \nonumber
@@ -1938,14 +1938,14 @@ Listing 9
   \label{eq:log-model-2}
   \;.
 \end{align}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Via term rewriting, Equation &lt;span class="math inline"&gt;\(\eqref{eq:log-model-2}\)&lt;/span&gt; is produced–in part–by applying the replacement rule &lt;span class="math inline"&gt;\(x \to \mu + \tau \cdot \tilde{x}\)&lt;/span&gt; to Equation &lt;span class="math inline"&gt;\(\eqref{eq:log-model-1}\)&lt;/span&gt;, i.e.&lt;/p&gt;
+&lt;p&gt;Via term rewriting, Equation ) is produced–in part–by applying the replacement rule &lt;span class="math inline"&gt;\(x \to \mu + \tau \cdot \tilde{x}\)&lt;/span&gt; to Equation (, i.e.&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{align*}
 \tilde{C} - \frac{1}{2} \left(\frac{y}{\sigma} - \frac{\mu + \tau \cdot \tilde{x}}{\sigma}\right)^2 -
   \frac{1}{2} \left(\frac{\mu + \tau \cdot \tilde{x}}{\tau} - \frac{\mu}{\tau}\right)^2
 \;.
 \end{align*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;For consistency, the transform must also be applied to the &lt;span class="math inline"&gt;\(dx\)&lt;/span&gt; term where/when-ever it is considered.&lt;/p&gt;
-&lt;p&gt;After a few algebraic simplifications, one obtains the exact form of Equation &lt;span class="math inline"&gt;\(\eqref{eq:log-model-2}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;After a few algebraic simplifications, one obtains the exact form of Equation .&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="creating-the-minikanren-goals" class="level1"&gt;
 &lt;h1&gt;Creating the miniKanren Goals&lt;/h1&gt;
@@ -5135,7 +5135,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   Z = X + Y \sim N\left(1, \frac32\right)
   \label{eq:norm_conv_model}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Using PyMC3, the model for Equation &lt;span class="math inline"&gt;\(\eqref{eq:norm_conv_model}\)&lt;/span&gt; is constructed as follows:&lt;/p&gt;
+&lt;p&gt;Using PyMC3, the model for Equation  is constructed as follows:&lt;/p&gt;
 &lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb1-1"&gt;&lt;a href="#cb1-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; sys&lt;/span&gt;
 &lt;span id="cb1-2"&gt;&lt;a href="#cb1-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; os&lt;/span&gt;
 &lt;span id="cb1-3"&gt;&lt;a href="#cb1-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
@@ -5166,7 +5166,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;span id="cb2-12"&gt;&lt;a href="#cb2-12" aria-hidden="true"&gt;&lt;/a&gt;    X_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;X_rv&amp;#39;&lt;/span&gt;, mu_X, sd&lt;span class="op"&gt;=&lt;/span&gt;sd_X, shape&lt;span class="op"&gt;=&lt;/span&gt;(&lt;span class="dv"&gt;1&lt;/span&gt;,))&lt;/span&gt;
 &lt;span id="cb2-13"&gt;&lt;a href="#cb2-13" aria-hidden="true"&gt;&lt;/a&gt;    Y_rv &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;#39;Y_rv&amp;#39;&lt;/span&gt;, mu_Y, sd&lt;span class="op"&gt;=&lt;/span&gt;sd_Y, shape&lt;span class="op"&gt;=&lt;/span&gt;(&lt;span class="dv"&gt;1&lt;/span&gt;,))&lt;/span&gt;
 &lt;span id="cb2-14"&gt;&lt;a href="#cb2-14" aria-hidden="true"&gt;&lt;/a&gt;    Z_rv &lt;span class="op"&gt;=&lt;/span&gt; X_rv &lt;span class="op"&gt;+&lt;/span&gt; Y_rv&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;The Python objects representing terms in &lt;span class="math inline"&gt;\(\eqref{eq:norm_conv_model}\)&lt;/span&gt; are &lt;code&gt;X_rv&lt;/code&gt;, &lt;code&gt;Y_rv&lt;/code&gt;, and &lt;code&gt;Z_rv&lt;/code&gt; in &lt;a href="#pymc3_model"&gt;pymc3_model&lt;/a&gt;. Those terms together form a Theano graph for the entirety of &lt;span class="math inline"&gt;\(\eqref{eq:norm_conv_model}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;The Python objects representing terms in ) are &lt;code&gt;X_rv&lt;/code&gt;, &lt;code&gt;Y_rv&lt;/code&gt;, and &lt;code&gt;Z_rv&lt;/code&gt; in &lt;a href="#pymc3_model"&gt;pymc3_model&lt;/a&gt;. Those terms together form a Theano graph for the entirety of (.&lt;/p&gt;
 &lt;p&gt;Other aspects of the model are implicitly stored in the &lt;a href="https://docs.python.org/3.6/reference/compound_stmts.html#with"&gt;Python context object&lt;/a&gt; &lt;code&gt;conv_model&lt;/code&gt;. For example, the context object tracks the model’s log likelihood function when some variables are designated as “observed”–i.e. associated with sample data. In this example, we haven’t specified an observed variable, so the context object won’t be immediately useful.&lt;/p&gt;
 &lt;div class="remark" data-markdown=""&gt;
 &lt;p&gt;In what follows, we’ll briefly introduce the internal aspects of PyMC3 that are immediately relevant for the topics addressed here; otherwise, see &lt;a href="https://docs.pymc.io/developer_guide.html"&gt;the PyMC3 developer’s guide&lt;/a&gt; for an explanation of its design and internal workings.&lt;/p&gt;
@@ -5203,7 +5203,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;/section&gt;
 &lt;section id="random-variables-in-graphs" class="level1"&gt;
 &lt;h1&gt;Random Variables in Graphs&lt;/h1&gt;
-&lt;p&gt;The Theano graph representing &lt;span class="math inline"&gt;\(\eqref{eq:norm_conv_model}\)&lt;/span&gt; consists of linear/tensor algebra operations–under the interface of &lt;code&gt;theano.gof.op.Op&lt;/code&gt;–on &lt;code&gt;TensorVariable&lt;/code&gt;s. For our example in &lt;a href="#pymc3_model"&gt;pymc3_model&lt;/a&gt;, a textual representation is given in &lt;a href="#Z_rv_debugprint"&gt;Z_rv_debugprint&lt;/a&gt; and a graphical form in &lt;a href="#fig:norm_sum_graph"&gt;fig:norm_sum_graph&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The Theano graph representing  consists of linear/tensor algebra operations–under the interface of &lt;code&gt;theano.gof.op.Op&lt;/code&gt;–on &lt;code&gt;TensorVariable&lt;/code&gt;s. For our example in &lt;a href="#pymc3_model"&gt;pymc3_model&lt;/a&gt;, a textual representation is given in &lt;a href="#Z_rv_debugprint"&gt;Z_rv_debugprint&lt;/a&gt; and a graphical form in &lt;a href="#fig:norm_sum_graph"&gt;fig:norm_sum_graph&lt;/a&gt;.&lt;/p&gt;
 &lt;div class="sourceCode" id="cb7"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb7-1"&gt;&lt;a href="#cb7-1" aria-hidden="true"&gt;&lt;/a&gt;tt.printing.debugprint(Z_rv)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;pre class="text"&gt;&lt;code&gt;Elemwise{add,no_inplace} [id A] &amp;#39;&amp;#39;
  |X_rv [id B]
@@ -5745,7 +5745,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     \;.
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;/div&gt;
-&lt;p&gt;Inspired by Equation &lt;span class="math inline"&gt;\(\eqref{eq:lasso}\)&lt;/span&gt;, we produce a toy dataset as follows:&lt;/p&gt;
+&lt;p&gt;Inspired by Equation , we produce a toy dataset as follows:&lt;/p&gt;
 &lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb1-1"&gt;&lt;a href="#cb1-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;from&lt;/span&gt; theano &lt;span class="im"&gt;import&lt;/span&gt; shared &lt;span class="im"&gt;as&lt;/span&gt; tt_shared&lt;/span&gt;
 &lt;span id="cb1-2"&gt;&lt;a href="#cb1-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
 &lt;span id="cb1-3"&gt;&lt;a href="#cb1-3" aria-hidden="true"&gt;&lt;/a&gt;M &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="dv"&gt;50&lt;/span&gt;&lt;/span&gt;
@@ -6013,7 +6013,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;span id="cb10-10"&gt;&lt;a href="#cb10-10" aria-hidden="true"&gt;&lt;/a&gt;pg_ls_data &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pg_est_data)&lt;/span&gt;
 &lt;span id="cb10-11"&gt;&lt;a href="#cb10-11" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# pg_ls_data = pg_ls_data.append(pg_est_data, ignore_index=True)&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:pg_ls_plot"&gt;&lt;span id="fig:pg_ls_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{1}\label{fig:pg_ls_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_ls_plot_1.png" title="fig:" alt="Minimization by proximal gradient with backtracking line-search." /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_ls_plot}\)&lt;/span&gt; shows a couple convergence measures for proximal gradient steps alongside the step size changes due to backtracking line-search. Regarding the latter, in our example a sufficient step size is found within the first few iterations, so the overall result isn’t too interesting. Fortunately, this sort of behaviour isn’t uncommon, which makes line-search quite effective in practice.&lt;/p&gt;
+&lt;p&gt;Figure  shows a couple convergence measures for proximal gradient steps alongside the step size changes due to backtracking line-search. Regarding the latter, in our example a sufficient step size is found within the first few iterations, so the overall result isn’t too interesting. Fortunately, this sort of behaviour isn’t uncommon, which makes line-search quite effective in practice.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="coordinate-wise-estimation" class="level1"&gt;
 &lt;h1&gt;Coordinate-wise Estimation&lt;/h1&gt;
@@ -6040,7 +6040,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \end{aligned}
   \label{eq:partial_resid}
 \end{equation}\]&lt;/span&gt; The last expression hints at the most basic idea behind the coordinate-wise approach: conditional minimization in each &lt;span class="math inline"&gt;\(m\)&lt;/span&gt;. Its exact solution in each coordinate is given by the aforementioned soft-thresholding function, which–as we’ve already stated–is a proximal operator. In symbols, &lt;span class="math inline"&gt;\(\operatorname*{prox}_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)\)&lt;/span&gt;, where the latter is the soft-thresholding operator.&lt;/p&gt;
-&lt;p&gt;Now, we can relate Equation &lt;span class="math inline"&gt;\(\eqref{eq:partial_resid}\)&lt;/span&gt; to proximal methods through the proximal gradient fixed-point solution–i.e. Equation &lt;span class="math inline"&gt;\(\eqref{eq:forward-backward}\)&lt;/span&gt;–and the following property of proximal operators:&lt;/p&gt;
+&lt;p&gt;Now, we can relate Equation $ to proximal methods through the proximal gradient fixed-point solution–i.e. Equation $–and the following property of proximal operators:&lt;/p&gt;
 &lt;div id="lem:prox_ortho_basis" class="lemma" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;&lt;span id="lem:prox_ortho_basis_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{1}\label{lem:prox_ortho_basis}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation*}
@@ -6086,7 +6086,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       \\
       &amp;amp;= e^\top_m \left(\beta + X^\top \left(y - X \beta\right)\right)
     \end{aligned}
-\end{equation*}\]&lt;/span&gt; where the last step follows from &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; standardization. This establishes the relationship with Equation &lt;span class="math inline"&gt;\(\eqref{eq:forward-backward}\)&lt;/span&gt; only component-wise. Using Lemma &lt;span class="math inline"&gt;\(\eqref{lem:prox_ortho_basis}\)&lt;/span&gt; together with &lt;span class="math inline"&gt;\(z = \beta - \alpha \nabla  l(\beta)\)&lt;/span&gt; yields the proximal gradient fixed-point statement, i.e. &lt;span class="math display"&gt;\[\begin{equation*}
+\end{equation*}\]&lt;/span&gt; where the last step follows from &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; standardization. This establishes the relationship with Equation $ only component-wise. Using Lemma $ together with &lt;span class="math inline"&gt;\(z = \beta - \alpha \nabla  l(\beta)\)&lt;/span&gt; yields the proximal gradient fixed-point statement, i.e. &lt;span class="math display"&gt;\[\begin{equation*}
 \begin{aligned}
       \beta
       &amp;amp;=
@@ -6105,7 +6105,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;/div&gt;
 &lt;div id="rem:bases" class="remark" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;&lt;span id="rem:bases_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{3}\label{rem:bases}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;The property in Lemma &lt;span class="math inline"&gt;\(\eqref{lem:prox_ortho_basis}\)&lt;/span&gt; can be used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques &lt;span class="citation" data-cites="chaux_variational_2007"&gt;(Chaux et al. 2007)&lt;/span&gt;. Also, this property provides a neat way to think about &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;-based orthogonalizations in estimations for regression and grouped-penalization problems.&lt;/p&gt;
+&lt;p&gt;The property in Lemma  can be used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques &lt;span class="citation" data-cites="chaux_variational_2007"&gt;(Chaux et al. 2007)&lt;/span&gt;. Also, this property provides a neat way to think about &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;-based orthogonalizations in estimations for regression and grouped-penalization problems.&lt;/p&gt;
 &lt;/div&gt;
 &lt;section id="implementation-1" class="level2"&gt;
 &lt;h2&gt;Implementation&lt;/h2&gt;
@@ -6170,9 +6170,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;span id="cb12-15"&gt;&lt;a href="#cb12-15" aria-hidden="true"&gt;&lt;/a&gt;    cd_step.reset()&lt;/span&gt;
 &lt;span id="cb12-16"&gt;&lt;a href="#cb12-16" aria-hidden="true"&gt;&lt;/a&gt;    np.random.shuffle(cd_step.col_seq)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;&lt;span id="fig:pg_coord_plot"&gt;&lt;span id="fig:pg_coord_plot_span" style="display:none;visibility:hidden"&gt;&lt;span class="math display"&gt;\[\begin{equation}\tag{2}\label{fig:pg_coord_plot}\end{equation}\]&lt;/span&gt;&lt;/span&gt;&lt;img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_coord_plot_1.png" title="fig:" alt="Minimization by coordinate descent." /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Figure &lt;span class="math inline"&gt;\(\ref{fig:pg_coord_plot}\)&lt;/span&gt; shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.&lt;/p&gt;
+&lt;p&gt;Figure  shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.&lt;/p&gt;
 &lt;div class="remark" data-markdown="" data-title-name=""&gt;
-&lt;p&gt;Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature &lt;span class="citation" data-cites="roberts_updating_1997"&gt;(Roberts and Sahu 1997)&lt;/span&gt;–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark &lt;span class="math inline"&gt;\(\ref{rem:bases}\)&lt;/span&gt; and, to some extent, stochastic gradient descent (SGD) &lt;span class="citation" data-cites="bertsekas_incremental_2010"&gt;(Bertsekas 2010)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature &lt;span class="citation" data-cites="roberts_updating_1997"&gt;(Roberts and Sahu 1997)&lt;/span&gt;–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark  and, to some extent, stochastic gradient descent (SGD) &lt;span class="citation" data-cites="bertsekas_incremental_2010"&gt;(Bertsekas 2010)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;In a woefully lacking over-generalization, let’s say that it comes down to the [spectral] properties of the composite operator(s) &lt;span class="math inline"&gt;\(l \circ X\)&lt;/span&gt; and/or &lt;span class="math inline"&gt;\(\nabla l \circ X\)&lt;/span&gt;. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; nears or distances from those bounds.&lt;/p&gt;
 &lt;/div&gt;
 &lt;section id="regularization-paths" class="level3"&gt;
@@ -6227,7 +6227,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;p&gt;Unfortunately, numerical libraries do not provide much in the way of utilizing these abstractions. Most are strictly founded in the representation of point-valued mappings, which can require significant work-arounds to handle even the most basic non-differentiable functions (e.g. the absolute value within our example problem). Our use of the proximal framework is, in part, motivated by its near seamless use &lt;em&gt;and&lt;/em&gt; simultaneous bypassing of set-valued maps–in implementation, at least.&lt;/p&gt;
 &lt;p&gt;There is no fundamental restriction blocking support for set-valued maps, however–aside from the necessary labor and community interest. Even minimal support could provide a context that makes frameworks like ours merely minor abstractions. A similar idea can be found in the symbolic calculation of limits via filters &lt;span class="citation" data-cites="beeson_meaning_2005"&gt;(Beeson and Wiedijk 2005)&lt;/span&gt;. Perhaps we can liken these changes to the modern evolution of linear algebra libraries to tensor libraries.&lt;/p&gt;
 &lt;p&gt;We would also like to stress that the value provided by the symbolic tools discussed here (Theano, really) are not &lt;em&gt;just&lt;/em&gt; in their ability to act as compilers at a “math level”, but more for their ability to concretely encode mathematical characterizations of optimization problems and methods. Work in this direction is not new by any means; however, the combination of open-source tools and industry interest in algorithms that fall under the broad class of proximal methods (e.g. gradient descent, ADMM, EM, etc.) provides a more immediate reason to pursue these abstractions in code and automate their use.&lt;/p&gt;
-&lt;p&gt;Regarding the proximal methods, we can consider Theano optimizations that make direct use of the orthonormal basis property in Lemma &lt;span class="math inline"&gt;\(\eqref{lem:prox_ortho_basis}\)&lt;/span&gt;, or the Moreau-Fenchel theorem, and automate consideration for various estimation methods via splitting (e.g. ADMM, Douglas-Rachford, etc.)–perhaps by making decisions based on inferred or specified tensor, function, and operator properties. In future installments we’ll delve into the details of these ideas.&lt;/p&gt;
+&lt;p&gt;Regarding the proximal methods, we can consider Theano optimizations that make direct use of the orthonormal basis property in Lemma , or the Moreau-Fenchel theorem, and automate consideration for various estimation methods via splitting (e.g. ADMM, Douglas-Rachford, etc.)–perhaps by making decisions based on inferred or specified tensor, function, and operator properties. In future installments we’ll delve into the details of these ideas.&lt;/p&gt;
 &lt;p&gt;&lt;span class="citation" data-cites="wytock_new_2016"&gt;(Wytock et al. 2016)&lt;/span&gt; also discuss similar ideas in an optimization setting, such as the use of symbolic graphs and a close coupling with useful mathematical abstractions–including proximal operators. Additionally, there are many other good examples &lt;span class="citation" data-cites="diamond_cvxpy:_2016"&gt;(Diamond and Boyd 2016)&lt;/span&gt; of constructive mathematical abstractions applied in code.&lt;/p&gt;
 &lt;p&gt;In most cases, libraries providing optimization tools and supporting model estimation do not attempt to root their implementations within an independently developed symbolic framework and then realize their relevant methodologies in that context. Too often the mathematical abstractions–or the resulting methods alone–are directly implemented at the highest levels of abstraction possible. This is what we see as the result of popular libraries like &lt;code&gt;scikit-learn&lt;/code&gt; and the body of &lt;code&gt;R&lt;/code&gt; packages. One can also find the same efforts for proximal methods themselves–e.g. in &lt;span class="citation" data-cites="svaiter_pyprox_2017"&gt;(svaiter 2017)&lt;/span&gt;, where individual functions for ADMM, forward-backward/proximal gradient and Douglas-Rachford are the end result. This is the most common approach and it makes sense in terms of simplicity, but offers very little of the extensibility, generalization, or efficiencies provided by shared efforts across related projects and fields.&lt;/p&gt;
 &lt;p&gt;In the context of Theano, implementations immediately benefit from its code conversion, parallelization and relevant improvements to its basic graph optimizations. The latter covers both low-level computational efficiency–such as relevant application of BLAS functions–and high-level tensor algebra simplifications.&lt;/p&gt;
@@ -6947,7 +6947,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
     \theta \sim \operatorname{N}(\mu, I \tau^2)
     \label{eq:normal-normal}
 \end{equation}\]&lt;/span&gt; for an identity matrix &lt;span class="math inline"&gt;\(I\)&lt;/span&gt;, observed random variable &lt;span class="math inline"&gt;\(Y_t\)&lt;/span&gt; at time &lt;span class="math inline"&gt;\(t \in \{1, \dots, T\}\)&lt;/span&gt;, and known constant values (of matching dimensions) &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(\sigma\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(\mu\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\tau\)&lt;/span&gt;. The &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; play the role of predictors, or features, and we’ll assume that the time dependencies arise primarily through them.&lt;/p&gt;
-&lt;p&gt;In Bayes parlance, the model in Equation &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt; gives &lt;span class="math inline"&gt;\(\theta\)&lt;/span&gt; a normal prior distribution, and the primary goal involves estimating the “posterior” distribution &lt;span class="math inline"&gt;\(p(\theta \mid y)\)&lt;/span&gt;–for a vector of observations &lt;span class="math inline"&gt;\(y\)&lt;/span&gt; under the assumption &lt;span class="math inline"&gt;\(y \sim Y\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;In Bayes parlance, the model in Equation  gives &lt;span class="math inline"&gt;\(\theta\)&lt;/span&gt; a normal prior distribution, and the primary goal involves estimating the “posterior” distribution &lt;span class="math inline"&gt;\(p(\theta \mid y)\)&lt;/span&gt;–for a vector of observations &lt;span class="math inline"&gt;\(y\)&lt;/span&gt; under the assumption &lt;span class="math inline"&gt;\(y \sim Y\)&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;This simple example has the well known closed-form posterior solution for &lt;span class="math inline"&gt;\(\theta\)&lt;/span&gt;, &lt;span class="math display"&gt;\[\begin{equation}
 \left(\theta \mid y_t\right) \sim \operatorname{N}(m, C)
     \;.
@@ -6962,8 +6962,8 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;/section&gt;
 &lt;section id="estimation-via-mcmc" class="level1"&gt;
 &lt;h1&gt;Estimation (via MCMC)&lt;/h1&gt;
-&lt;p&gt;From here on let’s assume we do not have the closed-form result in Equation &lt;span class="math inline"&gt;\(\eqref{eq:theta-posterior}\)&lt;/span&gt;. Instead, we’ll estimate the posterior numerically with &lt;a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo"&gt;MCMC&lt;/a&gt;. Again, MCMC is covered to varying degrees of detail all over the place (e.g. &lt;a href="https://goo.gl/JNwfuo"&gt;here&lt;/a&gt;), so we’ll skip most of those details. Let’s say we’ve decided to use &lt;a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm"&gt;Metropolis-Hastings&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;For demonstration purposes, we produce a simulation of some data we might observe and for which we would consider applying the model in Equation &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;From here on let’s assume we do not have the closed-form result in Equation . Instead, we’ll estimate the posterior numerically with &lt;a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo"&gt;MCMC&lt;/a&gt;. Again, MCMC is covered to varying degrees of detail all over the place (e.g. &lt;a href="https://goo.gl/JNwfuo"&gt;here&lt;/a&gt;), so we’ll skip most of those details. Let’s say we’ve decided to use &lt;a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm"&gt;Metropolis-Hastings&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For demonstration purposes, we produce a simulation of some data we might observe and for which we would consider applying the model in Equation .&lt;/p&gt;
 &lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb1-1"&gt;&lt;a href="#cb1-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; numpy &lt;span class="im"&gt;as&lt;/span&gt; np&lt;/span&gt;
 &lt;span id="cb1-2"&gt;&lt;a href="#cb1-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; scipy.stats &lt;span class="im"&gt;as&lt;/span&gt; scs&lt;/span&gt;
 &lt;span id="cb1-3"&gt;&lt;a href="#cb1-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
@@ -7052,7 +7052,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;span id="cb5-4"&gt;&lt;a href="#cb5-4" aria-hidden="true"&gt;&lt;/a&gt;plt.rc(&lt;span class="st"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;, usetex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/span&gt;
 &lt;span id="cb5-5"&gt;&lt;a href="#cb5-5" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
 &lt;span id="cb5-6"&gt;&lt;a href="#cb5-6" aria-hidden="true"&gt;&lt;/a&gt;tp_axes &lt;span class="op"&gt;=&lt;/span&gt; pm.traceplot(sample_traces)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;We can also superimpose the true posterior density given by Equation &lt;span class="math inline"&gt;\(\eqref{eq:theta-posterior}\)&lt;/span&gt; with the following:&lt;/p&gt;
+&lt;p&gt;We can also superimpose the true posterior density given by Equation  with the following:&lt;/p&gt;
 &lt;div class="sourceCode" id="cb6"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb6-1"&gt;&lt;a href="#cb6-1" aria-hidden="true"&gt;&lt;/a&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; [a_.set_title(&lt;span class="vs"&gt;r&amp;#39;Posterior $(\theta \mid y)$ Samples&amp;#39;&lt;/span&gt;) &lt;span class="cf"&gt;for&lt;/span&gt; a_ &lt;span class="kw"&gt;in&lt;/span&gt;&lt;/span&gt;
 &lt;span id="cb6-2"&gt;&lt;a href="#cb6-2" aria-hidden="true"&gt;&lt;/a&gt;tp_axes.ravel()]&lt;/span&gt;
 &lt;span id="cb6-3"&gt;&lt;a href="#cb6-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
@@ -7114,16 +7114,16 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 \{y_i \sim p(Y \mid X, \theta_i) : \theta_i \sim p(\theta_i \mid y)\}_{i=0}^M
   \label{eq:post_predict_samples}
 \end{equation}\]&lt;/span&gt; is a posterior predictive sample from &lt;span class="math inline"&gt;\(p(Y \mid X, y)\)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;The procedural interpretation of Equation &lt;span class="math inline"&gt;\(\eqref{eq:post_predict_samples}\)&lt;/span&gt; is:&lt;/p&gt;
+&lt;p&gt;The procedural interpretation of Equation  is:&lt;/p&gt;
 &lt;ol type="1"&gt;
 &lt;li&gt;&lt;p&gt;Sample &lt;span class="math inline"&gt;\(\theta_i \sim p(\theta_i \mid y)\)&lt;/span&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Sample &lt;span class="math inline"&gt;\(y_i \sim p(Y \mid X, \theta_i)\)&lt;/span&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;Assuming we’ve already produced a posterior sample, this is as simple as plugging those &lt;span class="math inline"&gt;\(\theta_i\)&lt;/span&gt; into the observation distribution Equation &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt; and sampling. The cumulative effect of this process is equivalent to producing an estimate of the marginal &lt;span class="math display"&gt;\[\begin{equation*}
+&lt;p&gt;Assuming we’ve already produced a posterior sample, this is as simple as plugging those &lt;span class="math inline"&gt;\(\theta_i\)&lt;/span&gt; into the observation distribution Equation  and sampling. The cumulative effect of this process is equivalent to producing an estimate of the marginal &lt;span class="math display"&gt;\[\begin{equation*}
 \int p(Y_t \mid x_t, \theta) p(\theta \mid y) d\theta = p(Y_t \mid x_t, y)
   \;.
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;The posterior predictive sample in Equation &lt;span class="math inline"&gt;\(\eqref{eq:post_predict_samples}\)&lt;/span&gt; contains much of the information a modeler desires. Take the variance of this sample and one has a common measure of prediction error; produce quantiles of the sample and one has &lt;a href="https://en.wikipedia.org/wiki/Credible_interval"&gt;“credible”&lt;/a&gt; prediction intervals. The sample produced by mapping an arbitrary function to each posterior predictive sample is itself amenable to the aforementioned summaries, allowing one to easily produce errors for complicated uses of predicted quantities. We illustrate these use cases below.&lt;/p&gt;
+&lt;p&gt;The posterior predictive sample in Equation  contains much of the information a modeler desires. Take the variance of this sample and one has a common measure of prediction error; produce quantiles of the sample and one has &lt;a href="https://en.wikipedia.org/wiki/Credible_interval"&gt;“credible”&lt;/a&gt; prediction intervals. The sample produced by mapping an arbitrary function to each posterior predictive sample is itself amenable to the aforementioned summaries, allowing one to easily produce errors for complicated uses of predicted quantities. We illustrate these use cases below.&lt;/p&gt;
 &lt;p&gt;Using our previous simulation and PyMC3, the posterior predictive samples are obtained with&lt;/p&gt;
 &lt;div class="sourceCode" id="cb7"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb7-1"&gt;&lt;a href="#cb7-1" aria-hidden="true"&gt;&lt;/a&gt;ppc_samples &lt;span class="op"&gt;=&lt;/span&gt; pm.sample_ppc(sample_traces, model&lt;span class="op"&gt;=&lt;/span&gt;model)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;and plotted with&lt;/p&gt;
@@ -7177,7 +7177,7 @@ Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
 &lt;p&gt;If the &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; values in our sample now correspond to, say, temperature, and today is the last day in our time-indexed observations &lt;code&gt;y_obs&lt;/code&gt;, then predicting forward in time will require temperatures for the future.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;One answer to this situation is a model for &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt;. If we specify some &lt;span class="math inline"&gt;\(X_t \sim P\)&lt;/span&gt;, then we can apply the same principles above via the posterior predictive &lt;span class="math inline"&gt;\(p(X_t)\)&lt;/span&gt;. This posterior predictive will have no exogenous dependencies (unless we want it to), and its posterior can be estimated with our given &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; observations. All this occurs in exactly the same fashion as our model for &lt;span class="math inline"&gt;\(Y_t\)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;In practice, one often sees the use of summary statistics from previous &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; observations in intervals representative of the desired prediction period. For instance, in the context of Example &lt;span class="math inline"&gt;\(\ref{ex:X_temp}\)&lt;/span&gt;, the average temperatures in previous years over the months corresponding to the prediction interval (e.g. January-February averages through 2010 to 2016 as imputations for January-February 2017).&lt;/p&gt;
+&lt;p&gt;In practice, one often sees the use of summary statistics from previous &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; observations in intervals representative of the desired prediction period. For instance, in the context of Example , the average temperatures in previous years over the months corresponding to the prediction interval (e.g. January-February averages through 2010 to 2016 as imputations for January-February 2017).&lt;/p&gt;
 &lt;p&gt;This isn’t a bad idea, per se, but it is a needlessly indirect–and often insufficient–approach to defining a statistical model for &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;. It leaves out critical distributional details, the same details needed to determine how anything using our new &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; estimates might be affected (through &lt;a href="https://en.wikipedia.org/wiki/Propagation_of_uncertainty"&gt;propagation of uncertainty&lt;/a&gt;). Eventually one comes around to specifying these details, but, in situations of sufficient complexity, this practice doesn’t produce a very clean, manageable or easily extensible model.&lt;/p&gt;
 &lt;p&gt;The kinds of complicated models arising in these situations are both conceptually and technically difficult to use, and–as a result–it can be very hard to produce anything other than naive asymptotic approximations for errors and intervals. Sadly, these approximations are generally insufficient for all but the simplest scenarios.&lt;/p&gt;
 &lt;p&gt;In contrast, we can model the &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; values directly and have a very clear cut path toward out-of-sample predictions and their distributional properties. Even if we hold to the belief that the previous average values are a reasonable imputation, then a number of simple models can account for that assumption.&lt;/p&gt;
@@ -7202,14 +7202,14 @@ X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
   \end{aligned}
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;/div&gt;
-&lt;p&gt;The reduction in Example &lt;span class="math inline"&gt;\(\ref{ex:prior_extension}\)&lt;/span&gt; is quite reasonable and could be considered an entire re-definition of our initial observation model in Equation &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt;. A change like this is a natural part of the standard model development cycle. However, this is not the only way to look at it. In the Bayesian setting we can keep the observation model fixed and iterate on the prior’s specification. The resulting marginal distribution could effectively be the same under both approaches (if desired), but the latter has the advantage of at least maintaining–conditionally–our earlier work.&lt;/p&gt;
+&lt;p&gt;The reduction in Example  is quite reasonable and could be considered an entire re-definition of our initial observation model in Equation . A change like this is a natural part of the standard model development cycle. However, this is not the only way to look at it. In the Bayesian setting we can keep the observation model fixed and iterate on the prior’s specification. The resulting marginal distribution could effectively be the same under both approaches (if desired), but the latter has the advantage of at least maintaining–conditionally–our earlier work.&lt;/p&gt;
 &lt;div class="example" data-markdown="" data-title-name=""&gt;
 &lt;p&gt;We haven’t given a prior to &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt;, but if we did, in the absence of conflicting assumptions, we might want the product &lt;span class="math inline"&gt;\(\beta \cdot \theta\)&lt;/span&gt; to simplified to a single unknown variables of its own, so that we’re not estimating two “entangled” variables. This idea might be inspired by an understanding of the classical &lt;a href="https://en.wikipedia.org/wiki/Parameter_identification_problem"&gt;identification&lt;/a&gt; issue arising from such products.&lt;/p&gt;
 &lt;p&gt;With &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; constant, the form of our marginal observation model is basically unchanged from our initial under &lt;span class="math inline"&gt;\(x_t \to d(t)^\top \beta\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\sigma^2 \to \sigma^2 + \sigma_x^2 \cdot d(t)^\top \beta \beta^\top d(t)\)&lt;/span&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;Adherence to established models or industry standards is not uncommon. Outside of hierarchical model development, it can be very difficult to make these connections and coherently propagate statistical assumptions.&lt;/p&gt;
 &lt;p&gt;This model development process expands in complexity and applicability through natural and compartmental extensions of existing terms. Simpler, “base” models are found as marginalizations of the new terms, and all the same estimation techniques apply.&lt;/p&gt;
-&lt;p&gt;We’ll close with an illustration of the piecewise exogenous variable model described in Example &lt;span class="math inline"&gt;\(\ref{ex:prior_extension}\)&lt;/span&gt;. A few days are added to demonstrate out-of-sample predictions and the design matrix, &lt;span class="math inline"&gt;\(D\)&lt;/span&gt;, for Equation &lt;span class="math inline"&gt;\(\eqref{eq:exogenous_model}\)&lt;/span&gt; is produced using &lt;a href="https://patsy.readthedocs.io/en/latest/"&gt;Patsy&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;We’ll close with an illustration of the piecewise exogenous variable model described in Example . A few days are added to demonstrate out-of-sample predictions and the design matrix, &lt;span class="math inline"&gt;\(D\)&lt;/span&gt;, for Equation  is produced using &lt;a href="https://patsy.readthedocs.io/en/latest/"&gt;Patsy&lt;/a&gt;.&lt;/p&gt;
 &lt;div class="sourceCode" id="cb11"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb11-1"&gt;&lt;a href="#cb11-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; patsy&lt;/span&gt;
 &lt;span id="cb11-2"&gt;&lt;a href="#cb11-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; theano.tensor &lt;span class="im"&gt;as&lt;/span&gt; T&lt;/span&gt;
 &lt;span id="cb11-3"&gt;&lt;a href="#cb11-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
@@ -7392,7 +7392,7 @@ E[X^n] = \frac{\Phi_1(\alpha, \beta, \gamma + n; x, y)}{\Phi_1(\alpha, \beta, \g
 \;.
 \label{eq:expectation}
 \end{equation}\]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;As an example, let’s set up a situation in which &lt;code&gt;as_expectations&lt;/code&gt; would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match Equation &lt;span class="math inline"&gt;\(\eqref{eq:expectation}\)&lt;/span&gt;:&lt;/p&gt;
+&lt;p&gt;As an example, let’s set up a situation in which &lt;code&gt;as_expectations&lt;/code&gt; would be used, and, from there, attempt to construct our function. Naturally, this will involve a test expression with terms that we know match Equation :&lt;/p&gt;
 &lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb1-1"&gt;&lt;a href="#cb1-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; sympy &lt;span class="im"&gt;as&lt;/span&gt; sp&lt;/span&gt;
 &lt;span id="cb1-2"&gt;&lt;a href="#cb1-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
 &lt;span id="cb1-3"&gt;&lt;a href="#cb1-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;from&lt;/span&gt; hsplus.horn_symbolic &lt;span class="im"&gt;import&lt;/span&gt; HornPhi1&lt;/span&gt;
@@ -7432,7 +7432,7 @@ z_{1}, \quad z_{2}\right )\right)}}{g
 \quad z_{2}\right )\right)}}
 \end{equation*}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The ratios &lt;code&gt;r_1&lt;/code&gt; and &lt;code&gt;r_2&lt;/code&gt; should both be replaced by a symbol for &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt;, for &lt;span class="math inline"&gt;\(m = n\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(m = n - i\)&lt;/span&gt; when &lt;span class="math inline"&gt;\(i &amp;lt; n\)&lt;/span&gt; respectively. We could allow &lt;span class="math inline"&gt;\(E[X^0]\)&lt;/span&gt;, I suppose, but–for a more interesting discussion–let’s not.&lt;/p&gt;
-&lt;p&gt;We start by creating a SymPy pattern that expresses the mathematical form of &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt; in Equation &lt;span class="math inline"&gt;\(\eqref{eq:expectation}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;We start by creating a SymPy pattern that expresses the mathematical form of &lt;span class="math inline"&gt;\(E[X^m]\)&lt;/span&gt; in Equation .&lt;/p&gt;
 &lt;div class="sourceCode" id="cb3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb3-1"&gt;&lt;a href="#cb3-1" aria-hidden="true"&gt;&lt;/a&gt;pnames &lt;span class="op"&gt;=&lt;/span&gt; (&lt;span class="st"&gt;&amp;#39;a&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;b&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;g&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_1&amp;#39;&lt;/span&gt;, &lt;span class="st"&gt;&amp;#39;z_2&amp;#39;&lt;/span&gt;)&lt;/span&gt;
 &lt;span id="cb3-2"&gt;&lt;a href="#cb3-2" aria-hidden="true"&gt;&lt;/a&gt;phi1_wild_args_n &lt;span class="op"&gt;=&lt;/span&gt; sp.symbols(&lt;span class="st"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;.join(n_ &lt;span class="op"&gt;+&lt;/span&gt; &lt;span class="st"&gt;&amp;#39;_w&amp;#39;&lt;/span&gt; &lt;span class="cf"&gt;for&lt;/span&gt; n_ &lt;span class="kw"&gt;in&lt;/span&gt; pnames),&lt;/span&gt;
 &lt;span id="cb3-3"&gt;&lt;a href="#cb3-3" aria-hidden="true"&gt;&lt;/a&gt;                              cls&lt;span class="op"&gt;=&lt;/span&gt;sp.Wild, real&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/span&gt;

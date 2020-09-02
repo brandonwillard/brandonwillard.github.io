@@ -266,7 +266,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \label{eq:basic-dlm-state}
 \end{align}\]</span></p>
 <p>for <span class="math inline">\(t \in \{1, \dots, T\}\)</span>, <span class="math inline">\(y_t \in \mathbb{R}\)</span>, and <span class="math inline">\(\theta_t \in \mathbb{R}^{M}\)</span>.</p>
-<p>The most “notationally” faithful representation of the timeseries model in <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> using Theano is provided in Listing <a href="#orge6ada13">2</a>. It represents the notion of a recursion–to the best of Theano’s ability–by way of the <code>scan</code> operator.</p>
+<p>The most “notationally” faithful representation of the timeseries model in  using Theano is provided in Listing <a href="#orge6ada13">2</a>. It represents the notion of a recursion–to the best of Theano’s ability–by way of the <code>scan</code> operator.</p>
 <figure>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
@@ -354,7 +354,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 Listing 2
 </figcaption>
 </figure>
-<p>Throughout we’ll use data sampled from <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> for demonstration purposes. Our simulation has the following model parameter values:</p>
+<p>Throughout we’ll use data sampled from  for demonstration purposes. Our simulation has the following model parameter values:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{gathered}
     T = 200,\quad M = 2
@@ -381,7 +381,7 @@ Listing 2
   \end{gathered}
   \label{eq:sim-settings}
 \end{equation}\]</span></p>
-<p>A sample from <span class="math inline">\(\eqref{eq:sim-settings}\)</span> is generated in Listing <a href="#org721f0b8">3</a>.</p>
+<p>A sample from  is generated in Listing <a href="#org721f0b8">3</a>.</p>
 <figure id="org721f0b8">
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="im">from</span> theano <span class="im">import</span> function <span class="im">as</span> tt_function</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
@@ -475,8 +475,8 @@ Listing 4
 </section>
 <section id="posterior-estimation" class="level1">
 <h1>Posterior Estimation</h1>
-<p>In Listings <a href="#org224c0e5">6</a> and <a href="#org911f8da">7</a>, we demonstrate how the posterior moments in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> and <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span> can be computed in Theano.</p>
-<p>Unfortunately, if we attempt to implement the exact closed-form updates in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> or <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span>, our results will be fraught with numerical errors. This is a very basic issue with naively implemented Kalman filters. The solution to these issues usually involves some analytic reformulations that compensate for the covariance matrix subtractions. The standard approaches generally use some form of matrix decomposition that directly accounts for the positive semi-definite nature of the covariance matrices.</p>
+<p>In Listings <a href="#org224c0e5">6</a> and <a href="#org911f8da">7</a>, we demonstrate how the posterior moments in  and  can be computed in Theano.</p>
+<p>Unfortunately, if we attempt to implement the exact closed-form updates in  or , our results will be fraught with numerical errors. This is a very basic issue with naively implemented Kalman filters. The solution to these issues usually involves some analytic reformulations that compensate for the covariance matrix subtractions. The standard approaches generally use some form of matrix decomposition that directly accounts for the positive semi-definite nature of the covariance matrices.</p>
 <p>The approach taken here is based on the singular value decomposition (SVD) and effectively computes only one symmetric “half” of the updated covariances. The SVD also allows for easy inversions. See <a id="0ae04c048b20d07f32d7f0f75bb51483"><a href="#ZhangFixedintervalsmoothingalgorithm1996">Zhang &amp; Li (1996)</a></a> for more details, or <a id="3a4d89388a434d7b1b91dc8690f3a03b"><a href="#PetrisDynamiclinearmodels2009">Petris, Petrone &amp; Campagnoli (2009)</a></a> for a concise overview of the procedure in the context of DLMs.</p>
 <figure>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="im">import</span> warnings</span>
@@ -510,7 +510,7 @@ Listing 4
 <p><a id="org1d9986d"></a></p>
 <section id="svd-based-filtering" class="level2">
 <h2>SVD-based Filtering</h2>
-<p>The SVD forms of the filtering equations in <span class="math inline">\(\eqref{eq:dlm-post-moments}\)</span> are produced through creative use of the SVDs of its component matrices. Using a slightly modified version of the formulation established in <a id="3a4d89388a434d7b1b91dc8690f3a03b"><a href="#PetrisDynamiclinearmodels2009">Petris, Petrone &amp; Campagnoli (2009)</a></a>, the SVD for a matrix <span class="math inline">\(M\)</span> is given by <span class="math inline">\(M = U_{M} D_{M} V_{M}^\top\)</span>. A symmetric matrix then takes the form <span class="math inline">\(M = U_{M} D_{M} U_{M}^\top\)</span> and its “square-root” is given by <span class="math inline">\(M = N_M^\top N_M\)</span> with <span class="math inline">\(N_M = S_{M} U_{M}^\top\)</span> and <span class="math inline">\(S_{M} = D_{M}^{1/2}\)</span>. Likewise, matrix (generalized) inverses take the form <span class="math inline">\(M^{-1} = U_{M} S_{M}^{-1} U_{M}^\top\)</span>.</p>
+<p>The SVD forms of the filtering equations in  are produced through creative use of the SVDs of its component matrices. Using a slightly modified version of the formulation established in <a id="3a4d89388a434d7b1b91dc8690f3a03b"><a href="#PetrisDynamiclinearmodels2009">Petris, Petrone &amp; Campagnoli (2009)</a></a>, the SVD for a matrix <span class="math inline">\(M\)</span> is given by <span class="math inline">\(M = U_{M} D_{M} V_{M}^\top\)</span>. A symmetric matrix then takes the form <span class="math inline">\(M = U_{M} D_{M} U_{M}^\top\)</span> and its “square-root” is given by <span class="math inline">\(M = N_M^\top N_M\)</span> with <span class="math inline">\(N_M = S_{M} U_{M}^\top\)</span> and <span class="math inline">\(S_{M} = D_{M}^{1/2}\)</span>. Likewise, matrix (generalized) inverses take the form <span class="math inline">\(M^{-1} = U_{M} S_{M}^{-1} U_{M}^\top\)</span>.</p>
 <p>The idea here is that we can combine these SVD identities to derive square-root relationship between the SVD of <span class="math inline">\(C_t^{-1}\)</span> and the SVDs of <span class="math inline">\(C_{t-1}\)</span>, <span class="math inline">\(W_t\)</span>, <span class="math inline">\(V_t\)</span>, and <span class="math inline">\(R_t\)</span>, then we can easily invert <span class="math inline">\(C_t^{-1}\)</span> to arrive at the desired numerically stable SVD of <span class="math inline">\(C_t\)</span>.</p>
 <p>First, note that <span class="math inline">\(N_{R_t}^\top N_{R_t} = G_t C_{t-1} G_t^\top + W_t = R_t\)</span> for</p>
 <p><span class="math display">\[\begin{equation}
@@ -621,7 +621,7 @@ Listing 6
 </section>
 <section id="svd-based-smoothing" class="level2">
 <h2>SVD-based Smoothing</h2>
-<p>We can use the techniques above to produce SVD versions of the smoothing equations in <span class="math inline">\(\eqref{eq:dlm-smooth-moments}\)</span>. In this case, some extra steps are required in order to SVD-decompose <span class="math inline">\(S_t\)</span> in the same manner as <span class="math inline">\(R_t\)</span> and <span class="math inline">\(C_t^{-1}\)</span> were.</p>
+<p>We can use the techniques above to produce SVD versions of the smoothing equations in . In this case, some extra steps are required in order to SVD-decompose <span class="math inline">\(S_t\)</span> in the same manner as <span class="math inline">\(R_t\)</span> and <span class="math inline">\(C_t^{-1}\)</span> were.</p>
 <p>First, notice that our target, <span class="math inline">\(S_t\)</span>, is a difference of matrices, unlike the matrix sums that comprised <span class="math inline">\(R_t\)</span> and <span class="math inline">\(C_t^{-1}\)</span> above. Furthermore, <span class="math inline">\(S_t\)</span> is given as a difference of a (transformed) difference. To address the latter, we start by expanding <span class="math inline">\(S_t\)</span> and setting <span class="math inline">\(B_t = C_t G_{t+1}^\top R_{t+1}^{-1}\)</span> to obtain</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
@@ -658,7 +658,7 @@ Listing 6
   \label{eq:N_H_t_inv}
 \end{equation}\]</span></p>
 <p>By inverting the SVD of <span class="math inline">\(N_{H_t}^{-1}\)</span> we obtain the SVD of <span class="math inline">\(H_t\)</span> as <span class="math inline">\(U_{H_t} = U_{C_t} V_{N_{H_t}^{-1}}\)</span> and <span class="math inline">\(D_{H_t} = {D_{N_{H_t}^{-1}}}^{-2} = S_{H_t}^2\)</span>.</p>
-<p>Finally, using <span class="math inline">\(\eqref{eq:S_t_decomp}\)</span> and <span class="math inline">\(\eqref{eq:N_H_t_inv}\)</span> we can derive the last blocked square-root decomposition <span class="math inline">\(S_t = N_{S_t}^\top N_{S_t}\)</span>:</p>
+<p>Finally, using  and  we can derive the last blocked square-root decomposition <span class="math inline">\(S_t = N_{S_t}^\top N_{S_t}\)</span>:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
     N_{S_t} &amp;=
@@ -807,7 +807,7 @@ Filtered and smoothed <span class="math inline">\(\theta_t\)</span>–against th
   \end{gathered}
   \label{eq:ffbs-moments}
 \end{equation}\]</span></p>
-<p>Since all the quantities in <span class="math inline">\(\eqref{eq:ffbs-moments}\)</span> appear in the filtering and smoothing moments, we can use the SVD-based approach described earlier to perform the updates and sampling. We reproduce the relevant subset of calculations in Listing <a href="#org6d942a3">10</a>.</p>
+<p>Since all the quantities in  appear in the filtering and smoothing moments, we can use the SVD-based approach described earlier to perform the updates and sampling. We reproduce the relevant subset of calculations in Listing <a href="#org6d942a3">10</a>.</p>
 <figure id="org6d942a3">
 <div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">def</span> ffbs_step(m_t, U_C_t, S_C_t, a_tp1, U_R_tp1, S_R_tp1, theta_tp1, F_tp1, G_tp1, N_W_tp1_inv, rng):</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;Perform forward-filtering backward-sampling.&quot;&quot;&quot;</span></span>
@@ -1083,7 +1083,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 </section>
 <section id="non-gaussian-extension" class="level1">
 <h1>Non-Gaussian Extension</h1>
-<p>Let’s say we want to model count observations that are driven by a smooth time-varying process. We can assume a negative-binomial observation model with a log-link function–in standard GLM fashion <a id="820d466dbb5494bd5a5cb080d0b82638"><a href="#mccullagh_generalized_1989">(McCullagh &amp; Nelder 1989)</a></a>–and connect it to the same state and observation dynamics as the basic DLM in <span class="math inline">\(\eqref{eq:basic-dlm-state}\)</span> via its mean <span class="math inline">\(\mu_t = \exp\left(\eta_t\right)\)</span>:</p>
+<p>Let’s say we want to model count observations that are driven by a smooth time-varying process. We can assume a negative-binomial observation model with a log-link function–in standard GLM fashion <a id="820d466dbb5494bd5a5cb080d0b82638"><a href="#mccullagh_generalized_1989">(McCullagh &amp; Nelder 1989)</a></a>–and connect it to the same state and observation dynamics as the basic DLM in  via its mean <span class="math inline">\(\mu_t = \exp\left(\eta_t\right)\)</span>:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
     Y_t &amp;\sim \operatorname{NB}\left(r, p_t\right)
@@ -1116,7 +1116,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
   \end{aligned}
 \label{eq:nb-pmf}
 \end{equation}\]</span></p>
-<p>The logit-inverse form in <span class="math inline">\(\eqref{eq:nb-pmf}\)</span> has a Gaussian scale-mixture representation in the Pólya-Gamma distribution <a id="2776c69c558410bc65a3a0a0f1ff5bf4"><a href="#polson_bayesian_2013">(Polson, Scott &amp; Windle 2013)</a></a>. Said scale-mixture is as follows:</p>
+<p>The logit-inverse form in  has a Gaussian scale-mixture representation in the Pólya-Gamma distribution <a id="2776c69c558410bc65a3a0a0f1ff5bf4"><a href="#polson_bayesian_2013">(Polson, Scott &amp; Windle 2013)</a></a>. Said scale-mixture is as follows:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
     \frac{e^{\psi a}}{\left(1 + e^{\psi}\right)^b} &amp;=
@@ -1130,7 +1130,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 \label{eq:pg-identity}
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(\kappa = a - b / 2\)</span> and <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(b, 0\right)\)</span>.</p>
-<p>When the Gaussian scale-mixture identity of <span class="math inline">\(\eqref{eq:pg-identity}\)</span> is applied to our observation model in <span class="math inline">\(\eqref{eq:nb-pmf}\)</span>, <span class="math inline">\(a = y_t\)</span>, <span class="math inline">\(b = r + y_t\)</span>, <span class="math inline">\(\kappa = (y_t - r)/2\)</span>, and <span class="math inline">\(\psi = \eta_t - \log r\)</span>.</p>
+<p>When the Gaussian scale-mixture identity of  is applied to our observation model in , <span class="math inline">\(a = y_t\)</span>, <span class="math inline">\(b = r + y_t\)</span>, <span class="math inline">\(\kappa = (y_t - r)/2\)</span>, and <span class="math inline">\(\psi = \eta_t - \log r\)</span>.</p>
 <p>From the scale mixture formulation, we obtain the following augmented joint observation model density:</p>
 <p><span class="math display">\[\begin{equation}
   \begin{aligned}
@@ -1148,7 +1148,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 \label{eq:nb-aug-obs}
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(y^*_t = \log r + \frac{y_t - r}{2 \omega}\)</span>.</p>
-<p>The reformulation at the end of <span class="math inline">\(\eqref{eq:nb-aug-obs}\)</span> characterizes a distribution of “virtual” observations,</p>
+<p>The reformulation at the end of  characterizes a distribution of “virtual” observations,</p>
 <p><span class="math display">\[\begin{equation}
   y^*_t = F_t^\top \theta_t + \epsilon^*_t,\quad
   \epsilon^*_t \sim \operatorname{N}\left(0, V^*_t \right)
@@ -1156,11 +1156,11 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
   \label{eq:nb-virtual-obs}
 \end{equation}\]</span></p>
 <p>with <span class="math inline">\(V_t = \operatorname{diag}\left( \omega^{-1}_t \right)\)</span>.</p>
-<p>The augmented observation equation in <span class="math inline">\(\eqref{eq:nb-virtual-obs}\)</span> recovers our original DLM formulation in <span class="math inline">\(\eqref{eq:basic-dlm-obs}\)</span> and–by comparison–details the changes needed to use the Pólya-Gamma scale-mixture. Specifically, we need to sample <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)</span> and perform the following substitutions: <span class="math inline">\(y_t \to y^*_t\)</span> and <span class="math inline">\(V_t \to V^*_t\)</span>.</p>
+<p>The augmented observation equation in  recovers our original DLM formulation in  and–by comparison–details the changes needed to use the Pólya-Gamma scale-mixture. Specifically, we need to sample <span class="math inline">\(\omega_t \sim \operatorname{PG}\left(r + y_t, F_t^\top \theta_t - \log r \right)\)</span> and perform the following substitutions: <span class="math inline">\(y_t \to y^*_t\)</span> and <span class="math inline">\(V_t \to V^*_t\)</span>.</p>
 <p><a id="orgeef4d98"></a></p>
 <section id="simulation-example-1" class="level2">
 <h2>Simulation Example</h2>
-<p>Listing <a href="#orga5ba480">17</a> creates a Theano graph for negative-binomial model defined in <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.</p>
+<p>Listing <a href="#orga5ba480">17</a> creates a Theano graph for negative-binomial model defined in .</p>
 <figure id="orga5ba480">
 <div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="im">from</span> symbolic_pymc.theano.random_variables <span class="im">import</span> NegBinomialRV</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a></span>
@@ -1189,7 +1189,7 @@ Posterior predicive sample means generated by a FFBS-based Gibbs sampler.
 Listing 17
 </figcaption>
 </figure>
-<p>Listing <a href="#org1bd6385">18</a> specifies parameters for a simulation from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span> and samples a series.</p>
+<p>Listing <a href="#org1bd6385">18</a> specifies parameters for a simulation from  and samples a series.</p>
 <figure id="org1bd6385">
 <div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a>nb_dlm_sim_values <span class="op">=</span> dlm_sim_values.copy()</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>nb_dlm_sim_values[F_tt] <span class="op">=</span> np.array([[<span class="fl">1.0</span>],</span>
@@ -1232,9 +1232,9 @@ Listing 19
 </figcaption>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/figures/nb-dlm-sim-plot.png" title="fig:" alt="A series sampled from our negative-binomial model defined in \eqref{eq:nb-dlm}. " />
+<img src="https://brandonwillard.github.io/figures/nb-dlm-sim-plot.png" title="fig:" alt="A series sampled from our negative-binomial model defined in ). " />
 <figcaption>
-A series sampled from our negative-binomial model defined in <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.
+A series sampled from our negative-binomial model defined in (.
 </figcaption>
 </figure>
 <figure>
@@ -1255,9 +1255,9 @@ A series sampled from our negative-binomial model defined in <span class="math i
 <span id="cb20-15"><a href="#cb20-15" aria-hidden="true"></a>plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</span></code></pre></div>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/figures/nb-theta-sim-plot.png" title="fig:" alt="Simulated \theta_t values from \eqref{eq:nb-dlm}. " />
+<img src="https://brandonwillard.github.io/figures/nb-theta-sim-plot.png" title="fig:" alt="Simulated \theta_t values from ). " />
 <figcaption>
-Simulated <span class="math inline">\(\theta_t\)</span> values from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.
+Simulated <span class="math inline">\(\theta_t\)</span> values from (.
 </figcaption>
 </figure>
 <figure>
@@ -1271,9 +1271,9 @@ Simulated <span class="math inline">\(\theta_t\)</span> values from <span class=
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true"></a>plt.legend(framealpha<span class="op">=</span><span class="fl">0.4</span>)</span></code></pre></div>
 </figure>
 <figure id="nil" class="plot">
-<img src="https://brandonwillard.github.io/figures/nb-p-sim-plot.png" title="fig:" alt="Simulated p_t \mid \theta_t values from \eqref{eq:nb-dlm}. " />
+<img src="https://brandonwillard.github.io/figures/nb-p-sim-plot.png" title="fig:" alt="Simulated p_t \mid \theta_t values from ). " />
 <figcaption>
-Simulated <span class="math inline">\(p_t \mid \theta_t\)</span> values from <span class="math inline">\(\eqref{eq:nb-dlm}\)</span>.
+Simulated <span class="math inline">\(p_t \mid \theta_t\)</span> values from (.
 </figcaption>
 </figure>
 <p><a id="orgd705951"></a></p>
@@ -1281,7 +1281,7 @@ Simulated <span class="math inline">\(p_t \mid \theta_t\)</span> values from <sp
 </section>
 <section id="augmented-ffbs-sampler" class="level1">
 <h1>Augmented FFBS Sampler</h1>
-<p>In order to create a FFBS sampler for our Pólya-Gamma DLM in <span class="math inline">\(\eqref{eq:nb-aug-obs}\)</span>, we need to update the filtering code to use time-varying “virtual” observation variances, <span class="math inline">\(V^*_t\)</span>. After this change is made, all Theano graphs that depend on the resulting objects need to be recreated, as well. This is done in Listing <a href="#org6e0be06">22</a>.</p>
+<p>In order to create a FFBS sampler for our Pólya-Gamma DLM in , we need to update the filtering code to use time-varying “virtual” observation variances, <span class="math inline">\(V^*_t\)</span>. After this change is made, all Theano graphs that depend on the resulting objects need to be recreated, as well. This is done in Listing <a href="#org6e0be06">22</a>.</p>
 <figure id="org6e0be06">
 <div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a>V_t_tt <span class="op">=</span> tt.specify_shape(tt.col(), [N_obs_tt, <span class="dv">1</span>])</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>V_t_tt.name <span class="op">=</span> <span class="st">&#39;V_t&#39;</span></span>
@@ -1592,7 +1592,7 @@ COVID–19 positive test counts in NY
   \label{eq:ny-model-settings}
   \;.
 \end{equation}\]</span></p>
-<p>Again, we set <span class="math inline">\(r = 1000\)</span>, effectively making our negative-binomial a Poisson approximation. Listing <a href="#org2352b66">31</a> sets the initial values in <span class="math inline">\(\eqref{eq:ny-model-settings}\)</span> and Listing <a href="#orgde4fb94">32</a> specifies the sampler loop.</p>
+<p>Again, we set <span class="math inline">\(r = 1000\)</span>, effectively making our negative-binomial a Poisson approximation. Listing <a href="#org2352b66">31</a> sets the initial values in  and Listing <a href="#orgde4fb94">32</a> specifies the sampler loop.</p>
 <figure id="org2352b66">
 <div class="sourceCode" id="cb31"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true"></a>nb_dlm_ny_values <span class="op">=</span> {</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true"></a>    N_obs_tt: counts.new_positive_tests.shape[<span class="dv">0</span>],</span>
