@@ -95,7 +95,7 @@ PANDOC_ARGS = [
     "--mathjax",
     "--section-divs",
     "--highlight-style=pygments",
-    "--include-after-body=./content/articles/src/after_body.html",
+    "--include-in-header=./content/articles/src/extra_header.html",
     "--template=pelican_template.html",
 ]
 PANDOC_EXTENSIONS = [
