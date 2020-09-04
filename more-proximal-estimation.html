@@ -184,7 +184,20 @@ code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script>
+  <!--        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML" id="MathJax-script"></script>
+  <script>
+   MathJax.Hub.Config({
+       tex2jax: {
+           processEnvironments: true,
+           processRefs: false
+       },
+       TeX: {
+           equationNumbers: { autoNumber: "AMS" },
+           extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+       }
+   });
+  </script>
 </head>
 <body>
 <!--  -->
@@ -222,7 +235,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     \;.
 \end{equation*}\]</span></p>
 </div>
-<p>Inspired by Equation , we produce a toy dataset as follows:</p>
+<p>Inspired by Equation <span class="math inline">\(\eqref{eq:lasso}\)</span>, we produce a toy dataset as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="im">from</span> theano <span class="im">import</span> shared <span class="im">as</span> tt_shared</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>M <span class="op">=</span> <span class="dv">50</span></span>
@@ -490,7 +503,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a>pg_ls_data <span class="op">=</span> pd.DataFrame(pg_est_data)</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a><span class="co"># pg_ls_data = pg_ls_data.append(pg_est_data, ignore_index=True)</span></span></code></pre></div>
 <p><span id="fig:pg_ls_plot"><span id="fig:pg_ls_plot_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{1}\label{fig:pg_ls_plot}\end{equation}\]</span></span><img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_ls_plot_1.png" title="fig:" alt="Minimization by proximal gradient with backtracking line-search." /></span></p>
-<p>Figure  shows a couple convergence measures for proximal gradient steps alongside the step size changes due to backtracking line-search. Regarding the latter, in our example a sufficient step size is found within the first few iterations, so the overall result isn’t too interesting. Fortunately, this sort of behaviour isn’t uncommon, which makes line-search quite effective in practice.</p>
+<p>Figure <span class="math inline">\(\ref{fig:pg_ls_plot}\)</span> shows a couple convergence measures for proximal gradient steps alongside the step size changes due to backtracking line-search. Regarding the latter, in our example a sufficient step size is found within the first few iterations, so the overall result isn’t too interesting. Fortunately, this sort of behaviour isn’t uncommon, which makes line-search quite effective in practice.</p>
 </section>
 <section id="coordinate-wise-estimation" class="level1">
 <h1>Coordinate-wise Estimation</h1>
@@ -517,7 +530,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \end{aligned}
   \label{eq:partial_resid}
 \end{equation}\]</span> The last expression hints at the most basic idea behind the coordinate-wise approach: conditional minimization in each <span class="math inline">\(m\)</span>. Its exact solution in each coordinate is given by the aforementioned soft-thresholding function, which–as we’ve already stated–is a proximal operator. In symbols, <span class="math inline">\(\operatorname*{prox}_{\lambda \left|\cdot\right|}(x) = \operatorname{S}_\lambda(x)\)</span>, where the latter is the soft-thresholding operator.</p>
-<p>Now, we can relate Equation $ to proximal methods through the proximal gradient fixed-point solution–i.e. Equation $–and the following property of proximal operators:</p>
+<p>Now, we can relate Equation <span class="math inline">\(\eqref{eq:partial_resid}\)</span> to proximal methods through the proximal gradient fixed-point solution–i.e. Equation <span class="math inline">\(\eqref{eq:forward-backward}\)</span>–and the following property of proximal operators:</p>
 <div id="lem:prox_ortho_basis" class="lemma" data-markdown="" data-title-name="">
 <p><span id="lem:prox_ortho_basis_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{1}\label{lem:prox_ortho_basis}\end{equation}\]</span></span></p>
 <p><span class="math display">\[\begin{equation*}
@@ -563,7 +576,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       \\
       &amp;= e^\top_m \left(\beta + X^\top \left(y - X \beta\right)\right)
     \end{aligned}
-\end{equation*}\]</span> where the last step follows from <span class="math inline">\(X\)</span> standardization. This establishes the relationship with Equation $ only component-wise. Using Lemma $ together with <span class="math inline">\(z = \beta - \alpha \nabla  l(\beta)\)</span> yields the proximal gradient fixed-point statement, i.e. <span class="math display">\[\begin{equation*}
+\end{equation*}\]</span> where the last step follows from <span class="math inline">\(X\)</span> standardization. This establishes the relationship with Equation <span class="math inline">\(\eqref{eq:forward-backward}\)</span> only component-wise. Using Lemma <span class="math inline">\(\eqref{lem:prox_ortho_basis}\)</span> together with <span class="math inline">\(z = \beta - \alpha \nabla  l(\beta)\)</span> yields the proximal gradient fixed-point statement, i.e. <span class="math display">\[\begin{equation*}
 \begin{aligned}
       \beta
       &amp;=
@@ -582,7 +595,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="rem:bases" class="remark" data-markdown="" data-title-name="">
 <p><span id="rem:bases_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{3}\label{rem:bases}\end{equation}\]</span></span></p>
-<p>The property in Lemma  can be used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques <span class="citation" data-cites="chaux_variational_2007">(Chaux et al. 2007)</span>. Also, this property provides a neat way to think about <span class="math inline">\(X\)</span>-based orthogonalizations in estimations for regression and grouped-penalization problems.</p>
+<p>The property in Lemma <span class="math inline">\(\eqref{lem:prox_ortho_basis}\)</span> can be used with other orthonormal bases–providing yet another connection between proximal methods and established dimensionality reduction and sparse estimation techniques <span class="citation" data-cites="chaux_variational_2007">(Chaux et al. 2007)</span>. Also, this property provides a neat way to think about <span class="math inline">\(X\)</span>-based orthogonalizations in estimations for regression and grouped-penalization problems.</p>
 </div>
 <section id="implementation-1" class="level2">
 <h2>Implementation</h2>
@@ -647,9 +660,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true"></a>    cd_step.reset()</span>
 <span id="cb12-16"><a href="#cb12-16" aria-hidden="true"></a>    np.random.shuffle(cd_step.col_seq)</span></code></pre></div>
 <p><span id="fig:pg_coord_plot"><span id="fig:pg_coord_plot_span" style="display:none;visibility:hidden"><span class="math display">\[\begin{equation}\tag{2}\label{fig:pg_coord_plot}\end{equation}\]</span></span><img src="https://brandonwillard.github.io/figures/more_proximal_estimation_pg_coord_plot_1.png" title="fig:" alt="Minimization by coordinate descent." /></span></p>
-<p>Figure  shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.</p>
+<p>Figure <span class="math inline">\(\ref{fig:pg_coord_plot}\)</span> shows convergence measures for each randomized coordinate order. The [average] difference in the number of iterations required for coordinate descent and proximal gradient is fairly noticeable. Nonetheless, both reach effectively the same limits.</p>
 <div class="remark" data-markdown="" data-title-name="">
-<p>Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature <span class="citation" data-cites="roberts_updating_1997">(Roberts and Sahu 1997)</span>–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark  and, to some extent, stochastic gradient descent (SGD) <span class="citation" data-cites="bertsekas_incremental_2010">(Bertsekas 2010)</span>.</p>
+<p>Similar ideas behind batched vs. non-batched steps and block sampling–found within the Gibbs sampling literature <span class="citation" data-cites="roberts_updating_1997">(Roberts and Sahu 1997)</span>–could explain the variation due to coordinate order and the relative efficiency of coordinate descent. There are also connections with our comments in Remark <span class="math inline">\(\ref{rem:bases}\)</span> and, to some extent, stochastic gradient descent (SGD) <span class="citation" data-cites="bertsekas_incremental_2010">(Bertsekas 2010)</span>.</p>
 <p>In a woefully lacking over-generalization, let’s say that it comes down to the [spectral] properties of the composite operator(s) <span class="math inline">\(l \circ X\)</span> and/or <span class="math inline">\(\nabla l \circ X\)</span>. These determine the bounds of efficiency for steps in certain directions and how blocking or partitioning the dimensions of <span class="math inline">\(\beta\)</span> nears or distances from those bounds.</p>
 </div>
 <section id="regularization-paths" class="level3">
@@ -704,7 +717,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Unfortunately, numerical libraries do not provide much in the way of utilizing these abstractions. Most are strictly founded in the representation of point-valued mappings, which can require significant work-arounds to handle even the most basic non-differentiable functions (e.g. the absolute value within our example problem). Our use of the proximal framework is, in part, motivated by its near seamless use <em>and</em> simultaneous bypassing of set-valued maps–in implementation, at least.</p>
 <p>There is no fundamental restriction blocking support for set-valued maps, however–aside from the necessary labor and community interest. Even minimal support could provide a context that makes frameworks like ours merely minor abstractions. A similar idea can be found in the symbolic calculation of limits via filters <span class="citation" data-cites="beeson_meaning_2005">(Beeson and Wiedijk 2005)</span>. Perhaps we can liken these changes to the modern evolution of linear algebra libraries to tensor libraries.</p>
 <p>We would also like to stress that the value provided by the symbolic tools discussed here (Theano, really) are not <em>just</em> in their ability to act as compilers at a “math level”, but more for their ability to concretely encode mathematical characterizations of optimization problems and methods. Work in this direction is not new by any means; however, the combination of open-source tools and industry interest in algorithms that fall under the broad class of proximal methods (e.g. gradient descent, ADMM, EM, etc.) provides a more immediate reason to pursue these abstractions in code and automate their use.</p>
-<p>Regarding the proximal methods, we can consider Theano optimizations that make direct use of the orthonormal basis property in Lemma , or the Moreau-Fenchel theorem, and automate consideration for various estimation methods via splitting (e.g. ADMM, Douglas-Rachford, etc.)–perhaps by making decisions based on inferred or specified tensor, function, and operator properties. In future installments we’ll delve into the details of these ideas.</p>
+<p>Regarding the proximal methods, we can consider Theano optimizations that make direct use of the orthonormal basis property in Lemma <span class="math inline">\(\eqref{lem:prox_ortho_basis}\)</span>, or the Moreau-Fenchel theorem, and automate consideration for various estimation methods via splitting (e.g. ADMM, Douglas-Rachford, etc.)–perhaps by making decisions based on inferred or specified tensor, function, and operator properties. In future installments we’ll delve into the details of these ideas.</p>
 <p><span class="citation" data-cites="wytock_new_2016">(Wytock et al. 2016)</span> also discuss similar ideas in an optimization setting, such as the use of symbolic graphs and a close coupling with useful mathematical abstractions–including proximal operators. Additionally, there are many other good examples <span class="citation" data-cites="diamond_cvxpy:_2016">(Diamond and Boyd 2016)</span> of constructive mathematical abstractions applied in code.</p>
 <p>In most cases, libraries providing optimization tools and supporting model estimation do not attempt to root their implementations within an independently developed symbolic framework and then realize their relevant methodologies in that context. Too often the mathematical abstractions–or the resulting methods alone–are directly implemented at the highest levels of abstraction possible. This is what we see as the result of popular libraries like <code>scikit-learn</code> and the body of <code>R</code> packages. One can also find the same efforts for proximal methods themselves–e.g. in <span class="citation" data-cites="svaiter_pyprox_2017">(svaiter 2017)</span>, where individual functions for ADMM, forward-backward/proximal gradient and Douglas-Rachford are the end result. This is the most common approach and it makes sense in terms of simplicity, but offers very little of the extensibility, generalization, or efficiencies provided by shared efforts across related projects and fields.</p>
 <p>In the context of Theano, implementations immediately benefit from its code conversion, parallelization and relevant improvements to its basic graph optimizations. The latter covers both low-level computational efficiency–such as relevant application of BLAS functions–and high-level tensor algebra simplifications.</p>
@@ -766,14 +779,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </section>
-<script>
- window.MathJax = {
-     tex: {
-         tags: "ams"
-     }
- };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
 </body>
 </html>
 

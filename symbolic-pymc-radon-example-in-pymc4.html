@@ -204,7 +204,20 @@ code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script>
+  <!--        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML" id="MathJax-script"></script>
+  <script>
+   MathJax.Hub.Config({
+       tex2jax: {
+           processEnvironments: true,
+           processRefs: false
+       },
+       TeX: {
+           equationNumbers: { autoNumber: "AMS" },
+           extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+       }
+   });
+  </script>
 </head>
 <body>
 <!--  -->
@@ -395,7 +408,7 @@ Listing 9
   \end{gathered}
 \label{eq:model-2}
 \end{equation}\]</span></p>
-<p>Models ) and ( are represented in (log) measure space, respectively, as follows:</p>
+<p>Models <span class="math inline">\(\eqref{eq:model-1}\)</span> and <span class="math inline">\(\eqref{eq:model-2}\)</span> are represented in (log) measure space, respectively, as follows:</p>
 <p><span class="math display">\[\begin{align}
     \log p(Y, X) &amp;= \log P(Y\mid X) + \log P(X)
     \nonumber
@@ -408,14 +421,14 @@ Listing 9
   \label{eq:log-model-2}
   \;.
 \end{align}\]</span></p>
-<p>Via term rewriting, Equation ) is produced–in part–by applying the replacement rule <span class="math inline">\(x \to \mu + \tau \cdot \tilde{x}\)</span> to Equation (, i.e.</p>
+<p>Via term rewriting, Equation <span class="math inline">\(\eqref{eq:log-model-2}\)</span> is produced–in part–by applying the replacement rule <span class="math inline">\(x \to \mu + \tau \cdot \tilde{x}\)</span> to Equation <span class="math inline">\(\eqref{eq:log-model-1}\)</span>, i.e.</p>
 <p><span class="math display">\[\begin{align*}
 \tilde{C} - \frac{1}{2} \left(\frac{y}{\sigma} - \frac{\mu + \tau \cdot \tilde{x}}{\sigma}\right)^2 -
   \frac{1}{2} \left(\frac{\mu + \tau \cdot \tilde{x}}{\tau} - \frac{\mu}{\tau}\right)^2
 \;.
 \end{align*}\]</span></p>
 <p>For consistency, the transform must also be applied to the <span class="math inline">\(dx\)</span> term where/when-ever it is considered.</p>
-<p>After a few algebraic simplifications, one obtains the exact form of Equation .</p>
+<p>After a few algebraic simplifications, one obtains the exact form of Equation <span class="math inline">\(\eqref{eq:log-model-2}\)</span>.</p>
 </section>
 <section id="creating-the-minikanren-goals" class="level1">
 <h1>Creating the miniKanren Goals</h1>
@@ -1465,14 +1478,6 @@ Listing 53
 <p>For single search-and-replace objectives, this amount of manual developer intervention/orchestration might be excusable; however, for objectives requiring the evaluation of multiple graph transformation, this approach is mostly unmaintainable and extremely difficult to compartmentalize.</p>
 <p>This demonstration barely even scratches the surface of what’s possible using miniKanren and relational programming for graph manipulation and symbolic statistical model optimization. As the <code>symbolic-pymc</code> project advances, we’ll cover examples in which miniKanren’s more distinct offerings are demonstrated.</p>
 </section>
-<script>
- window.MathJax = {
-     tex: {
-         tags: "ams"
-     }
- };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
 </body>
 </html>
 
