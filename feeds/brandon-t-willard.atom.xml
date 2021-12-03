@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/brandon-t-willard.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2020-05-08T00:00:00-05:00</updated><entry><title>Dynamic Linear Models in Theano</title><link href="https://brandonwillard.github.io/dynamic-linear-models-in-theano.html" rel="alternate"></link><published>2020-03-18T00:00:00-05:00</published><updated>2020-05-08T00:00:00-05:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2020-03-18:/dynamic-linear-models-in-theano.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Brandon T. Willard - Brandon T. Willard</title><link href="https://brandonwillard.github.io/" rel="alternate"></link><link href="https://brandonwillard.github.io/feeds/brandon-t-willard.atom.xml" rel="self"></link><id>https://brandonwillard.github.io/</id><updated>2021-12-02T00:00:00-06:00</updated><entry><title>Dynamic Linear Models in Theano</title><link href="https://brandonwillard.github.io/dynamic-linear-models-in-theano.html" rel="alternate"></link><published>2020-03-18T00:00:00-05:00</published><updated>2020-05-08T00:00:00-05:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2020-03-18:/dynamic-linear-models-in-theano.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
@@ -6874,4 +6874,541 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 &lt;/section&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</content><category term="articles"></category></entry></feed>
+</content><category term="articles"></category></entry><entry><title>Regarding Statistical Model Specification and Sample Results</title><link href="https://brandonwillard.github.io/regarding-statistical-model-specification-and-sample-results.html" rel="alternate"></link><published>2016-11-01T00:00:00-05:00</published><updated>2021-12-02T00:00:00-06:00</updated><author><name>Brandon T. Willard</name></author><id>tag:brandonwillard.github.io,2016-11-01:/regarding-statistical-model-specification-and-sample-results.html</id><summary type="html"></summary><content type="html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+  &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
+  &lt;meta http-equiv="Content-Style-Type" content="text/css" /&gt;
+  &lt;meta name="generator" content="pandoc" /&gt;
+  &lt;meta name="author" content="Brandon T. Willard" /&gt;
+  &lt;title&gt;Regarding Statistical Model Specification and Sample Results&lt;/title&gt;
+  &lt;style type="text/css"&gt;code{white-space: pre;}&lt;/style&gt;
+  &lt;style type="text/css"&gt;
+pre &gt; code.sourceCode { white-space: pre; position: relative; }
+pre &gt; code.sourceCode &gt; span { display: inline-block; line-height: 1.25; }
+pre &gt; code.sourceCode &gt; span:empty { height: 1.2em; }
+code.sourceCode &gt; span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre &gt; code.sourceCode { white-space: pre-wrap; }
+pre &gt; code.sourceCode &gt; span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code &gt; span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code &gt; span &gt; a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre &gt; code.sourceCode &gt; span &gt; a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  &lt;/style&gt;
+  &lt;!--        &lt;script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"&gt;&lt;/script&gt; --&gt;
+  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML" id="MathJax-script"&gt;&lt;/script&gt;
+  &lt;script&gt;
+   MathJax.Hub.Config({
+       tex2jax: {
+           processEnvironments: true,
+           processRefs: false
+       },
+       TeX: {
+           equationNumbers: { autoNumber: "AMS" },
+           extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+       }
+   });
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;div id="header"&gt; --&gt;
+&lt;!-- &lt;h1 class="title"&gt;Regarding Statistical Model Specification and Sample Results&lt;/h1&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;h2 class="author"&gt;Brandon T. Willard&lt;/h2&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;h3 class="date"&gt;2016–11–01&lt;/h3&gt; --&gt;
+&lt;!--  --&gt;
+&lt;!-- &lt;/div&gt; --&gt;
+&lt;!--  --&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#org080791d"&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#org1247f0c"&gt;Notation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#org9a150d4"&gt;A Simple Model&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#org7489ef0"&gt;Estimation (via MCMC)&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#orgc99ff06"&gt;The Situation on Implementation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#org82a5c5b"&gt;The Costs&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#orgfe79892"&gt;Predictions&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#org72d572e"&gt;Hierarchical Extensions&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a id="org080791d"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;section id="introduction" class="level1"&gt;
+&lt;h1&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;In this post I want to address some concepts regarding statistical model specification within the Bayesian paradigm, motivation for its use, and the utility of sample results (e.g. empirical posterior distributions). This write-up isn’t intended to be thorough or self-contained, especially since numerous quality introductions already exist for Bayesian modeling and MCMC &lt;a id="6824e74293e673dfd3d897debac1bd36"&gt;&lt;a href="#gelman_bayesian_2013"&gt;(Gelman, Carlin, Stern, Dunson, Vehtari &amp;amp; Rubin 2013)&lt;/a&gt;&lt;/a&gt;. Instead, its purpose is to illustrate some specific points in the context of a simple, evolving problem that mirrors some real-life objectives. Also, what’s advocated here is in large part just &lt;em&gt;statistical&lt;/em&gt; modeling and not exclusively &lt;em&gt;Bayesian&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;The generality, applicability and relative simplicity of the core concepts within Bayesian modeling are sadly overlooked in practice. Bayes is too often conflated with MCMC and its associated computational costs, or is seen as needlessly “mathy” and technical. I argue that there is an oft unacknowledged trade-off in the efforts of mathematical modeling, and that Bayesian modeling helps navigate that complexity. In doing so, one can save on expended efforts in the long run.&lt;/p&gt;
+&lt;p&gt;When a model is [fully] specified in a statistical or Bayesian way, the modeler has at their disposal distributions for the unknown quantities of interest; these distributions are often the primary interest. The desired estimates are found “within” the distributions. For instance, as a distribution’s moments (e.g. mean, mode, variance, etc.), which may correspond to certain “best” estimates or measures of parameter uncertainty. The same goes for functions of these distributions (e.g. rolling sums and averages).&lt;/p&gt;
+&lt;p&gt;Normally, modeling objectives are specified in terms of &lt;strong&gt;point-estimates&lt;/strong&gt; instead of distributions: like the aforementioned “best” parameter estimates. This situation is also covered by the Bayesian paradigm, especially when the corresponding distributions have a closed-form and are fully specified by a finite number of parameters. However, when this isn’t the case, point-estimates provide only part of the picture. It’s usually these missing parts that make model assessment and prediction largely separate and difficult endeavours down the road.&lt;/p&gt;
+&lt;p&gt;Even so, modeling and estimation often proceeds without much statistical consideration or context, making these distributions–and the results they can provide–more and more inaccessible. In a situation where modeling started with common machine learning/statistical software and resulted in non-statistical extensions, the work needed for something like &lt;em&gt;uncertainty quantification or propagation&lt;/em&gt; broadly equates to retrofitting and/or defining the altered or missing statistical context of the problem. This sort of work necessarily requires a much rarer expertise, which is usually too difficult for outsiders to vet. Considerations like this might be reason enough to–at least minimally–maintain clear statistical assumptions throughout the life of a non-trivial project. The Bayesian approach can be a more accessible means of providing this type of statistical coherency.&lt;/p&gt;
+&lt;p&gt;As a starting point, one can find quite a few non-Bayes models with Bayesian interpretations and counterparts. Even finding a Bayesian interpretation for an existing non-Bayes model can itself advance one’s understanding of the statistical assumptions and properties of the model. In some cases this understanding can inspire new forms of estimation or new non-Bayes variants of a model. Multiple examples arise from models defined by objective or loss functions with forms equivalent to the total log-likelihoods of Bayesian models. This, for instance, is one way that general point-wise estimates can be related to maximum a posteriori (MAP) estimates in the Bayesian context.&lt;/p&gt;
+&lt;p&gt;&lt;a id="org1247f0c"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="notation" class="level1"&gt;
+&lt;h1&gt;Notation&lt;/h1&gt;
+&lt;p&gt;Before getting into the details, let’s cover some preliminaries regarding notation.&lt;/p&gt;
+&lt;p&gt;The symbol &lt;span class="math inline"&gt;\(\sim\)&lt;/span&gt; is overloaded to mean a couple things. First, a statement like &lt;span class="math inline"&gt;\(X \sim \operatorname{P}\)&lt;/span&gt; means “&lt;span class="math inline"&gt;\(X\)&lt;/span&gt; is distributed according to &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt;”, when &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; is understood to be a random variable (generally denoted by capital letter variables). Second, for a non-random variable &lt;span class="math inline"&gt;\(x\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(x \sim \operatorname{P}\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(x \sim X\)&lt;/span&gt; means “&lt;span class="math inline"&gt;\(x\)&lt;/span&gt; is a sample from distribution &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt;”. When &lt;span class="math inline"&gt;\(\operatorname{P}\)&lt;/span&gt; is not meant to signify a distribution, but instead a generic function–like a probability density function &lt;span class="math inline"&gt;\(p(X=x) \equiv p(x)\)&lt;/span&gt;, then the distribution in question is [the] one arising from the function (interpreted as a probability density and/or measure)–when possible. See &lt;a href="https://en.wikipedia.org/wiki/Notation_in_probability_and_statistics"&gt;here&lt;/a&gt; for a similar notation. Also, whenever indices are dropped, the resulting symbol is assumed to be a stacked matrix containing each entry, e.g.&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{gather*}
+  X^\top = \begin{pmatrix} X_1 &amp;amp; \dots &amp;amp; X_N \end{pmatrix} \;.
+\end{gather*}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;When the indexed symbol is a vector, then it is customary to denote the row stacked matrix of each vector with the symbol’s capital letter. E.g., for [column] vectors &lt;span class="math inline"&gt;\(z_i\)&lt;/span&gt; over &lt;span class="math inline"&gt;\(i \in \{1, \dots, N\}\)&lt;/span&gt;,&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[
+Z = \begin{pmatrix} z_1 \\ \vdots \\ z_N \end{pmatrix} \;.
+\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a id="org9a150d4"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="a-simple-model" class="level1"&gt;
+&lt;h1&gt;A Simple Model&lt;/h1&gt;
+&lt;p&gt;First, a simple normal-normal model&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
+  Y_t \sim \operatorname{N}(x^\top_t \theta, \sigma^2), \quad
+    \theta \sim \operatorname{N}(\mu, I \tau^2)
+    \label{eq:normal-normal}
+\end{equation}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;for an identity matrix &lt;span class="math inline"&gt;\(I\)&lt;/span&gt;, observed random variable &lt;span class="math inline"&gt;\(Y_t\)&lt;/span&gt; at time &lt;span class="math inline"&gt;\(t \in \{1, \dots, T\}\)&lt;/span&gt;, and known constant values (of matching dimensions) &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(\sigma\)&lt;/span&gt;, &lt;span class="math inline"&gt;\(\mu\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\tau\)&lt;/span&gt;. The &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; play the role of predictors, or features, and we’ll assume that the time dependencies arise primarily through them.&lt;/p&gt;
+&lt;p&gt;In Bayes parlance, the model in &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt; gives &lt;span class="math inline"&gt;\(\theta\)&lt;/span&gt; a normal prior distribution, and the primary goal involves estimating the “posterior” distribution &lt;span class="math inline"&gt;\(p(\theta \mid y)\)&lt;/span&gt;–for a vector of observations &lt;span class="math inline"&gt;\(y\)&lt;/span&gt; under the assumption &lt;span class="math inline"&gt;\(y \sim Y\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;This simple example has the well known closed-form posterior solution for &lt;span class="math inline"&gt;\(\theta\)&lt;/span&gt;,&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
+  \left(\theta \mid y_t\right) \sim \operatorname{N}(m, C)
+    \;.
+    \label{eq:theta-posterior}
+\end{equation}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;for&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{gather*}
+  m = C \left(\mu \tau^{-2} + X^\top y\, \sigma^{-2}\right), \quad
+  C = \left(\tau^{-2} + \operatorname{diag}(X^\top X) \sigma^{-2}\right)^{-1}
+  \;.
+\end{gather*}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Results like this are easily obtained for the classical pairings of “conjugate” distributions. Detailed &lt;a href="https://en.wikipedia.org/wiki/Conjugate_prior#Table_of_conjugate_distributions"&gt;tables&lt;/a&gt; and &lt;a href="https://goo.gl/UCL3pc"&gt;tutorials&lt;/a&gt; for conjugate distributions can be found online or in any standard text.&lt;/p&gt;
+&lt;p&gt;&lt;a id="org7489ef0"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="estimation-via-mcmc" class="level1"&gt;
+&lt;h1&gt;Estimation (via MCMC)&lt;/h1&gt;
+&lt;p&gt;From here on let’s assume we do not have the closed-form result in &lt;span class="math inline"&gt;\(\eqref{eq:theta-posterior}\)&lt;/span&gt;. Instead, we’ll estimate the posterior numerically with &lt;a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo"&gt;MCMC&lt;/a&gt;. Again, MCMC is covered to varying degrees of detail all over the place (e.g. &lt;a href="https://goo.gl/JNwfuo"&gt;here&lt;/a&gt;), so we’ll skip most of those details. Let’s say we’ve decided to use &lt;a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm"&gt;Metropolis-Hastings&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For demonstration purposes, we produce a simulation of some data we might observe and for which we would consider applying the model in &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb1"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb1-1"&gt;&lt;a href="#cb1-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;from&lt;/span&gt; datetime &lt;span class="im"&gt;import&lt;/span&gt; datetime&lt;/span&gt;
+&lt;span id="cb1-2"&gt;&lt;a href="#cb1-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb1-3"&gt;&lt;a href="#cb1-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; numpy &lt;span class="im"&gt;as&lt;/span&gt; np&lt;/span&gt;
+&lt;span id="cb1-4"&gt;&lt;a href="#cb1-4" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; pandas &lt;span class="im"&gt;as&lt;/span&gt; pd&lt;/span&gt;
+&lt;span id="cb1-5"&gt;&lt;a href="#cb1-5" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; scipy.stats &lt;span class="im"&gt;as&lt;/span&gt; scs&lt;/span&gt;
+&lt;span id="cb1-6"&gt;&lt;a href="#cb1-6" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb1-7"&gt;&lt;a href="#cb1-7" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# Unknown parameter&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb1-8"&gt;&lt;a href="#cb1-8" aria-hidden="true"&gt;&lt;/a&gt;mu_true &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1.5&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb1-9"&gt;&lt;a href="#cb1-9" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb1-10"&gt;&lt;a href="#cb1-10" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# [Assumed] known parameter&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb1-11"&gt;&lt;a href="#cb1-11" aria-hidden="true"&gt;&lt;/a&gt;sigma2 &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;0.05&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb1-12"&gt;&lt;a href="#cb1-12" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb1-13"&gt;&lt;a href="#cb1-13" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# Prior parameters&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb1-14"&gt;&lt;a href="#cb1-14" aria-hidden="true"&gt;&lt;/a&gt;tau2 &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1e2&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb1-15"&gt;&lt;a href="#cb1-15" aria-hidden="true"&gt;&lt;/a&gt;mu &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="dv"&gt;1&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb1-16"&gt;&lt;a href="#cb1-16" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb1-17"&gt;&lt;a href="#cb1-17" aria-hidden="true"&gt;&lt;/a&gt;start_datetime &lt;span class="op"&gt;=&lt;/span&gt; pd.Timestamp(datetime.now())&lt;/span&gt;
+&lt;span id="cb1-18"&gt;&lt;a href="#cb1-18" aria-hidden="true"&gt;&lt;/a&gt;sim_index &lt;span class="op"&gt;=&lt;/span&gt; pd.date_range(&lt;/span&gt;
+&lt;span id="cb1-19"&gt;&lt;a href="#cb1-19" aria-hidden="true"&gt;&lt;/a&gt;    start&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;2016-01-01 12:00:00&amp;quot;&lt;/span&gt;, end&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;2016-01-08 12:00:00&amp;quot;&lt;/span&gt;, freq&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;H&amp;quot;&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb1-20"&gt;&lt;a href="#cb1-20" aria-hidden="true"&gt;&lt;/a&gt;)&lt;/span&gt;
+&lt;span id="cb1-21"&gt;&lt;a href="#cb1-21" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb1-22"&gt;&lt;a href="#cb1-22" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# Simulated observations&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb1-23"&gt;&lt;a href="#cb1-23" aria-hidden="true"&gt;&lt;/a&gt;X &lt;span class="op"&gt;=&lt;/span&gt; np.sin(np.linspace(&lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="dv"&gt;2&lt;/span&gt; &lt;span class="op"&gt;*&lt;/span&gt; np.pi, np.alen(sim_index)))&lt;/span&gt;
+&lt;span id="cb1-24"&gt;&lt;a href="#cb1-24" aria-hidden="true"&gt;&lt;/a&gt;y_obs &lt;span class="op"&gt;=&lt;/span&gt; scs.norm.rvs(loc&lt;span class="op"&gt;=&lt;/span&gt;X &lt;span class="op"&gt;*&lt;/span&gt; mu_true, scale&lt;span class="op"&gt;=&lt;/span&gt;np.sqrt(sigma2))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;p&gt;A Metropolis-Hastings sampler would perform a simple loop that accepts or rejects samples from a proposal distribution, &lt;span class="math inline"&gt;\(\theta_i \sim p(\theta_i \mid \theta_{i-1})\)&lt;/span&gt;, according to the probability&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[
+  \min\left\{1,
+  \frac{p(Y = y \mid X, \theta_i)}{p(Y = y \mid X, \theta_{i-1})}
+  \frac{p(\theta_i \mid \theta_{i-1})}{p(\theta_{i-1} \mid \theta_i)}
+  \right\}
+  \;.
+\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Let’s say our proposal is a normal distribution with a mean equal to the previous sample and a variance given by &lt;span class="math inline"&gt;\(\lambda^2\)&lt;/span&gt;. The resulting sampling scheme is a random walk Metropolis-Hastings sampler, and since the proposal is a symmetric distribution, &lt;span class="math inline"&gt;\(\frac{p(\theta_i \mid \theta_{i-1})}{p(\theta_{i-1} \mid \theta_i)} = 1\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;In code, this could look like&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb2"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb2-1"&gt;&lt;a href="#cb2-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;from&lt;/span&gt; functools &lt;span class="im"&gt;import&lt;/span&gt; partial&lt;/span&gt;
+&lt;span id="cb2-2"&gt;&lt;a href="#cb2-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb2-3"&gt;&lt;a href="#cb2-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb2-4"&gt;&lt;a href="#cb2-4" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="kw"&gt;def&lt;/span&gt; model_logpdf(theta_):&lt;/span&gt;
+&lt;span id="cb2-5"&gt;&lt;a href="#cb2-5" aria-hidden="true"&gt;&lt;/a&gt;    res &lt;span class="op"&gt;=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(scs.norm.logpdf(y_obs, loc&lt;span class="op"&gt;=&lt;/span&gt;X &lt;span class="op"&gt;*&lt;/span&gt; theta_, scale&lt;span class="op"&gt;=&lt;/span&gt;np.sqrt(sigma2)))&lt;/span&gt;
+&lt;span id="cb2-6"&gt;&lt;a href="#cb2-6" aria-hidden="true"&gt;&lt;/a&gt;    res &lt;span class="op"&gt;+=&lt;/span&gt; scs.norm.logpdf(theta_, loc&lt;span class="op"&gt;=&lt;/span&gt;mu, scale&lt;span class="op"&gt;=&lt;/span&gt;np.sqrt(tau2))&lt;/span&gt;
+&lt;span id="cb2-7"&gt;&lt;a href="#cb2-7" aria-hidden="true"&gt;&lt;/a&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; res&lt;/span&gt;
+&lt;span id="cb2-8"&gt;&lt;a href="#cb2-8" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb2-9"&gt;&lt;a href="#cb2-9" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb2-10"&gt;&lt;a href="#cb2-10" aria-hidden="true"&gt;&lt;/a&gt;N_samples &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="dv"&gt;2000&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb2-11"&gt;&lt;a href="#cb2-11" aria-hidden="true"&gt;&lt;/a&gt;theta_samples &lt;span class="op"&gt;=&lt;/span&gt; []&lt;/span&gt;
+&lt;span id="cb2-12"&gt;&lt;a href="#cb2-12" aria-hidden="true"&gt;&lt;/a&gt;lam &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1.0&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb2-13"&gt;&lt;a href="#cb2-13" aria-hidden="true"&gt;&lt;/a&gt;current_sample &lt;span class="op"&gt;=&lt;/span&gt; np.random.normal(loc&lt;span class="op"&gt;=&lt;/span&gt;mu, scale&lt;span class="op"&gt;=&lt;/span&gt;lam)&lt;/span&gt;
+&lt;span id="cb2-14"&gt;&lt;a href="#cb2-14" aria-hidden="true"&gt;&lt;/a&gt;proposal_logpdf &lt;span class="op"&gt;=&lt;/span&gt; partial(scs.norm.logpdf, scale&lt;span class="op"&gt;=&lt;/span&gt;lam)&lt;/span&gt;
+&lt;span id="cb2-15"&gt;&lt;a href="#cb2-15" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb2-16"&gt;&lt;a href="#cb2-16" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="cf"&gt;for&lt;/span&gt; i &lt;span class="kw"&gt;in&lt;/span&gt; &lt;span class="bu"&gt;range&lt;/span&gt;(N_samples):&lt;/span&gt;
+&lt;span id="cb2-17"&gt;&lt;a href="#cb2-17" aria-hidden="true"&gt;&lt;/a&gt;    proposal_sample &lt;span class="op"&gt;=&lt;/span&gt; np.random.normal(loc&lt;span class="op"&gt;=&lt;/span&gt;current_sample, scale&lt;span class="op"&gt;=&lt;/span&gt;lam)&lt;/span&gt;
+&lt;span id="cb2-18"&gt;&lt;a href="#cb2-18" aria-hidden="true"&gt;&lt;/a&gt;    l_ratio &lt;span class="op"&gt;=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(model_logpdf(proposal_sample))&lt;/span&gt;
+&lt;span id="cb2-19"&gt;&lt;a href="#cb2-19" aria-hidden="true"&gt;&lt;/a&gt;    l_ratio &lt;span class="op"&gt;-=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(model_logpdf(current_sample))&lt;/span&gt;
+&lt;span id="cb2-20"&gt;&lt;a href="#cb2-20" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb2-21"&gt;&lt;a href="#cb2-21" aria-hidden="true"&gt;&lt;/a&gt;    p_ratio &lt;span class="op"&gt;=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(proposal_logpdf(current_sample, loc&lt;span class="op"&gt;=&lt;/span&gt;proposal_sample))&lt;/span&gt;
+&lt;span id="cb2-22"&gt;&lt;a href="#cb2-22" aria-hidden="true"&gt;&lt;/a&gt;    p_ratio &lt;span class="op"&gt;-=&lt;/span&gt; np.&lt;span class="bu"&gt;sum&lt;/span&gt;(proposal_logpdf(proposal_sample, loc&lt;span class="op"&gt;=&lt;/span&gt;current_sample))&lt;/span&gt;
+&lt;span id="cb2-23"&gt;&lt;a href="#cb2-23" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb2-24"&gt;&lt;a href="#cb2-24" aria-hidden="true"&gt;&lt;/a&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; np.log(np.random.uniform()) &lt;span class="op"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="bu"&gt;min&lt;/span&gt;(&lt;span class="dv"&gt;0&lt;/span&gt;, l_ratio &lt;span class="op"&gt;+&lt;/span&gt; p_ratio):&lt;/span&gt;
+&lt;span id="cb2-25"&gt;&lt;a href="#cb2-25" aria-hidden="true"&gt;&lt;/a&gt;        current_sample &lt;span class="op"&gt;=&lt;/span&gt; proposal_sample&lt;/span&gt;
+&lt;span id="cb2-26"&gt;&lt;a href="#cb2-26" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb2-27"&gt;&lt;a href="#cb2-27" aria-hidden="true"&gt;&lt;/a&gt;    theta_samples.append(current_sample)&lt;/span&gt;
+&lt;span id="cb2-28"&gt;&lt;a href="#cb2-28" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb2-29"&gt;&lt;a href="#cb2-29" aria-hidden="true"&gt;&lt;/a&gt;theta_samples &lt;span class="op"&gt;=&lt;/span&gt; np.asarray(theta_samples)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;p&gt;The Metropolis-Hastings sampler does not rely on any prior information or Bayesian formulations. Although the prior is implicitly involved, via the total probability, the concepts behind the sampler itself are still valid without it. Basically, Metropolis-Hastings–like many other MCMC sampling routines–is not specifically Bayesian. It’s better to simply consider MCMC as just another estimation approach (or perhaps a type of stochastic optimization).&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Gibbs_sampling"&gt;Gibbs sampling&lt;/a&gt; is arguably the other most ubiquitous MCMC technique. Since a model specified in a Bayesian way usually provides a clear joint distribution (or at least something proportional to it) and conditional probabilities, Gibbs sampling is well facilitated.&lt;/p&gt;
+&lt;p&gt;The context of Bayesian modeling is, however, a good source of direction and motivation for improvements to a sampling procedure (and estimation in general). Under Bayesian assumptions, decompositions and reformulations for broad classes of distributions are often immediately available. Guiding generalities, like the &lt;a href="https://en.wikipedia.org/wiki/Rao%E2%80%93Blackwell_theorem"&gt;Rao-Blackwell&lt;/a&gt; theorem, are also applicable, and–more generally–the same principles, tools and results that guide the model creation and assessment process can also feed into the estimation process.&lt;/p&gt;
+&lt;p&gt;&lt;a id="orgc99ff06"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;section id="the-situation-on-implementation" class="level2"&gt;
+&lt;h2&gt;The Situation on Implementation&lt;/h2&gt;
+&lt;p&gt;MCMC sampling schemes like the above are fairly general and easily abstracted, giving rise to some generic frameworks that put more focus on model specification and attempt to automate the choice of estimation (or implement one robust technique). Some of the more common frameworks are Bayesian in nature: &lt;a href="http://www.openbugs.net/w/FrontPage"&gt;OpenBUGS&lt;/a&gt;, &lt;a href="http://mcmc-jags.sourceforge.net/"&gt;JAGS&lt;/a&gt;, &lt;a href="http://mc-stan.org/"&gt;Stan&lt;/a&gt;, and &lt;a href="https://pymc-devs.github.io/pymc/"&gt;PyMC2&lt;/a&gt; / &lt;a href="https://pymc-devs.github.io/pymc3/"&gt;PyMC3&lt;/a&gt;. These libraries provide a sort of meta-language that facilitates the specification of a Bayesian model and mirrors the mathematical language of probability. They also implicitly implement the &lt;a href="https://en.wikipedia.org/wiki/Algebra_of_random_variables"&gt;algebra of random variables&lt;/a&gt; and automatically handle the mechanics of variable transforms.&lt;/p&gt;
+&lt;p&gt;Our model, estimated with a Metropolis-Hastings sampler, can be expressed in PyMC3 with the following code:&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb3"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb3-1"&gt;&lt;a href="#cb3-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; pymc3 &lt;span class="im"&gt;as&lt;/span&gt; pm&lt;/span&gt;
+&lt;span id="cb3-2"&gt;&lt;a href="#cb3-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; theano&lt;/span&gt;
+&lt;span id="cb3-3"&gt;&lt;a href="#cb3-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb3-4"&gt;&lt;a href="#cb3-4" aria-hidden="true"&gt;&lt;/a&gt;theano.config.mode &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="st"&gt;&amp;quot;FAST_COMPILE&amp;quot;&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb3-5"&gt;&lt;a href="#cb3-5" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb3-6"&gt;&lt;a href="#cb3-6" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="cf"&gt;with&lt;/span&gt; pm.Model() &lt;span class="im"&gt;as&lt;/span&gt; model:&lt;/span&gt;
+&lt;span id="cb3-7"&gt;&lt;a href="#cb3-7" aria-hidden="true"&gt;&lt;/a&gt;    &lt;span class="co"&gt;# Model definition&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb3-8"&gt;&lt;a href="#cb3-8" aria-hidden="true"&gt;&lt;/a&gt;    theta &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;quot;theta&amp;quot;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;mu, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.0&lt;/span&gt; &lt;span class="op"&gt;/&lt;/span&gt; tau2)&lt;/span&gt;
+&lt;span id="cb3-9"&gt;&lt;a href="#cb3-9" aria-hidden="true"&gt;&lt;/a&gt;    Y &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;quot;Y&amp;quot;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;X &lt;span class="op"&gt;*&lt;/span&gt; theta, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.0&lt;/span&gt; &lt;span class="op"&gt;/&lt;/span&gt; sigma2, observed&lt;span class="op"&gt;=&lt;/span&gt;y_obs)&lt;/span&gt;
+&lt;span id="cb3-10"&gt;&lt;a href="#cb3-10" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb3-11"&gt;&lt;a href="#cb3-11" aria-hidden="true"&gt;&lt;/a&gt;    &lt;span class="co"&gt;# Posterior sampling&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb3-12"&gt;&lt;a href="#cb3-12" aria-hidden="true"&gt;&lt;/a&gt;    sample_steps &lt;span class="op"&gt;=&lt;/span&gt; pm.Metropolis()&lt;/span&gt;
+&lt;span id="cb3-13"&gt;&lt;a href="#cb3-13" aria-hidden="true"&gt;&lt;/a&gt;    sample_traces &lt;span class="op"&gt;=&lt;/span&gt; pm.sample(&lt;span class="dv"&gt;2000&lt;/span&gt;, sample_steps)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;p&gt;As per the basic examples in the &lt;a href="https://goo.gl/WW3TO8"&gt;PyMC3 notebooks&lt;/a&gt;, the posterior samples are plotted below using the following code:&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb4"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb4-1"&gt;&lt;a href="#cb4-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; matplotlib.pyplot &lt;span class="im"&gt;as&lt;/span&gt; plt&lt;/span&gt;
+&lt;span id="cb4-2"&gt;&lt;a href="#cb4-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb4-3"&gt;&lt;a href="#cb4-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb4-4"&gt;&lt;a href="#cb4-4" aria-hidden="true"&gt;&lt;/a&gt;plt.style.use(&lt;span class="st"&gt;&amp;quot;ggplot&amp;quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb4-5"&gt;&lt;a href="#cb4-5" aria-hidden="true"&gt;&lt;/a&gt;plt.rc(&lt;span class="st"&gt;&amp;quot;text&amp;quot;&lt;/span&gt;, usetex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb4-6"&gt;&lt;a href="#cb4-6" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb4-7"&gt;&lt;a href="#cb4-7" aria-hidden="true"&gt;&lt;/a&gt;tp_axes &lt;span class="op"&gt;=&lt;/span&gt; pm.traceplot(sample_traces)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;p&gt;We can also superimpose the true posterior density given by &lt;span class="math inline"&gt;\(\eqref{eq:theta-posterior}\)&lt;/span&gt; with the following:&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb5"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb5-1"&gt;&lt;a href="#cb5-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; seaborn &lt;span class="im"&gt;as&lt;/span&gt; sns&lt;/span&gt;
+&lt;span id="cb5-2"&gt;&lt;a href="#cb5-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-3"&gt;&lt;a href="#cb5-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; matplotlib.pyplot &lt;span class="im"&gt;as&lt;/span&gt; plt&lt;/span&gt;
+&lt;span id="cb5-4"&gt;&lt;a href="#cb5-4" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-5"&gt;&lt;a href="#cb5-5" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-6"&gt;&lt;a href="#cb5-6" aria-hidden="true"&gt;&lt;/a&gt;plt.style.use(&lt;span class="st"&gt;&amp;quot;ggplot&amp;quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb5-7"&gt;&lt;a href="#cb5-7" aria-hidden="true"&gt;&lt;/a&gt;plt.rc(&lt;span class="st"&gt;&amp;quot;text&amp;quot;&lt;/span&gt;, usetex&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb5-8"&gt;&lt;a href="#cb5-8" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-9"&gt;&lt;a href="#cb5-9" aria-hidden="true"&gt;&lt;/a&gt;tp_axes &lt;span class="op"&gt;=&lt;/span&gt; pm.traceplot(sample_traces)&lt;/span&gt;
+&lt;span id="cb5-10"&gt;&lt;a href="#cb5-10" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-11"&gt;&lt;a href="#cb5-11" aria-hidden="true"&gt;&lt;/a&gt;_ &lt;span class="op"&gt;=&lt;/span&gt; [a_.set_title(&lt;span class="vs"&gt;r&amp;quot;Posterior $(\theta \mid y)$ Samples&amp;quot;&lt;/span&gt;) &lt;span class="cf"&gt;for&lt;/span&gt; a_ &lt;span class="kw"&gt;in&lt;/span&gt; tp_axes.ravel()]&lt;/span&gt;
+&lt;span id="cb5-12"&gt;&lt;a href="#cb5-12" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-13"&gt;&lt;a href="#cb5-13" aria-hidden="true"&gt;&lt;/a&gt;freq_axis &lt;span class="op"&gt;=&lt;/span&gt; tp_axes[&lt;span class="dv"&gt;0&lt;/span&gt;][&lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/span&gt;
+&lt;span id="cb5-14"&gt;&lt;a href="#cb5-14" aria-hidden="true"&gt;&lt;/a&gt;freq_axis.set_xlabel(&lt;span class="vs"&gt;r&amp;quot;$\theta$&amp;quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb5-15"&gt;&lt;a href="#cb5-15" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-16"&gt;&lt;a href="#cb5-16" aria-hidden="true"&gt;&lt;/a&gt;sample_axis &lt;span class="op"&gt;=&lt;/span&gt; tp_axes[&lt;span class="dv"&gt;0&lt;/span&gt;][&lt;span class="dv"&gt;1&lt;/span&gt;]&lt;/span&gt;
+&lt;span id="cb5-17"&gt;&lt;a href="#cb5-17" aria-hidden="true"&gt;&lt;/a&gt;sample_axis.set_xlabel(&lt;span class="vs"&gt;r&amp;quot;$i$&amp;quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb5-18"&gt;&lt;a href="#cb5-18" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-19"&gt;&lt;a href="#cb5-19" aria-hidden="true"&gt;&lt;/a&gt;rhs &lt;span class="op"&gt;=&lt;/span&gt; np.dot(&lt;span class="fl"&gt;1.0&lt;/span&gt; &lt;span class="op"&gt;/&lt;/span&gt; tau2, mu) &lt;span class="op"&gt;+&lt;/span&gt; np.dot(X.T &lt;span class="op"&gt;/&lt;/span&gt; sigma2, y_obs)&lt;/span&gt;
+&lt;span id="cb5-20"&gt;&lt;a href="#cb5-20" aria-hidden="true"&gt;&lt;/a&gt;tau_post &lt;span class="op"&gt;=&lt;/span&gt; &lt;span class="fl"&gt;1.0&lt;/span&gt; &lt;span class="op"&gt;/&lt;/span&gt; tau2 &lt;span class="op"&gt;+&lt;/span&gt; np.dot(X.T &lt;span class="op"&gt;/&lt;/span&gt; sigma2, X)&lt;/span&gt;
+&lt;span id="cb5-21"&gt;&lt;a href="#cb5-21" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-22"&gt;&lt;a href="#cb5-22" aria-hidden="true"&gt;&lt;/a&gt;post_mean &lt;span class="op"&gt;=&lt;/span&gt; rhs &lt;span class="op"&gt;/&lt;/span&gt; tau_post&lt;/span&gt;
+&lt;span id="cb5-23"&gt;&lt;a href="#cb5-23" aria-hidden="true"&gt;&lt;/a&gt;post_var_inv &lt;span class="op"&gt;=&lt;/span&gt; tau_post&lt;/span&gt;
+&lt;span id="cb5-24"&gt;&lt;a href="#cb5-24" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-25"&gt;&lt;a href="#cb5-25" aria-hidden="true"&gt;&lt;/a&gt;post_pdf &lt;span class="op"&gt;=&lt;/span&gt; partial(scs.norm.pdf, loc&lt;span class="op"&gt;=&lt;/span&gt;post_mean, scale&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.0&lt;/span&gt; &lt;span class="op"&gt;/&lt;/span&gt; np.sqrt(post_var_inv))&lt;/span&gt;
+&lt;span id="cb5-26"&gt;&lt;a href="#cb5-26" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-27"&gt;&lt;a href="#cb5-27" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-28"&gt;&lt;a href="#cb5-28" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="kw"&gt;def&lt;/span&gt; add_function_plot(func, ax, num&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1e2&lt;/span&gt;, label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;None&lt;/span&gt;):&lt;/span&gt;
+&lt;span id="cb5-29"&gt;&lt;a href="#cb5-29" aria-hidden="true"&gt;&lt;/a&gt;    post_range &lt;span class="op"&gt;=&lt;/span&gt; np.linspace(&lt;span class="op"&gt;*&lt;/span&gt;ax.get_xlim(), num&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="bu"&gt;int&lt;/span&gt;(num), endpoint&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;True&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb5-30"&gt;&lt;a href="#cb5-30" aria-hidden="true"&gt;&lt;/a&gt;    post_data &lt;span class="op"&gt;=&lt;/span&gt; [post_pdf(v) &lt;span class="cf"&gt;for&lt;/span&gt; v &lt;span class="kw"&gt;in&lt;/span&gt; post_range]&lt;/span&gt;
+&lt;span id="cb5-31"&gt;&lt;a href="#cb5-31" aria-hidden="true"&gt;&lt;/a&gt;    &lt;span class="cf"&gt;return&lt;/span&gt; ax.plot(post_range, post_data, label&lt;span class="op"&gt;=&lt;/span&gt;label)&lt;/span&gt;
+&lt;span id="cb5-32"&gt;&lt;a href="#cb5-32" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-33"&gt;&lt;a href="#cb5-33" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-34"&gt;&lt;a href="#cb5-34" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# Add true posterior pdf to the plot&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb5-35"&gt;&lt;a href="#cb5-35" aria-hidden="true"&gt;&lt;/a&gt;add_function_plot(post_pdf, freq_axis, label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;quot;Exact&amp;quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb5-36"&gt;&lt;a href="#cb5-36" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-37"&gt;&lt;a href="#cb5-37" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# Add manually produced MH samples to the plot&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb5-38"&gt;&lt;a href="#cb5-38" aria-hidden="true"&gt;&lt;/a&gt;sns.distplot(theta_samples[:&lt;span class="dv"&gt;2000&lt;/span&gt;], ax&lt;span class="op"&gt;=&lt;/span&gt;freq_axis, hist&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;False&lt;/span&gt;, label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;quot;Manual MH&amp;quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb5-39"&gt;&lt;a href="#cb5-39" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-40"&gt;&lt;a href="#cb5-40" aria-hidden="true"&gt;&lt;/a&gt;sample_axis.plot(theta_samples[:&lt;span class="dv"&gt;2000&lt;/span&gt;], label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;quot;Manual MH&amp;quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb5-41"&gt;&lt;a href="#cb5-41" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb5-42"&gt;&lt;a href="#cb5-42" aria-hidden="true"&gt;&lt;/a&gt;freq_axis.legend()&lt;/span&gt;
+&lt;span id="cb5-43"&gt;&lt;a href="#cb5-43" aria-hidden="true"&gt;&lt;/a&gt;sample_axis.legend()&lt;/span&gt;
+&lt;span id="cb5-44"&gt;&lt;a href="#cb5-44" aria-hidden="true"&gt;&lt;/a&gt;plt.show()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;figure id="nil" class="plot"&gt;
+&lt;img src="https://brandonwillard.github.io/figures/theta_post_plot.png" title="fig:" alt="Posterior samples " /&gt;
+&lt;figcaption&gt;
+Posterior samples
+&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;&lt;a id="org82a5c5b"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="the-costs" class="level2"&gt;
+&lt;h2&gt;The Costs&lt;/h2&gt;
+&lt;p&gt;MCMC, and specifically the Metropolis-Hastings approach used above, can look very simple and universally applicable, but–of course–there’s a trade-off occurring somewhere. The trade-offs most often appear in relation to the complexity and cost of [intermediate] sampling steps and convergence rates. To over simplify, the standard &lt;span class="math inline"&gt;\(O(N^{-1/2})\)&lt;/span&gt; error rate–from the &lt;a href="https://en.wikipedia.org/wiki/Central_limit_theorem"&gt;Central Limit Theorem&lt;/a&gt;–is the MCMC baseline, which isn’t all that competitive with some of the standard deterministic optimization methods.&lt;/p&gt;
+&lt;p&gt;Even for conceptually simple models, the proposal distribution (and its parameters) are not always easy to choose or cheap to tune. The upfront computational costs can be quite high for the more generic MCMC approaches, but there are almost always paths toward efficient samplers–in the context of a specific problem, at least.&lt;/p&gt;
+&lt;p&gt;In practice, the generality and relative simplicity of the Bayes approach, combined with MCMC, can be somewhat misleading to newcomers. After some immediate success with simpler and/or scaled down problems, one is soon led to believe that the cost of direct computations and the effort and skill required to derive efficient methods is not worth the potential parsimony and extra information provided by sample results.&lt;/p&gt;
+&lt;p&gt;The unfortunate outcome of this situation is sometimes an effective rejection of Bayes and MCMC altogether. Although the point hasn’t been illustrated here, MCMC isn’t the only option. &lt;strong&gt;Bayesian models are just as amenable to deterministic estimation as non-Bayesian ones&lt;/strong&gt;, and a wide array of efficient deterministic estimation techniques are available–albeit not so common in standard practice &lt;a id="1b02eb0eebf5ae001cbb5ff5b74acff1"&gt;&lt;a href="#polson_proximal_2015"&gt;(Polson, Scott &amp;amp; Willard 2015)&lt;/a&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a id="orgfe79892"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/section&gt;
+&lt;/section&gt;
+&lt;section id="predictions" class="level1"&gt;
+&lt;h1&gt;Predictions&lt;/h1&gt;
+&lt;p&gt;The sampling situation offered by MCMC (and Bayes) puts one in a nice situation to make extensive use of predictions &lt;em&gt;and&lt;/em&gt; obtain uncertainty measures (e.g. variances, credible intervals, etc.).&lt;/p&gt;
+&lt;p&gt;In general, posterior predictive samples are fairly easy to obtain. Once you have posterior samples of &lt;span class="math inline"&gt;\(\theta\)&lt;/span&gt;, say &lt;span class="math inline"&gt;\(\{\theta_i\}_{i=0}^M\)&lt;/span&gt;, simply plug those into the sampling/observation distribution and sample &lt;span class="math inline"&gt;\(Y\)&lt;/span&gt; values. Specifically,&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
+  \{y_i \sim p(Y \mid X, \theta_i) : \theta_i \sim p(\theta_i \mid y)\}_{i=0}^M
+  \label{eq:post_predict_samples}
+\end{equation}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;is a posterior predictive sample from &lt;span class="math inline"&gt;\(p(Y \mid X, y)\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;The procedural interpretation of &lt;span class="math inline"&gt;\(\eqref{eq:post_predict_samples}\)&lt;/span&gt; is:&lt;/p&gt;
+&lt;p&gt;Assuming we’ve already produced a posterior sample, this is as simple as plugging those &lt;span class="math inline"&gt;\(\theta_i\)&lt;/span&gt; into the observation distribution &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt; and sampling. The cumulative effect of this process is equivalent to producing an estimate of the marginal&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[
+  \int p(Y_t \mid x_t, \theta) p(\theta \mid y) d\theta = p(Y_t \mid x_t, y)
+  \;.
+\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;The posterior predictive sample in &lt;span class="math inline"&gt;\(\eqref{eq:post_predict_samples}\)&lt;/span&gt; contains much of the information a modeler desires. Take the variance of this sample and one has a common measure of prediction error; produce quantiles of the sample and one has &lt;a href="https://en.wikipedia.org/wiki/Credible_interval"&gt;“credible”&lt;/a&gt; prediction intervals. The sample produced by mapping an arbitrary function to each posterior predictive sample is itself amenable to the aforementioned summaries, allowing one to easily produce errors for complicated uses of predicted quantities. We illustrate these use cases below.&lt;/p&gt;
+&lt;p&gt;Using our previous simulation and PyMC3, the posterior predictive samples are obtained with&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb6"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb6-1"&gt;&lt;a href="#cb6-1" aria-hidden="true"&gt;&lt;/a&gt;ppc_samples &lt;span class="op"&gt;=&lt;/span&gt; pm.sample_posterior_predictive(sample_traces, model&lt;span class="op"&gt;=&lt;/span&gt;model)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;p&gt;and plotted with&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb7"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb7-1"&gt;&lt;a href="#cb7-1" aria-hidden="true"&gt;&lt;/a&gt;y_obs_h &lt;span class="op"&gt;=&lt;/span&gt; pd.Series(y_obs, index&lt;span class="op"&gt;=&lt;/span&gt;sim_index)&lt;/span&gt;
+&lt;span id="cb7-2"&gt;&lt;a href="#cb7-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb7-3"&gt;&lt;a href="#cb7-3" aria-hidden="true"&gt;&lt;/a&gt;ppc_hpd &lt;span class="op"&gt;=&lt;/span&gt; pm.hpd(ppc_samples[&lt;span class="st"&gt;&amp;quot;Y&amp;quot;&lt;/span&gt;], &lt;span class="fl"&gt;0.95&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb7-4"&gt;&lt;a href="#cb7-4" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb7-5"&gt;&lt;a href="#cb7-5" aria-hidden="true"&gt;&lt;/a&gt;y_obs_h.plot(label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;$y$&amp;quot;&lt;/span&gt;, color&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;black&amp;quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb7-6"&gt;&lt;a href="#cb7-6" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb7-7"&gt;&lt;a href="#cb7-7" aria-hidden="true"&gt;&lt;/a&gt;y_obs_mean &lt;span class="op"&gt;=&lt;/span&gt; pd.Series(ppc_samples[&lt;span class="st"&gt;&amp;quot;Y&amp;quot;&lt;/span&gt;].mean(axis&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;), index&lt;span class="op"&gt;=&lt;/span&gt;sim_index)&lt;/span&gt;
+&lt;span id="cb7-8"&gt;&lt;a href="#cb7-8" aria-hidden="true"&gt;&lt;/a&gt;y_obs_mean.plot(label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;quot;$E[Y \mid X, y]$&amp;quot;&lt;/span&gt;, alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.7&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb7-9"&gt;&lt;a href="#cb7-9" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb7-10"&gt;&lt;a href="#cb7-10" aria-hidden="true"&gt;&lt;/a&gt;plt.fill_between(&lt;/span&gt;
+&lt;span id="cb7-11"&gt;&lt;a href="#cb7-11" aria-hidden="true"&gt;&lt;/a&gt;    sim_index,&lt;/span&gt;
+&lt;span id="cb7-12"&gt;&lt;a href="#cb7-12" aria-hidden="true"&gt;&lt;/a&gt;    ppc_hpd[:, &lt;span class="dv"&gt;0&lt;/span&gt;],&lt;/span&gt;
+&lt;span id="cb7-13"&gt;&lt;a href="#cb7-13" aria-hidden="true"&gt;&lt;/a&gt;    ppc_hpd[:, &lt;span class="dv"&gt;1&lt;/span&gt;],&lt;/span&gt;
+&lt;span id="cb7-14"&gt;&lt;a href="#cb7-14" aria-hidden="true"&gt;&lt;/a&gt;    label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;quot;$(Y \mid X, y)$ 95\&lt;/span&gt;&lt;span class="sc"&gt;% i&lt;/span&gt;&lt;span class="vs"&gt;nterval&amp;quot;&lt;/span&gt;,&lt;/span&gt;
+&lt;span id="cb7-15"&gt;&lt;a href="#cb7-15" aria-hidden="true"&gt;&lt;/a&gt;    alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt;,&lt;/span&gt;
+&lt;span id="cb7-16"&gt;&lt;a href="#cb7-16" aria-hidden="true"&gt;&lt;/a&gt;)&lt;/span&gt;
+&lt;span id="cb7-17"&gt;&lt;a href="#cb7-17" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb7-18"&gt;&lt;a href="#cb7-18" aria-hidden="true"&gt;&lt;/a&gt;plt.legend()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;figure id="nil" class="plot"&gt;
+&lt;img src="https://brandonwillard.github.io/figures/hourly_ppc_plot.png" title="fig:" alt="Posterior predictive samples " /&gt;
+&lt;figcaption&gt;
+Posterior predictive samples
+&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;div class="example" data-markdown=""&gt;
+&lt;p&gt;Let’s say we’re interested in daily, monthly, or yearly averages for &lt;span class="math inline"&gt;\(Y_t\)&lt;/span&gt; at a lower frequency–like minutes or hours. Similarly, we might want to consider functions of differences between the outputs of different models, &lt;span class="math inline"&gt;\(f(Y^{(j)} - Y^{(k)})\)&lt;/span&gt; for &lt;span class="math inline"&gt;\(j, k \in \{1, 2\}\)&lt;/span&gt;, or more generally &lt;span class="math inline"&gt;\(f(Y^{(j)}, Y^{(k)})\)&lt;/span&gt;. These quantities derived from simple manipulations of &lt;code&gt;ppc_hpd&lt;/code&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Next, we produce predictions for daily averages–along with (credible) intervals.&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb8"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb8-1"&gt;&lt;a href="#cb8-1" aria-hidden="true"&gt;&lt;/a&gt;ppc_samples_h &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(ppc_samples[&lt;span class="st"&gt;&amp;quot;Y&amp;quot;&lt;/span&gt;].T, index&lt;span class="op"&gt;=&lt;/span&gt;sim_index)&lt;/span&gt;
+&lt;span id="cb8-2"&gt;&lt;a href="#cb8-2" aria-hidden="true"&gt;&lt;/a&gt;ppc_samples_h &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples_h.stack()&lt;/span&gt;
+&lt;span id="cb8-3"&gt;&lt;a href="#cb8-3" aria-hidden="true"&gt;&lt;/a&gt;ppc_samples_h &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples_h[:, &lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/span&gt;
+&lt;span id="cb8-4"&gt;&lt;a href="#cb8-4" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb8-5"&gt;&lt;a href="#cb8-5" aria-hidden="true"&gt;&lt;/a&gt;ppc_quantiles_d &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples_h.resample(&lt;span class="st"&gt;&amp;quot;D&amp;quot;&lt;/span&gt;).&lt;span class="bu"&gt;apply&lt;/span&gt;(&lt;/span&gt;
+&lt;span id="cb8-6"&gt;&lt;a href="#cb8-6" aria-hidden="true"&gt;&lt;/a&gt;    &lt;span class="kw"&gt;lambda&lt;/span&gt; x: x.quantile(q&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="fl"&gt;0.05&lt;/span&gt;, &lt;span class="fl"&gt;0.5&lt;/span&gt;, &lt;span class="fl"&gt;0.95&lt;/span&gt;])&lt;/span&gt;
+&lt;span id="cb8-7"&gt;&lt;a href="#cb8-7" aria-hidden="true"&gt;&lt;/a&gt;)&lt;/span&gt;
+&lt;span id="cb8-8"&gt;&lt;a href="#cb8-8" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb8-9"&gt;&lt;a href="#cb8-9" aria-hidden="true"&gt;&lt;/a&gt;ppc_quantiles_d &lt;span class="op"&gt;=&lt;/span&gt; ppc_quantiles_d.unstack()&lt;/span&gt;
+&lt;span id="cb8-10"&gt;&lt;a href="#cb8-10" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb8-11"&gt;&lt;a href="#cb8-11" aria-hidden="true"&gt;&lt;/a&gt;y_obs_d &lt;span class="op"&gt;=&lt;/span&gt; y_obs_h.resample(&lt;span class="st"&gt;&amp;quot;D&amp;quot;&lt;/span&gt;).mean()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb9"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb9-1"&gt;&lt;a href="#cb9-1" aria-hidden="true"&gt;&lt;/a&gt;plt.clf()&lt;/span&gt;
+&lt;span id="cb9-2"&gt;&lt;a href="#cb9-2" aria-hidden="true"&gt;&lt;/a&gt;y_obs_d.plot(label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;$f(y)$&amp;#39;&lt;/span&gt;, color&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;black&amp;#39;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb9-3"&gt;&lt;a href="#cb9-3" aria-hidden="true"&gt;&lt;/a&gt;plt.fill_between(ppc_quantiles_d.index,&lt;/span&gt;
+&lt;span id="cb9-4"&gt;&lt;a href="#cb9-4" aria-hidden="true"&gt;&lt;/a&gt;                 ppc_quantiles_d[&lt;span class="fl"&gt;0.05&lt;/span&gt;],&lt;/span&gt;
+&lt;span id="cb9-5"&gt;&lt;a href="#cb9-5" aria-hidden="true"&gt;&lt;/a&gt;                 ppc_quantiles_d[&lt;span class="fl"&gt;0.95&lt;/span&gt;],&lt;/span&gt;
+&lt;span id="cb9-6"&gt;&lt;a href="#cb9-6" aria-hidden="true"&gt;&lt;/a&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$(f(Y) \mid X, y)$ 95\&lt;/span&gt;&lt;span class="sc"&gt;% i&lt;/span&gt;&lt;span class="vs"&gt;nterval&amp;#39;&lt;/span&gt;,&lt;/span&gt;
+&lt;span id="cb9-7"&gt;&lt;a href="#cb9-7" aria-hidden="true"&gt;&lt;/a&gt;                 alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb9-8"&gt;&lt;a href="#cb9-8" aria-hidden="true"&gt;&lt;/a&gt;ppc_quantiles_d[&lt;span class="fl"&gt;0.5&lt;/span&gt;].plot(label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$E[f(Y) \mid X, y]$&amp;#39;&lt;/span&gt;, alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;.7&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb9-9"&gt;&lt;a href="#cb9-9" aria-hidden="true"&gt;&lt;/a&gt;plt.legend()&lt;/span&gt;
+&lt;span id="cb9-10"&gt;&lt;a href="#cb9-10" aria-hidden="true"&gt;&lt;/a&gt;plt.show()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;figure id="nil" class="plot"&gt;
+&lt;img src="https://brandonwillard.github.io/figures/daily_ppc_plot.png" title="fig:" alt="Daily posterior predictive results from the hourly posterior. " /&gt;
+&lt;figcaption&gt;
+Daily posterior predictive results from the hourly posterior.
+&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;&lt;a id="org72d572e"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="hierarchical-extensions" class="level1"&gt;
+&lt;h1&gt;Hierarchical Extensions&lt;/h1&gt;
+&lt;p&gt;Even though we only considered “in-sample” predictions in the previous section, out-of-sample and missing values are covered by exactly the same process (neatly simplified by PyMC3’s &lt;code&gt;sample_ppc&lt;/code&gt;). In our example we needed an exogenous variable &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; in order to sample a point from the observation model &lt;span class="math inline"&gt;\((Y_t \mid x_t)\)&lt;/span&gt;. When the values in &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; cannot be obtained–e.g. future values of a non-deterministic quantity–clever, context specific imputations are usually proposed.&lt;/p&gt;
+&lt;p&gt;Nearly every instance of such imputations gives rise to an implicit model. Going back to our preference for transparent statistical specification, it behooves us to formally specify the model. If we do so in a well-defined Bayes way, then we’re immediately provided the exact same conveniences as above.&lt;/p&gt;
+&lt;div class="example" data-markdown=""&gt;
+&lt;p&gt;If the &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; values in our sample now correspond to, say, temperature, and today is the last day in our time-indexed observations &lt;code&gt;y_obs&lt;/code&gt;, then predicting forward in time will require temperatures for the future.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;One answer to this situation is a model for &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt;. If we specify some &lt;span class="math inline"&gt;\(X_t \sim P\)&lt;/span&gt;, then we can apply the same principles above via the posterior predictive &lt;span class="math inline"&gt;\(p(X_t)\)&lt;/span&gt;. This posterior predictive will have no exogenous dependencies (unless we want it to), and its posterior can be estimated with our given &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; observations. All this occurs in exactly the same fashion as our model for &lt;span class="math inline"&gt;\(Y_t\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;In practice, one often sees the use of summary statistics from previous &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; observations in intervals representative of the desired prediction period. For instance, in the context of &lt;span class="math inline"&gt;\(\eqref{ex:X_temp}\)&lt;/span&gt;, the average temperatures in previous years over the months corresponding to the prediction interval (e.g. January-February averages through 2010 to 2016 as imputations for January-February 2017).&lt;/p&gt;
+&lt;p&gt;This isn’t a bad idea, per se, but it is a needlessly indirect–and often insufficient–approach to defining a statistical model for &lt;span class="math inline"&gt;\(X\)&lt;/span&gt;. It leaves out critical distributional details, the same details needed to determine how anything using our new &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; estimates might be affected (through &lt;a href="https://en.wikipedia.org/wiki/Propagation_of_uncertainty"&gt;propagation of uncertainty&lt;/a&gt;). Eventually one comes around to specifying these details, but, in situations of sufficient complexity, this practice doesn’t produce a very clean, manageable or easily extensible model.&lt;/p&gt;
+&lt;p&gt;The kinds of complicated models arising in these situations are both conceptually and technically difficult to use, and–as a result–it can be very hard to produce anything other than naive asymptotic approximations for errors and intervals. Sadly, these approximations are generally insufficient for all but the simplest scenarios.&lt;/p&gt;
+&lt;p&gt;In contrast, we can model the &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; values directly and have a very clear cut path toward out-of-sample predictions and their distributional properties. Even if we hold to the belief that the previous average values are a reasonable imputation, then a number of simple models can account for that assumption.&lt;/p&gt;
+&lt;div class="example" data-markdown=""&gt;
+&lt;p&gt;&lt;a id="orge850896"&gt;&lt;/a&gt; Let’s consider a normal regression model for &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; with seasonal factors, i.e.&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{equation}
+  X_t \sim \operatorname{N}(d(t)^\top \beta, I \sigma_x^2)
+  \label{eq:exogenous_model}
+\end{equation}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;where &lt;span class="math inline"&gt;\(d(t)\)&lt;/span&gt; is an indicator vector containing the seasonal factors and &lt;span class="math inline"&gt;\(I\)&lt;/span&gt; is an identity matrix.&lt;/p&gt;
+&lt;p&gt;Keep in mind that we’ve stretched the notation a bit by letting &lt;span class="math inline"&gt;\(X_t\)&lt;/span&gt; be a random vector at time &lt;span class="math inline"&gt;\(t\)&lt;/span&gt;, while &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; is still the stacked matrix of observed &lt;span class="math inline"&gt;\(x_t\)&lt;/span&gt; values. Now, we’re simply adding the assumption &lt;span class="math inline"&gt;\(x_t \sim X_t\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Let’s say that our new &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; vector has terms for each day of the week; this means the matrix of stacked &lt;span class="math inline"&gt;\(d(t)\)&lt;/span&gt; values, &lt;span class="math inline"&gt;\(D\)&lt;/span&gt;, is some classical factor design matrix with levels for each day. The product &lt;span class="math inline"&gt;\(d(t)^\top \beta\)&lt;/span&gt; is then some scalar mean for the day corresponding to &lt;span class="math inline"&gt;\(t\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;A simple substitution of this model for our previously constant &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; matrix, results in a sort of hierarchical model, which we can now coherently marginalize and obtain the desired posterior predictive, &lt;span class="math inline"&gt;\(p(Y \mid y)\)&lt;/span&gt;. This time, the posterior predictive is independent of &lt;span class="math inline"&gt;\(X_t\)&lt;/span&gt;, so we can produce results for any &lt;span class="math inline"&gt;\(t\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;The change in our complete model is relatively minimal. The model above for &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; results in the following marginal observation model:&lt;/p&gt;
+&lt;p&gt;&lt;span class="math display"&gt;\[\begin{align*}
+  \left(Y_t \mid \beta, \theta \right) &amp;amp;\propto
+  \int p(Y_t \mid X_t, \theta) p(X_t \mid \beta) dX
+  \\
+  &amp;amp;\sim \operatorname{N}\left(
+  d(t)^\top \beta \cdot \theta,
+  \sigma^2 + \sigma_x^2 \cdot d(t)^\top \beta \beta^\top d(t) \right)
+  \;.
+\end{align*}\]&lt;/span&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;The reduction in &lt;a href="#orge850896"&gt;6&lt;/a&gt; is quite reasonable and could be considered an entire re-definition of our initial observation model in &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt;. A change like this is a natural part of the standard model development cycle. However, this is not the only way to look at it. In the Bayesian setting we can keep the observation model fixed and iterate on the prior’s specification. The resulting marginal distribution could effectively be the same under both approaches (if desired), but the latter has the advantage of at least maintaining–conditionally–our earlier work.&lt;/p&gt;
+&lt;div class="example" data-markdown=""&gt;
+&lt;p&gt;We haven’t given a prior to &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt;, but if we did, in the absence of conflicting assumptions, we might want the product &lt;span class="math inline"&gt;\(\beta \cdot \theta\)&lt;/span&gt; to simplified to a single unknown variables of its own, so that we’re not estimating two “entangled” variables. This idea might be inspired by an understanding of the classical &lt;a href="https://en.wikipedia.org/wiki/Parameter_identification_problem"&gt;identification&lt;/a&gt; issue arising from such products.&lt;/p&gt;
+&lt;p&gt;With &lt;span class="math inline"&gt;\(\beta\)&lt;/span&gt; constant, the form of our marginal observation model is basically unchanged from our initial &lt;span class="math inline"&gt;\(\eqref{eq:normal-normal}\)&lt;/span&gt; under &lt;span class="math inline"&gt;\(x_t \to d(t)^\top \beta\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(\sigma^2 \to \sigma^2 + \sigma_x^2 \cdot d(t)^\top \beta \beta^\top d(t)\)&lt;/span&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Adherence to established models or industry standards is not uncommon. Outside of hierarchical model development, it can be very difficult to make these connections and coherently propagate statistical assumptions.&lt;/p&gt;
+&lt;p&gt;This model development process expands in complexity and applicability through natural and compartmental extensions of existing terms. Simpler, “base” models are found as marginalizations of the new terms, and all the same estimation techniques apply.&lt;/p&gt;
+&lt;p&gt;We’ll close with an illustration of the piecewise exogenous variable model described in &lt;a href="#orge850896"&gt;6&lt;/a&gt;. A few days are added to demonstrate out-of-sample predictions and the design matrix, &lt;span class="math inline"&gt;\(D\)&lt;/span&gt;, for &lt;span class="math inline"&gt;\(\eqref{eq:exogenous_model}\)&lt;/span&gt; is produced using &lt;a href="https://patsy.readthedocs.io/en/latest/"&gt;Patsy&lt;/a&gt;.&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb10"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb10-1"&gt;&lt;a href="#cb10-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; patsy&lt;/span&gt;
+&lt;span id="cb10-2"&gt;&lt;a href="#cb10-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb10-3"&gt;&lt;a href="#cb10-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb10-4"&gt;&lt;a href="#cb10-4" aria-hidden="true"&gt;&lt;/a&gt;ext_sim_index &lt;span class="op"&gt;=&lt;/span&gt; pd.date_range(&lt;/span&gt;
+&lt;span id="cb10-5"&gt;&lt;a href="#cb10-5" aria-hidden="true"&gt;&lt;/a&gt;    start&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;2016-01-01 12:00:00&amp;quot;&lt;/span&gt;, end&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;2016-01-16 12:00:00&amp;quot;&lt;/span&gt;, freq&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;H&amp;quot;&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb10-6"&gt;&lt;a href="#cb10-6" aria-hidden="true"&gt;&lt;/a&gt;)&lt;/span&gt;
+&lt;span id="cb10-7"&gt;&lt;a href="#cb10-7" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb10-8"&gt;&lt;a href="#cb10-8" aria-hidden="true"&gt;&lt;/a&gt;y_obs_df &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(y_obs, index&lt;span class="op"&gt;=&lt;/span&gt;sim_index, columns&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="vs"&gt;r&amp;quot;y&amp;quot;&lt;/span&gt;])&lt;/span&gt;
+&lt;span id="cb10-9"&gt;&lt;a href="#cb10-9" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb10-10"&gt;&lt;a href="#cb10-10" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# The extra out-of-sample days are set to NaN&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb10-11"&gt;&lt;a href="#cb10-11" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# y_obs_df = y_obs_df.reindex(ext_sim_index)&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb10-12"&gt;&lt;a href="#cb10-12" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb10-13"&gt;&lt;a href="#cb10-13" aria-hidden="true"&gt;&lt;/a&gt;y_obs_df &lt;span class="op"&gt;=&lt;/span&gt; y_obs_df.assign(weekday&lt;span class="op"&gt;=&lt;/span&gt;y_obs_df.index.weekday)&lt;/span&gt;
+&lt;span id="cb10-14"&gt;&lt;a href="#cb10-14" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb10-15"&gt;&lt;a href="#cb10-15" aria-hidden="true"&gt;&lt;/a&gt;y_df, D_df &lt;span class="op"&gt;=&lt;/span&gt; patsy.dmatrices(&lt;span class="st"&gt;&amp;quot;y ~ C(weekday)&amp;quot;&lt;/span&gt;, y_obs_df, return_type&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;quot;dataframe&amp;quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb10-16"&gt;&lt;a href="#cb10-16" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb10-17"&gt;&lt;a href="#cb10-17" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="co"&gt;# Create a missing day&lt;/span&gt;&lt;/span&gt;
+&lt;span id="cb10-18"&gt;&lt;a href="#cb10-18" aria-hidden="true"&gt;&lt;/a&gt;y_df.iloc[y_df.index.weekday &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;0&lt;/span&gt;, &lt;span class="dv"&gt;0&lt;/span&gt;] &lt;span class="op"&gt;=&lt;/span&gt; np.nan&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;p&gt;Again, with PyMC3 our model and its extension are easily expressed, and the missing observations will be sampled automatically.&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb11"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb11-1"&gt;&lt;a href="#cb11-1" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="im"&gt;import&lt;/span&gt; theano.tensor &lt;span class="im"&gt;as&lt;/span&gt; tt&lt;/span&gt;
+&lt;span id="cb11-2"&gt;&lt;a href="#cb11-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb11-3"&gt;&lt;a href="#cb11-3" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb11-4"&gt;&lt;a href="#cb11-4" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="cf"&gt;with&lt;/span&gt; pm.Model() &lt;span class="im"&gt;as&lt;/span&gt; model:&lt;/span&gt;
+&lt;span id="cb11-5"&gt;&lt;a href="#cb11-5" aria-hidden="true"&gt;&lt;/a&gt;    theta &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;quot;theta&amp;quot;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;mu, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.0&lt;/span&gt; &lt;span class="op"&gt;/&lt;/span&gt; tau2)&lt;/span&gt;
+&lt;span id="cb11-6"&gt;&lt;a href="#cb11-6" aria-hidden="true"&gt;&lt;/a&gt;    beta &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;quot;beta&amp;quot;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;, sd&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1e1&lt;/span&gt;, shape&lt;span class="op"&gt;=&lt;/span&gt;(D_df.shape[&lt;span class="op"&gt;-&lt;/span&gt;&lt;span class="dv"&gt;1&lt;/span&gt;],))&lt;/span&gt;
+&lt;span id="cb11-7"&gt;&lt;a href="#cb11-7" aria-hidden="true"&gt;&lt;/a&gt;    mu_y &lt;span class="op"&gt;=&lt;/span&gt; tt.transpose(tt.dot(D_df, beta)) &lt;span class="op"&gt;*&lt;/span&gt; theta&lt;/span&gt;
+&lt;span id="cb11-8"&gt;&lt;a href="#cb11-8" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb11-9"&gt;&lt;a href="#cb11-9" aria-hidden="true"&gt;&lt;/a&gt;    Y &lt;span class="op"&gt;=&lt;/span&gt; pm.Normal(&lt;span class="st"&gt;&amp;quot;Y&amp;quot;&lt;/span&gt;, mu&lt;span class="op"&gt;=&lt;/span&gt;mu_y, tau&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;1.0&lt;/span&gt; &lt;span class="op"&gt;/&lt;/span&gt; sigma2, observed&lt;span class="op"&gt;=&lt;/span&gt;y_df.y)&lt;/span&gt;
+&lt;span id="cb11-10"&gt;&lt;a href="#cb11-10" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb11-11"&gt;&lt;a href="#cb11-11" aria-hidden="true"&gt;&lt;/a&gt;&lt;span class="cf"&gt;with&lt;/span&gt; model:&lt;/span&gt;
+&lt;span id="cb11-12"&gt;&lt;a href="#cb11-12" aria-hidden="true"&gt;&lt;/a&gt;    sample_steps &lt;span class="op"&gt;=&lt;/span&gt; [pm.Metropolis([theta]), pm.Metropolis([beta])]&lt;/span&gt;
+&lt;span id="cb11-13"&gt;&lt;a href="#cb11-13" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb11-14"&gt;&lt;a href="#cb11-14" aria-hidden="true"&gt;&lt;/a&gt;    &lt;span class="cf"&gt;if&lt;/span&gt; Y.missing_values &lt;span class="kw"&gt;is&lt;/span&gt; &lt;span class="kw"&gt;not&lt;/span&gt; &lt;span class="va"&gt;None&lt;/span&gt;:&lt;/span&gt;
+&lt;span id="cb11-15"&gt;&lt;a href="#cb11-15" aria-hidden="true"&gt;&lt;/a&gt;        sample_steps &lt;span class="op"&gt;+=&lt;/span&gt; [pm.Metropolis(Y.missing_values)]&lt;/span&gt;
+&lt;span id="cb11-16"&gt;&lt;a href="#cb11-16" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb11-17"&gt;&lt;a href="#cb11-17" aria-hidden="true"&gt;&lt;/a&gt;    sample_traces &lt;span class="op"&gt;=&lt;/span&gt; pm.sample(&lt;span class="dv"&gt;2000&lt;/span&gt;, sample_steps)&lt;/span&gt;
+&lt;span id="cb11-18"&gt;&lt;a href="#cb11-18" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb11-19"&gt;&lt;a href="#cb11-19" aria-hidden="true"&gt;&lt;/a&gt;    ppc_samples &lt;span class="op"&gt;=&lt;/span&gt; pm.sample_posterior_predictive(sample_traces)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;p&gt;The posterior predictive results are plotted below.&lt;/p&gt;
+&lt;figure&gt;
+&lt;div class="sourceCode" id="cb12"&gt;&lt;pre class="sourceCode python"&gt;&lt;code class="sourceCode python"&gt;&lt;span id="cb12-1"&gt;&lt;a href="#cb12-1" aria-hidden="true"&gt;&lt;/a&gt;ppc_y_samples &lt;span class="op"&gt;=&lt;/span&gt; ppc_samples[&lt;span class="st"&gt;&amp;#39;Y&amp;#39;&lt;/span&gt;]&lt;/span&gt;
+&lt;span id="cb12-2"&gt;&lt;a href="#cb12-2" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb12-3"&gt;&lt;a href="#cb12-3" aria-hidden="true"&gt;&lt;/a&gt;ppc_mean_df &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(ppc_y_samples.mean(axis&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="dv"&gt;0&lt;/span&gt;),&lt;/span&gt;
+&lt;span id="cb12-4"&gt;&lt;a href="#cb12-4" aria-hidden="true"&gt;&lt;/a&gt;                           index&lt;span class="op"&gt;=&lt;/span&gt;sim_index,&lt;/span&gt;
+&lt;span id="cb12-5"&gt;&lt;a href="#cb12-5" aria-hidden="true"&gt;&lt;/a&gt;                           columns&lt;span class="op"&gt;=&lt;/span&gt;[&lt;span class="vs"&gt;r&amp;#39;$E[Y \mid y]$&amp;#39;&lt;/span&gt;])&lt;/span&gt;
+&lt;span id="cb12-6"&gt;&lt;a href="#cb12-6" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb12-7"&gt;&lt;a href="#cb12-7" aria-hidden="true"&gt;&lt;/a&gt;ppc_hpd &lt;span class="op"&gt;=&lt;/span&gt; pd.DataFrame(pm.hpd(ppc_y_samples, &lt;span class="fl"&gt;0.95&lt;/span&gt;),&lt;/span&gt;
+&lt;span id="cb12-8"&gt;&lt;a href="#cb12-8" aria-hidden="true"&gt;&lt;/a&gt;                       index&lt;span class="op"&gt;=&lt;/span&gt;sim_index)&lt;/span&gt;
+&lt;span id="cb12-9"&gt;&lt;a href="#cb12-9" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb12-10"&gt;&lt;a href="#cb12-10" aria-hidden="true"&gt;&lt;/a&gt;y_obs_df.y.plot(color&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="st"&gt;&amp;#39;black&amp;#39;&lt;/span&gt;, subplots&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="va"&gt;False&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb12-11"&gt;&lt;a href="#cb12-11" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb12-12"&gt;&lt;a href="#cb12-12" aria-hidden="true"&gt;&lt;/a&gt;missing_ins_range &lt;span class="op"&gt;=&lt;/span&gt; sim_index[sim_index.weekday &lt;span class="op"&gt;==&lt;/span&gt; &lt;span class="dv"&gt;0&lt;/span&gt;]&lt;/span&gt;
+&lt;span id="cb12-13"&gt;&lt;a href="#cb12-13" aria-hidden="true"&gt;&lt;/a&gt;plt.axvspan(missing_ins_range.&lt;span class="bu"&gt;min&lt;/span&gt;(), missing_ins_range.&lt;span class="bu"&gt;max&lt;/span&gt;(), alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.1&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb12-14"&gt;&lt;a href="#cb12-14" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb12-15"&gt;&lt;a href="#cb12-15" aria-hidden="true"&gt;&lt;/a&gt;plt.fill_between(sim_index,&lt;/span&gt;
+&lt;span id="cb12-16"&gt;&lt;a href="#cb12-16" aria-hidden="true"&gt;&lt;/a&gt;                 ppc_hpd[&lt;span class="dv"&gt;0&lt;/span&gt;].values,&lt;/span&gt;
+&lt;span id="cb12-17"&gt;&lt;a href="#cb12-17" aria-hidden="true"&gt;&lt;/a&gt;                 ppc_hpd[&lt;span class="dv"&gt;1&lt;/span&gt;].values,&lt;/span&gt;
+&lt;span id="cb12-18"&gt;&lt;a href="#cb12-18" aria-hidden="true"&gt;&lt;/a&gt;                 label&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="vs"&gt;r&amp;#39;$(Y \mid y)$ 95\&lt;/span&gt;&lt;span class="sc"&gt;% i&lt;/span&gt;&lt;span class="vs"&gt;nterval&amp;#39;&lt;/span&gt;,&lt;/span&gt;
+&lt;span id="cb12-19"&gt;&lt;a href="#cb12-19" aria-hidden="true"&gt;&lt;/a&gt;                 alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.5&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb12-20"&gt;&lt;a href="#cb12-20" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb12-21"&gt;&lt;a href="#cb12-21" aria-hidden="true"&gt;&lt;/a&gt;ppc_mean_df.plot(ax&lt;span class="op"&gt;=&lt;/span&gt;plt.axes(), alpha&lt;span class="op"&gt;=&lt;/span&gt;&lt;span class="fl"&gt;0.7&lt;/span&gt;)&lt;/span&gt;
+&lt;span id="cb12-22"&gt;&lt;a href="#cb12-22" aria-hidden="true"&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span id="cb12-23"&gt;&lt;a href="#cb12-23" aria-hidden="true"&gt;&lt;/a&gt;plt.legend()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/figure&gt;
+&lt;figure id="nil" class="plot"&gt;
+&lt;img src="https://brandonwillard.github.io/figures/temp_ppc_plot.png" title="fig:" alt="Posterior predictive results for the stochastic X model " /&gt;
+&lt;figcaption&gt;
+Posterior predictive results for the stochastic &lt;span class="math inline"&gt;\(X\)&lt;/span&gt; model
+&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;/section&gt;
+&lt;section id="bibliography" class="level1"&gt;
+&lt;h1&gt;Bibliography&lt;/h1&gt;
+&lt;p&gt;&lt;a id="gelman_bayesian_2013"&gt;&lt;/a&gt; Gelman, Carlin, Stern, Dunson, Vehtari &amp;amp; Rubin, Bayesian Data Analysis, CRC Press (2013). &lt;a href="#6824e74293e673dfd3d897debac1bd36"&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a id="polson_proximal_2015"&gt;&lt;/a&gt; Polson, Scott &amp;amp; Willard, Proximal Algorithms in Statistics and Machine Learning, &lt;i&gt;Statistical Science&lt;/i&gt;, &lt;b&gt;30(4)&lt;/b&gt;, 559–581 (2015). &lt;a href="http://projecteuclid.org/euclid.ss/1449670858"&gt;link&lt;/a&gt;. &lt;a href="#1b02eb0eebf5ae001cbb5ff5b74acff1"&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/section&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</content><category term="articles"></category><category term="pymc3"></category><category term="bayes"></category></entry></feed>
