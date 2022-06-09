@@ -28,7 +28,7 @@ Here are some situations in which I can be of service:
 * When model selection is needed for non-standard models.
 * When a complex situation demands that data be handled in [statistically] principled ways.
 
-Here's a [live copy of my CV](http://bit.ly/3cNM4nk).
+Here's a [live copy of my CV](https://brandonwillard.page.link/V9Hh).
 
 Here are some things I've been involved in:
 
